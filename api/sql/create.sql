@@ -144,4 +144,3 @@ CREATE TABLE probabilities (
 	FOREIGN KEY (answer_id) REFERENCES answers (answer_id),
 	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id)
 );
-

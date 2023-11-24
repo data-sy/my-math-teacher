@@ -6,3 +6,5 @@ select count(*) from tests;
 select * from items where item_id>4890;
 
 select count(*) from tests_items;
+
+-- 
