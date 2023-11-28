@@ -7,4 +7,4 @@ select * from items where item_id>4890;
 
 select count(*) from tests_items;
 
--- 
+select * from concepts where concept_school_level = '고등';
