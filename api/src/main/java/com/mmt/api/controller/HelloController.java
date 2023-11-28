@@ -2,6 +2,7 @@ package com.mmt.api.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,6 +13,11 @@ public class HelloController {
     @GetMapping("")
     public ResponseEntity<String> hello(){
         return ResponseEntity.ok("hello");
+    }
+
+    @PostMapping("")
+    public ResponseEntity<String> helloPost(){
+        return ResponseEntity.ok("hello post!!");
     }
 
     @GetMapping("/image")
