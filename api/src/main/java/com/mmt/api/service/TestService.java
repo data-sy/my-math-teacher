@@ -1,7 +1,11 @@
 package com.mmt.api.service;
 
+import com.mmt.api.dto.test.TestConverter;
+import com.mmt.api.dto.test.TestResponse;
 import com.mmt.api.repository.test.TestRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class TestService {
@@ -12,17 +16,8 @@ public class TestService {
         this.testRepository = testRepository;
     }
 
-    public Long create(String testName, String testComments){
-        Long testId = testRepository.save(testName, testComments);
-        return testId;
-    }
-
     public List<TestResponse> findTests(){
         return TestConverter.convertListToTestResponseList(testRepository.findAll());
-    }
-
-    public TestResponse findOne(Long testId){
-        return TestConverter.convertToTestResponse(testRepository.findById(testId));
     }
 
 }
