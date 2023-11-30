@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -82,6 +83,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         log.debug("회원가입 getName : {}", oAuth2UserInfo.getName());
         log.debug("회원가입 getEmail : {}", oAuth2UserInfo.getEmail());
         log.debug("회원가입 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
+
+        // naver는 010-1234-5678 형태이고, kakao는 없음
+        Optional<String> mobileAttribute = Optional.ofNullable(oAuth2UserInfo.getAttributes().get("mobile"))
+                .map(Object::toString)
+                .map(str -> str.replaceAll("[^0-9]", ""));
+        String userPhone = mobileAttribute.orElse(null);
+
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
@@ -93,6 +101,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .userName(oAuth2UserInfo.getName())
                 .oauth2Id(oAuth2UserInfo.getOAuth2Id())
                 .authProvider(authProvider)
+                .userPhone(userPhone)
                 .userAuthoritySet(Collections.singleton(userAuthority))
                 .activated(true)
                 .build();
