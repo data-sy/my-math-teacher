@@ -1,7 +1,7 @@
 package com.mmt.api.repository.concept;
 
 import com.mmt.api.domain.Concept;
-import com.mmt.api.domain.KnowledgeSpace;
+
 import org.neo4j.driver.util.Pair;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository;

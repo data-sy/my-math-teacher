@@ -39,8 +39,8 @@ public class Concept {
     @Property("achievement_name")
     private String achievementName;
 
-    @Relationship(type="KNOWLEDGE_SPACE", direction = INCOMING)
-    private List<KnowledgeSpace> toConcept;
+//    @Relationship(type="KNOWLEDGE_SPACE", direction = INCOMING)
+//    private List<KnowledgeSpace> toConcept;
 //    @Relationship(type="KNOWLEDGE_SPACE", direction = OUTGOING)
 //    private List<KnowledgeSpace> fromConcept;
 

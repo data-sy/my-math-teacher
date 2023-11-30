@@ -1,6 +1,6 @@
 package com.mmt.api.service;
 
-import com.mmt.api.domain.KnowledgeSpace;
+
 import com.mmt.api.dto.concept.ConceptConverter;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.repository.concept.ConceptRepository;

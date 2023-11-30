@@ -1,6 +1,6 @@
 package com.mmt.api.controller;
 
-import com.mmt.api.domain.KnowledgeSpace;
+
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.service.ConceptService;
 import org.neo4j.driver.util.Pair;
