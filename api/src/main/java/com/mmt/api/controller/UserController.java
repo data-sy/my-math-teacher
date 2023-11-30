@@ -18,23 +18,37 @@ public class UserController {
     }
 
     /**
-     *
+     * 유저 회원가입
      */
     @PostMapping("")
     public ResponseEntity<UserDTO> signup(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.signup(userDTO));
     }
 
+    /**
+     * 유저 상세보기 (자기 자신의 정보)
+     */
     @GetMapping("")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<UserDTO> getMyUserInfo(HttpServletRequest request) {
         return ResponseEntity.ok(userService.getMyUserWithAuthorities());
     }
 
+    /**
+     * ADMIN 권한의 특정 유저 상세보기
+     */
     @GetMapping("/{userEmail}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<UserDTO> getUserInfo(@PathVariable String userEmail) {
         return ResponseEntity.ok(userService.getUserWithAuthorities(userEmail));
     }
+
+    /**
+     * 유저 수정하기
+     */
+
+    /**
+     * 유저 탈퇴하기
+     */
 
 }
