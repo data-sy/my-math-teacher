@@ -83,4 +83,18 @@ public class UserService {
         );
     }
 
+    public void update(UserDTO userDTO) {
+        if(!usersRepository.existsByUserId(userDTO.getUserId())){
+            throw new IllegalArgumentException();
+        }
+        usersRepository.save(userDTO.toEntity(userDTO));
+    }
+
+    public void delete(Long userId) {
+        if(!usersRepository.existsByUserId(userId)){
+            throw new IllegalArgumentException();
+        }
+        usersRepository.deleteById(userId);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.mmt.api.dto.user;
 
 import com.mmt.api.domain.user.Authority;
+import com.mmt.api.domain.user.UserAuthority;
 import com.mmt.api.domain.user.Users;
 import lombok.*;
 
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
+
+    private Long userId;
 
     private String userEmail;
 
@@ -34,6 +37,7 @@ public class UserDTO {
         if(user == null) return null;
 
         return UserDTO.builder()
+                .userId(user.getUserId())
                 .userEmail(user.getUserEmail())
                 .userName(user.getUserName())
                 .userPhone(user.getUserPhone())
@@ -41,6 +45,24 @@ public class UserDTO {
                 .userComments(user.getUserComments())
                 .authoritySet(user.getUserAuthoritySet().stream()
                         .map(userAuthority -> Authority.builder().authorityName(userAuthority.getAuthority().getAuthorityName()).build())
+                        .collect(Collectors.toSet()))
+                .build();
+    }
+
+    public static Users toEntity(UserDTO userDTO) {
+        if (userDTO == null) return null;
+
+        return Users.builder()
+                .userId(userDTO.getUserId())
+                .userEmail(userDTO.getUserEmail())
+                .userName(userDTO.getUserName())
+                .userPhone(userDTO.getUserPhone())
+                .userBirthdate(userDTO.getUserBirthdate())
+                .userComments(userDTO.getUserComments())
+                .userAuthoritySet(userDTO.getAuthoritySet().stream()
+                        .map(authority -> UserAuthority.builder()
+                                .authority(Authority.builder().authorityName(authority.getAuthorityName()).build())
+                                .build())
                         .collect(Collectors.toSet()))
                 .build();
     }
