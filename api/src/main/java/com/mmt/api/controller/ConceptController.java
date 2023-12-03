@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -33,19 +34,11 @@ public class ConceptController {
     }
 
     /**
-     * 단위개념 Mono말고 & DTO 말고 그냥 받아보기 (.block() 사용) & 관계 넣기
+     * 선수 단위개념 목록 보기
      */
-    @GetMapping("/test/{conceptId}")
-    public Concept getConceptTest(@PathVariable int conceptId){
-        return conceptService.findOneTest(conceptId);
+    @GetMapping("/to/{conceptId}")
+    public Flux<ConceptResponse> getToConcepts(@PathVariable int conceptId){
+        return conceptService.findToConcepts(conceptId);
     }
-
-    /**
-     * 단위개념 상세 보기
-     */
-//    @GetMapping("/ttt/{conceptId}")
-//    public Concept getConceptTTT(@PathVariable int conceptId){
-//        return conceptService.findOneTTT(conceptId);
-//    }
 
 }
