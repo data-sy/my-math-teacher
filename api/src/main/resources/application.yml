@@ -15,3 +15,7 @@ spring:
 logging:
   level:
     com.mmt: DEBUG
+    org:
+      springframework:
+        data:
+          neo4j: DEBUG
