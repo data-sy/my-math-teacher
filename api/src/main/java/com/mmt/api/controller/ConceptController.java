@@ -1,6 +1,7 @@
 package com.mmt.api.controller;
 
 
+import com.mmt.api.domain.Concept;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.service.ConceptService;
 import org.neo4j.driver.util.Pair;
@@ -24,27 +25,27 @@ public class ConceptController {
     }
 
     /**
-     * 단위개념 상세 보기
+     * 단위개념 상세 보기 (관계 필드 없을 때)
      */
     @GetMapping("/{conceptId}")
     public Mono<ConceptResponse> getConcept(@PathVariable int conceptId){
         return conceptService.findOne(conceptId);
     }
 
-//    /**
-//     * 단위개념의 선수지식 목록
-//     */
-//    @GetMapping("/to-concepts/{conceptId}")
-//    public List<Pair<String, Object>> getToConcepts(@PathVariable int conceptId){
-//        return conceptService.findToConcept(conceptId);
-//    }
-//
-//    /**
-//     * 단위개념의 1차 선수지식 (테스트용)
-//     */
-//    @GetMapping("/rel/{conceptId}")
-//    public List<KnowledgeSpace> getRel(@PathVariable int conceptId){
-//        return conceptService.findRel(conceptId);
+    /**
+     * 단위개념 Mono말고 & DTO 말고 그냥 받아보기 (.block() 사용) & 관계 넣기
+     */
+    @GetMapping("/test/{conceptId}")
+    public Concept getConceptTest(@PathVariable int conceptId){
+        return conceptService.findOneTest(conceptId);
+    }
+
+    /**
+     * 단위개념 상세 보기
+     */
+//    @GetMapping("/ttt/{conceptId}")
+//    public Concept getConceptTTT(@PathVariable int conceptId){
+//        return conceptService.findOneTTT(conceptId);
 //    }
 
 }

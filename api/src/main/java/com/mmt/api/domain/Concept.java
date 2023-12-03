@@ -1,22 +1,22 @@
 package com.mmt.api.domain;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.springframework.data.neo4j.core.schema.Relationship.Direction.INCOMING;
-import static org.springframework.data.neo4j.core.schema.Relationship.Direction.OUTGOING;
 
-@Getter
+@Data
 @Node("concept")
 public class Concept {
 
     @Id
-    private int id;
     @Property("concept_id")
     private int conceptId;
     private String name;
@@ -38,10 +38,22 @@ public class Concept {
     private int achievementId;
     @Property("achievement_name")
     private String achievementName;
+    @Relationship(type="KNOWLEDGE_SPACE", direction = INCOMING)
+    private Set<Concept> toConcepts = new HashSet<>();
 
-//    @Relationship(type="KNOWLEDGE_SPACE", direction = INCOMING)
-//    private List<KnowledgeSpace> toConcept;
-//    @Relationship(type="KNOWLEDGE_SPACE", direction = OUTGOING)
-//    private List<KnowledgeSpace> fromConcept;
+    public Concept(int conceptId, String name, String desc, String schoolLevel, String gradeLevel, String semester, int chapterId, String chapterMain, String chapterSub, String chapterSubsub, int achievementId, String achievementName) {
+        this.conceptId = conceptId;
+        this.name = name;
+        this.desc = desc;
+        this.schoolLevel = schoolLevel;
+        this.gradeLevel = gradeLevel;
+        this.semester = semester;
+        this.chapterId = chapterId;
+        this.chapterMain = chapterMain;
+        this.chapterSub = chapterSub;
+        this.chapterSubsub = chapterSubsub;
+        this.achievementId = achievementId;
+        this.achievementName = achievementName;
+    }
 
 }

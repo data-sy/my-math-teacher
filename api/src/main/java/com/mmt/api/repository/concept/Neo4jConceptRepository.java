@@ -1,20 +1,14 @@
 package com.mmt.api.repository.concept;
 
 import com.mmt.api.domain.Concept;
-
-import org.neo4j.driver.util.Pair;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository;
-import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Repository
 @Primary
-public interface Neo4jConceptRepository extends ReactiveNeo4jRepository<Concept, Integer>, ConceptRepository {
-    @Override
+public interface Neo4jConceptRepository extends ReactiveNeo4jRepository<Concept, Integer> {
     Mono<Concept> findOneByConceptId(int conceptId);
 
 //    @Override
