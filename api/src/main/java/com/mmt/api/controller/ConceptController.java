@@ -6,14 +6,12 @@ import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.service.ConceptService;
 import org.neo4j.driver.util.Pair;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/concepts")
@@ -40,5 +38,13 @@ public class ConceptController {
     public Flux<ConceptResponse> getToConcepts(@PathVariable int conceptId){
         return conceptService.findToConcepts(conceptId);
     }
+
+//    /**
+//     * 선수 단위개념 경로 보기(1) : Flux<Integer>로 컨셉아이디만 리스펀스
+//     */
+//    @GetMapping("/path")
+//    public Flux<Map<String, Object>> getPathConceptId(@RequestParam int conceptId){
+//        return conceptService.findPathConceptId(conceptId);
+//    }
 
 }

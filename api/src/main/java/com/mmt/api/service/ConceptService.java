@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Map;
+
 @Service
 public class ConceptService {
 
@@ -27,5 +30,10 @@ public class ConceptService {
     public Flux<ConceptResponse> findToConcepts(int conceptId){
         return ConceptConverter.convertToMonoConceptResponse(conceptRepository.findToConceptsByConceptId(conceptId));
     }
+
+//    @Transactional(readOnly = true)
+//    public Flux<Map<String, Object>> findPathConceptId(int conceptId){
+//        return conceptRepository.findPathConceptId(conceptId);
+//    }
 
 }
