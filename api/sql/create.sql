@@ -5,30 +5,40 @@
     -- 사용자 (-> 권한 -> 사용자_권한)
     -- 사용자_학습지 -> 답안 -> 확률
 
+
+-- (단위개념이 속한) 소단원 테이블
+CREATE TABLE chapters (
+	chapter_id INT,
+	chapter_name VARCHAR(50),
+	school_level CHAR(2),
+	grade_level CHAR(2),
+	semester VARCHAR(3),
+	chapter_main VARCHAR(50),
+	chapter_sub VARCHAR(50),
+	PRIMARY KEY (chapter_id)
+);
+
 -- 단위개념 테이블
 CREATE TABLE concepts (
 	concept_id INT,
 	concept_name VARCHAR(70),
 	concept_description TEXT,
-	concept_school_level CHAR(2),
-	concept_grade_level CHAR(2),
-	concept_semester VARCHAR(3),
-	concept_chapter_id INT,
-	concept_chapter_main VARCHAR(50),
-	concept_chapter_sub VARCHAR(50),
-	concept_chapter_subsub VARCHAR(50),
+    concept_chapter_id INT,
 	concept_achievement_id INT,
 	concept_achievement_name VARCHAR(120),
     skill_id INT,
-	PRIMARY KEY (concept_id)
+	PRIMARY KEY (concept_id),
+	FOREIGN KEY (concept_chapter_id) REFERENCES chapters (chapter_id)
 );
 
+-- (단위개념이 속한) 영역 테이블
 CREATE TABLE sections (
 	section_id INT,
 	section_name VARCHAR(20),
 	PRIMARY KEY (section_id)
 );
 
+-- 단위개념_영역 테이블
 CREATE TABLE concepts_sections (
 	concept_section_id INT auto_increment,
 	concept_id INT,
@@ -68,7 +78,7 @@ CREATE TABLE tests (
 	PRIMARY KEY (test_id)
 );
 
--- 학습지-문항 테이블
+-- 학습지_문항 테이블
 CREATE TABLE tests_items (
 	test_item_id BIGINT auto_increment,
 	test_id	BIGINT,
