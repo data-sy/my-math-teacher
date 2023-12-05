@@ -74,7 +74,8 @@ CREATE TABLE tests (
 	test_name VARCHAR(50),
 	test_comments VARCHAR(200),
     test_school_level CHAR(2),
-    test_grade_level VARCHAR(5),
+	test_grade_level CHAR(2),
+    test_semester VARCHAR(3),
 	PRIMARY KEY (test_id)
 );
 
