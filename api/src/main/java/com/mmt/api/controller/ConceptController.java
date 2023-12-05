@@ -32,19 +32,19 @@ public class ConceptController {
     }
 
     /**
-     * 선수 단위개념 목록 보기
+     * 깊이 1의 선수단위개념 목록 보기
      */
-    @GetMapping("/to/{conceptId}")
+    @GetMapping("/prerequisite/{conceptId}")
     public Flux<ConceptResponse> getToConcepts(@PathVariable int conceptId){
         return conceptService.findToConcepts(conceptId);
     }
 
-//    /**
-//     * 선수 단위개념 경로 보기(1) : Flux<Integer>로 컨셉아이디만 리스펀스
-//     */
-//    @GetMapping("/path")
-//    public Flux<Map<String, Object>> getPathConceptId(@RequestParam int conceptId){
-//        return conceptService.findPathConceptId(conceptId);
-//    }
+    /**
+     * 깊이 1 ~ 6의 선수단위개념 목록 보기
+     */
+    @GetMapping("/path")
+    public Flux<Concept> getPathConceptId(@RequestParam int conceptId){
+        return conceptService.findPathConceptId(conceptId);
+    }
 
 }

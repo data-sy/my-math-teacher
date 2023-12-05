@@ -31,9 +31,9 @@ public class ConceptService {
         return ConceptConverter.convertToMonoConceptResponse(conceptRepository.findToConceptsByConceptId(conceptId));
     }
 
-//    @Transactional(readOnly = true)
-//    public Flux<Map<String, Object>> findPathConceptId(int conceptId){
-//        return conceptRepository.findPathConceptId(conceptId);
-//    }
+    @Transactional(readOnly = true)
+    public Flux<Concept> findPathConceptId(int conceptId){
+        return conceptRepository.findPathConceptId(conceptId);
+    }
 
 }
