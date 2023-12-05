@@ -72,7 +72,7 @@ CREATE TABLE items (
 CREATE TABLE tests (
 	test_id BIGINT auto_increment,
 	test_name VARCHAR(50),
-	test_comments VARCHAR(200),
+	test_comments VARCHAR(500),
     test_school_level CHAR(2),
 	test_grade_level CHAR(2),
     test_semester VARCHAR(3),

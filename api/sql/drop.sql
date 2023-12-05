@@ -39,8 +39,8 @@ DROP TABLE IF EXISTS chapters;
 -- insert 순서
 -- 소단원 insert_chapters.sql -> 단위개념 insert_concepts_escape.sql -> 섹션과 단위개념_섹션 insert_concepts_sections.sql
 -- 지식 체계 : insert_knowledge_space.sql
--- 문항 insert_items.sql
 -- 진단 : 학습지 insert_diag_tests.sql -> 문항 insert_diag_items.sql -> 학습지_문항 insert_diag_testsitems.sql
+-- (맞춤 학습 때 사용될) 문항 insert_items.sql
 
 -- user
 -- insert.sql 파일에서 테스트용 계정

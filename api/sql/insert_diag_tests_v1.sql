@@ -1,0 +1,10 @@
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지1', '다항식-다항식의 연산', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지2', '다항식-나머지정리와 인수분해', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지3', '방정식과 부등식-복소수와 이차방정식', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지4', '방정식과 부등식-이차방정식과 이차함수', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지5', '방정식과 부등식-여러가지 방정식', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지6', '방정식과 부등식-여러가지 부등식', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지7', '도형의 방정식-평면좌표', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지8', '도형의 방정식-직선의 방정식', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지9', '도형의 방정식-원의 방정식', '고등', '수학(상)');
+INSERT INTO tests (test_name, test_comments, test_school_level, test_grade_level) VALUES ('진단학습지10', '도형의 방정식-도형의 이동', '고등', '수학(상)');
