@@ -14,6 +14,7 @@ public class TestConverter {
         testResponse.setTestComments(test.getTestComments());
         testResponse.setTestSchoolLevel(test.getTestSchoolLevel());
         testResponse.setTestGradeLevel(test.getTestGradeLevel());
+        testResponse.setTestSemester(test.getTestSemester());
         return testResponse;
     }
 

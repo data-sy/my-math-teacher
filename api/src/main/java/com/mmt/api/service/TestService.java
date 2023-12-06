@@ -20,4 +20,8 @@ public class TestService {
         return TestConverter.convertListToTestResponseList(testRepository.findAll());
     }
 
+    public List<TestResponse> findTestsBySchoolLevel(String schoolLevel){
+        return TestConverter.convertListToTestResponseList(testRepository.findTestsBySchoolLevel(schoolLevel));
+    }
+
 }

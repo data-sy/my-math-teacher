@@ -1,4 +1,4 @@
-package com.mmt.api.repository.TestItem;
+package com.mmt.api.repository.testItem;
 
 import com.mmt.api.domain.TestItems;
 

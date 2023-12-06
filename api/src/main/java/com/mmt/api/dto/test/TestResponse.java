@@ -10,5 +10,5 @@ public class TestResponse {
     private String testComments;
     private String testSchoolLevel;
     private String testGradeLevel;
-
+    private String testSemester;
 }

@@ -1,4 +1,4 @@
-package com.mmt.api.dto.testitem;
+package com.mmt.api.dto.testItem;
 
 import lombok.Data;
 

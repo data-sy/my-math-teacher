@@ -26,6 +26,12 @@ public class JdbcTemplateTestRepository implements TestRepository {
         return jdbcTemplate.query(sql, testRowMapper());
     }
 
+    @Override
+    public List<Test> findTestsBySchoolLevel(String schoolLevel) {
+        String sql = "SELECT * FROM tests WHERE test_school_level = ?";
+        return jdbcTemplate.query(sql, testRowMapper(), schoolLevel);
+    }
+
     private RowMapper<Test> testRowMapper() {
         return (rs, rowNum) -> {
             Test test = new Test();
@@ -34,6 +40,7 @@ public class JdbcTemplateTestRepository implements TestRepository {
             Optional.ofNullable(rs.getString("test_comments")).ifPresent(test::setTestComments);
             Optional.ofNullable(rs.getString("test_school_level")).ifPresent(test::setTestSchoolLevel);
             Optional.ofNullable(rs.getString("test_grade_level")).ifPresent(test::setTestGradeLevel);
+            Optional.ofNullable(rs.getString("test_semester")).ifPresent(test::setTestSemester);
             return test;
         };
     }

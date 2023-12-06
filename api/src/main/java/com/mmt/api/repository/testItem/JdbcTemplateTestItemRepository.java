@@ -1,15 +1,12 @@
-package com.mmt.api.repository.TestItem;
+package com.mmt.api.repository.testItem;
 
 import com.mmt.api.domain.TestItems;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 @Repository

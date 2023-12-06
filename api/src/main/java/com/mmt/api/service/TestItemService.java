@@ -1,8 +1,8 @@
 package com.mmt.api.service;
 
-import com.mmt.api.dto.testitem.TestItemConverter;
-import com.mmt.api.dto.testitem.TestItemsResponse;
-import com.mmt.api.repository.TestItem.TestItemRepository;
+import com.mmt.api.dto.testItem.TestItemConverter;
+import com.mmt.api.dto.testItem.TestItemsResponse;
+import com.mmt.api.repository.testItem.TestItemRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

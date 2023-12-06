@@ -7,4 +7,6 @@ import java.util.List;
 public interface TestRepository {
     List<Test> findAll();
 
+    List<Test> findTestsBySchoolLevel(String schoolLevel);
+
 }
