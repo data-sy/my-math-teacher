@@ -18,3 +18,24 @@ select * from users;
 -- select count(distinct concept_chapter_id) from concepts; 
 
 select * from chapters;
+select * from chapters where school_level = '고등';
+
+select * from tests;
+select * from items;
+
+select * from concepts where concept_chapter_id in
+ (select chapter_id from chapters where grade_level = '미적');
+
+select * from users;
+select * from users_tests;
+
+SELECT ut.user_test_id, t.test_id, t.test_name, 
+CASE WHEN EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id) 
+THEN TRUE ELSE FALSE END AS is_record 
+FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id 
+WHERE ut.user_id = 1;
+      
+select * from tests_items where test_id = 100;
+                
+select * from answers;
+
