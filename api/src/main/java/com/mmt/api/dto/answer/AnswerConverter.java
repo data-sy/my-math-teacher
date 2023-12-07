@@ -29,4 +29,11 @@ public class AnswerConverter {
         return answer;
     }
 
+    public static List<Integer> convertToIntegerList(AnswerCode answerCode){
+        List<Integer> integerList = new ArrayList<>();
+        integerList.add(answerCode.getSkillId());
+        integerList.add(answerCode.getAnswerCode());
+        return integerList;
+    }
+
 }

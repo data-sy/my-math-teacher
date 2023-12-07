@@ -38,6 +38,16 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
         return jdbcTemplate.query(sql, userTestsRowMapper(), userId);
     }
 
+    @Override
+    public List<Long> findUserTestIds(Long userTestId) {
+        // 조건1 : 해당 유저
+        String condition1 = "user_id = (SELECT user_id FROM users_tests WHERE user_test_id=?)";
+        // 조건2 : 답안 기록이 있는 것들
+        String condition2 = "EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id)";
+        String sql = String.format("SELECT user_test_id FROM users_tests ut WHERE %s AND %s", condition1, condition2);
+        return jdbcTemplate.queryForList(sql, Long.class, userTestId);
+    }
+
     private RowMapper<UserTests> userTestsRowMapper() {
         return (rs, rowNum) -> {
             UserTests userTests = new UserTests();
