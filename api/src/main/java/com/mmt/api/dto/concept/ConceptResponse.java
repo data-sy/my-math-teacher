@@ -14,10 +14,11 @@ public class ConceptResponse {
     private String conceptGradeLevel;
     private String conceptSemester;
     private int conceptChapterId;
+    private String conceptChapterName;
     private String conceptChapterMain;
     private String conceptChapterSub;
-    private String conceptChapterSubsub;
     private int conceptAchievementId;
     private String conceptAchievementName;
+    private String conceptSection;
 
 }

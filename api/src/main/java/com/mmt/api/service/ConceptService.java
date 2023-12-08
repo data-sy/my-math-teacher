@@ -28,7 +28,7 @@ public class ConceptService {
 
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findToConcepts(int conceptId){
-        return ConceptConverter.convertToMonoConceptResponse(conceptRepository.findToConceptsByConceptId(conceptId));
+        return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findToConceptsByConceptId(conceptId));
     }
 
     @Transactional(readOnly = true)

@@ -21,15 +21,16 @@ public class Concept {
     private String semester;
     @Property("chapter_id")
     private int chapterId;
+    @Property("chapter_name")
+    private String chapterName;
     @Property("chapter_main")
     private String chapterMain;
     @Property("chapter_sub")
     private String chapterSub;
-    @Property("chapter_subsub")
-    private String chapterSubsub;
     @Property("achievement_id")
     private int achievementId;
     @Property("achievement_name")
     private String achievementName;
+    private String section;
 
 }

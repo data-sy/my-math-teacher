@@ -18,14 +18,15 @@ public class ConceptConverter {
             response.setConceptChapterId(c.getChapterId());
             response.setConceptChapterMain(c.getChapterMain());
             response.setConceptChapterSub(c.getChapterSub());
-            response.setConceptChapterSubsub(c.getChapterSubsub());
+            response.setConceptChapterName(c.getChapterName());
             response.setConceptAchievementId(c.getAchievementId());
             response.setConceptAchievementName(c.getAchievementName());
+            response.setConceptSection(c.getSection());
             return response;
         });
     }
 
-    public static Flux<ConceptResponse> convertToMonoConceptResponse(Flux<Concept> concept){
+    public static Flux<ConceptResponse> convertToFluxConceptResponse(Flux<Concept> concept){
         return concept.map(c -> {
             ConceptResponse response = new ConceptResponse();
             response.setConceptId(c.getConceptId());
@@ -37,10 +38,12 @@ public class ConceptConverter {
             response.setConceptChapterId(c.getChapterId());
             response.setConceptChapterMain(c.getChapterMain());
             response.setConceptChapterSub(c.getChapterSub());
-            response.setConceptChapterSubsub(c.getChapterSubsub());
+            response.setConceptChapterName(c.getChapterName());
             response.setConceptAchievementId(c.getAchievementId());
             response.setConceptAchievementName(c.getAchievementName());
+            response.setConceptSection(c.getSection());
             return response;
         });
     }
+
 }
