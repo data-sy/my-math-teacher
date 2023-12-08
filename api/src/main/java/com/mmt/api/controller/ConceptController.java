@@ -1,26 +1,27 @@
 package com.mmt.api.controller;
 
 
-import com.mmt.api.domain.Concept;
 import com.mmt.api.dto.concept.ConceptResponse;
+import com.mmt.api.dto.network.EdgeRequest;
+import com.mmt.api.dto.network.EdgeResponse;
 import com.mmt.api.service.ConceptService;
-import org.neo4j.driver.util.Pair;
-import org.springframework.http.ResponseEntity;
+import com.mmt.api.service.KnowledgeSpaceService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/concepts")
 public class ConceptController {
 
     private final ConceptService conceptService;
+    private final KnowledgeSpaceService knowledgeSpaceService;
 
-    public ConceptController(ConceptService conceptService) {
+    public ConceptController(ConceptService conceptService, KnowledgeSpaceService knowledgeSpaceService) {
         this.conceptService = conceptService;
+        this.knowledgeSpaceService = knowledgeSpaceService;
     }
 
     /**
@@ -40,11 +41,25 @@ public class ConceptController {
     }
 
     /**
-     * 깊이 1 ~ 6의 선수단위개념 목록 보기
+     * 깊이 1~6의 선수단위개념 목록 보기 (노드)
      */
-    @GetMapping("/path")
-    public Flux<Concept> getPathConceptId(@RequestParam int conceptId){
-        return conceptService.findPathConceptId(conceptId);
+    @GetMapping("/nodes/{conceptId}")
+    public Flux<ConceptResponse> getNodesByConceptId(@PathVariable int conceptId){
+        return conceptService.findNodesByConceptId(conceptId);
     }
+
+    /**
+     * 깊이 1~6의 선수단위개념 관계 보기 (엣지)
+     */
+    @GetMapping("/edges/{conceptId}")
+    public List<EdgeResponse> getEdgesByConceptId(@RequestBody EdgeRequest request){
+        return knowledgeSpaceService.findEdgesByConceptId(request.getConceptIdList());
+    }
+
+//    /**
+//     * 리팩토링 : node와 edge를 한꺼번에 보내기 (WebFlux 공부 필요)
+//     */
+//    public NetworkResponse getNetworkByConceptId(@PathVariable int conceptId){
+//        return conceptService.findNetworkByConceptId(conceptId);
 
 }

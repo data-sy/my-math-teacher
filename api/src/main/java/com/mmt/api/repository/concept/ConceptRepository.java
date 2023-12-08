@@ -14,10 +14,10 @@ public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Inte
 
     Mono<Concept> findOneByConceptId(int conceptId);
 
-    @Query("MATCH (n)-[r]->(m{concept_id: $conceptId}) RETURN (n);")
+    @Query("MATCH (n)-[r]->(m{concept_id: $conceptId}) RETURN (n)")
     Flux<Concept> findToConceptsByConceptId(@Param("conceptId") int conceptId);
 
     @Query("MATCH path = (n)-[*1..6]->(m {concept_id: $conceptId}) RETURN nodes(path)")
-    Flux<Concept> findPathConceptId(@Param("conceptId") int conceptId);
+    Flux<Concept> findNodesByConceptId(@Param("conceptId") int conceptId);
 
 }

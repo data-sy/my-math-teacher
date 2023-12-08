@@ -39,3 +39,8 @@ select * from tests_items where test_id = 100;
                 
 select * from answers;
 
+SELECT user_test_id FROM users_tests ut 
+WHERE user_id = (SELECT user_id FROM users_tests WHERE user_test_id=1)
+AND EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id);
+
+SELECT * FROM knowledge_space WHERE from_concept_id = 4979;
