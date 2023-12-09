@@ -29,6 +29,16 @@ select * from concepts where concept_chapter_id in
 select * from users;
 select * from users_tests;
 
+select * from tests_items where test_id=1;
+select * from concepts where concept_chapter_id IN (select chapter_id from chapters where grade_level = '중2');
+select * from chapters where chapter_id IN (494, 495);
+select * from tests where test_grade_level = '중2';
+select * from tests_items where test_id in (386, 387);
+select i.item_id, i.concept_id, c.concept_name from concepts c 
+join items i on i.concept_id=c.concept_id
+where i.item_id in (4001, 4006, 4011, 4016, 4021, 4026, 4031);
+select * from concepts where skill_id in (728, 725, 724);
+
 SELECT ut.user_test_id, t.test_id, t.test_name, 
 CASE WHEN EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id) 
 THEN TRUE ELSE FALSE END AS is_record 
@@ -44,3 +54,13 @@ WHERE user_id = (SELECT user_id FROM users_tests WHERE user_test_id=1)
 AND EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id);
 
 SELECT * FROM knowledge_space WHERE from_concept_id = 4979;
+
+SELECT a.answer_id, i.concept_id, c.skill_id 
+FROM items i 
+JOIN answers a ON a.item_id=i.item_id 
+JOIN concepts c ON c.concept_id=i.concept_id 
+WHERE a.user_test_id = 5
+AND a.answer_code = 0;
+
+select * from probabilities;
+

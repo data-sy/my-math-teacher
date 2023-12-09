@@ -1,5 +1,7 @@
 show databases;
 create database mmt;
+-- 테이블 비우기
+TRUNCATE TABLE answers;
 
 use mmt;
 

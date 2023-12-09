@@ -2,6 +2,7 @@ package com.mmt.api.repository.answer;
 
 import com.mmt.api.domain.Answer;
 import com.mmt.api.domain.AnswerCode;
+import com.mmt.api.domain.Probability;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,12 +49,29 @@ public class JdbcTemplateAnswerRepository implements AnswerRepository {
         return jdbcTemplate.query(sql, answerCodeRowMapper(), userTestId);
     }
 
+    @Override
+    public List<Probability> findIds(Long userTestId) {
+        String sql = "SELECT a.answer_id, i.concept_id, c.skill_id FROM items i JOIN answers a ON a.item_id=i.item_id " +
+                "JOIN concepts c ON c.concept_id=i.concept_id WHERE a.user_test_id = ? AND a.answer_code = 0";
+        return jdbcTemplate.query(sql, idsRowMapper(), userTestId);
+    }
+
     private RowMapper<AnswerCode> answerCodeRowMapper() {
         return (rs, rowNum) -> {
             AnswerCode answerCode = new AnswerCode();
             answerCode.setSkillId(rs.getInt("skill_id"));
             answerCode.setAnswerCode(rs.getInt("answer_code"));
             return answerCode;
+        };
+    }
+
+    private RowMapper<Probability> idsRowMapper() {
+        return (rs, rowNum) -> {
+            Probability probability = new Probability();
+            probability.setAnswerId(rs.getLong("answer_id"));
+            probability.setConceptId(rs.getInt("concept_id"));
+            probability.setSkillId(rs.getInt("skill_id"));
+            return probability;
         };
     }
 

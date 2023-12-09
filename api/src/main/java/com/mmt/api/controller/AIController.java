@@ -3,7 +3,7 @@ package com.mmt.api.controller;
 import com.mmt.api.dto.AI.AIInputResponse;
 import com.mmt.api.dto.AI.AIOutputRequest;
 import com.mmt.api.service.AnswerService;
-import org.springframework.http.ResponseEntity;
+import com.mmt.api.service.ProbabilityService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.*;
 public class AIController {
 
     private final AnswerService answerService;
+    private final ProbabilityService probabilityService;
 
-    public AIController(AnswerService answerService) {
+    public AIController(AnswerService answerService, ProbabilityService probabilityService) {
         this.answerService = answerService;
+        this.probabilityService = probabilityService;
     }
 
     /**
@@ -29,7 +31,7 @@ public class AIController {
      */
     @PostMapping("")
     public void create(@RequestBody AIOutputRequest request){
-//                probabilityService.create(request.getUserTestId(), request.getProbabilityList());
+        probabilityService.create(request.getUserTestId(), request.getProbabilityList());
     }
 
 }

@@ -21,7 +21,7 @@ public class KnowledgeSpaceService {
     }
 
     public List<EdgeResponse> findEdgesByConceptId(int conceptId){
-        Flux<Integer> conceptIdFlux = conceptRepository.findNodeIdsByConceptId(conceptId);
+        Flux<Integer> conceptIdFlux = conceptRepository.findNodesIdByConceptId(conceptId);
         List<Integer> conceptIdList = conceptIdFlux.distinct().collectList().block();
         return NetworkConverter.convertToEdgeResponseList(knowledgeSpaceRepository.findEdgesByConceptId(conceptIdList));
     }

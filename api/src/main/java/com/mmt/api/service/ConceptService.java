@@ -4,23 +4,24 @@ package com.mmt.api.service;
 import com.mmt.api.dto.concept.ConceptConverter;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.repository.concept.ConceptRepository;
+import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Service
 public class ConceptService {
 
     private final ConceptRepository conceptRepository;
     private final KnowledgeSpaceRepository knowledgeSpaceRepository;
+    private final JdbcTemplateConceptRepository jdbcTemplateConceptRepository;
 
-    public ConceptService(ConceptRepository conceptRepository, KnowledgeSpaceRepository knowledgeSpaceRepository) {
+    public ConceptService(ConceptRepository conceptRepository, KnowledgeSpaceRepository knowledgeSpaceRepository, JdbcTemplateConceptRepository jdbcTemplateConceptRepository) {
         this.conceptRepository = conceptRepository;
         this.knowledgeSpaceRepository = knowledgeSpaceRepository;
+        this.jdbcTemplateConceptRepository = jdbcTemplateConceptRepository;
     }
     @Transactional(readOnly = true)
     public Mono<ConceptResponse> findOne(int conceptId){
@@ -38,8 +39,12 @@ public class ConceptService {
     }
 
     @Transactional(readOnly = true)
-    public Flux<Integer> findNodeIdsByConceptId(int conceptId){
-        return conceptRepository.findNodeIdsByConceptId(conceptId);
+    public Flux<Integer> findNodesIdByConceptId(int conceptId){
+        return conceptRepository.findNodesIdByConceptId(conceptId);
+    }
+
+    public int findSkillIdByConceptId (int conceptId){
+        return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }
 
 //    /**
