@@ -52,14 +52,30 @@ public class ConceptController {
      * 깊이 1~6의 선수단위개념 관계 보기 (엣지)
      */
     @GetMapping("/edges/{conceptId}")
-    public List<EdgeResponse> getEdgesByConceptId(@RequestBody EdgeRequest request){
-        return knowledgeSpaceService.findEdgesByConceptId(request.getConceptIdList());
+    public List<EdgeResponse> getEdgesByConceptId(@PathVariable int conceptId){
+        return knowledgeSpaceService.findEdgesByConceptId(conceptId);
+    }
+
+    // (테스트용) 깊이 1~6의 선수단위개념 id만 추출 & 그대로 리스펀스
+    @GetMapping("/ids/{conceptId}")
+    public Flux<Integer> getNodeIdsByConceptId(@PathVariable int conceptId){
+        return conceptService.findNodeIdsByConceptId(conceptId);
     }
 
 //    /**
-//     * 리팩토링 : node와 edge를 한꺼번에 보내기 (WebFlux 공부 필요)
+//     * 리팩토링 : nodes와 edges를 한꺼번에 보내기 (WebFlux 공부 필요)
 //     */
 //    public NetworkResponse getNetworkByConceptId(@PathVariable int conceptId){
 //        return conceptService.findNetworkByConceptId(conceptId);
+
+//    /**
+//     * deprecated
+//     * 깊이 1~6의 선수단위개념 관계 보기 (엣지)
+//     * 필요한 conceptId 목록을 request로 받아서 사용했음
+//     */
+//    @GetMapping("/edges")
+//    public List<EdgeResponse> getEdgesByConceptId(@RequestBody EdgeRequest request){
+//        return knowledgeSpaceService.findEdgesByConceptId(request.getConceptIdList());
+//    }
 
 }

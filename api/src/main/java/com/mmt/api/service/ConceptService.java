@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class ConceptService {
 
@@ -35,6 +37,14 @@ public class ConceptService {
         return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByConceptId(conceptId));
     }
 
+    @Transactional(readOnly = true)
+    public Flux<Integer> findNodeIdsByConceptId(int conceptId){
+        return conceptRepository.findNodeIdsByConceptId(conceptId);
+    }
+
+//    /**
+//     * 리팩토링 : nodes와 edges를 한꺼번에 보내기 (WebFlux 공부 필요)
+//     */
 //    @Transactional(readOnly = true)
 //    public NetworkResponse findNetworkByConceptId(int conceptId){
 //        // Spring WebFlux의 Flux객체를 사용하는 중이므로 일반적인 게터, 세터 방법 사용할 수 없음

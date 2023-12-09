@@ -8,7 +8,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Integer> {
 
@@ -19,5 +18,9 @@ public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Inte
 
     @Query("MATCH path = (n)-[*1..6]->(m {concept_id: $conceptId}) RETURN nodes(path)")
     Flux<Concept> findNodesByConceptId(@Param("conceptId") int conceptId);
+
+    @Query("MATCH path = (start_node)-[*1..6]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
+            "UNWIND connected_nodes AS node RETURN [id IN node.concept_id] AS concept_ids")
+    Flux<Integer> findNodeIdsByConceptId(@Param("conceptId") int conceptId);
 
 }

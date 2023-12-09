@@ -15,12 +15,19 @@ RETURN nodes(path);
 
 // 경로 길이 3인 노드들의 concept_id들
 // 이 때, n은 여러 번 반복되서 나올 수 있음 (보니까, id를 dfs처럼 생성. n에서 뻗어나온 관계 개수만큼 나오는 듯?)
-MATCH path = (start_node)-[*3]->(n {concept_id: 4979})
+// collect()로 받는 건 java에서 어떤 데이터로 받아야 할지 모르겠음
+//MATCH path = (start_node)-[*3]->(n {concept_id: 4979})
+//WITH nodes(path) AS connected_nodes
+//UNWIND connected_nodes AS node
+//RETURN collect(node.concept_id) AS concept_ids
+// 그래서 Flux로 받을 수 있도록 수정
+MATCH path = (start_node)-[*1..3]->(n {concept_id: 4979})
 WITH nodes(path) AS connected_nodes
 UNWIND connected_nodes AS node
-RETURN collect(node.concept_id) AS concept_ids
+RETURN [id IN node.concept_id] AS concept_ids
 
 // 같은 소단원(name)인 노드들 (대단원은 main, 중단원은 sub)
 MATCH (n {concept_id: 4015}), (m)
 WHERE m.chapter_name = n.chapter_name
 RETURN (m);
+
