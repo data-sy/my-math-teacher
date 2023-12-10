@@ -12,8 +12,8 @@ RETURN nodes(path), relationships(path);
 // 경로 길이 1~6 인 노드
 MATCH path = (start_node)-[*1..6]->(n {concept_id: 4979})
 RETURN nodes(path);
-// 경로 길이 1~6 인 노드 찾는 다른 방법? - 위의 쿼리문과 차이점 찾아보기
-MATCH path = (n)-[*1..6]->(m {concept_id: $conceptId}) RETURN (n);
+// 경로 길이 1~6 인 노드 찾는 다른 방법 (위 쿼리문과 차이점 찾아보기 : 결과는 같은데 체감상 얘가 빨라)
+MATCH path = (n)-[*1..6]->(m {concept_id: 4979}) RETURN (n);
 
 // 경로 길이 3인 노드들의 concept_id들
 // 이 때, n은 여러 번 반복되서 나올 수 있음 (보니까, id를 dfs처럼 생성. n에서 뻗어나온 관계 개수만큼 나오는 듯?)
@@ -27,7 +27,11 @@ MATCH path = (start_node)-[*1..3]->(n {concept_id: 4979})
 WITH nodes(path) AS connected_nodes
 UNWIND connected_nodes AS node
 RETURN [id IN node.concept_id] AS concept_ids
-// path 없이도 id 나오는 것 가능 (중복제거 몇 개 빼고 됨)
+// path 없이도 id 나오는 것 가능 (여러 경로 있는 id 빼고 중복제거 됨) 하지만 id는 경로가 중요해서 이 쿼리는 쓸 일이 없네
+//MATCH (n)-[*1..3]->(m {concept_id: 4979})
+//RETURN [id IN n.concept_id]
+
+
 
 // node를 key:value = concept_id:skill_id 로 추출
 

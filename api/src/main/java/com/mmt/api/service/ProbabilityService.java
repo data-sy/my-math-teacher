@@ -3,12 +3,13 @@ package com.mmt.api.service;
 import com.mmt.api.domain.Probability;
 import com.mmt.api.repository.Probability.ProbabilityRepository;
 import com.mmt.api.repository.concept.ConceptRepository;
-import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.util.LogicUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
