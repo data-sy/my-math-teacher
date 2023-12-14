@@ -19,7 +19,7 @@ public class ChapterConverter {
         for (Chapter chapter : chapters){
             if(!chapterMainMap.containsKey(chapter.getChapterMain())){
                 ChapterResponse mainChapter = new ChapterResponse();
-                mainChapter.setKey(Integer.toString(mainKeyCnt++));
+                mainChapter.setKey("대-"+ Integer.toString(mainKeyCnt++));
                 mainChapter.setLabel(chapter.getChapterMain());
                 mainChapter.setIcon("pi pi-fw pi-inbox");
                 chapterMainMap.put(chapter.getChapterMain(), mainChapter);
@@ -31,7 +31,7 @@ public class ChapterConverter {
             if (mainChapter != null) {
                 if (!chapterSubMap.containsKey(chapter.getChapterSub())) {
                     ChapterResponse subChapter = new ChapterResponse();
-                    subChapter.setKey(mainChapter.getKey() + '-' + Integer.toString(subKeyCnt++));
+                    subChapter.setKey(mainChapter.getKey() + "-중-" + Integer.toString(subKeyCnt++));
                     subChapter.setLabel(chapter.getChapterSub());
                     subChapter.setIcon("pi pi-fw pi-folder");
                     chapterSubMap.put(chapter.getChapterSub(), subChapter);

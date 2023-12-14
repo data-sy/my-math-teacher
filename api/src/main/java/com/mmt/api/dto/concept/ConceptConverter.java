@@ -4,6 +4,9 @@ import com.mmt.api.domain.Concept;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConceptConverter {
 
     public static Mono<ConceptResponse> convertToMonoConceptResponse(Mono<Concept> concept){
@@ -46,4 +49,20 @@ public class ConceptConverter {
         });
     }
 
+    public static ChapterIdConceptResponse convertToConceptResponse(Concept concept) {
+        ChapterIdConceptResponse conceptResponse = new ChapterIdConceptResponse();
+        conceptResponse.setConceptId(concept.getConceptId());
+        conceptResponse.setConceptName(concept.getName());
+        conceptResponse.setConceptDescription(concept.getDesc());
+        conceptResponse.setConceptAchievementName(concept.getAchievementName());
+        return conceptResponse;
+    }
+
+    public static List<ChapterIdConceptResponse> convertListToConceptResponseList(List<Concept> conceptList) {
+        List<ChapterIdConceptResponse> responseList = new ArrayList<>();
+        for (Concept concept : conceptList) {
+            responseList.add(convertToConceptResponse(concept));
+        }
+        return responseList;
+    }
 }

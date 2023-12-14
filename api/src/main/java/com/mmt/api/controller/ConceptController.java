@@ -1,14 +1,12 @@
 package com.mmt.api.controller;
 
 
+import com.mmt.api.dto.concept.ChapterIdConceptResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.dto.network.EdgeResponse;
 import com.mmt.api.service.ConceptService;
 import com.mmt.api.service.KnowledgeSpaceService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -27,6 +25,15 @@ public class ConceptController {
     }
 
     /**
+     * chapter_id에 따른 단위개념 목록 보기
+     */
+    @GetMapping("")
+    public List<ChapterIdConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chatperId){
+        return conceptService.findAllByChapterId(chatperId);
+    }
+
+    /**
+     * deprecated 일 듯?!
      * 단위개념 상세 보기 (관계 필드 없을 때)
      */
     @GetMapping("/{conceptId}")
