@@ -7,6 +7,7 @@ import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,7 +24,11 @@ public class KnowledgeSpaceService {
     public List<EdgeResponse> findEdgesByConceptId(int conceptId){
         Flux<Integer> conceptIdFlux = conceptRepository.findNodesIdByConceptId(conceptId);
         List<Integer> conceptIdList = conceptIdFlux.distinct().collectList().block();
-        return NetworkConverter.convertToEdgeResponseList(knowledgeSpaceRepository.findEdgesByConceptId(conceptIdList));
+        if (conceptIdList.isEmpty()){ // 선수단위개념이 없는 최초의 단위개념
+            return new ArrayList<>();
+        } else {
+            return NetworkConverter.convertToEdgeResponseList(knowledgeSpaceRepository.findEdgesByConceptId(conceptIdList));
+        }
     }
 
 //    // deprecated

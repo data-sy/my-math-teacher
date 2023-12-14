@@ -21,9 +21,17 @@ public class JdbcTemplateKnowledgeSpaceRepository implements KnowledgeSpaceRepos
 
     @Override
     public List<KnowledgeSpace> findEdgesByConceptId(List<Integer> conceptIdList) {
-        String inSql = String.join(",", Collections.nCopies(conceptIdList.size(), "?"));
-        String sql = String.format("SELECT * FROM knowledge_space WHERE from_concept_id IN (%s)", inSql);
-        return jdbcTemplate.query(sql, knowledgeSpaceRowMapper(), conceptIdList.toArray());
+        String sql;
+        Object[] params;
+        if (conceptIdList.size() == 1) {
+            sql = "SELECT * FROM knowledge_space WHERE from_concept_id = ?";
+            params = new Object[]{conceptIdList.get(0)};
+        } else {
+            String inSql = String.join(",", Collections.nCopies(conceptIdList.size(), "?"));
+            sql = String.format("SELECT * FROM knowledge_space WHERE from_concept_id IN (%s)", inSql);
+            params = conceptIdList.toArray();
+        }
+        return jdbcTemplate.query(sql, knowledgeSpaceRowMapper(), params);
     }
 
     private RowMapper<KnowledgeSpace> knowledgeSpaceRowMapper() {
