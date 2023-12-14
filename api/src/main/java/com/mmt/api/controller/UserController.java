@@ -30,7 +30,7 @@ public class UserController {
      */
     @GetMapping("")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<UserDTO> getMyUserInfo(HttpServletRequest request) {
+    public ResponseEntity<UserDTO> getMyUserInfo() {
         return ResponseEntity.ok(userService.getMyUserWithAuthorities());
     }
 
@@ -56,5 +56,11 @@ public class UserController {
      */
     @DeleteMapping("/{userId}")
     public void delete(@PathVariable Long userId) { userService.delete(userId); }
+
+//    // 현재 Security Context에 따른 userId 가져오기 테스트
+//    @GetMapping("/id")
+//    public ResponseEntity<Long> getMyUserId() {
+//        return ResponseEntity.ok(userService.getMyUserIdWithAuthorities());
+//    }
 
 }

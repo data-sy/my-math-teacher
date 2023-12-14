@@ -72,7 +72,7 @@ public class UserService {
     }
 
     /**
-     * getUserWithAuthorities : 현재 Security Context에 저장되어 있는 userEmail에 따른 유저 정보, 권한 정보를 가져온다.
+     * getMyUserWithAuthorities : 현재 Security Context에 저장되어 있는 userEmail에 따른 유저 정보, 권한 정보를 가져온다.
      */
     @Transactional(readOnly = true)
     public UserDTO getMyUserWithAuthorities() {
@@ -82,6 +82,17 @@ public class UserService {
                         .orElseThrow(() -> new NotFoundMemberException("Member not found"))
         );
     }
+
+    /**
+     * getMyUserIdWithAuthorities : 현재 Security Context에 저장되어 있는 userEmail에 따른 userId를 가져온다.
+     */
+    @Transactional(readOnly = true)
+    public Long getMyUserIdWithAuthorities() {
+        return SecurityUtil.getCurrentUserEmail()
+                        .flatMap(usersRepository::findUserIdByUserEmail)
+                        .orElseThrow(() -> new NotFoundMemberException("Member not found"));
+    }
+
 
     public void update(UserDTO userDTO) {
         if(!usersRepository.existsByUserId(userDTO.getUserId())){
