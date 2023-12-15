@@ -2,7 +2,6 @@ package com.mmt.api.controller;
 
 import com.mmt.api.dto.user.UserDTO;
 import com.mmt.api.service.user.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

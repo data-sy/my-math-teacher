@@ -1,12 +1,12 @@
 package com.mmt.api.controller;
 
-import com.mmt.api.dto.test.TestCreateRequest;
 import com.mmt.api.dto.test.TestResponse;
 import com.mmt.api.dto.testItem.TestItemsResponse;
 import com.mmt.api.dto.userTest.UserTestsResponse;
 import com.mmt.api.service.TestItemService;
 import com.mmt.api.service.TestService;
 import com.mmt.api.service.UserTestService;
+import com.mmt.api.service.user.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +19,13 @@ public class TestController {
 
     private final TestItemService testItemService;
     private final UserTestService userTestService;
+    private final UserService userService;
 
-    public TestController(TestService testService, TestItemService testItemService, UserTestService userTestService) {
+    public TestController(TestService testService, TestItemService testItemService, UserTestService userTestService, UserService userService) {
         this.testService = testService;
         this.testItemService = testItemService;
         this.userTestService = userTestService;
+        this.userService = userService;
     }
 
     /**
@@ -34,13 +36,20 @@ public class TestController {
         return testService.findTests();
     }
 
-    /**
-     * 유저의 학습지 목록
-     */
-    @GetMapping("/user/{userId}")
-    public List<UserTestsResponse> getTests(@PathVariable Long userId){
+    @GetMapping("/user")
+    public List<UserTestsResponse> getUserTests(){
+//        Long userId = userService.getMyUserIdWithAuthorities();
+        // security 적용 전까지는 테스트 id 사용
+        Long userId = 3L;
         return userTestService.findTests(userId);
     }
+//    /** deprecated
+//     * 유저의 학습지 목록
+//     */
+//    @GetMapping("/user/{userId}")
+//    public List<UserTestsResponse> getUserTests(@PathVariable Long userId){
+//        return userTestService.findTests(userId);
+//    }
 
     /**
      * '학교군(schoolLevel)'에 따른 학습지 목록 보기
@@ -61,9 +70,12 @@ public class TestController {
     /**
      * 진단학습지 다운로드
      */
-    @PostMapping("")
-    public void create(@RequestBody TestCreateRequest request) {
-        userTestService.create(request.getUserId(), request.getTestId());
+    @PostMapping("/{testId}")
+    public void create(@PathVariable Long testId) {
+//        Long userId = userService.getMyUserIdWithAuthorities();
+        // security 적용 전까지는 테스트 id 사용
+        Long userId = 3L;
+        userTestService.create(userId, testId);
     }
 
     /**
