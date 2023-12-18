@@ -11,4 +11,4 @@ CREATE (:concept {name: row.name, concept_id: toInteger(row.id), desc: row.descr
 // knowledge_space
 LOAD CSV WITH HEADERS FROM "file:///knowledge_space.csv" AS row
 MATCH (a:concept {concept_id: toInteger(row.to_concept_id)}), (b:concept {concept_id: toInteger(row.from_concept_id)})
-CREATE (a)-[r:KNOWLEDGE_SPACE {knowledge_space_id: toInteger(row.id) }]->(b)
+CREATE (a)-[r:KNOWLEDGE_SPACE {knowledge_space_id: toInteger(row.id) }]->(b);
