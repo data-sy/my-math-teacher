@@ -46,7 +46,7 @@ FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id
 WHERE ut.user_id = 1;
       
 select * from tests_items where test_id = 100;
-                
+
 select * from answers;
 
 SELECT user_test_id FROM users_tests ut 
@@ -64,3 +64,15 @@ AND a.answer_code = 0;
 
 select * from probabilities;
 
+-- select * from concepts where concept_id in (select i.concept_id from items i join tests_items ti on i.item_id=ti.item_id where ti.test_id in (386, 387));
+-- select * from concepts where concept_id in (select i.concept_id from items i join tests_items ti on i.item_id=ti.item_id where ti.test_id in (381, 382));
+
+select * from tests where test_semester = '상';
+select * from tests_items where test_id in (386, 387);
+select * from concepts where concept_id in (select i.concept_id from items i join tests_items ti on i.item_id=ti.item_id where ti.test_id in (491));
+select * from tests_items where item_id in (select item_id from items where concept_id=4222);
+select * from concepts where concept_id in (select i.concept_id from items i join tests_items ti on i.item_id=ti.item_id where ti.test_id in (501));
+
+select * from items where item_id = 1000;
+
+select * from tests_items where test_id=491;

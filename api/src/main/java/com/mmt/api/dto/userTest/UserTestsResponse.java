@@ -1,8 +1,11 @@
 package com.mmt.api.dto.userTest;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class UserTestsResponse {
 
     private Long userTestId;

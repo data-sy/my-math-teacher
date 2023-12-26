@@ -36,6 +36,9 @@ public class TestController {
         return testService.findTests();
     }
 
+    /**
+     * 유저의 학습지 목록
+     */
     @GetMapping("/user")
     public List<UserTestsResponse> getUserTests(){
 //        Long userId = userService.getMyUserIdWithAuthorities();

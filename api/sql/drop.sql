@@ -43,6 +43,5 @@ DROP TABLE IF EXISTS chapters;
 -- 지식 체계 : insert_knowledge_space.sql
 -- 진단 : 학습지 insert_diag_tests.sql -> 문항 insert_diag_items.sql -> 학습지_문항 insert_diag_testsitems.sql
 -- (맞춤 학습 때 사용될) 문항 insert_items.sql
-
--- user
--- insert.sql 파일에서 테스트용 계정
+-- 유저 : insert.sql 파일에서 테스트용 계정
+-- 포스트맨으로 가서 : 테스트유저(유저3) 회원가입, 진단학습지 다운로드(1, 2, 491~495), 답안입력(뒤에3개), ai분석(유저테스트5)
