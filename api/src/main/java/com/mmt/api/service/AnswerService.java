@@ -26,11 +26,11 @@ public class AnswerService {
         answerRepository.save(AnswerConverter.convertToAnswer(request));
     }
 
-    public AIInputResponse findAIInput(Long userId){
-        AIInputResponse aiInputResponse = new AIInputResponse(userId);
+    public AIInputResponse findAIInput(Long userTestId){
+        AIInputResponse aiInputResponse = new AIInputResponse(userTestId);
         List<List<Integer>> answerCodeResponseList = new ArrayList<>();
         // 조건에 맞는 user_test_id들 찾기
-        List<Long> utIdList = userTestService.findBefore(userId);
+        List<Long> utIdList = userTestService.findBefore(userTestId);
         // user_test_id별 정오답 기록을 answerCodeList에 넣기 (데이터 500배 증폭 -> 100배로 수정)
         utIdList.forEach(utId -> {
             List<AnswerCode> answerCodeList = answerRepository.findAnswerCode(utId);
