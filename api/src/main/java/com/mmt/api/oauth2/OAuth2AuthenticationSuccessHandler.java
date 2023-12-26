@@ -48,7 +48,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
 //        // 프론트 만들면 이걸로 수정
 //        String targetUrl = "http://localhost:3000";
-        String targetUrl = "http://localhost:8080/api/v1/hello";
+        String targetUrl = "http://localhost:5173";
 
         //JWT 생성
         JwtToken token = tokenProvider.generateToken(authentication);
