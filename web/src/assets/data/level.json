@@ -1,0 +1,33 @@
+{
+    "초등": [
+        { "name": "1학년 1학기", "code": "el11", "grade": "초1", "semester": "1학기" },
+        { "name": "1학년 2학기", "code": "el11", "grade": "초1", "semester": "2학기" },
+        { "name": "2학년 1학기", "code": "el21", "grade": "초2", "semester": "1학기" },
+        { "name": "2학년 2학기", "code": "el12", "grade": "초2", "semester": "2학기" },
+        { "name": "3학년 1학기", "code": "el31", "grade": "초3", "semester": "1학기" },
+        { "name": "3학년 2학기", "code": "el32", "grade": "초3", "semester": "2학기" },
+        { "name": "4학년 1학기", "code": "el41", "grade": "초4", "semester": "1학기" },
+        { "name": "4학년 2학기", "code": "el42", "grade": "초4", "semester": "2학기" },
+        { "name": "5학년 1학기", "code": "el51", "grade": "초5", "semester": "1학기" },
+        { "name": "5학년 2학기", "code": "el52", "grade": "초5", "semester": "2학기" },
+        { "name": "6학년 1학기", "code": "el61", "grade": "초6", "semester": "1학기" },
+        { "name": "6학년 2학기", "code": "el62", "grade": "초6", "semester": "2학기" }
+    ],
+    "중등": [
+        { "name": "1학년 1학기", "code": "mid11", "grade": "중1", "semester": "1학기" },
+        { "name": "1학년 2학기", "code": "mid11", "grade": "중1", "semester": "2학기" },
+        { "name": "2학년 1학기", "code": "mid21", "grade": "중2", "semester": "1학기" },
+        { "name": "2학년 2학기", "code": "mid12", "grade": "중2", "semester": "2학기" },
+        { "name": "3학년 1학기", "code": "mid31", "grade": "중3", "semester": "1학기" },
+        { "name": "3학년 2학기", "code": "mid32", "grade": "중3", "semester": "2학기" }
+    ],
+    "고등": [
+        { "name": "수학(상)", "code": "high1", "grade": "수학", "semester": "상" },
+        { "name": "수학(하)", "code": "high2", "grade": "수학", "semester": "하" },
+        { "name": "수1", "code": "high3", "grade": "수1", "semester": "전체" },
+        { "name": "수2", "code": "high4", "grade": "수2", "semester": "전체" },
+        { "name": "확률과 통계", "code": "high7", "grade": "확통", "semester": "전체" },
+        { "name": "미적분", "code": "high5", "grade": "미적", "semester": "전체" },
+        { "name": "기하", "code": "high6", "grade": "기하", "semester": "전체" }
+    ]    
+}
