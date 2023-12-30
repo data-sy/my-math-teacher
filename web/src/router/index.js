@@ -11,22 +11,22 @@ const router = createRouter({
                 {
                     path: '/cyto',
                     name: 'cyto',
-                    component: () => import('@/views/CytoView.vue')
-                },
-                {
-                    path: '/signup',
-                    name: 'signup',
-                    component: () => import('@/views/SignUp.vue')
-                },
-                {
-                    path: '/login',
-                    name: 'login2',
-                    component: () => import('@/views/LoginView.vue')
+                    component: () => import('@/views/Cyto.vue')
                 },
                 {
                     path: '/download',
                     name: 'download',
                     component: () => import('@/views/Download.vue')
+                },
+                {
+                    path: '/signup',
+                    name: 'signup',
+                    component: () => import('@/views/SignUpView.vue')
+                },
+                {
+                    path: '/login',
+                    name: 'login',
+                    component: () => import('@/views/LoginView.vue')
                 },
                 {
                     path: '/maincomponent',
@@ -44,24 +44,24 @@ const router = createRouter({
                     component: () => import('@/views/ResultView.vue')
                 },
                 {
-                    path: '/diag',
-                    name: 'diag',
+                    path: '/diagnosis',
+                    name: 'diagnosis',
                     component: () => import('@/views/DiagView.vue')
                 },
                 {
                     path: '/concepttree',
                     name: 'concepttree',
-                    component: () => import('@/views/ConceptTree.vue')
+                    component: () => import('@/views/ConceptTreeView.vue')
                 },
                 {
                     path: '/conceptlist',
                     name: 'conceptlist',
-                    component: () => import('@/views/ConceptList.vue')
+                    component: () => import('@/views/ConceptListView.vue')
                 },
                 {
                     path: '/',
-                    name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    name: 'home',
+                    component: () => import('@/views/HomeView.vue')
                 },
             ]
         },

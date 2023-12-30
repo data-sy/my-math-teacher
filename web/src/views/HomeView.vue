@@ -18,7 +18,7 @@ const closeConfirmation = () => {
             <div class="card">
                 <div class="flex justify-content-between mb-3">
                     <div>
-                        <span class="block text-500 font-medium mb-3"> 페이지 설명</span>
+                        <span class="block text-500 font-medium mb-3"> My Math Teacher은 선수지식 TREE를 확인하고, 학생의 수준에 맞ㄴ</span>
                         <div class="text-900 font-medium text-xl">여기에 설명을 적자.</div>
                         <div>
                             <i class="pi pi-github" > </i>
@@ -35,14 +35,14 @@ const closeConfirmation = () => {
                 </div>
             </div>
         </div>
-        <div class="col-12 lg:col-6 xl:col-6">
+        <div class="col-12 md:col-6 xl:col-6">
             <div class="card">
                 <router-link to="/conceptlist">단위개념 목록 페이지로 이동</router-link>
             </div>
         </div>
-        <div class="col-12 lg:col-6 xl:col-6">
+        <div class="col-12 md:col-6 xl:col-6">
             <div class="card">
-                <router-link to="/diag">진단학습지 다운로드 페이지로 이동</router-link>
+                <router-link to="/diagnosis">진단학습지 다운로드 페이지로 이동</router-link>
             </div>
         </div>
         <div class="col-12 lg:col-6 xl:col-6">
