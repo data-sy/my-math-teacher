@@ -37,9 +37,9 @@ public class JdbcTemplateKnowledgeSpaceRepository implements KnowledgeSpaceRepos
     private RowMapper<KnowledgeSpace> knowledgeSpaceRowMapper() {
         return (rs, rowNum) -> {
             KnowledgeSpace knowledgeSpace = new KnowledgeSpace();
-            knowledgeSpace.setId(rs.getInt("knowledge_space_id"));
-            knowledgeSpace.setToConceptId(rs.getInt("to_concept_id"));
-            knowledgeSpace.setFromConceptId(rs.getInt("from_concept_id"));
+            knowledgeSpace.setId(String.valueOf(rs.getInt("knowledge_space_id")));
+            knowledgeSpace.setSource(String.valueOf(rs.getInt("to_concept_id")));
+            knowledgeSpace.setTarget(String.valueOf(rs.getInt("from_concept_id")));
             return knowledgeSpace;
         };
     }

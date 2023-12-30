@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 public class KnowledgeSpace {
 
-    private int id;
-    private int toConceptId;
-    private int fromConceptId;
+    private String id;
+    private String source;
+    private String target;
 
 }
