@@ -20,34 +20,35 @@ const layoutState = reactive({
 });
 
 export function useLayout() {
-    const changeThemeSettings = (theme, darkTheme) => {
-        layoutConfig.darkTheme = darkTheme;
-        layoutConfig.theme = theme;
-    };
+    // const changeThemeSettings = (theme, darkTheme) => {
+    //     layoutConfig.darkTheme = darkTheme;
+    //     layoutConfig.theme = theme;
+    // };
 
-    const setScale = (scale) => {
-        layoutConfig.scale = scale;
-    };
+    // const setScale = (scale) => {
+    //     layoutConfig.scale = scale;
+    // };
 
-    const setActiveMenuItem = (item) => {
-        layoutConfig.activeMenuItem = item.value || item;
-    };
+    // const setActiveMenuItem = (item) => {
+    //     layoutConfig.activeMenuItem = item.value || item;
+    // };
 
-    const onMenuToggle = () => {
-        if (layoutConfig.menuMode === 'overlay') {
-            layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
-        }
+    // const onMenuToggle = () => {
+    //     if (layoutConfig.menuMode === 'overlay') {
+    //         layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
+    //     }
 
-        if (window.innerWidth > 991) {
-            layoutState.staticMenuDesktopInactive = !layoutState.staticMenuDesktopInactive;
-        } else {
-            layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
-        }
-    };
+    //     if (window.innerWidth > 991) {
+    //         layoutState.staticMenuDesktopInactive = !layoutState.staticMenuDesktopInactive;
+    //     } else {
+    //         layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
+    //     }
+    // };
 
-    const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive);
+    // const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive);
 
     const isDarkTheme = computed(() => layoutConfig.darkTheme);
 
-    return { layoutConfig: toRefs(layoutConfig), layoutState: toRefs(layoutState), changeThemeSettings, setScale, onMenuToggle, isSidebarActive, isDarkTheme, setActiveMenuItem };
+    //changeThemeSettings, setScale, onMenuToggle, setActiveMenuItem, isSidebarActive 삭제
+    return { layoutConfig: toRefs(layoutConfig), layoutState: toRefs(layoutState), isDarkTheme }; 
 }
