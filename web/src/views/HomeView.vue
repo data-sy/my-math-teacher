@@ -18,146 +18,50 @@ const closeConfirmation = () => {
             <div class="card">
                 <div class="flex justify-content-between mb-3">
                     <div>
-                        <span class="block text-500 font-medium mb-3"> My Math Teacher은 선수지식 TREE를 확인하고, 학생의 수준에 맞ㄴ</span>
-                        <div class="text-900 font-medium text-xl">여기에 설명을 적자.</div>
+                        <div class="text-900 font-medium text-xl mb-3"> 여기는 수학 지식을 점검하고, 부족한 부분을 찾아주는 사이트야. 어떤 선수지식이 필요한지 바로 알려주지! </div>
+                        <div class="text-900 font-medium text-xl mb-3"> MMT와 함께 더 재미있게 수학 공부해보자구~!  </div>
+                        <span class="block text-600 font-medium mb-3"> 특정 개념의 선수지식이 궁금하다면? => 선수 지식 알아보기 </span>
+                        <span class="block text-500 font-medium mb-3"> 나에게 부족한 부분이 무엇인지 궁금하다면? => &#9312;->&#9313;->&#9314; </span>
+                        <span class="block text-500 font-medium mb-3"> 1->2->3 순서대로 따라가면 돼</span>
                         <div>
-                            <i class="pi pi-github" > </i>
-                            <i class="pi pi-link" > </i>
-                            푸터에 링크 아이콘으로 노션 이력서 링크, 깃허브 아이콘으로 깃허브 주소 링크
-                        </div>
-                        <div>
-                            <i class="pi pi-question-circle"></i>
-                            <!-- <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i> -->
-                            <i class="pi pi-user" style="font-size: 2rem"></i>
-                            <i class="pi pi-user-edit" style="font-size: 2rem"></i>
+                            <i class="pi pi-question-circle"></i> 마우스 오버/아웃으로 설명 추가
+                            <i class="pi pi-user-edit" style="font-size: 2rem"></i> 로그인 후에는 user아이콘이 user-edit아이콘이 되도록
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-12 md:col-6 xl:col-6">
-            <div class="card">
-                <router-link to="/conceptlist">단위개념 목록 페이지로 이동</router-link>
-            </div>
+            <router-link to="/conceptlist">
+                <div class="card">
+                    <div class="text-900 font-medium text-xl mb-4"> 선수 지식 알아보기 </div>
+                    <span class="block text-600 font-medium mb-2"> 원하는 개념의 선수지식이 어떻게 되는지 알려줄게! </span>
+                </div>
+            </router-link>
         </div>
         <div class="col-12 md:col-6 xl:col-6">
-            <div class="card">
-                <router-link to="/diagnosis">진단학습지 다운로드 페이지로 이동</router-link>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-6">
-            <div class="card">
-                <router-link to="/record">학습지 정오답 입력 페이지로 이동</router-link>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-6">
-            <div class="card">
-                <router-link to="/result">학습지 결과 분석 페이지로 이동</router-link>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card">
-                <router-link to="/concepttree">단위개념 보기 페이지로 이동</router-link>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card">
-                <router-link to="/maincomponent">store테스트 페이지로 이동</router-link>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card">
-                <router-link to="/download"> 다운로드 페이지로 이동</router-link>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card">
-                <router-link to="/cyto"> cytoscape 페이지로 이동 </router-link>
-            </div>
-        </div>
-        
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
-            <Button label="이전" class="mr-2 mb-2"></Button>
-        </div>
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-6 xl:col-8">빈공간</div>
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
-            <Button label="다음" class="mr-2 mb-2"></Button>
-        </div>           
-
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
-            <Button label="이전" class="mr-2 mb-2"></Button>
-        </div>
-        <div class="col">빈</div>
-        <div class="col">공</div>
-        <div class="col">간</div>
-        <div class="col">!</div>
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
-            <Button label="다운로드" icon="pi pi-check" class="mr-2 mb-2" @click="openConfirmation" />
-            <Dialog header="학습지 다운로드" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="flex align-items-center justify-content-center">
-                    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                    <span>Are you sure you want to proceed?</span>
-                </div>
-                <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="closeConfirmation" class="p-button-text" autofocus />
-                </template>
-            </Dialog>
-        </div>     
-
-
-
-        <div class="col-12">
-            <div class="card">
-                1 하나짜리
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-6">
-            <div class="card">
-                2 두개로
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-6">
-            <div class="card">
-                2 두개로
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card">
-                3 하나
-            </div>
-        </div>
-        <div class="col-12 lg:col-6 xl:col-3">
-            <div class="card">
-                3 하나
-            </div>
-        </div>
-        <div class="col-12 xl:col-6">
-            <div class="card">
-                3 두개로
-            </div>
-        </div>
-        <div class="col-12 xl:col-3">
-            <div class="card">
-                4 하나
-            </div>
-        </div>
-        <div class="col-12 xl:col-6">
-            <div class="card">
-                4 둘
-            </div>
-        </div>
-        <div class="col-12 xl:col-3">
-            <div class="card">
-                4 하나
-            </div>
-        </div>
-        <div class="col-12 xl:col-6"> <!--A-->
-            <div class="col-12 lg:col-6 xl:col-3"> <!--B-->
+            <router-link to="/diagnosis">
                 <div class="card">
-                    div 중첩
+                    <div class="text-900 font-medium text-xl mb-4"> &#9312; 실력 점검하기 </div>
+                    <span class="block text-600 font-medium mb-2"> 중단원에 따른 진단학습지가 준비되어 있어. 어떤 개념을 알고, 어떤 개념을 모르는지 확인해보자! </span>
                 </div>
-            </div>
+            </router-link>
+        </div>
+        <div class="col-12 md:col-6 xl:col-6">
+            <router-link to="/record">
+                <div class="card">
+                    <div class="text-900 font-medium text-xl mb-4"> &#9313; 정오답 입력하기 </div>
+                    <span class="block text-600 font-medium mb-2"> 푼 학습지의 정오답을 입력하면, 너에게 어떤 지식이 필요한지 AI가 알려줄거야! </span>
+                </div>
+            </router-link>
+        </div>
+        <div class="col-12 md:col-6 xl:col-6 mb-7">
+            <router-link to="/result">
+                <div class="card">
+                    <div class="text-900 font-medium text-xl mb-4"> &#9314; 맞춤 학습  </div>
+                    <span class="block text-600 font-medium mb-2"> AI 분석 결과에 따라 너에게 필요한 문제만 쏙쏙 제공해줄게! </span>
+                </div>
+            </router-link>
         </div>
     </div>
 </template>

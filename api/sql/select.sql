@@ -76,3 +76,8 @@ select * from concepts where concept_id in (select i.concept_id from items i joi
 select * from items where item_id = 1000;
 
 select * from tests_items where test_id=491;
+
+select * from user_authority;
+delete from user_authority where user_id>3;
+delete from users where user_id>3;
+select * from users;

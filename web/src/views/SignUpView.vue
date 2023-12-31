@@ -75,8 +75,8 @@ const yesClick = () => {
 </script>
 
 <template>
-    <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-        <div class="flex flex-column align-items-center justify-content-center">
+    <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden mb-7">
+        <div class="flex flex-column align-items-center justify-content-center mb-3">
             <div class="w-full surface-card py-6 px-7 sm:px-8 shadow-2 border-round">
                 <div class="text-center mb-7 cursor-pointer" @click="goToHome">
                     <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
