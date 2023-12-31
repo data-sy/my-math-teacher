@@ -7,6 +7,10 @@ import { useConfirm } from 'primevue/useconfirm';
 import levelDic from '@/assets/data/level.json';
 // import MathJax from 'mathjax';
 
+const router = useRouter()
+const api = useApi();
+const error = ref(null);
+
 // schoolLevel
 const selectButtonLevel = ref(null);
 const selectButtonLevels = ref([{ name: '초등' }, { name: '중등' }, { name: '고등' }]);
@@ -27,8 +31,6 @@ watch(selectButtonLevel, (newValue, oldValue) => {
     }
 });
 // chapeterLevel
-const api = useApi();
-const error = ref(null);
 watch(listboxLevel, async (newValue) => {
     const grade = newValue.grade;
     const semester = newValue.semester;
@@ -54,6 +56,7 @@ const listboxConcepts = ref([]);
 watch(selectedTreeValue, async (newValue) => {
     const key = Object.keys(newValue)[0];
     const chapterId = parseInt(key);
+    console.log(chapterId);
     if (!isNaN(chapterId)){
         try {
             const endpoint = `/concepts?chapterId=${chapterId}`;
@@ -93,7 +96,6 @@ const confirm = (event) => {
     });
 };  
 // '이전' 버튼 (홈으로)
-const router = useRouter()
 const goToHome = () => {
   try {
     router.push({ path: '/' }); 
@@ -174,7 +176,7 @@ const goToNextPage = async () => {
                     <div class="font-medium text-4xl text-900 mb-3">{{ conceptDetail.conceptName }}</div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">학교-학년-학기</div>
+                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptSchoolLevel }}-{{ conceptDetail.conceptGradeLevel }}-{{ conceptDetail.conceptSemester }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
@@ -196,7 +198,7 @@ const goToNextPage = async () => {
                     <div class="text-500 mb-5">  </div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">학교-학년-학기</div>
+                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">

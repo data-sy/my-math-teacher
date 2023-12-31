@@ -21,30 +21,30 @@ const getNodeColor = (nodeData) => {
   switch (gradeLevel){
     case '초1':
     case '초2':
-      return 'yellow'; // 초1일 때 빨간색 반환
+      return 'yellow'; 
     case '초3':
     case '초4':
-      return 'SpringGreen'; // 초2일 때 파란색 반환
+      return 'SpringGreen';
     case '초5':
     case '초6':
-      return 'green'; // 초3일 때 초록색 반환
+      return 'green'; 
     case '중1':
-      return 'lightblue'; // 초4일 때 주황색 반환
+      return 'lightblue'; 
     case '중2':
-      return 'skyblue'; // 초4일 때 주황색 반환
+      return 'skyblue'; 
     case '중3':
-      return 'dodgerblue'; // 초4일 때 주황색 반환
+      return 'dodgerblue'; 
     case '수학':
-      return 'lightpink'; // 초4일 때 주황색 반환  
+      return 'lightpink';   
     case '수1':
     case '수2':
-      return 'HotPink'; // 초4일 때 주황색 반환
+      return 'HotPink'; 
     case '미적':
     case '확통':
     case '기하':
-      return 'red'; // 초4일 때 주황색 반환
+      return 'red'; 
     default:
-      return 'gray'; // 해당하지 않는 경우 회색 반환 또는 다른 기본 색상 설정
+      return 'gray'; 
   }
 };
 
@@ -56,7 +56,7 @@ const arrowScale = 0.8;
 // 색상 기본값
 const dimColor = '#dfe4ea';
 const edgeColor = '#ced6e0';
-const nodeColor = '#57606f'; //글씨색??
+const nodeColor = '#57606f'; // 글씨색
 // activate 시 크기
 const nodeActiveSize = 15;
 const fontActiveSize = 11;
@@ -139,63 +139,25 @@ const setResetFocus = (target_cy) => {
 const changeNodeColor = (cy) => {
   cy.nodes().forEach(node => {
       const nodeData = node.data();
-      const nodeMyColor = getNodeColor(nodeData); // 노드의 색상 결정 함수 호출
+      const nodeMyColor = getNodeColor(nodeData); 
       node.data('nodeMyColor', nodeMyColor); // 노드의 초기 색상을 저장
       node.style('background-color', nodeMyColor);
     }
   );
 };
-// // 라벨의 위치 변경 (여러 상황에 유기적으로 대응할 수는 없어...)
-// const setLabelPositionBasedOnConnection = (cy) => {
-//     const processedNodes = new Set(); // 이미 처리된 노드를 추적하는 Set
-//     cy.nodes().forEach((node) => {
-//         if (processedNodes.has(node.id())) {
-//             return; // 이미 처리된 노드는 스킵
-//         }
-//         const neighbors = node.neighborhood().nodes(); // 노드의 이웃(neighborhood) 가져오기
-//         // console.log(neighbors);
-//         // 현재 노드의 텍스트 라벨 위치
-//         const currentNodeLabelPosition = parseInt(node.style('text-margin-y'));
-//         // 현재 노드의 텍스트가 위에 있는 경우
-//         if (currentNodeLabelPosition <= 0) {
-//             neighbors.forEach((neighbor) => {
-//                 // 이웃 노드의 텍스트 라벨 위치 확인 및 조정
-//                 if (!processedNodes.has(neighbor.id())) {
-//                     neighbor.style('text-margin-y', 16);
-//                     processedNodes.add(neighbor.id()); // 이웃 노드를 이미 처리된 노드로 추가
-//                 }
-//             });
-//             processedNodes.add(node.id()); // 현재 노드를 이미 처리된 노드로 추가
-//         }
-//         // 현재 노드의 텍스트가 아래에 있는 경우
-//         else {
-//             neighbors.forEach((neighbor) => {
-//                 // 이웃 노드의 텍스트 라벨 위치 확인 및 조정
-//                 if (!processedNodes.has(neighbor.id())) {
-//                     neighbor.style('text-margin-y', -1);
-//                     processedNodes.add(neighbor.id()); // 선행자 노드를 이미 처리된 노드로 추가
-//                 }
-//             });
-//             processedNodes.add(node.id()); // 현재 노드를 이미 처리된 노드로 추가
-//         }
-//     });
-// };
 
 onMounted(() => {
   if (dataToSend) {
-    // console.log(dataToSend);
     receivedData.value = dataToSend
-    // console.log("receivedData", receivedData);
   }
   if (receivedData.value) {
     // 해당 concept
     conceptDetail.value = receivedData.value.nodes.find(node => node.conceptId === receivedData.value.conceptId);
-    // nodes를 knowledgeSpace 변환하는 반복문
+    // nodes -> knowledgeSpace의 data
     receivedData.value.nodes.forEach(node => {
-      // 중복된 conceptId를 Set에 추가
       uniqueConceptIds.add(node.conceptId);
     });
-    // 중복이 제거된 conceptId를 가지고 knowledgeSpace에 데이터 추가
+      // 중복이 제거된 conceptId를 가지고 knowledgeSpace에 데이터 추가
     uniqueConceptIds.forEach(uniqueConceptId => {
       const filteredNode = receivedData.value.nodes.find(node => node.conceptId === uniqueConceptId);
       if (filteredNode) {
@@ -208,10 +170,9 @@ onMounted(() => {
         });
       }
     });
-    // edges를 knowledgeSpace 변환
-    // 나중에 백단에서 걸러서 오는 걸로 리팩토링
+    // edges -> knowledgeSpace의 data
     receivedData.value.edges.forEach(edge => {
-      // edge의 source가 nodes의 conceptId에 있는지 확인
+      // edge의 source가 nodes의 conceptId에 있는지 확인 (나중에 미리 백단에서 걸러오는 방법으로 리팩토링)
       const sourceExists = receivedData.value.nodes.some(node => {
         return node.conceptId === parseInt(edge.data.source);
       });
@@ -226,7 +187,6 @@ onMounted(() => {
       container: cyElement.value,
       elements: knowledgeSpace,
       style: [
-        // 그래프 스타일을 정의합니다.
         {
           selector: 'node',
           style: {
@@ -256,7 +216,7 @@ onMounted(() => {
       layout: {
         name: 'klay',
         animate: false,
-        gravityRangeCompound: 1.5, // 1.5
+        gravityRangeCompound: 1.5,
         klay: {
           spacing: 26, 
         },
@@ -266,8 +226,6 @@ onMounted(() => {
     });
     // 노드 속성에 따라 색상 변경
     changeNodeColor(cy);
-    // // 라벨의 위치 변경
-    // setLabelPositionBasedOnConnection(cy);
 
     // 클릭한 id 추출 (상세보기에 뿌려주기 위해)
     cy.on('tap', 'node', (event) => {
@@ -275,9 +233,7 @@ onMounted(() => {
     });
 
     // 마우스 인/아웃 하이라이트
-    // cy.on('tap', function (e) {});
     cy.on('tapstart mouseover', 'node', (e) => {
-      // console.log("in");
       setDimStyle(cy, {
         'background-color': dimColor,
         'line-color': dimColor,
@@ -287,7 +243,6 @@ onMounted(() => {
       setFocus(e.target, fromColor, toColor, edgeActiveWidth, arrowActiveScale);
     });
     cy.on('tapend mouseout', 'node', (e) => {
-      // console.log("out");
       const node = e.target;
       const originalColor = node.data('nodeMyColor');
       setResetFocus(e.cy);
@@ -308,19 +263,12 @@ watch(clickedNodeId, (newValue) => {
   const selectedNodeId = parseInt(newValue);
   if (newValue && receivedData.value && receivedData.value.nodes) {
     selectedNode.value = receivedData.value.nodes.find(node => node.conceptId === selectedNodeId);
-    if (selectedNode) {
-      // 선택된 노드 데이터를 가지고 화면에 필요한 작업 수행
-      // console.log(selectedNode.value);
-      // 화면에 표시하는 로직을 여기에 추가
-    }
   }
 });
-
+// '이전' 버튼 (conceptlist로)
 const goBack = () => {
-  // 이전 페이지로 돌아가기
   router.go(-1) // 또는 router.back()
 }
-
 // 홈으로
 const goToHome = () => {
   try {
@@ -336,48 +284,46 @@ const goToHome = () => {
         <div class="col-12 xl:col-6">
             <div class="card">
                 <h5> 선수단위개념 상세보기 </h5>
-                <div class="surface-section" v-if="selectedNode"> <!-- conceptDetail자리에 testData 사용-->
+                <div class="surface-section" v-if="selectedNode"> 
                     <div class="font-medium text-4xl text-900 mb-3">{{ selectedNode.conceptName }}</div>
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">학교-학년-학기</div>
+                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptSchoolLevel }}-{{ selectedNode.conceptGradeLevel }}-{{ selectedNode.conceptSemester }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">단원</div>
+                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptChapterMain }}-{{ selectedNode.conceptChapterSub }}-{{ selectedNode.conceptChapterName }}</div>
                         </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">개념설명</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptDescription }}</div>
-                        </li>
-                        <!-- <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">영역</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">
-                                <Chip v-for="section in conceptDetail.conceptSection" :label="section" class="mr-2" :key="section" />
-                            </div>
-                        </li> -->
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
                             <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptAchievementName }}</div>
                         </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-primary-500 w-6 md:w-2 font-xl font-bold">개념설명</div>
+                            <div class="text-900 font-medium w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptDescription }}</div>
+                        </li>
                     </ul>
                 </div>
                 <div class="surface-section" v-else>
-                    <div class="font-medium text-3xl text-900 mb-3 text-blue-500"> 단위개념을 선택해주세요 </div>
+                    <div class="font-medium text-3xl text-900 mb-3 text-blue-500"> 개념을 선택해주세요 </div>
                     <div class="text-500 mb-5">  </div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">개념설명</div>
+                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
                         </li>
-                        <!-- <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">영역</div>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
-                        </li> -->
+                        </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
                             <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-2 font-medium">개념설명</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
                         </li>
                     </ul>
@@ -392,18 +338,20 @@ const goToHome = () => {
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">개념설명</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
+                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptSchoolLevel }}-{{ conceptDetail.conceptGradeLevel }}-{{ conceptDetail.conceptSemester }}</div>
                         </li>
-                        <!-- <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">영역</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">
-                                <Chip v-for="section in conceptDetail.conceptSection" :label="section" class="mr-2" :key="section" />
-                            </div>
-                        </li> -->
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptChapterMain }}-{{ conceptDetail.conceptChapterSub }}-{{ conceptDetail.conceptChapterName }}</div>
+                        </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
                             <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
                             <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptAchievementName }}</div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-primary-500 w-6 md:w-2 font-xl font-bold">개념설명</div>
+                            <div class="text-900 font-medium w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
                         </li>
                     </ul>
                 </div>
@@ -411,17 +359,16 @@ const goToHome = () => {
         </div>
         <div class="col-12">
             <div class="card">
-                <h5> 단위개념 TREE </h5>
-                <!-- <p>받은 데이터: {{ receivedData }}</p> -->
+                <h5> 선수지식 TREE </h5>
                 <div>
                     <div ref="cyElement" style="height: 400px; width: 100%;"></div>
                 </div>
             </div>
         </div>
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
+        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2 mb-5">
             <Button  @click="goBack" label="이전" class="mr-2 mb-2"></Button>
         </div>
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-6 xl:col-8">빈공간</div>
+        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-6 xl:col-8"></div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <Button @click="goToHome" label="홈으로" icon="pi pi-home" class="mr-2 mb-2"></Button>
         </div>     
