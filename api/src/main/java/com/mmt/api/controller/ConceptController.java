@@ -25,12 +25,19 @@ public class ConceptController {
     }
 
     /**
-     * chapter_id에 따른 단위개념 목록 보기
+     * chapter_id에 따른 단위개념 목록 보기 (Neo4J 사용)
      */
     @GetMapping("")
-    public List<ChapterIdConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chatperId){
-        return conceptService.findAllByChapterId(chatperId);
+    public Flux<ConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
+        return conceptService.findNodesByChapterId(chapterId);
     }
+//    /**
+//     * chapter_id에 따른 단위개념 목록 보기 (RDB 사용) => response데이터가 수정되면서 RDB로는 chapters 테이블 조인해서 사용해야 하기 때문에 deprecated
+//     */
+//    @GetMapping("")
+//    public List<ChapterIdConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
+//        return conceptService.findAllByChapterId(chapterId);
+//    }
 
     /**
      * deprecated 일 듯?!

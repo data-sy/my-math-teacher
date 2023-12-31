@@ -50,9 +50,14 @@ public class ConceptService {
         return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }
 
-    // 이건 RDB 사용 (나중에 Neo4j 사용한 거 만들어서 둘의 성능 비교해보기)
-    public List<ChapterIdConceptResponse> findAllByChapterId(int chapterId){
-        return ConceptConverter.convertListToConceptResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
+//    // 이건 RDB 사용 (나중에 Neo4j 사용한 거 만들어서 둘의 성능 비교해보기)
+//    public List<ChapterIdConceptResponse> findAllByChapterId(int chapterId){
+//        return ConceptConverter.convertListToConceptResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
+//    }
+    // Neo4j 사용
+    @Transactional(readOnly = true)
+    public Flux<ConceptResponse> findNodesByChapterId(int chapterId){
+        return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByChapterId(chapterId));
     }
 
 //    /**
