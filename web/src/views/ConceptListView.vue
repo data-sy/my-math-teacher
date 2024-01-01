@@ -72,14 +72,14 @@ watch(selectedTreeValue, async (newValue) => {
 // 단위개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
-watch(listboxConcept, async (newValue) => {
+watch(listboxConcept, (newValue) => {
     conceptDetail.value  = newValue;
     conceptId.value = conceptDetail.value.conceptId;
-    console.log(conceptId.value);
+    // console.log(conceptId.value);
 });
 // 추가) LaTex 적용
 
-// 단위개념을 누르지 않고 버튼을 누르면, 단위개념 목록에서 단위개념을 먼저 골라달라고 안내
+// 단위개념을 누르지 않고 [선수지식 확인]버튼을 누르면, 단위개념 목록에서 단위개념을 먼저 골라달라고 안내
 const popup = ref(null);
 const toast = useToast();
 const confirmPopup = useConfirm();
@@ -138,9 +138,6 @@ const goToNextPage = async () => {
                         <span class="block text-600 font-medium mb-3"> 1. [School Level]에서 원하는 학교군 선택하기 </span>
                         <span class="block text-600 font-medium mb-3"> 2. [Gradel Level]에서 원하는 학년-학기 선택하기 </span>
                         <span class="block text-600 font-medium"> 3. [대단원-중단원-소단원]에서 원하는 소단원 선택하기 (<span style="color: hotpink; font-weight: bold;">화살표 <i class="pi pi-chevron-right" style="color: #57606f;"></i> 클릭</span>)</span>
-                        <ul style="list-style-type: disc;">
-                            <li> 목록이 길어지면 스크롤이 생깁니다.</li>
-                        </ul>
                         <span class="block text-600 font-medium mb-3"> 4. 개념 목록에서 원하는 개념 선택하기 </span>
                         <span class="block text-600 font-medium"> 5. [선수지식 확인] 버튼 누르기 </span>
                     </div>
@@ -160,7 +157,7 @@ const goToNextPage = async () => {
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5> 대단원-중단원-소단원 </h5>
-                <ScrollPanel :style="{ width: '100%', height: '35rem'}"> 
+                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
                     <Tree :value="treeValue" selectionMode="single" v-model:selectionKeys="selectedTreeValue"></Tree>
                 <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
@@ -225,7 +222,7 @@ const goToNextPage = async () => {
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="conceptId == null" ref="popup" @click="confirm($event)" label="선수지식 확인" class="mr-2 mb-2"></Button>
+            <Button v-if="conceptId == null" ref="popup" @click="confirm($event)" label="개념을 선택해주세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="goToNextPage" label="선수지식 확인"  class="mr-2 mb-2"></Button>
         </div>
     </div>

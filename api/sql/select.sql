@@ -81,3 +81,5 @@ select * from user_authority;
 delete from user_authority where user_id>3;
 delete from users where user_id>3;
 select * from users;
+
+SELECT 

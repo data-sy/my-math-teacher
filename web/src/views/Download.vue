@@ -57,22 +57,20 @@ const closeConfirmation = () => {
 
 // 클릭 시 담길 값이야 (ref에서 꺼낼때는 value 사용하기)
 const testId = 123;
-async function createUserTest(testId) {
-  const api = useApi();
-  const endpoint = `/tests/${testId}`;
+const postData = async () => {
   try {
+    const endpoint = `/tests/${testId}`;
     await api.post(endpoint);
-    console.log('User test creation request sent.');
-  } catch (error) {
-    console.error('Error creating user test:', error);
+  } catch (err) {
+    console.error(`POST ${endpoint} failed:`, err);
   }
-}
+};
 
 // 추가) testid가 선택되기 전까지 다운로드 버튼 비활성화 
 const yesClick = () => {
   closeConfirmation();
-  handlePDFDownload();
-  createUserTest(testId);
+  generatePdf();
+  postData();
   goToHome();
 };
 
