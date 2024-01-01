@@ -13,7 +13,7 @@ const logoUrl = computed(() => {
     <footer class="layout-footer grid foot-padding">
         <div class="col-12 sm:col-6 xl:col-6 ">
             <h4>Contact Us</h4>
-            <p>Email: data.sy.2@gmail.com</p>
+            <p>Email: contact.mmt.2024@gmail.com</p>
             <p>Phone: 010-0000-0000</p>
             <p></p>
         </div>

@@ -24,21 +24,21 @@ const getNodeColor = (nodeData) => {
       return 'yellow'; 
     case '초3':
     case '초4':
-      return 'SpringGreen';
+      return 'springGreen';
     case '초5':
     case '초6':
       return 'green'; 
     case '중1':
       return 'lightblue'; 
     case '중2':
-      return 'skyblue'; 
-    case '중3':
       return 'dodgerblue'; 
+    case '중3':
+      return 'rgb(9, 106, 204)'; 
     case '수학':
       return 'lightpink';   
     case '수1':
     case '수2':
-      return 'HotPink'; 
+      return 'hotpink'; 
     case '미적':
     case '확통':
     case '기하':
@@ -281,7 +281,30 @@ const goToHome = () => {
 
 <template>
     <div class="grid p-fluid">
-        <div class="col-12 xl:col-6">
+      <div class="col-12">
+            <div class="card">
+                <div class="flex justify-content-between">
+                    <div>
+                        <div class="text-900 font-medium text-xl mb-3"> 여기는 선수지식 TREE를 볼 수 있는 공간이야. </div>
+                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
+                        <span class="block text-600 font-medium mb-3"> 1. [선수지식 TREE] 설명서 </span>
+                        <ul style="list-style-type: disc;">
+                          <li class="text-600 font-medium mb-3"> 드래그를 하면 화면이 확대/축소 돼 </li>
+                          <li class="text-600 font-medium mb-3"> 글씨가 겹쳐 보이면 점을 클릭&드래그 해 봐. 모양을 직접 수정할 수 있단다.</li>
+                          <li class="text-600 font-medium mb-3"> 원하는 점에 마우스를 가져다 대면 직전,직후의 개념을 확실히 볼 수 있어.</li>
+                          <li class="text-600 font-medium mb-5"> 원하는 점을 클릭하면 [선수지식 상세보기]에 자세한 정보가 뜰 거야.</li>
+                        </ul>
+                        <span class="block text-600 font-medium mb-3"> 2. 점의 색깔 의미 </span>
+                        <ul style="list-style-type: disc;">
+                          <li class="text-600 font-medium mb-3"> 초등학교 : 초1,2 <i class="pi pi-circle-fill" style="color: yellow; font-size: 1.5rem;"></i> 초3,4 <i class="pi pi-circle-fill" style="color: springgreen; font-size: 1.5rem;"></i> 초5,6 <i class="pi pi-circle-fill" style="color: green; font-size: 1.5rem;"></i> </li>
+                          <li class="text-600 font-medium mb-3"> 중학교 : 중1 <i class="pi pi-circle-fill" style="color: skyblue; font-size: 1.5rem;"></i> 중2 <i class="pi pi-circle-fill" style="color: dodgerblue; font-size: 1.5rem;"></i> 중3 <i class="pi pi-circle-fill" style="color: rgb(9, 106, 204); font-size: 1.5rem;"></i></li>
+                          <li class="text-600 font-medium"> 고등학교 : 수학(상/하) <i class="pi pi-circle-fill" style="color: lightpink; font-size: 1.5rem;"></i> 수&#8544;,수&#8545; <i class="pi pi-circle-fill" style="color: hotpink; font-size: 1.5rem;"></i> 미적,기하,확통 <i class="pi pi-circle-fill" style="color: red; font-size: 1.5rem;"></i> </li>
+                        </ul>
+                      </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 lg:col-6">
             <div class="card">
                 <h5> 선수단위개념 상세보기 </h5>
                 <div class="surface-section" v-if="selectedNode"> 
@@ -289,20 +312,20 @@ const goToHome = () => {
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptSchoolLevel }}-{{ selectedNode.conceptGradeLevel }}-{{ selectedNode.conceptSemester }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptSchoolLevel }}-{{ selectedNode.conceptGradeLevel }}-{{ selectedNode.conceptSemester }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptChapterMain }}-{{ selectedNode.conceptChapterSub }}-{{ selectedNode.conceptChapterName }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptChapterMain }}-{{ selectedNode.conceptChapterSub }}-{{ selectedNode.conceptChapterName }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptAchievementName }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptAchievementName }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-primary-500 w-6 md:w-2 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-8 md:flex-order-0 flex-order-1">{{ selectedNode.conceptDescription }}</div>
+                            <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptDescription }}</div>
                         </li>
                     </ul>
                 </div>
@@ -311,26 +334,26 @@ const goToHome = () => {
                     <div class="text-500 mb-5">  </div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
+                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
+                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
+                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">개념설명</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1"></div>
+                            <div class="text-500 w-6 md:w-3 font-medium">개념설명</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="col-12 xl:col-6">
+        <div class="col-12 lg:col-6">
             <div class="card">
                 <h5> 단위개념 상세보기 </h5>
                 <div class="surface-section" v-if="conceptDetail"> 
@@ -338,20 +361,20 @@ const goToHome = () => {
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptSchoolLevel }}-{{ conceptDetail.conceptGradeLevel }}-{{ conceptDetail.conceptSemester }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptSchoolLevel }}-{{ conceptDetail.conceptGradeLevel }}-{{ conceptDetail.conceptSemester }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptChapterMain }}-{{ conceptDetail.conceptChapterSub }}-{{ conceptDetail.conceptChapterName }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptChapterMain }}-{{ conceptDetail.conceptChapterSub }}-{{ conceptDetail.conceptChapterName }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptAchievementName }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptAchievementName }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-primary-500 w-6 md:w-2 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
+                            <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
                         </li>
                     </ul>
                 </div>

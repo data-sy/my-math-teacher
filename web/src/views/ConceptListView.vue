@@ -137,7 +137,7 @@ const goToNextPage = async () => {
                         <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
                         <span class="block text-600 font-medium mb-3"> 1. [School Level]에서 원하는 학교군 선택하기 </span>
                         <span class="block text-600 font-medium mb-3"> 2. [Gradel Level]에서 원하는 학년-학기 선택하기 </span>
-                        <span class="block text-600 font-medium"> 3. [대단원-중단원-소단원]에서 원하는 소단원 선택하기 (화살표 <i class="pi pi-chevron-right"></i> 클릭)</span>
+                        <span class="block text-600 font-medium"> 3. [대단원-중단원-소단원]에서 원하는 소단원 선택하기 (<span style="color: hotpink; font-weight: bold;">화살표 <i class="pi pi-chevron-right" style="color: #57606f;"></i> 클릭</span>)</span>
                         <ul style="list-style-type: disc;">
                             <li> 목록이 길어지면 스크롤이 생깁니다.</li>
                         </ul>
@@ -176,20 +176,20 @@ const goToNextPage = async () => {
                     <div class="font-medium text-4xl text-900 mb-3">{{ conceptDetail.conceptName }}</div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptSchoolLevel }}-{{ conceptDetail.conceptGradeLevel }}-{{ conceptDetail.conceptSemester }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptSchoolLevel }}-{{ conceptDetail.conceptGradeLevel }}-{{ conceptDetail.conceptSemester }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptChapterMain }}-{{ conceptDetail.conceptChapterSub }}-{{ conceptDetail.conceptChapterName }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptChapterMain }}-{{ conceptDetail.conceptChapterSub }}-{{ conceptDetail.conceptChapterName }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-2 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptAchievementName }}</div>
+                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptAchievementName }}</div>
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-primary-500 w-6 md:w-2 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-8 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
+                            <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
                         </li>
                     </ul>
                 </div>
