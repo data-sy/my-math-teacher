@@ -1,11 +1,16 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/api.js';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 
+const router = useRouter()
 const api = useApi();
+const toggleValue = ref(false);
+
 const listboxTest = ref(null);
 const listboxTests = ref([]);
-
 // 학습지 목록
 onMounted(async () => {
   try {
@@ -20,10 +25,12 @@ onMounted(async () => {
 
 // 학습지 미리보기
 const testDetail = ref([]);
-// const testId = ref(0);
+const testId = ref(null);
+const userTestId = ref(null);
 watch(listboxTest, async (newValue) => {
+    testId.value = newValue.testId;
+    userTestId.value = newValue.userTestId;
     try {
-        // testId.value = newValue.testId;
         const endpoint = `/tests/${newValue.testId}`;
         const response = await api.get(endpoint);
         testDetail.value = response.map(item => {
@@ -44,23 +51,81 @@ watch(listboxTest, async (newValue) => {
 const renderItemAnswer = (text) => {
     return text;
 };
-// public에 담아뒀을 때
-// const imageUrlPub = 'demo/images/491001.jpg';
-// 진단학습지 번호 추출
-// function extractNumberFromImagePath(itemImagePath) {
-//   const match = itemImagePath.match(/diag\/(\d+)/);
-//   if (match) {
-//     return match[1]; // 'diag/' 뒤의 숫자 반환
-//   } else {
-//     return null; // 숫자를 찾을 수 없을 때 null 반환
-//   }
-// }
-const toggleValue = ref(false);
-
+// 정오답 DB에 저장
+const createRecord = async () => {
+    const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
+    const requestData = ref({
+        userTestId: userTestId,
+        answerCodeCreateRequestList: answerCodeCreateRequestList,
+    });
+    try {
+        await api.post('/record', requestData.value);
+    } catch (err) {
+        console.error(`POST ${endpoint} failed:`, err);
+    }
+};
+// 학습지를 누르지 않고 [기록하기]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
+const popup = ref(null);
+const toast = useToast();
+const confirmPopup = useConfirm();
+const confirm = (event) => {
+    confirmPopup.require({
+        target: event.target,
+        message: '학습지 목록에서 학습지를 선택해주세요.',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Ok',
+        rejectLabel: ' ',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: '학습지를 선택하면 기록할 수 있습니다.', life: 3000 });
+        },
+    });
+};  
+// '이전' 버튼 (홈으로)
+const goToHome = () => {
+  try {
+    router.push({ path: '/' }); 
+  } catch (error) {
+    console.error('에러 발생:', error);
+  }
+};
+// 다운로드 확인 창
+const displayConfirmation = ref(false);
+const openConfirmation = () => {
+    displayConfirmation.value = true;
+};
+const closeConfirmation = () => {
+    displayConfirmation.value = false;
+};
+// yes 버튼 클릭 시 
+const yesClick = () => {
+  closeConfirmation();
+  createRecord();
+  goToHome();
+};
 </script>
 
 <template>
     <div class="grid p-fluid">
+        <div class="col-12">
+            <div class="card">
+                <div class="flex justify-content-between">
+                    <div>
+                        <div class="text-900 font-medium text-xl mb-3"> 여기는 진단학습지의 정오답을 기록하는 곳이야. </div>
+                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
+                        <span class="block text-600 font-medium mb-3"> 1. [학습지 목록]에서 기록할 학습지 선택</span>
+                        <ul style="list-style-type: disc;">
+                            <li class=mb-2> "&#9312; 실력 점검하기"에서 다운로드했던 진단학습지 목록이 준비되어 있어</li>
+                        </ul>
+                        <span class="block text-600 font-medium mb-3"> 2. [정오답 기록하기]에서 o/x 선택하기 </span>
+                        <ul style="list-style-type: disc;">
+                            <li class=mb-2> "정오답입력"의 ox버튼을 클릭하면 o/x를 선택할 수 있어</li>
+                            <li class=mb-2> 맞은 문제는 o, 틀린 문제는 x를 선택하면 돼</li>
+                        </ul>
+                        <span class="block text-600 font-medium"> 3. [기록하기] 버튼 누르기</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5> 학습지 목록 </h5>
@@ -70,37 +135,33 @@ const toggleValue = ref(false);
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5>정오답 기록하기</h5>
-                <div v-if="!listboxTest" > </div>
-                <div v-else-if="listboxTest.record">
-                    트루이면 안내문구와 함께 분석결과보기 링크
-                </div>
-                <div v-else > 
-                    <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
-                        <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>                    
-                        <Column field="itemAnswer" header="정답" style="min-width: 5em">
-                            <template #body="rowData">
-                                <span v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
-                            </template>
-                        </Column>
-                        <Column field="answerCode" header="정오답입력" style="min-width: 5em">
-                            <template #body="rowData">
-                                <ToggleButton v-model="rowData.data.answerCode" onLabel="o" offLabel="x" :style="{ width: '3.3em' }" />
-                                <!-- <ToggleButton v-model="rowData.data.answerCode" :style="{ width: '3.3em' }">
-                                    <template #onLabel>
-                                        <i class="pi pi-check-circle" style="opacity: 0; position: absolute;"></i>
-                                    </template>
-                                    <template #offLabel>
-                                        <i class="pi pi-minus-circle" style="opacity: 0; position: absolute;"></i>
-                                    </template>      
-                                </ToggleButton> -->
-                            </template>
-                        </Column>
-                    </DataTable>
-                </div>
+                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
+                    <div v-if="!listboxTest" > </div>
+                    <div v-else-if="listboxTest.record">
+                        트루이면 안내문구와 함께 분석결과보기 링크
+                    </div>
+                    <div v-else > 
+                        <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
+                            <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>                    
+                            <Column field="itemAnswer" header="정답" style="min-width: 5em">
+                                <template #body="rowData">
+                                    <span v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
+                                </template>
+                            </Column>
+                            <Column field="answerCode" header="정오답입력" style="min-width: 5em">
+                                <template #body="rowData">
+                                    <ToggleButton v-model="rowData.data.answerCode" onLabel="o" offLabel="x" :style="{ width: '3.3em' }" />
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
+                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                </ScrollPanel>
             </div>
         </div>
         <div class="col-12 xl:col-6">
             <div class="card">
+                <!--'기록하기'에서는 정답 삭제-->
                 <h5> 학습지 미리보기 </h5>
                 <!--스크롤 기능 추가하기-->
                 <div class="grid" >
@@ -113,20 +174,28 @@ const toggleValue = ref(false);
                     <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " style="height: calc(23vw);" class="card col-6">
                         같은 사이즈의 빈 이미지 넣기
                     </div>
-                    <!-- <div>
-                        src/assets에 담아뒀을 때 목록 내 모든 이미지 보기 테스트
-                        <img :src="img" v-for="img of images" :key="img" class="card col-6"/>
-                    </div> -->
-                    <div>정답도 맘에 드는 템플릿 가져와서 사용하기(2단으로)</div>
-                    <div v-for="(item, index) in testDetail" :key="index" class="col-12">
-                        <!-- index+1 표시 -->
-                        <span>{{ index + 1 }}. </span>                        
-                        <!-- itemAnswer 표시 -->
-                        <span v-html="renderItemAnswer(item.itemAnswer)"></span>
-                    </div>
                 </div>
             </div>
         </div>
+        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
+            <Button @click="goToHome" label="이전" class="mr-2 mb-5"></Button>
+        </div>
+        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-6 xl:col-8"></div>
+        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
+            <ConfirmPopup></ConfirmPopup>
+            <Toast />
+            <Button v-if="testId == null" ref="popup" @click= "confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
+            <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
+                <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+                    <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
+                        <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }} </div>
+                    </div>
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                        <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    </template>
+                </Dialog>
+        </div>   
     </div>
 </template>
 

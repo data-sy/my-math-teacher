@@ -27,11 +27,9 @@ const requestData = ref({
     userBirthdate: calender,
     userComments: comments
 });
-
 const logoUrl = computed(() => {
     return 'layout/images/logo-mmt4.png';
 });
-
 // 홈으로
 const goToHome = () => {
   try {

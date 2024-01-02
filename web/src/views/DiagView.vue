@@ -52,7 +52,6 @@ const testDetail = ref([]);
 const testId = ref(null);
 watch(listboxTest, async (newValue) => {
     testId.value = newValue.testId;
-
     try {
         const endpoint = `/tests/${testId.value}`;
         const response = await api.get(endpoint);
