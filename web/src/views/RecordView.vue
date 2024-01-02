@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import axios from 'axios';
 
 const router = useRouter()
 const api = useApi();
@@ -64,6 +65,15 @@ const createRecord = async () => {
         console.error(`POST ${endpoint} failed:`, err);
     }
 };
+// AI 분석
+const analysis = async () => {
+  try {
+    const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`);
+    console.log('응답 데이터:', response.data);
+  } catch (err) {
+    console.error(`POST ${endpoint} failed:`, err);
+  }
+};
 // 학습지를 누르지 않고 [기록하기]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
 const popup = ref(null);
 const toast = useToast();
@@ -96,10 +106,12 @@ const openConfirmation = () => {
 const closeConfirmation = () => {
     displayConfirmation.value = false;
 };
+// 많이 느려진다면 로딩 중 화면 띄우는 것 추가
 // yes 버튼 클릭 시 
-const yesClick = () => {
+const yesClick = async () => {
   closeConfirmation();
-  createRecord();
+  await createRecord();
+  await analysis();
   goToHome();
 };
 </script>
