@@ -46,6 +46,18 @@ public class TestController {
         Long userId = 3L;
         return userTestService.findTests(userId);
     }
+
+    /**
+     * 유저의 '정오답 기록한' 학습지 목록 보기
+     */
+    @GetMapping("/user/is-record")
+    public List<UserTestsResponse> getRecoredTests(){
+//        Long userId = userService.getMyUserIdWithAuthorities();
+        // security 적용 전까지는 테스트 id 사용
+        Long userId = 3L;
+        return userTestService.findRecordedTests(userId);
+    }
+
 //    /** deprecated
 //     * 유저의 학습지 목록
 //     */

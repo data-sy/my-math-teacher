@@ -11,6 +11,8 @@ public interface UserTestRepository {
 
     List<UserTests> findByUserId(Long userId);
 
+    List<UserTests> findRecordedTests(Long userId);
+
     List<Long> findUserTestIds(Long userTestId);
 
 }

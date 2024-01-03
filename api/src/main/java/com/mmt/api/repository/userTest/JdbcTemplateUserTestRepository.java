@@ -39,6 +39,13 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
     }
 
     @Override
+    public List<UserTests> findRecordedTests(Long userId) {
+        String sql = "SELECT ut.user_test_id, t.test_id, t.test_name FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id\n" +
+                "WHERE ut.user_id = ? AND EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id);";
+        return jdbcTemplate.query(sql, recordedTestsRowMapper(), userId);
+    }
+
+    @Override
     public List<Long> findUserTestIds(Long userTestId) {
         // 조건1 : 해당 유저
         String condition1 = "user_id = (SELECT user_id FROM users_tests WHERE user_test_id=?)";
@@ -55,6 +62,15 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
             userTests.setTestId(rs.getLong("test_id"));
             userTests.setTestName(rs.getString("test_name"));
             userTests.setRecord(rs.getBoolean("is_Record"));
+            return userTests;
+        };
+    }
+    private RowMapper<UserTests> recordedTestsRowMapper() {
+        return (rs, rowNum) -> {
+            UserTests userTests = new UserTests();
+            userTests.setUserTestId(rs.getLong("user_test_id"));
+            userTests.setTestId(rs.getLong("test_id"));
+            userTests.setTestName(rs.getString("test_name"));
             return userTests;
         };
     }

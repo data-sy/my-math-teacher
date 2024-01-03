@@ -8,7 +8,7 @@ from predict import predict
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-# CORS(app, resources={r"/api/v1/*": {"origins": "http://localhost:3000,http://15.164.232.32:8080"}})
+# CORS(app, resources={r"/api/v1/*": {"origins": "http://localhost:5173,http://localhost:8080"}})
 
 @app.route('/')
 def hello_world():
@@ -50,7 +50,7 @@ def corstest():
         print(f"Failed to retrieve data from Spring server. Status code: {response.status_code}")
         return 'Failed to fetch data from Spring', 500
 
-@app.route('/api/v1/ai/<int:user_test_id>', methods=['POST'])
+@app.route('/ai/v1/ai/<int:user_test_id>', methods=['POST'])
 def ai(user_test_id):
     # 토큰
     jwt_token = request.headers.get('Authorization')

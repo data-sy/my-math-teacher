@@ -23,6 +23,9 @@ public class UserTestService {
     public List<UserTestsResponse> findTests(Long userId){
         return UserTestsConverter.convertListToTestResponseList(userTestRepository.findByUserId(userId));
     }
+    public List<UserTestsResponse> findRecordedTests(Long userId){
+        return UserTestsConverter.convertListToTestResponseList(userTestRepository.findRecordedTests(userId));
+    }
 
     // 이전 학습지의 답안 기록도 사용하기 위해 이전의 user_test_id 추출
     public List<Long> findBefore(Long userTestId){
