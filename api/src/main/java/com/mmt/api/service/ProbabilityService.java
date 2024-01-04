@@ -1,6 +1,8 @@
 package com.mmt.api.service;
 
 import com.mmt.api.domain.Probability;
+import com.mmt.api.dto.result.ResultConverter;
+import com.mmt.api.dto.result.ResultResponse;
 import com.mmt.api.repository.Probability.ProbabilityRepository;
 import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.util.LogicUtil;
@@ -10,8 +12,6 @@ import reactor.core.publisher.Flux;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ProbabilityService {
@@ -35,9 +35,6 @@ public class ProbabilityService {
         List<Probability> depth0 = answerService.findIds(userTestId);
         List<Probability> depthN = new ArrayList<>();
         for (Probability probability : depth0){
-            // 해당 단위개념의 to_concept_depth, probability_percent 채우기
-            probability.setToConceptDepth(0);
-            probability.setProbabilityPercent(probabilityList[probability.getSkillId()-1]);
             // 선수지식들 찾기
             int conceptId = probability.getConceptId();
             // 여기서는 path 살린 쿼리문 사용해야 함 - path 역추적해서 깊이 찾을거니까
@@ -59,10 +56,11 @@ public class ProbabilityService {
             int skillId = conceptService.findSkillIdByConceptId(probability.getConceptId());
             probability.setProbabilityPercent(probabilityList[skillId-1]);
         }
-        List<Probability> finalList = Stream.concat(depth0.stream(), depthN.stream())
-                .collect(Collectors.toList());
-        probabilityRepository.save(finalList);
+        probabilityRepository.save(depthN);
     }
 
+    public List<ResultResponse> findResults(Long userTestId){
+        return ResultConverter.convertListToResultResponseList(probabilityRepository.findResults(userTestId));
+    }
 
 }

@@ -6,13 +6,24 @@ public class LogicUtil {
 
     private static Map<Integer, List<Integer>> buildGraph(int targetId, List<Integer> integerList) {
         Map<Integer, List<Integer>> graph = new HashMap<>();
-        for (int i = 0; i < integerList.size() - 1; i++) {
+        // 중복 엣지 방지
+        Set<String> addedEdges = new HashSet<>();
+
+        for (int i = 1; i < integerList.size() - 1; i++) {
             int current = integerList.get(i);
             // 해당 id가 나오면 그래프 만들지 않고 다음 루프로
             if (targetId == current) continue;
-            int next = integerList.get(i+1);
-            graph.computeIfAbsent(current, k -> new ArrayList<>()).add(next);
-            graph.computeIfAbsent(next, k -> new ArrayList<>()).add(current);
+            int next = integerList.get(i + 1);
+
+            String edge = current + "->" + next;
+            String reverseEdge = next + "->" + current;
+
+            if (!addedEdges.contains(edge) && !addedEdges.contains(reverseEdge)) {
+                graph.computeIfAbsent(current, k -> new ArrayList<>()).add(next);
+                graph.computeIfAbsent(next, k -> new ArrayList<>()).add(current);
+                addedEdges.add(edge);
+                addedEdges.add(reverseEdge);
+            }
         }
         return graph;
     }
