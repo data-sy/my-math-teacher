@@ -6,37 +6,40 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ResultConverter {
+
     public static List<ResultResponse> convertListToResultResponseList(List<Result> resultList) {
-        Map<Integer, ResultResponse> resultResponseMap = new HashMap<>();
-        Map<Integer, List<ResultResponse>> prerequisiteMap = new HashMap<>();
+        Map<Integer, List<Result>> groupedByTestItemNumber = resultList.stream()
+                .collect(Collectors.groupingBy(Result::getTestItemNumber));
 
-        for (Result result : resultList) {
-            int conceptId = result.getConceptId();
-            ResultResponse response = copyResultToResponse(result);
+        List<ResultResponse> resultResponses = resultList.stream()
+                .collect(Collectors.groupingBy(Result::getTestItemNumber))
+                .entrySet().stream()
+                .flatMap(entry -> {
+                    List<Result> groupedResults = entry.getValue();
+                    List<Result> zeroDepthResults = groupedResults.stream()
+                            .filter(r -> r.getToConceptDepth() == 0)
+                            .collect(Collectors.toList());
 
-            if (result.getToConceptDepth() == 0) {
-                resultResponseMap.put(conceptId, response);
-            } else {
-                prerequisiteMap.putIfAbsent(conceptId, new ArrayList<>());
-                prerequisiteMap.get(conceptId).add(response);
-            }
-        }
+                    List<ResultResponse> nonZeroDepthResults = groupedResults.stream()
+                            .filter(r -> r.getToConceptDepth() > 0)
+                            .map(ResultConverter::convertToResultResponse)
+                            .collect(Collectors.toList());
 
-        for (Map.Entry<Integer, ResultResponse> entry : resultResponseMap.entrySet()) {
-            int conceptId = entry.getKey();
-            ResultResponse response = entry.getValue();
-            if (prerequisiteMap.containsKey(conceptId)) {
-                response.setPrerequisiteList(prerequisiteMap.get(conceptId));
-            }
-        }
+                    return zeroDepthResults.stream().map(zeroDepthResult -> {
+                        ResultResponse resultResponse = ResultConverter.convertToResultResponse(zeroDepthResult);
+                        resultResponse.setPrerequisiteList(nonZeroDepthResults);
+                        return resultResponse;
+                    });
+                })
+                .collect(Collectors.toList());
 
-        return new ArrayList<>(resultResponseMap.values());
+        return resultResponses;
     }
 
-
-    public static ResultResponse copyResultToResponse(Result result) {
+    private static ResultResponse convertToResultResponse(Result result) {
         ResultResponse resultResponse = new ResultResponse();
         resultResponse.setProbabilityId(result.getProbabilityId());
         resultResponse.setTestItemNumber(result.getTestItemNumber());

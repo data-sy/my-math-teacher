@@ -20,4 +20,9 @@ public class Result {
     private String chapterSub;
     private String chapterName;
 
+    // 디버깅 용 : System.out.println(result);
+    @Override
+    public String toString() {
+        return String.format("result{ testItemNumber = %d, conceptId = %d, toConceptDepth = %d }", testItemNumber, conceptId, toConceptDepth);
+    }
 }

@@ -89,7 +89,9 @@ WHERE ut.user_id = 3 AND EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = 
 
 select * from probabilities;
 
-SELECT p.probability_id, ti.test_item_number, p.concept_id, p.to_concept_depth, p.probability_percent, c.concept_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name
+SELECT p.probability_id, p.answer_id, ti.test_item_number, p.concept_id, p.to_concept_depth, p.probability_percent, c.concept_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name
 FROM chapters ch JOIN concepts c ON c.concept_chapter_id = ch.chapter_id
 JOIN probabilities p ON p.concept_id = c.concept_id JOIN answers a ON a.answer_id = p.answer_id JOIN tests_items ti ON ti.item_id = a.item_id
-WHERE a.user_test_id = 6;
+WHERE a.user_test_id = 4;
+
+select * from probabilities where answer_id=340;

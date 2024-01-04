@@ -23,4 +23,9 @@ public class ResultResponse {
     private String chapterName;
     private List<ResultResponse> prerequisiteList;
 
+    // 디버깅 용 : System.out.println(resultResponse);
+    @Override
+    public String toString() {
+        return String.format("resultResponse{ testItemNumber = %d, conceptId = %d, toConceptDepth = %d }", testItemNumber, conceptId, toConceptDepth);
+    }
 }
