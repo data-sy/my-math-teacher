@@ -5,16 +5,10 @@ import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
 
 cytoscape.use(klay);
-
-const router = useRouter()
-const dataToSend = history.state.dataToSend;
-const receivedData = ref('')
-const knowledgeSpace = [];
-const uniqueConceptIds = new Set();
 const cyElement = ref(null);
 let cy = null;
-const clickedNodeId = ref('');
-const conceptDetail = ref(null);
+
+const router = useRouter()
 
 const getNodeColor = (nodeData) => {
   const gradeLevel = nodeData.conceptGradeLevel;
@@ -146,6 +140,12 @@ const changeNodeColor = (cy) => {
   );
 };
 
+const dataToSend = history.state.dataToSend;
+const receivedData = ref('')
+const uniqueConceptIds = new Set();
+const knowledgeSpace = [];
+const clickedNodeId = ref('');
+const conceptDetail = ref(null);
 onMounted(() => {
   if (dataToSend) {
     receivedData.value = dataToSend

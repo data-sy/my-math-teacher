@@ -111,9 +111,9 @@ const goToNextPage = async () => {
         const edgesEndpoint = `/concepts/edges/${conceptDetail.value.conceptId}`;
         const edgesResponse = await api.get(edgesEndpoint);
         const data = {
-            conceptId : conceptId.value,
-            nodes : nodesResponse,
-            edges : edgesResponse,
+            conceptId: conceptId.value,
+            nodes: nodesResponse,
+            edges: edgesResponse,
         }
         router.push({
             name: 'concepttree',

@@ -1,12 +1,12 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import axios from 'axios';
 
-const router = useRouter()
+const router = useRouter();
 const api = useApi();
 // const toggleValue = ref(false);
 
@@ -14,13 +14,13 @@ const listboxTest = ref(null);
 const listboxTests = ref([]);
 // 학습지 목록
 onMounted(async () => {
-  try {
-    const endpoint = "tests/user"
-    const response = await api.get(endpoint);
-    listboxTests.value = response;
-  } catch (error) {
-    console.error('데이터 생성 중 에러 발생:', err);
-  }
+    try {
+        const endpoint = 'tests/user';
+        const response = await api.get(endpoint);
+        listboxTests.value = response;
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    }
 });
 // 추가) 정오답에 따라 활성화 주고, 기록 이미 한 학습지는 분석결과 보러가기 or 재기록 버튼 (새 userTest로 다시 저장되도록)
 
@@ -34,9 +34,8 @@ watch(listboxTest, async (newValue) => {
     try {
         const endpoint = `/tests/${newValue.testId}`;
         const response = await api.get(endpoint);
-        testDetail.value = response.map(item => {
-            return { ...item, 
-                "answerCode": true };
+        testDetail.value = response.map((item) => {
+            return { ...item, answerCode: true };
         });
         // const modules = await import.meta.glob(`@/assets/images/items/diag/${testId.value}/*.jpg`);
         // const images = [];
@@ -46,7 +45,7 @@ watch(listboxTest, async (newValue) => {
         // console.log(images);
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
-    }    
+    }
 });
 // 답안 원문자 표현
 const renderItemAnswer = (text) => {
@@ -57,7 +56,7 @@ const createRecord = async () => {
     const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
     const requestData = ref({
         userTestId: userTestId,
-        answerCodeCreateRequestList: answerCodeCreateRequestList,
+        answerCodeCreateRequestList: answerCodeCreateRequestList
     });
     try {
         await api.post('/record', requestData.value);
@@ -67,12 +66,12 @@ const createRecord = async () => {
 };
 // AI 분석
 const analysis = async () => {
-  try {
-    const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`);
-    console.log('응답 데이터:', response.data);
-  } catch (err) {
-    console.error(`POST ${endpoint} failed:`, err);
-  }
+    try {
+        const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`);
+        console.log('응답 데이터:', response.data);
+    } catch (err) {
+        console.error(`POST ${endpoint} failed:`, err);
+    }
 };
 // 학습지를 누르지 않고 [기록하기]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
 const popup = ref(null);
@@ -87,16 +86,16 @@ const confirm = (event) => {
         rejectLabel: ' ',
         accept: () => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '학습지를 선택하면 기록할 수 있습니다.', life: 3000 });
-        },
+        }
     });
-};  
+};
 // '이전' 버튼 (홈으로)
 const goToHome = () => {
-  try {
-    router.push({ path: '/' }); 
-  } catch (error) {
-    console.error('에러 발생:', error);
-  }
+    try {
+        router.push({ path: '/' });
+    } catch (error) {
+        console.error('에러 발생:', error);
+    }
 };
 // 다운로드 확인 창
 const displayConfirmation = ref(false);
@@ -107,12 +106,12 @@ const closeConfirmation = () => {
     displayConfirmation.value = false;
 };
 // 많이 느려진다면 로딩 중 화면 띄우는 것 추가
-// yes 버튼 클릭 시 
+// yes 버튼 클릭 시
 const yesClick = async () => {
-  closeConfirmation();
-  await createRecord();
-  await analysis();
-  goToHome();
+    closeConfirmation();
+    await createRecord();
+    await analysis();
+    goToHome();
 };
 </script>
 
@@ -122,16 +121,16 @@ const yesClick = async () => {
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
-                        <div class="text-900 font-medium text-xl mb-3"> 여기는 진단학습지의 정오답을 기록하는 곳이야. </div>
+                        <div class="text-900 font-medium text-xl mb-3">여기는 진단학습지의 정오답을 기록하는 곳이야.</div>
                         <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
                         <span class="block text-600 font-medium mb-3"> 1. [학습지 목록]에서 기록할 학습지 선택</span>
-                        <ul style="list-style-type: disc;">
-                            <li class=mb-2> "&#9312; 실력 점검하기"에서 다운로드했던 진단학습지 목록이 준비되어 있어</li>
+                        <ul style="list-style-type: disc">
+                            <li class="mb-2">"&#9312; 실력 점검하기"에서 다운로드했던 진단학습지 목록이 준비되어 있어</li>
                         </ul>
                         <span class="block text-600 font-medium mb-3"> 2. [정오답 기록하기]에서 o/x 선택하기 </span>
-                        <ul style="list-style-type: disc;">
-                            <li class=mb-2> "정오답입력"의 ox버튼을 클릭하면 o/x를 선택할 수 있어</li>
-                            <li class=mb-2> 맞은 문제는 o, 틀린 문제는 x를 선택하면 돼</li>
+                        <ul style="list-style-type: disc">
+                            <li class="mb-2">"정오답입력"의 ox버튼을 클릭하면 o/x를 선택할 수 있어</li>
+                            <li class="mb-2">맞은 문제는 o, 틀린 문제는 x를 선택하면 돼</li>
                         </ul>
                         <span class="block text-600 font-medium"> 3. [기록하기] 버튼 누르기</span>
                     </div>
@@ -140,21 +139,19 @@ const yesClick = async () => {
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
-                <h5> 학습지 목록 </h5>
+                <h5>학습지 목록</h5>
                 <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" />
             </div>
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5>정오답 기록하기</h5>
-                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
-                    <div v-if="!listboxTest" > </div>
-                    <div v-else-if="listboxTest.record">
-                        트루이면 안내문구와 함께 분석결과보기 링크
-                    </div>
-                    <div v-else > 
+                <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
+                    <div v-if="!listboxTest"></div>
+                    <div v-else-if="listboxTest.record">트루이면 안내문구와 함께 분석결과보기 링크</div>
+                    <div v-else>
                         <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
-                            <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>                    
+                            <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>
                             <Column field="itemAnswer" header="정답" style="min-width: 5em">
                                 <template #body="rowData">
                                     <span v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
@@ -167,25 +164,23 @@ const yesClick = async () => {
                             </Column>
                         </DataTable>
                     </div>
-                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                    <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
             </div>
         </div>
         <div class="col-12 xl:col-6">
             <div class="card">
                 <!--'기록하기'에서는 정답 삭제-->
-                <h5> 학습지 미리보기 </h5>
+                <h5>학습지 미리보기</h5>
                 <!--스크롤 기능 추가하기-->
-                <div class="grid" >
+                <div class="grid">
                     <!-- card는 영역을 보기 위해 임시적으로 사용-->
-                    <div class="card col-12" style="height: calc(8vw);"> 유저 이름, 학습지 이름, 현재 날짜, (이거는 학원 학습지 틀 참조하기 - 촬영!)</div>
+                    <div class="card col-12" style="height: calc(8vw)">유저 이름, 학습지 이름, 현재 날짜, (이거는 학원 학습지 틀 참조하기 - 촬영!)</div>
                     <div v-for="(item, index) in testDetail" :key="index" class="card col-6">
-                        <img :src="item.itemImagePath" alt="Item Image"  class="fit-image"/>
-                        <div v-if="index > 5" style="height: calc(4vw);"> 크기 맞추기 위해 여백 만들기 </div>
+                        <img :src="item.itemImagePath" alt="Item Image" class="fit-image" />
+                        <div v-if="index > 5" style="height: calc(4vw)">크기 맞추기 위해 여백 만들기</div>
                     </div>
-                    <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " style="height: calc(23vw);" class="card col-6">
-                        같은 사이즈의 빈 이미지 넣기
-                    </div>
+                    <div v-for="i in (6 - (testDetail.length % 6)) % 6" :key="'empty_' + i" style="height: calc(23vw)" class="card col-6">같은 사이즈의 빈 이미지 넣기</div>
                 </div>
             </div>
         </div>
@@ -196,18 +191,18 @@ const yesClick = async () => {
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="testId == null" ref="popup" @click= "confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
+            <Button v-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
-                <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
-                        <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }} </div>
-                    </div>
-                    <template #footer>
-                        <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                        <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
-                    </template>
-                </Dialog>
-        </div>   
+            <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+                <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
+                    <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }}</div>
+                </div>
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                </template>
+            </Dialog>
+        </div>
     </div>
 </template>
 
