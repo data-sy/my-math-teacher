@@ -54,7 +54,7 @@
             </router-link>
         </div>
         <div class="col-12 md:col-6 xl:col-6 mb-7">
-            <router-link to="/result">
+            <router-link to="/personal">
                 <div class="card">
                     <div class="text-900 font-medium text-xl mb-4"> &#9315; 맞춤 학습  </div>
                     <span class="block text-600 font-medium mb-2"> 분석 결과에 따라 너에게 필요한 문제만 쏙쏙 제공해줄게! </span>
