@@ -9,6 +9,10 @@ export function useApi() {
       'Content-Type': 'application/json;charset=utf-8',
     },
   });
+  // Authorization 설정
+  function setAccessToken(accessToken) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+  }
 
   // GET 요청을 보내는 함수
   async function get(endpoint) {
@@ -55,6 +59,7 @@ export function useApi() {
     post,
     put,
     del,
+    setAccessToken,
   };
 
 }

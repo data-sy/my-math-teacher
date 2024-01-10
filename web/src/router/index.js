@@ -18,7 +18,7 @@ const router = createRouter({
                 {
                     path: '/login',
                     name: 'login',
-                    component: () => import('@/views/Login.vue')
+                    component: () => import('@/views/OauthLogin.vue')
                 },
                 {
                     path: '/cyto',

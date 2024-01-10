@@ -2,6 +2,9 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/api.js';
+import { useStore } from 'vuex';
+const store = useStore();
+
 
 const api = useApi();
 const router = useRouter();
@@ -27,6 +30,12 @@ const closeDialog = () => {
 const login = async () => {
   try {
     const response = await api.post('/authentication', requestData.value);
+    // 토큰을 store에 저장
+    // console.log(response.accessToken);
+    // console.log(response.refreshToken);
+    store.commit('setAccessToken', response.accessToken);
+    store.commit('setRefreshToken', response.refreshToken);
+
     error.value = null;
     closeDialog();
     router.push({ name: 'home' }); 
@@ -116,6 +125,11 @@ const goToSignup = () => {
                             <img src="images/oauth2/naver-logo.png" alt="Naver" class="icon">
                         </a>
                     </div>
+                    <!-- <div class="icon-container kakao">
+                        <a href="http://localhost:8080/oauth2/authorization/kakao">
+                            <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem;">
+                        </a>
+                    </div> -->
                     <div class="icon-container kakao">
                         <a href="http://localhost:8080/oauth2/authorization/kakao">
                             <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem;">
