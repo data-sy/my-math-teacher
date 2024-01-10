@@ -1,13 +1,25 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router';
 import AppLayout from '@/layout/AppLayout.vue';
 
 const router = createRouter({
-    history: createWebHashHistory(),
+        history: createWebHistory(),
+    // history: createWebHistory(process.env.BASE_URL),
+    // history: createWebHashHistory(),
     routes: [
         {
             path: '/',
             component: AppLayout,
             children: [
+                {
+                    path: '/gogo',
+                    name: 'gogo',
+                    component: () => import('@/views/GoGo.vue')
+                },
+                {
+                    path: '/login',
+                    name: 'login',
+                    component: () => import('@/views/Login.vue')
+                },
                 {
                     path: '/cyto',
                     name: 'cyto',
