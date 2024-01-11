@@ -1,33 +1,33 @@
 import { createStore } from 'vuex';
 import Cookies from 'vue-cookies';
 import { useApi } from '@/composables/api.js';
+import AuthService from '@/service/AuthService';
 
 const api = useApi();
 
-// isExpired 함수 정의
-const isExpired = (token) => {
-  if (!token) {
-    return true; // 토큰이 없으면 만료됨
-  }
-  
-  const tokenPayload = JSON.parse(atob(token.split('.')[1])); // JWT payload 디코딩
-  const expirationTime = tokenPayload.exp * 1000; // 만료 시간 (밀리초)
-  const currentTime = Date.now(); // 현재 시간 (밀리초)
+// // isExpired 함수 정의 (만료되기 1분 전으로 설정해서 자동 로그인 연장 되도록)
+// const isExpired = (token) => {
+//   if (!token) {
+//     return true; // 토큰이 없으면 만료됨
+//   }
+//   try {
+//     const tokenPayload = JSON.parse(atob(token.split('.')[1])); // JWT payload 디코딩
+//     const expirationTime = tokenPayload.exp * 1000; // 만료 시간 (밀리초)
+//     const currentTime = Date.now(); // 현재 시간 (밀리초)
 
-  return currentTime >= expirationTime;
-};
+//     return currentTime >= expirationTime + 60000;
+//   } catch (err) {
+//     console.error("Error decoding or parsing token:", err);
+//     return true; // 에러 발생 시 토큰을 만료된 것으로 처리
+//   }
+// };
 
-// [store 데이터 설정 실시]
 const store = createStore ({
-  state: { // [변수들의 집합]
-    userTestId: -1,
-    accessToken: '',
-    refreshToken: ''
+  state: { 
+    accessToken: localStorage.getItem('accessToken') || null,
+    refreshToken: localStorage.getItem('refreshToken') || null,
   },
-  getters: { // [state의 변수들을 get 호출]
-    getUserTestId(state){
-      return state.userTestId;
-    },
+  getters: { 
     getAccessToken(state){
       return state.accessToken;
     },
@@ -35,12 +35,10 @@ const store = createStore ({
       return state.refreshToken;
     }
   },
-  mutations: { // [변수들을 조작하는 함수들]
-    setUserTestId(state, userTestId){
-      state.userTestId = userTestId;
-    },
+  mutations: { 
     setAccessToken(state, accessToken) {
-      state.accessToken = accessToken; 
+      state.accessToken = accessToken;
+      localStorage.setItem('accessToken', accessToken);
       if (accessToken){
         // 헤더에 accessToken 추가
         api.setAccessToken(accessToken);
@@ -56,7 +54,8 @@ const store = createStore ({
       }
     },
     setRefreshToken(state, refreshToken) {
-      state.refreshToken = refreshToken; 
+      state.refreshToken = refreshToken;
+      localStorage.setItem('refreshToken', refreshToken);
       // 쿠키에 refreshToken 저장
       // Cookies.set('refreshToken', refreshToken);
       // // 쿠키에 refreshToken 저장 (HttpOnly, Secure, 만료일시 설정)
@@ -68,44 +67,50 @@ const store = createStore ({
     }
   },
   actions: { // [비동기 처리를 하는 함수들]
-    // 토큰을 받았을 때 호출되는 액션
-    async saveTokens({ commit }, { accessToken, refreshToken }) {
-      // 받은 토큰을 mutation을 통해 store에 저장
-      commit('setAccessToken', accessToken);
-      commit('setRefreshToken', refreshToken);
-      // 토큰 만료 여부를 확인하고, 토큰 갱신
-      const isTokenExpired = isExpired(this.state.accessToken);
-      if (isTokenExpired) {
-        const requestData = ref({
-          grantType: "Bearer",
-          accessToken: this.state.accessToken,
-          refreshToken: this.state.refreshToken
-        });
-        try {
-          const response = await api.post('/reissue', requestData.value);
-          commit('setAccessToken', response.accessToken);
-          commit('setRefreshToken', response.refreshToken);
-        } catch (refreshError) {
-          // 토큰 갱신 실패 시 로그아웃 등의 처리
-          console.error('토큰 갱신에 실패했습니다. : ', refreshError);
-          dispatch('logout');
-        }
-      }
+    async saveTokens(context, tokens) {
+      await AuthService.saveTokens(context, tokens);
     },
-    // 로그아웃 액션
-    logout({ commit }) {
-      // 토큰 삭제
-      commit('setAccessToken', '');
-      commit('setRefreshToken', '');
-      // API 요청의 Authorization 헤더 초기화
-      api.defaults.headers.common.Authorization = null;
-      // // 쿠키 삭제 등 로그아웃 처리
-      // Cookies.remove('accessToken');
-      // Cookies.remove('refreshToken');
+    logout(context) {
+      AuthService.logout(context);
+    },
+    // // 토큰을 받았을 때 호출되는 액션
+    // async saveTokens({ commit }, { accessToken, refreshToken }) {
+    //   // 받은 토큰을 mutation을 통해 store에 저장
+    //   commit('setAccessToken', accessToken);
+    //   commit('setRefreshToken', refreshToken);
+    //   // 토큰 만료 여부를 확인하고, 토큰 갱신
+    //   const isTokenExpired = isExpired(this.state.accessToken);
+    //   if (isTokenExpired) {
+    //     const requestData = ref({
+    //       grantType: "Bearer",
+    //       accessToken: this.state.accessToken,
+    //       refreshToken: this.state.refreshToken
+    //     });
+    //     try {
+    //       const response = await api.post('/reissue', requestData.value);
+    //       commit('setAccessToken', response.accessToken);
+    //       commit('setRefreshToken', response.refreshToken);
+    //     } catch (refreshError) {
+    //       // 토큰 갱신 실패 시 로그아웃 등의 처리
+    //       console.error('토큰 갱신에 실패했습니다. : ', refreshError);
+    //       dispatch('logout');
+    //     }
+    //   }
+    // },
+    // // 로그아웃 액션
+    // logout({ commit }) {
+    //   // 토큰 삭제
+    //   commit('setAccessToken', '');
+    //   commit('setRefreshToken', '');
+    //   // API 요청의 Authorization 헤더 초기화
+    //   api.defaults.headers.common.Authorization = null;
+    //   // // 쿠키 삭제 등 로그아웃 처리
+    //   // Cookies.remove('accessToken');
+    //   // Cookies.remove('refreshToken');
 
-      // 홈화면으로 이동
-      router.push({ path: '/' });
-    }
+    //   // 홈화면으로 이동
+    //   router.push({ path: '/' });
+    // }
   },
 });
 

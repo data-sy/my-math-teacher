@@ -1,5 +1,8 @@
 package com.mmt.api.controller;
 
+import com.mmt.api.dto.user.TokenDTO;
+import com.mmt.api.jwt.JwtFilter;
+import com.mmt.api.jwt.JwtToken;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +25,18 @@ public class HelloController {
     public ResponseEntity<String> imageTest(){
         return ResponseEntity.ok("<a href=\"https://ibb.co/WD0RmTC\"><img src=\"https://i.ibb.co/KND8T1n/dog.jpg\" alt=\"dog\" border=\"0\" /></a>");
     }
+
+    // 새로고침 시 api 작동하는지 테스트
+    @PostMapping("retest")
+    public ResponseEntity<TokenDTO> retest(@RequestBody TokenDTO request){
+        JwtToken token = new JwtToken("Bearer", "hello", "world");
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token);
+
+        return new ResponseEntity<>(TokenDTO.from(token), httpHeaders, HttpStatus.OK);
+    }
+
 
 //    @GetMapping("/gogo")
 //    public ResponseEntity<String> corsTest(@RequestParam("data") String data){

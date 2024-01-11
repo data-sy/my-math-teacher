@@ -8,6 +8,7 @@ export function useApi() {
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
     },
+    withCredentials: true, // refreshToken을 쿠키로 주고받기 위해
   });
   // Authorization 설정
   function setAccessToken(accessToken) {
@@ -45,9 +46,9 @@ export function useApi() {
   }
 
   // DELETE 요청을 보내는 함수
-  async function del(endpoint) {
+  async function del(endpoint, data) {
     try {
-      const response = await api.delete(endpoint);
+      const response = await api.delete(endpoint, data);
       return response.data;
     } catch (error) {
       throw new Error(`DELETE ${endpoint} failed: ${error.message}`);

@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import store from './store'
+import AuthService from '@/service/AuthService';
 
 import PrimeVue from 'primevue/config';
 import AutoComplete from 'primevue/autocomplete';
@@ -211,5 +212,11 @@ app.component('TreeSelect', TreeSelect);
 app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
+
+app.mixin({
+    created() {
+      AuthService.initializeStore(store);
+    }
+  });
 
 app.mount('#app');
