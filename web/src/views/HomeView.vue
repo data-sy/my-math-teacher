@@ -61,12 +61,12 @@
                 </div>
             </router-link>
         </div>
-        <div class="col-12 md:col-6 xl:col-6 mb-7">
+        <!-- <div class="col-12 md:col-6 xl:col-6 mb-7">
             <router-link to="/maincomponent">
                 <div class="card">
                     <div class="text-900 font-medium text-xl mb-4"> 스토어  </div>
                 </div>
             </router-link>
-        </div>
+        </div> -->
     </div>
 </template>

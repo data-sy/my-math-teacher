@@ -5,6 +5,7 @@ import com.mmt.api.dto.user.TokenDTO;
 import com.mmt.api.jwt.JwtFilter;
 import com.mmt.api.jwt.JwtToken;
 import com.mmt.api.service.user.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -81,11 +82,15 @@ public class AuthController {
 
     /**
      * 로그아웃 했을 때 토큰을 받아 BlackList에 저장
-     * 리팩토링 : 프론트 단에서 accessToken의 시간 파싱할 수 있다면 바디에 그 시간만 담아서 보내기
      */
     @DeleteMapping("/authentication")
-    public ResponseEntity<Void> logout(@RequestBody @Valid TokenDTO request) {
-        authService.logout(request.getAccessToken());
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring(7);
+            System.out.println("토큰 잘 들어 왔는지"+accessToken);
+            authService.logout(accessToken);
+        }
         return ResponseEntity.ok().build();
     }
 

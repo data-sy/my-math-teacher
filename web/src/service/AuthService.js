@@ -52,20 +52,6 @@ const authService = {
         store.commit('setRefreshToken', refreshToken);
       }
     },
-
-    // logout({ commit, dispatch }) {
-    //     // 토큰 삭제
-    //     commit('setAccessToken', '');
-    //     commit('setRefreshToken', '');
-    //     // API 요청의 Authorization 헤더 초기화
-    //     api.defaults.headers.common.Authorization = null;
-    //     // // 쿠키 삭제 등 로그아웃 처리
-    //     // Cookies.remove('accessToken');
-    //     // Cookies.remove('refreshToken');
-
-    //     // 홈화면으로 이동
-    //     router.push({ path: '/' });
-    // },
 };
 
 export default authService;

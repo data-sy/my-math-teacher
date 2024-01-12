@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/api.js';
 import { useStore } from 'vuex';
+
 const store = useStore();
-
-
 const api = useApi();
 const router = useRouter();
 const loginDialog = ref(false);
@@ -20,46 +19,68 @@ const password = ref('');
 const error = ref(null);
 const requestData = ref({
     userEmail: email,
-    userPassword: password,
+    userPassword: password
 });
 
 const closeDialog = () => {
-  loginDialog.value = false;
+    loginDialog.value = false;
 };
+
+const isLoggedIn = ref(false);
+onMounted(() => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    // console.log('mounted 후 : ', localStorage.getItem('accessToken'));
+    watch(() => store.state.accessToken,
+        (newToken) => {
+            // console.log('마운티드 안의 워치에 들어옴 : ', isLoggedIn.value);
+            isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+            // console.log('마운티드 안의 watch 후 : ', isLoggedIn.value);
+        }
+    )
+
+});
 
 const login = async () => {
-  try {
-    const response = await api.post('/authentication', requestData.value);
-    // 토큰을 store에 저장
-    // console.log(response.accessToken);
-    // console.log(response.refreshToken);
-    store.commit('setAccessToken', response.accessToken);
-    store.commit('setRefreshToken', response.refreshToken);
-
-    error.value = null;
-    closeDialog();
-    router.push({ name: 'home' }); 
-  } catch (err) {
-    console.error('데이터 생성 중 에러 발생:', err);
-    error.value = err;
-  }
+    try {
+        const response = await api.post('/authentication', requestData.value);
+        store.commit('setAccessToken', response.accessToken);
+        store.commit('setRefreshToken', response.refreshToken);
+        error.value = null;
+        closeDialog();
+        router.push({ name: 'home' });
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+        error.value = err;
+    }
 };
-const onUserClick = () =>{
-    // 로그인 되어 있다면 유저 페이지로 router.push
-    // 로그인 되어 있지 않다면 다이얼로그로 로그인 창 띄우기
-    // onTopBarMenuButton();
+
+const onUserClick = () => {
     submitted.value = false;
     loginDialog.value = true;
-    // // 다이얼로그 말고 페이지 사용 시
-    // router.push('/login');
 };
 const checked = ref(false);
 const goToSignup = () => {
-  // 회원가입 페이지로 이동하는 로직 작성
-  loginDialog.value = false;
-  router.push({ name: 'signup' }); 
+    loginDialog.value = false;
+    router.push({ name: 'signup' });
 };
 
+const logout = async () => {
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            api.setAccessToken(accessToken);
+        }
+        await api.del('/authentication');
+        store.commit('setAccessToken', null);
+        store.commit('setRefreshToken', null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        api.removeAccessToken();
+        router.push({ name: 'home' });
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    }
+};
 </script>
 
 <template>
@@ -69,14 +90,15 @@ const goToSignup = () => {
             <span>My Math Teacher</span>
         </router-link>
 
-        <button class="p-link layout-menu-button layout-topbar-button">
-        </button>
+        <button class="p-link layout-menu-button layout-topbar-button"></button>
 
-        <button class="p-link layout-topbar-menu-button layout-topbar-button" @click="onUserClick()">
-            <i class="pi pi-user" style="font-size: 1.5rem;"></i>
+        <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-menu-button layout-topbar-button"> 로그<br/>아웃 </span>
+        <button v-else @click="onUserClick()" class="p-link layout-topbar-menu-button layout-topbar-button">
+            <i class="pi pi-user" style="font-size: 1.5rem"></i>
         </button>
         <div class="layout-topbar-menu">
-            <button @click="onUserClick()" class="p-link layout-topbar-button">
+            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button" > 로그<br/>아웃 </span>
+            <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-user"></i>
                 <span>User</span>
             </button>
@@ -117,22 +139,17 @@ const goToSignup = () => {
                 <div class="flex justify-content-center gap-7">
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/google">
-                            <img src="images/oauth2/google-logo.png" alt="Google" class="icon">
+                            <img src="images/oauth2/google-logo.png" alt="Google" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/naver">
-                            <img src="images/oauth2/naver-logo.png" alt="Naver" class="icon">
+                            <img src="images/oauth2/naver-logo.png" alt="Naver" class="icon" />
                         </a>
                     </div>
-                    <!-- <div class="icon-container kakao">
-                        <a href="http://localhost:8080/oauth2/authorization/kakao">
-                            <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem;">
-                        </a>
-                    </div> -->
                     <div class="icon-container kakao">
                         <a href="http://localhost:8080/oauth2/authorization/kakao">
-                            <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem;">
+                            <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
                         </a>
                     </div>
                 </div>
@@ -178,6 +195,6 @@ const goToSignup = () => {
     /* 다른 스타일 속성들 */
 }
 .kakao {
-    background-color: #FEE500; /* Google 로고 배경색 */
+    background-color: #fee500; /* Google 로고 배경색 */
 }
 </style>

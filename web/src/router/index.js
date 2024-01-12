@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router
 import AppLayout from '@/layout/AppLayout.vue';
 
 const router = createRouter({
-        history: createWebHistory(),
+        history: createWebHistory(), // 해시 라우터 끔
     // history: createWebHistory(process.env.BASE_URL),
     // history: createWebHashHistory(),
     routes: [

@@ -3,9 +3,11 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import axios from 'axios';
+import { useApi } from '../composables/api';
 
 const router = useRouter();
 const store = useStore();
+const api = useApi();
 
 onMounted(() => {
     const url = window.location.href;
@@ -15,24 +17,18 @@ onMounted(() => {
     if (token) {
         const accessTokenMatch = token.match(/accessToken=([^,]+).*?,/);
         const refreshTokenMatch = token.match(/refreshToken=([^)]+)\)/);
-        // console.log(token);
 
         if (accessTokenMatch && refreshTokenMatch) {
             const accessToken = accessTokenMatch[1];
             const refreshToken = refreshTokenMatch[1];
 
-            // console.log(accessToken);
-            // console.log(refreshToken);
-
-            // Vuex 스토어에 accessToken과 refreshToken 저장
             store.commit('setAccessToken', accessToken);
             store.commit('setRefreshToken', refreshToken);
-
-            // // axios의 헤더에 accessToken 추가 (vuex에서 실행 중)
-            // axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+            // console.log('ouathLogin 후 : ', localStorage.getItem('accessToken'));
+            
+            api.setAccessToken(accessToken);
             
             router.push({ path: '/', query: {} });
-            // window.location.href = 'http://localhost:5173/#/';
 
         } else {
             console.error('Invalid token format.');

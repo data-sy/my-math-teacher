@@ -10,11 +10,19 @@ export function useApi() {
     },
     withCredentials: true, // refreshToken을 쿠키로 주고받기 위해
   });
+  
   // Authorization 설정
   function setAccessToken(accessToken) {
     api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
   }
-
+  function removeAccessToken() {
+    delete api.defaults.headers.common['Authorization'];
+  }
+  // 디버깅용 => 나중에 지우기
+  function getAccessToken() {
+    return api.defaults.headers.common['Authorization'];
+  }
+  
   // GET 요청을 보내는 함수
   async function get(endpoint) {
     try {
@@ -46,9 +54,9 @@ export function useApi() {
   }
 
   // DELETE 요청을 보내는 함수
-  async function del(endpoint, data) {
+  async function del(endpoint) {
     try {
-      const response = await api.delete(endpoint, data);
+      const response = await api.delete(endpoint);
       return response.data;
     } catch (error) {
       throw new Error(`DELETE ${endpoint} failed: ${error.message}`);
@@ -61,6 +69,8 @@ export function useApi() {
     put,
     del,
     setAccessToken,
+    removeAccessToken,
+    getAccessToken,
   };
 
 }
