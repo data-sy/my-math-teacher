@@ -24,9 +24,6 @@ onMounted(() => {
 
             store.commit('setAccessToken', accessToken);
             store.commit('setRefreshToken', refreshToken);
-            // console.log('ouathLogin 후 : ', localStorage.getItem('accessToken'));
-            
-            api.setAccessToken(accessToken);
             
             router.push({ path: '/', query: {} });
 

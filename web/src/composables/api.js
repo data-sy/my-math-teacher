@@ -10,18 +10,30 @@ export function useApi() {
     },
     withCredentials: true, // refreshToken을 쿠키로 주고받기 위해
   });
-  
   // Authorization 설정
-  function setAccessToken(accessToken) {
-    api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-  }
+  api.interceptors.request.use(
+    (config) => {
+      const accessToken = localStorage.getItem('accessToken');
+      console.log(accessToken);
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+  // function setAccessToken(accessToken) {
+  //   api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+  // }
   function removeAccessToken() {
     delete api.defaults.headers.common['Authorization'];
   }
-  // 디버깅용 => 나중에 지우기
-  function getAccessToken() {
-    return api.defaults.headers.common['Authorization'];
-  }
+  // // 디버깅용 => 나중에 지우기
+  // function getAccessToken() {
+  //   return api.defaults.headers.common['Authorization'];
+  // }
   
   // GET 요청을 보내는 함수
   async function get(endpoint) {
@@ -68,9 +80,9 @@ export function useApi() {
     post,
     put,
     del,
-    setAccessToken,
+    // setAccessToken,
     removeAccessToken,
-    getAccessToken,
+    // getAccessToken,
   };
 
 }

@@ -24,10 +24,6 @@ const store = createStore ({
     setAccessToken(state, accessToken) {
       state.accessToken = accessToken;
       localStorage.setItem('accessToken', accessToken);
-      if (accessToken){
-        // 헤더에 accessToken 추가
-        api.setAccessToken(accessToken);
-      }
     },
     setRefreshToken(state, refreshToken) {
       state.refreshToken = refreshToken;
@@ -45,7 +41,6 @@ const store = createStore ({
   actions: { // [비동기 처리를 하는 함수들]
     async setAccessToken(context, accessToken) {
       context.commit('setAccessToken', accessToken);
-      // await AuthService.setAccessToken(api, accessToken);
     },
     setRefreshToken(context, refreshToken) {
       context.commit('setRefreshToken', refreshToken);

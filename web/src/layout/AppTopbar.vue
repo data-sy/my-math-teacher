@@ -66,10 +66,6 @@ const goToSignup = () => {
 
 const logout = async () => {
     try {
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            api.setAccessToken(accessToken);
-        }
         await api.del('/authentication');
         store.commit('setAccessToken', null);
         store.commit('setRefreshToken', null);
