@@ -15,25 +15,10 @@ const router = createRouter({
                     name: 'user-edit',
                     component: () => import('@/views/UserEditView.vue')
                 },
-                // {
-                //     path: '/gogo',
-                //     name: 'gogo',
-                //     component: () => import('@/views/GoGo.vue')
-                // },
                 {
                     path: '/login',
                     name: 'login',
                     component: () => import('@/views/OauthLogin.vue')
-                },
-                {
-                    path: '/cyto',
-                    name: 'cyto',
-                    component: () => import('@/views/Cyto.vue')
-                },
-                {
-                    path: '/download',
-                    name: 'download',
-                    component: () => import('@/views/Download.vue')
                 },
                 {
                     path: '/personal',
