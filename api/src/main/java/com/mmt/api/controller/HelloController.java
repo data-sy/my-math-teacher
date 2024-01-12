@@ -1,11 +1,10 @@
 package com.mmt.api.controller;
 
-import com.mmt.api.dto.user.TokenDTO;
-import com.mmt.api.jwt.JwtFilter;
-import com.mmt.api.jwt.JwtToken;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/hello")

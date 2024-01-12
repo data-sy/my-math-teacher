@@ -14,7 +14,7 @@ export function useApi() {
   api.interceptors.request.use(
     (config) => {
       const accessToken = localStorage.getItem('accessToken');
-      console.log(accessToken);
+      // console.log(accessToken);
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -30,10 +30,10 @@ export function useApi() {
   function removeAccessToken() {
     delete api.defaults.headers.common['Authorization'];
   }
-  // // 디버깅용 => 나중에 지우기
-  // function getAccessToken() {
-  //   return api.defaults.headers.common['Authorization'];
-  // }
+  // 디버깅용 => 나중에 지우기
+  function getAccessToken() {
+    return api.defaults.headers.common['Authorization'];
+  }
   
   // GET 요청을 보내는 함수
   async function get(endpoint) {
@@ -82,7 +82,7 @@ export function useApi() {
     del,
     // setAccessToken,
     removeAccessToken,
-    // getAccessToken,
+    getAccessToken,
   };
 
 }

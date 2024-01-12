@@ -17,14 +17,6 @@ public class UserController {
     }
 
     /**
-     * 유저 회원가입
-     */
-    @PostMapping("")
-    public ResponseEntity<UserDTO> signup(@RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.signup(userDTO));
-    }
-
-    /**
      * 유저 상세보기 (자기 자신의 정보)
      */
     @GetMapping("")
@@ -53,8 +45,11 @@ public class UserController {
     /**
      * 유저 탈퇴하기
      */
-    @DeleteMapping("/{userId}")
-    public void delete(@PathVariable Long userId) { userService.delete(userId); }
+    @DeleteMapping("")
+    public void delete() {
+        Long userId = userService.getMyUserIdWithAuthorities();
+        userService.delete(userId);
+    }
 
 //    // 현재 Security Context에 따른 userId 가져오기 테스트
 //    @GetMapping("/id")

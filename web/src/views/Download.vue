@@ -10,7 +10,7 @@ const api = useApi();
 const testDetail = ref([]);
 const getTest = async () => {
     try {
-        const endpoint = "/tests/491";
+        const endpoint = "/tests/detail/491";
         const response = await api.get(endpoint);
         testDetail.value = response
     } catch (err) {

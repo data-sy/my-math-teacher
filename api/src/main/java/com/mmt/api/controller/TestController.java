@@ -41,9 +41,9 @@ public class TestController {
      */
     @GetMapping("/user")
     public List<UserTestsResponse> getUserTests(){
-//        Long userId = userService.getMyUserIdWithAuthorities();
-        // security 적용 전까지는 테스트 id 사용
-        Long userId = 3L;
+        Long userId = userService.getMyUserIdWithAuthorities();
+//        // security 적용 전까지는 테스트 id 사용
+//        Long userId = 3L;
         return userTestService.findTests(userId);
     }
 
@@ -52,9 +52,7 @@ public class TestController {
      */
     @GetMapping("/user/is-record")
     public List<UserTestsResponse> getRecoredTests(){
-//        Long userId = userService.getMyUserIdWithAuthorities();
-        // security 적용 전까지는 테스트 id 사용
-        Long userId = 3L;
+        Long userId = userService.getMyUserIdWithAuthorities();
         return userTestService.findRecordedTests(userId);
     }
 
@@ -77,7 +75,7 @@ public class TestController {
     /**
      * 학습지 상세보기
      */
-    @GetMapping("/{testId}")
+    @GetMapping("/detail/{testId}")
     public List<TestItemsResponse> getTestItems(@PathVariable Long testId){
         return testItemService.findTestItems(testId);
     }
@@ -87,9 +85,7 @@ public class TestController {
      */
     @PostMapping("/{testId}")
     public void create(@PathVariable Long testId) {
-//        Long userId = userService.getMyUserIdWithAuthorities();
-        // security 적용 전까지는 테스트 id 사용
-        Long userId = 3L;
+        Long userId = userService.getMyUserIdWithAuthorities();
         userTestService.create(userId, testId);
     }
 

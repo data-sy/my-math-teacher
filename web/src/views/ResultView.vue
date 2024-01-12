@@ -22,7 +22,7 @@ onMounted(async () => {
     const endpoint = "tests/user/is-record" 
     const response = await api.get(endpoint);
     listboxTests.value = response;
-  } catch (error) {
+  } catch (err) {
     console.error('데이터 생성 중 에러 발생:', err);
   }
 });
@@ -447,15 +447,15 @@ const goToNextPage = async () => {
             <Button @click="goToHome" label="홈으로" class="mr-2 mb-2"></Button>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-6 xl:col-8"></div>
-        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
-            <Button @click="goToNextPage" label="맞춤 학습지 출제"  class="mr-2 mb-2"></Button>
-        </div>
         <!-- <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
+            <Button @click="goToNextPage" label="맞춤 학습지 출제"  class="mr-2 mb-2"></Button>
+        </div> -->
+        <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <Button v-if="userTestId == null" ref="popup" @click="confirm($event)" label="학습지를 선택해주세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="goToNextPage" label="맞춤 학습지 출제"  class="mr-2 mb-2"></Button>
-        </div> -->
+        </div>
     </div>
 </template>
 

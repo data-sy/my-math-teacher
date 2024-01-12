@@ -1,7 +1,6 @@
 package com.mmt.api.controller;
 
 
-import com.mmt.api.dto.concept.ChapterIdConceptResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.dto.network.EdgeResponse;
 import com.mmt.api.service.ConceptService;

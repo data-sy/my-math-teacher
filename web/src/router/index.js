@@ -11,10 +11,15 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/gogo',
-                    name: 'gogo',
-                    component: () => import('@/views/GoGo.vue')
+                    path: '/user-edit',
+                    name: 'user-edit',
+                    component: () => import('@/views/UserEditView.vue')
                 },
+                // {
+                //     path: '/gogo',
+                //     name: 'gogo',
+                //     component: () => import('@/views/GoGo.vue')
+                // },
                 {
                     path: '/login',
                     name: 'login',

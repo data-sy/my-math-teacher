@@ -32,7 +32,7 @@ watch(listboxTest, async (newValue) => {
     testId.value = newValue.testId;
     userTestId.value = newValue.userTestId;
     try {
-        const endpoint = `/tests/${newValue.testId}`;
+        const endpoint = `/tests/detail/${newValue.testId}`;
         const response = await api.get(endpoint);
         testDetail.value = response.map((item) => {
             return { ...item, answerCode: true };

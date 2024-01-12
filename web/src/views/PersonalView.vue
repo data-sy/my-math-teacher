@@ -43,7 +43,7 @@ const radioValue2 = ref(null);
 // watch(listboxTest, async (newValue) => {
 //     testId.value = newValue.testId;
 //     try {
-//         const endpoint = `/tests/${testId.value}`;
+//         const endpoint = `/tests/detail/${testId.value}`;
 //         const response = await api.get(endpoint);
 //         testDetail.value = response
 //     } catch (err) {
