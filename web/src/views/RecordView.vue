@@ -5,21 +5,33 @@ import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import axios from 'axios';
+import { useStore } from 'vuex';
 
+const store = useStore();
 const router = useRouter();
 const api = useApi();
-// const toggleValue = ref(false);
 
+const isLoggedIn = ref(false);
 const listboxTest = ref(null);
 const listboxTests = ref([]);
 // 학습지 목록
-onMounted(async () => {
-    try {
-        const endpoint = 'tests/user';
-        const response = await api.get(endpoint);
-        listboxTests.value = response;
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+onMounted(async() => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    watch(() => store.state.accessToken,
+        (newToken) => {
+            isLoggedIn.value = newToken !== null;
+        }
+    )
+    if (isLoggedIn.value) {
+        try {
+            const endpoint = 'tests/user';
+            const response = await api.get(endpoint);
+            listboxTests.value = response;
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.");
     }
 });
 // 추가) 정오답에 따라 활성화 주고, 기록 이미 한 학습지는 분석결과 보러가기 or 재기록 버튼 (새 userTest로 다시 저장되도록)
@@ -53,24 +65,32 @@ const renderItemAnswer = (text) => {
 };
 // 정오답 DB에 저장
 const createRecord = async () => {
-    const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
-    const requestData = ref({
-        userTestId: userTestId,
-        answerCodeCreateRequestList: answerCodeCreateRequestList
-    });
-    try {
-        await api.post('/record', requestData.value);
-    } catch (err) {
-        console.error(`POST ${endpoint} failed:`, err);
+    if (isLoggedIn.value && userTestId.value !== null) {
+        const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
+        const requestData = ref({
+            userTestId: userTestId,
+            answerCodeCreateRequestList: answerCodeCreateRequestList
+        });
+        try {
+            await api.post('/record', requestData.value);
+        } catch (err) {
+            console.error(`POST ${endpoint} failed:`, err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.");
     }
 };
 // AI 분석
 const analysis = async () => {
-    try {
-        const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`);
-        console.log('응답 데이터:', response.data);
-    } catch (err) {
-        console.error(`POST ${endpoint} failed:`, err);
+    if (isLoggedIn.value && userTestId.value !== null) {
+        try {
+            const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`);
+            console.log('응답 데이터:', response.data);
+        } catch (err) {
+            console.error(`POST ${endpoint} failed:`, err);
+        }
+    } else {
+        console.log("userTestId가 없습니다. AI 분석을 건너뜁니다.");   
     }
 };
 // 학습지를 누르지 않고 [기록하기]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
@@ -87,6 +107,20 @@ const confirm = (event) => {
         accept: () => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '학습지를 선택하면 기록할 수 있습니다.', life: 3000 });
         }
+    });
+};
+// 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
+const confirmPopup2 = useConfirm();
+const confirm2 = (event) => {
+    confirmPopup2.require({
+        target: event.target,
+        message: '로그인 혹은 회원가입을 해주세요.',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Ok',
+        rejectLabel: ' ',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 기록할 수 있습니다.', life: 3000 });
+        },
     });
 };
 // '이전' 버튼 (홈으로)
@@ -117,6 +151,9 @@ const yesClick = async () => {
 
 <template>
     <div class="grid p-fluid">
+        <div class="col-12 text-center">
+            <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
+        </div>
         <div class="col-12">
             <div class="card">
                 <div class="flex justify-content-between">
@@ -191,7 +228,8 @@ const yesClick = async () => {
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
+            <Button v-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인을 해주세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
+            <Button v-else-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">

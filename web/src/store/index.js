@@ -36,7 +36,7 @@ const store = createStore ({
       //   secure: true, // HTTPS에서만 전송되도록 설정
       //   expires: 1 // 1일 후 만료
       // });
-    }
+    },
   },
   actions: { // [비동기 처리를 하는 함수들]
     async setAccessToken(context, accessToken) {

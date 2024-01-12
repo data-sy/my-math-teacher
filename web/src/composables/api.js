@@ -24,15 +24,8 @@ export function useApi() {
       return Promise.reject(error);
     }
   );
-  // function setAccessToken(accessToken) {
-  //   api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-  // }
   function removeAccessToken() {
     delete api.defaults.headers.common['Authorization'];
-  }
-  // 디버깅용 => 나중에 지우기
-  function getAccessToken() {
-    return api.defaults.headers.common['Authorization'];
   }
   
   // GET 요청을 보내는 함수
@@ -80,9 +73,7 @@ export function useApi() {
     post,
     put,
     del,
-    // setAccessToken,
     removeAccessToken,
-    getAccessToken,
   };
 
 }

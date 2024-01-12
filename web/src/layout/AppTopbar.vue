@@ -28,16 +28,15 @@ const closeDialog = () => {
 
 const isLoggedIn = ref(false);
 onMounted(() => {
-    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null; // 새로고침에 대응
     // console.log('mounted 후 : ', localStorage.getItem('accessToken'));
     watch(() => store.state.accessToken,
         (newToken) => {
             // console.log('마운티드 안의 워치에 들어옴 : ', isLoggedIn.value);
-            isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+            isLoggedIn.value = newToken !== null;
             // console.log('마운티드 안의 watch 후 : ', isLoggedIn.value);
         }
     )
-
 });
 
 const login = async () => {
@@ -113,9 +112,9 @@ const logout = async () => {
                         <div class="flex align-items-center justify-content-between mb-4 gap-5">
                             <div class="flex align-items-center">
                                 <Checkbox v-model="checked" id="rememberme" binary class="mr-2"></Checkbox>
-                                <label for="rememberme">Remember me</label>
+                                <label for="rememberme" class="line-through-text">Remember me</label>
                             </div>
-                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Forgot password?</a>
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer line-through-text" style="color: var(--primary-color)">Forgot password?</a>
                         </div>
                         <Button type="submit" label="이메일로 로그인" class="w-full p-2.5 text-lg border-round-3xl"></Button>
                     </div>
@@ -125,7 +124,7 @@ const logout = async () => {
                         <a @click="goToSignup()" class="text-600 font-medium cursor-pointer"> 회원가입 </a>
                     </div>
                     <div class="vertical-line"></div>
-                    <a class="text-600 font-medium cursor-pointer ml-4"> 아이디 비밀번호 찾기 </a>
+                    <a class="text-600 font-medium cursor-pointer ml-4 line-through-text"> 아이디 비밀번호 찾기 </a>
                 </div>
                 <div class="divider-container mt-4 mb-4">
                     <div class="left-divider"></div>
@@ -149,6 +148,7 @@ const logout = async () => {
                         </a>
                     </div>
                 </div>
+                <div class="flex align-items-center justify-content-center mt-5 mb-5"> ( 참고 : 취소선은 아직 개발하지 않은 기능을 의미합니다.) </div>
                 <div v-if="error" style="color: red">{{ error.message }}</div>
             </div>
         </Dialog>
@@ -156,6 +156,9 @@ const logout = async () => {
 </template>
 
 <style lang="scss" scoped>
+.line-through-text {
+    text-decoration: line-through !important;
+}
 .divider-container {
     display: flex;
     align-items: center;

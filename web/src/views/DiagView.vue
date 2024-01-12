@@ -1,12 +1,14 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import levelDic from '@/assets/data/level.json';
+import { useStore } from 'vuex';
 
+const store = useStore();
 const router = useRouter()
 const api = useApi();
 const { htmlToPdf } = useHtmlToPdf();
@@ -71,12 +73,16 @@ const generatePdf = () => {
 };
 // 유저-학습지 DB에 저장
 const createDiagTest = async () => {
-  try {
-    const endpoint = `/tests/${testId.value}`;
-    await api.post(endpoint);
-  } catch (err) {
-    console.error(`POST ${endpoint} failed:`, err);
-  }
+    if (isLoggedIn.value) {
+        try {
+            const endpoint = `/tests/${testId.value}`;
+            await api.post(endpoint);
+        } catch (err) {
+            console.error(`POST ${endpoint} failed:`, err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았습니다. 테스트 생성을 건너뜁니다.");
+    }
 };
 // 학습지를 누르지 않고 [다운로드]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
 const popup = ref(null);
@@ -93,7 +99,30 @@ const confirm = (event) => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '학습지를 선택하면 다운로드할 수 있습니다.', life: 3000 });
         },
     });
-};  
+}; 
+// 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
+const isLoggedIn = ref(false);
+onMounted(() => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    watch(() => store.state.accessToken,
+        (newToken) => {
+            isLoggedIn.value = newToken !== null;
+        }
+    )
+});
+const confirmPopup2 = useConfirm();
+const confirm2 = (event) => {
+    confirmPopup2.require({
+        target: event.target,
+        message: '로그인 혹은 회원가입을 해주세요.',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Ok',
+        rejectLabel: ' ',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 학습지를 다운로드할 수 있습니다.', life: 3000 });
+        },
+    });
+};
 // '이전' 버튼 (홈으로)
 const goToHome = () => {
   try {
@@ -122,6 +151,9 @@ const yesClick = () => {
 
 <template>
     <div class="grid p-fluid">
+        <div class="col-12 text-center">
+            <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
+        </div>
         <div class="col-12">
             <div class="card">
                 <div class="flex justify-content-between">
@@ -200,6 +232,7 @@ const yesClick = () => {
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <Button v-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
+            <Button v-else-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인을 해주세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="다운로드" icon="pi pi-download"  class="mr-2 mb-2" />
                 <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                     <div class="text-600 font-semibold px-3 py-2"> {{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }} </div>

@@ -6,7 +6,9 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
+import { useStore } from 'vuex';
 
+const store = useStore();
 cytoscape.use(klay);
 const cyElement = ref(null);
 let cy = null;
@@ -14,30 +16,46 @@ let cy = null;
 const router = useRouter()
 const api = useApi();
 
+const isLoggedIn = ref(false);
 const listboxTest = ref(null);
 const listboxTests = ref([]);
 // 학습지 목록
-onMounted(async () => {
-  try {
-    const endpoint = "tests/user/is-record" 
-    const response = await api.get(endpoint);
-    listboxTests.value = response;
-  } catch (err) {
-    console.error('데이터 생성 중 에러 발생:', err);
-  }
+onMounted(async() => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    watch(() => store.state.accessToken,
+        (newToken) => {
+            isLoggedIn.value = newToken !== null;
+        }
+    )
+    if (isLoggedIn.value) {
+        try {
+            const endpoint = "tests/user/is-record" 
+            const response = await api.get(endpoint);
+            listboxTests.value = response;
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.");
+    }
 });
 // 분석 결과
 const resultList = ref([]);
 const userTestId = ref(null);
 watch(listboxTest, async (newValue) => {
     userTestId.value = newValue.userTestId;
-    try {
-        const endpoint = `/result/${userTestId.value}`;
-        const response = await api.get(endpoint);
-        resultList.value = response
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
-    }    
+    // isLoggedIn도 사실 넣어야 하지만 listboxTest가 isLoggedIn가 있어야만 생성되는 아이니까 패스
+    if (userTestId.value !== null) {
+        try {
+            const endpoint = `/result/${userTestId.value}`;
+            const response = await api.get(endpoint);
+            resultList.value = response
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.");
+    }
 });
 const expandedRows = ref([]);
 const expandAll = () => {
@@ -309,7 +327,21 @@ const confirm = (event) => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '학습지를 선택하면 그에 따른 맞춤 학습지를 출제할 수 있습니다.', life: 3000 });
         },
     });
-};  
+};
+// 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
+const confirmPopup2 = useConfirm();
+const confirm2 = (event) => {
+    confirmPopup2.require({
+        target: event.target,
+        message: '로그인 혹은 회원가입을 해주세요.',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Ok',
+        rejectLabel: ' ',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 결과를 볼 수 있습니다.', life: 3000 });
+        },
+    });
+};
 // '홈으로' 버튼
 const goToHome = () => {
   try {
@@ -332,6 +364,9 @@ const goToNextPage = async () => {
 
 <template>
     <div class="grid p-fluid">
+        <div class="col-12 text-center">
+            <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
+        </div>
         <div class="col-12">
             <div class="card">
                 <div class="flex justify-content-between">
@@ -453,7 +488,8 @@ const goToNextPage = async () => {
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="userTestId == null" ref="popup" @click="confirm($event)" label="학습지를 선택해주세요." class="mr-2 mb-2"></Button>
+            <Button v-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인을 해주세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
+            <Button v-else-if="userTestId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="goToNextPage" label="맞춤 학습지 출제"  class="mr-2 mb-2"></Button>
         </div>
     </div>

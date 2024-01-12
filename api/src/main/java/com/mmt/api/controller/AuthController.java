@@ -98,7 +98,6 @@ public class AuthController {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String accessToken = authorizationHeader.substring(7);
-            System.out.println("토큰 잘 들어 왔는지"+accessToken);
             authService.logout(accessToken);
         }
         return ResponseEntity.ok().build();

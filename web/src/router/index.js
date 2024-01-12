@@ -1,8 +1,14 @@
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router';
 import AppLayout from '@/layout/AppLayout.vue';
 
+const scrollBehavior = (to, from, savedPosition) => {
+    return { top: 0 };
+    // return savedPosition || { top: 0 };
+  };
+
 const router = createRouter({
         history: createWebHistory(), // 해시 라우터 끔
+        scrollBehavior,
     // history: createWebHistory(process.env.BASE_URL),
     // history: createWebHashHistory(),
     routes: [
@@ -13,37 +19,37 @@ const router = createRouter({
                 {
                     path: '/user-edit',
                     name: 'user-edit',
-                    component: () => import('@/views/UserEditView.vue')
+                    component: () => import('@/views/UserEditView.vue'),
+                    beforeEnter: (to, from, next) => {
+                        scrollBehavior(to, from);
+                        next();
+                    },
                 },
                 {
                     path: '/login',
                     name: 'login',
-                    component: () => import('@/views/OauthLogin.vue')
+                    component: () => import('@/views/OauthLogin.vue'),
                 },
                 {
                     path: '/personal',
                     name: 'personal',
-                    component: () => import('@/views/PersonalView.vue')
+                    component: () => import('@/views/PersonalView.vue'),
+
                 },
                 {
                     path: '/signup',
                     name: 'signup',
-                    component: () => import('@/views/SignUpView.vue')
-                },
-                {
-                    path: '/maincomponent',
-                    name: 'maincomponent',
-                    component: () => import('@/components/MainComponent.vue')
+                    component: () => import('@/views/SignUpView.vue'),
                 },
                 {
                     path: '/record',
                     name: 'record',
-                    component: () => import('@/views/RecordView.vue')
+                    component: () => import('@/views/RecordView.vue'),
                 },
                 {
                     path: '/result',
                     name: 'result',
-                    component: () => import('@/views/ResultView.vue')
+                    component: () => import('@/views/ResultView.vue'),
                 },
                 {
                     path: '/diagnosis',
