@@ -17,6 +17,11 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
+                    path: '/preview',
+                    name: 'preview',
+                    component: () => import('@/views/Preview.vue'),
+                },
+                {
                     path: '/user-edit',
                     name: 'user-edit',
                     component: () => import('@/views/UserEditView.vue'),

@@ -7,7 +7,7 @@ export function useHtmlToPdf() {
 
     html2pdf()
       .set({
-        margin: [15, 0, 15, 0],
+        margin: [5, 5, 5, 5],
         filename,
         pagebreak: { mode: 'avoid-all' },
         image: { type: 'jpeg', quality: 1 },
