@@ -1,15 +1,8 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
-import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
-import levelDic from '@/assets/data/level.json';
-import { useStore } from 'vuex';
 
-const store = useStore();
-const router = useRouter();
 const api = useApi();
 const { htmlToPdf } = useHtmlToPdf();
 
@@ -49,31 +42,9 @@ const pdfAreaRef = ref(null);
 const generatePdf = () => {
   htmlToPdf(pdfAreaRef.value, 'MyFile');
 };
-// // 유저-학습지 DB에 저장
-// const createDiagTest = async () => {
-//     if (isLoggedIn.value) {
-//         try {
-//             const endpoint = `/tests/${testId.value}`;
-//             await api.post(endpoint);
-//         } catch (err) {
-//             console.error(`POST ${endpoint} failed:`, err);
-//         }
-//     } else {
-//         console.log("사용자가 로그인하지 않았습니다. 테스트 생성을 건너뜁니다.");
-//     }
-// };
-// '이전' 버튼 (홈으로)
-const goToHome = () => {
-  try {
-    router.push({ path: '/' }); 
-  } catch (error) {
-    console.error('에러 발생:', error);
-  }
-};
 // yes 버튼 클릭 시 
 const yesClick = () => {
   generatePdf();
-//   createDiagTest();
 };
 
 </script>
@@ -96,15 +67,20 @@ const yesClick = () => {
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
                     <div id="testImage" ref="pdfAreaRef">
                         <div class="grid mx-2 my-4">
-                            <div class="testBox col-12" style="aspect-ratio: 5/1;"> 제목 </div>
-                            <div v-for="(item, index) in testDetail" :key="index" class="testBox col-6" :style="computeAspectRatio(index+1)">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;"> 제목 </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6" :style="computeAspectRatio(index+1)">
                                 <div class="text-xl sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
                                 <img :src="item.itemImagePath" alt="Item Image" class="fit-image"/>
                             </div>
-
-
-
-                        <!-- <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제1 </div>
+                            <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " class="testItemBox col-6" style="aspect-ratio: 1/1;">
+                                같은 사이즈의 빈 이미지 넣기
+                            </div>
+                            <div class="col-12 text-4xl"> 정답 </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="col-12">
+                                <span>{{ index + 1 }}. </span>                        
+                                <span v-html="renderItemAnswer(item.itemAnswer)"></span>
+                            </div>
+                            <!-- <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제1 </div>
                             <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제2 </div>
                             <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제3 </div>
                             <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제4 </div>
@@ -129,7 +105,7 @@ const yesClick = () => {
 
 <style scoped>
 
-.testBox {
+.testItemBox {
     position: relative;
     border: 1px solid black;
 }
@@ -139,7 +115,7 @@ const yesClick = () => {
     display: block; /* 인라인 요소와의 공간을 없애기 위해 블록 요소로 변경합니다. */
 }
 .overlay-text {
-    position: absolute; /* position을 absolute로 설정합니다. */
+    position: absolute;
     top: 8%;
     left: 6%;
 }

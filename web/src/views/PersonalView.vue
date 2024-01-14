@@ -216,7 +216,7 @@ const yesClick = () => {
                 <h5>학습지 조건</h5>
                 <div class="mb-4">
                     <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수</label>
-                    <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="4" :max="20"></InputNumber>
+                    <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
                 </div>
                 <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
                 <div class="grid">
