@@ -37,10 +37,10 @@ public class UserController {
     /**
      * 유저 수정하기
      */
-    @PutMapping("")
-    public void update(@RequestBody UserDTO userDTO) {
-        userService.update(userDTO);
-    }
+//    @PutMapping("")
+//    public void update(@RequestBody UserDTO userDTO) {
+//        userService.update(userDTO);
+//    }
 
     /**
      * 유저 탈퇴하기

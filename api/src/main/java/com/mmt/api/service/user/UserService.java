@@ -94,12 +94,15 @@ public class UserService {
     }
 
 
-    public void update(UserDTO userDTO) {
-        if(!usersRepository.existsByUserId(userDTO.getUserId())){
-            throw new IllegalArgumentException();
-        }
-        usersRepository.save(userDTO.toEntity(userDTO));
-    }
+    // 비밀번호 암호화를 적용하지 않아서 문자열 그대로 save 됨
+    // 암호화 시도했었는데 같은 문자열이어도 암호화 결과가 바뀌어버려.
+    // 이 부분은 더 공부해서 나중에 기능 사용하게 될 때 수정하자.
+//    public void update(UserDTO userDTO) {
+//        if(!usersRepository.existsByUserId(userDTO.getUserId())){
+//            throw new IllegalArgumentException();
+//        }
+//        usersRepository.save(userDTO.toEntity(userDTO));
+//    }
 
     public void delete(Long userId) {
         if(!usersRepository.existsByUserId(userId)){
