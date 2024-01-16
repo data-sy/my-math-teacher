@@ -12,6 +12,9 @@ public class UserTestsConverter {
         response.setUserTestId(userTests.getUserTestId());
         response.setTestId(userTests.getTestId());
         response.setTestName(userTests.getTestName());
+        response.setTestSchoolLevel(userTests.getTestSchoolLevel());
+        response.setTestGradeLevel(userTests.getTestGradeLevel());
+        response.setTestSemester(userTests.getTestSemester());
         response.setRecord(userTests.isRecord());
         return response;
     }

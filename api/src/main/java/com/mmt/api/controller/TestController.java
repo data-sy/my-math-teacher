@@ -41,10 +41,9 @@ public class TestController {
      */
     @GetMapping("/user")
     public List<UserTestsResponse> getUserTests(){
-        Long userId = userService.getMyUserIdWithAuthorities();
 //        // security 적용 전까지는 테스트 id 사용
 //        Long userId = 3L;
-        return userTestService.findTests(userId);
+        return userTestService.findTests(userService.getMyUserIdWithAuthorities());
     }
 
     /**
@@ -52,8 +51,7 @@ public class TestController {
      */
     @GetMapping("/user/is-record")
     public List<UserTestsResponse> getRecoredTests(){
-        Long userId = userService.getMyUserIdWithAuthorities();
-        return userTestService.findRecordedTests(userId);
+        return userTestService.findRecordedTests(userService.getMyUserIdWithAuthorities());
     }
 
 //    /** deprecated

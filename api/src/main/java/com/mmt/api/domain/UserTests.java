@@ -9,7 +9,6 @@ public class UserTests {
 
     // user_tests 테이블 + users 테이블 + tests 테이블
 
-    // students_tests
     private Long userTestId;
 //    // users
 //    private Long userId;
@@ -18,6 +17,10 @@ public class UserTests {
     // tests
     private Long testId;
     private String testName;
+    private String testSchoolLevel;
+    private String testGradeLevel;
+    private String testSemester;
+
 //    private String testComments;
 
     private boolean isRecord;

@@ -30,7 +30,7 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
     @Override
     public List<UserTests> findByUserId(Long userId) {
         // is_record : answers 테이블 user_test_id 유무에 따라 T/F를 반환
-        String sql ="SELECT ut.user_test_id, t.test_id, t.test_name, \n" +
+        String sql ="SELECT ut.user_test_id, t.test_id, t.test_name, t.test_school_level, t.test_grade_level, t.test_semester, \n" +
                 "CASE WHEN EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id) \n" +
                 "THEN TRUE ELSE FALSE END AS is_record \n" +
                 "FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id \n" +
@@ -61,6 +61,9 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
             userTests.setUserTestId(rs.getLong("user_test_id"));
             userTests.setTestId(rs.getLong("test_id"));
             userTests.setTestName(rs.getString("test_name"));
+            userTests.setTestSchoolLevel(rs.getString("test_school_level"));
+            userTests.setTestGradeLevel(rs.getString("test_grade_level"));
+            userTests.setTestSemester(rs.getString("test_semester"));
             userTests.setRecord(rs.getBoolean("is_Record"));
             return userTests;
         };
