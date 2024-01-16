@@ -12,7 +12,7 @@ public class HelloController {
 
     @GetMapping("")
     public ResponseEntity<String> hello(){
-        return ResponseEntity.ok("hello");
+        return ResponseEntity.ok("hello spring");
     }
 
     @PostMapping("")
