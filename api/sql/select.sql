@@ -95,3 +95,24 @@ JOIN probabilities p ON p.concept_id = c.concept_id JOIN answers a ON a.answer_i
 WHERE a.user_test_id = 4;
 
 select * from probabilities where answer_id=340;
+
+select * from chapters;
+
+select max(test_item_number) from tests_items;
+
+SELECT user_name, user_birthdate FROM users WHERE user_id = 3;
+
+SELECT school_level, grade_level, semester, chapter_main, chapter_sub FROM chapters WHERE chapter_name  = '여러 가지 모양을 찾아볼까요';
+SELECT school_level, grade_level, semester, chapter_main, chapter_sub FROM chapters WHERE chapter_name  = '복소수와 이차방정식';
+
+-- 중복된 chapter_name 존재
+SELECT chapter_name, COUNT(*)
+FROM chapters
+GROUP BY chapter_name
+HAVING COUNT(*) > 1;
+
+SELECT ut.user_test_id, t.test_id, t.test_name, t.test_school_level, t.test_grade_level, t.test_semester,
+CASE WHEN EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id)
+THEN TRUE ELSE FALSE END AS is_record
+FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id
+WHERE ut.user_id = 3;

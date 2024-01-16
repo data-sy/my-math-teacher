@@ -28,8 +28,12 @@ const reissue = async (requestData, store) => {
       store.commit('setAccessToken', response.accessToken);
       store.commit('setRefreshToken', response.refreshToken);
     } catch (refreshError) {
+        store.commit('setAccessToken', null);
+        store.commit('setRefreshToken', null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        api.removeAccessToken();
         console.error('토큰 갱신에 실패했습니다. : ', refreshError);
-        store.dispatch('logout');
     }
 };
 
