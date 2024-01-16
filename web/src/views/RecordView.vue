@@ -83,11 +83,20 @@ const createRecord = async () => {
 // AI 분석
 const analysis = async () => {
     if (isLoggedIn.value && userTestId.value !== null) {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+                console.error('액세스 토큰이 없습니다.');
+                return;
+            }
         try {
-            const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`);
+            const headers = {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            };
+            const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`, {}, { headers });
             console.log('응답 데이터:', response.data);
         } catch (err) {
-            console.error(`POST ${endpoint} failed:`, err);
+            console.error('데이터 생성 중 에러 발생:', err);
         }
     } else {
         console.log("userTestId가 없습니다. AI 분석을 건너뜁니다.");   
@@ -185,7 +194,7 @@ const yesClick = async () => {
                 <h5>정오답 기록하기</h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div v-if="!listboxTest"></div>
-                    <div v-else-if="listboxTest.record">트루이면 안내문구와 함께 분석결과보기 링크</div>
+                    <div v-else-if="listboxTest.record"> {{listboxTest.testSchoolLevel}} - {{listboxTest.testGradeLevel}} 트루이면 안내문구와 함께 분석결과보기 링크</div>
                     <div v-else>
                         <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
                             <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>
@@ -209,16 +218,6 @@ const yesClick = async () => {
             <div class="card">
                 <!--'기록하기'에서는 정답 삭제-->
                 <h5>학습지 미리보기</h5>
-                <!--스크롤 기능 추가하기-->
-                <div class="grid">
-                    <!-- card는 영역을 보기 위해 임시적으로 사용-->
-                    <div class="card col-12" style="height: calc(8vw)">유저 이름, 학습지 이름, 현재 날짜, (이거는 학원 학습지 틀 참조하기 - 촬영!)</div>
-                    <div v-for="(item, index) in testDetail" :key="index" class="card col-6">
-                        <img :src="item.itemImagePath" alt="Item Image" class="fit-image" />
-                        <div v-if="index > 5" style="height: calc(4vw)">크기 맞추기 위해 여백 만들기</div>
-                    </div>
-                    <div v-for="i in (6 - (testDetail.length % 6)) % 6" :key="'empty_' + i" style="height: calc(23vw)" class="card col-6">같은 사이즈의 빈 이미지 넣기</div>
-                </div>
             </div>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
