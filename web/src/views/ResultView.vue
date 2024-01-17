@@ -9,6 +9,9 @@ import klay from 'cytoscape-klay';
 import { useStore } from 'vuex';
 
 const store = useStore();
+const dataToSend = history.state.dataToSend;
+const receivedData = ref('')
+
 cytoscape.use(klay);
 const cyElement = ref(null);
 let cy = null;
@@ -19,6 +22,8 @@ const api = useApi();
 const isLoggedIn = ref(false);
 const listboxTest = ref(null);
 const listboxTests = ref([]);
+const resultList = ref([]);
+const userTestId = ref(null);
 // 학습지 목록
 onMounted(async() => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
@@ -35,13 +40,31 @@ onMounted(async() => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
+        // 기록하기 화면에서 넘어왔을 때
+        if (dataToSend) {
+            receivedData.value = dataToSend
+        }
+        if (receivedData.value) {
+            userTestId.value = receivedData.value.userTestId;
+            if (userTestId.value !== null) {
+                try {
+                    const endpoint = `/result/${userTestId.value}`;
+                    const response = await api.get(endpoint);
+                    resultList.value = response
+                } catch (err) {
+                    console.error('데이터 생성 중 에러 발생:', err);
+                }
+            } else {
+                console.log("사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.");
+            }
+
+        }
     } else {
         console.log("사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.");
     }
 });
+// 리팩토링) 기록 페이지에서 넘어왔다면 학습지 목록에 가상의 클릭 이벤트 추가하기
 // 분석 결과
-const resultList = ref([]);
-const userTestId = ref(null);
 watch(listboxTest, async (newValue) => {
     userTestId.value = newValue.userTestId;
     // isLoggedIn도 사실 넣어야 하지만 listboxTest가 isLoggedIn가 있어야만 생성되는 아이니까 패스
@@ -392,7 +415,7 @@ const goToNextPage = async () => {
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card"> 
-                <h5> 학습지 목록 </h5>
+                <h5> 정오답 기록한 학습지 목록 </h5>
                 <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName"/>
             </div>
         </div>
