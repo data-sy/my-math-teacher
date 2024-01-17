@@ -1,26 +1,57 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router'
-import { useApi } from '@/composables/api.js';
-import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useApi } from '@/composables/api.js';
+import { useHtmlToPdf } from '@/composables/htmlToPdf';
+import TitleService from '@/service/TitleService';
 import levelDic from '@/assets/data/level.json';
-import { useStore } from 'vuex';
 
 const store = useStore();
-const router = useRouter()
+const router = useRouter();
 const api = useApi();
 const { htmlToPdf } = useHtmlToPdf();
 
+// 유저 정보
+const isLoggedIn = ref(false);
+const userDetail = ref({
+    userName: '',
+    userBirthdate: ''
+});
+const userGrade = ref('');
+onMounted(async() => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    watch(() => store.state.accessToken,
+        (newToken) => {
+            isLoggedIn.value = newToken !== null;
+        }
+    )
+    if (isLoggedIn.value) {
+        try {
+            const endpoint = 'users';
+            const response = await api.get(endpoint);
+            userDetail.value = response;
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
+
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았습니다. 유저 정보를 건너뜁니다.");
+    }
+});
 // schoolLevel
 const selectButtonLevel = ref(null);
 const selectButtonLevels = ref([{ name: '초등' }, { name: '중등' }, { name: '고등' }]);
+const schoolLevel = ref('')
 // gradeLevel
 const listboxLevel = ref(null);
 const listboxLevels = ref([]);
 const listboxTestsAll = ref(null);
 watch(selectButtonLevel, async (newValue) => {
+    schoolLevel.value = newValue.name;
     if (newValue.name === '초등') {
         listboxLevels.value = levelDic['초등'];
     } else if (newValue.name === '중등') {
@@ -38,13 +69,15 @@ watch(selectButtonLevel, async (newValue) => {
 });
 const listboxTest = ref(null);
 const listboxTests = ref([]);
+const grade = ref(null);
+const semester = ref(null);
 // 학습지 목록
 watch(listboxLevel, (newValue) => {
-    const grade = newValue.grade;
-    const semester = newValue.semester;
+    grade.value = newValue.grade;
+    semester.value = newValue.semester;
     if (listboxTestsAll.value) {
         const filteredTests = listboxTestsAll.value.filter(test => {
-            return test.testGradeLevel === grade && test.testSemester === semester;
+            return test.testGradeLevel === grade.value && test.testSemester === semester.value;
         });
         listboxTests.value = filteredTests
     }
@@ -52,16 +85,50 @@ watch(listboxLevel, (newValue) => {
 // 학습지 미리보기
 const testDetail = ref([]);
 const testId = ref(null);
+const isImageExist = ref(false);
+const testName = ref('');
 watch(listboxTest, async (newValue) => {
     testId.value = newValue.testId;
+    testName.value = newValue.testName;
+    if (testId.value >= 491 && testId.value <= 495) {
+        isImageExist.value = true;
+    } else {
+        isImageExist.value = false;
+    }
     try {
         const endpoint = `/tests/detail/${testId.value}`;
         const response = await api.get(endpoint);
         testDetail.value = response
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
-    }    
+    }
 });
+// 날짜
+const formattedDate = ref('');
+const updateDate = () => {
+  formattedDate.value = TitleService.updateDate();
+};
+onMounted(() => {
+  updateDate();
+  setInterval(updateDate, 60*1000); // 60초마다 갱신
+});
+
+// 문항이미지 비율
+const computeAspectRatio = (num) => {
+    // 6보다 작거나 2의 배수가 아닐 때는 기본값 5/4
+    // 6일 때는 40/35
+    // 6보다 큰 2의 배수이면서 6의 배수 아닐 때는 1/1
+    // 6보다 큰 2의 배수이면서 6의 배수일 때는 40/37
+    if (num < 6 || num % 2 !== 0) {
+        return { 'aspect-ratio': '5/4' };
+    } else if (num % 6 !== 0) {
+        return { 'aspect-ratio': '1/1' };
+    } else if (num === 6) {
+        return { 'aspect-ratio': '40/35' };
+    } else {
+        return { 'aspect-ratio': '40/37' };
+    }
+};
 // 답안 원문자 표현 (HTML 엔티티)
 const renderItemAnswer = (text) => {
     return text;
@@ -69,7 +136,8 @@ const renderItemAnswer = (text) => {
 // pdf 다운로드
 const pdfAreaRef = ref(null);
 const generatePdf = () => {
-  htmlToPdf(pdfAreaRef.value, 'MyFile');
+    const fileName = `MMT_${testName.value}`;
+    htmlToPdf(pdfAreaRef.value, fileName);
 };
 // 유저-학습지 DB에 저장
 const createDiagTest = async () => {
@@ -101,15 +169,6 @@ const confirm = (event) => {
     });
 }; 
 // 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
-const isLoggedIn = ref(false);
-onMounted(() => {
-    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
-    watch(() => store.state.accessToken,
-        (newToken) => {
-            isLoggedIn.value = newToken !== null;
-        }
-    )
-});
 const confirmPopup2 = useConfirm();
 const confirm2 = (event) => {
     confirmPopup2.require({
@@ -144,7 +203,7 @@ const yesClick = () => {
   closeConfirmation();
   generatePdf();
   createDiagTest();
-  goToHome();
+//   goToHome();
 };
 
 </script>
@@ -199,29 +258,84 @@ const yesClick = () => {
         <div class="col-12 xl:col-6">
             <div class="card"> 
                 <h5> 학습지 미리보기 </h5>
-                <!--스크롤 기능 추가하기-->
-                <div class="grid" id="testImage" ref="pdfAreaRef">
-                    <!-- card는 영역을 보기 위해 임시적으로 사용-->
-                    <div class="card col-12" style="height: calc(8vw);"> 유저 이름, 학습지 이름, 현재 날짜, (이거는 학원 학습지 틀 참조하기 - 촬영!)</div>
-                    <div v-for="(item, index) in testDetail" :key="index" class="card col-6">
-                        <img :src="item.itemImagePath" alt="Item Image"  class="fit-image"/>
-                        <div v-if="index > 5" style="height: calc(4vw);"> 크기 맞추기 위해 여백 만들기 </div>
+                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
+                    <div id="testImage" ref="pdfAreaRef">
+                        <div v-if="isImageExist" class="grid mx-2 my-4">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                                <div class="grid">
+                                    <div class="col-12 mx-3 mt-3 logo">
+                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="flex justify-content-between">
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
+                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
+                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
+                                        </div>
+                                        <div class="flex justify-content-between">
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ testName }}
+                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ userGrade }} {{ userDetail.userName }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6" :style="computeAspectRatio(index+1)">
+                                <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
+                                <img :src="item.itemImagePath" alt="Item Image" class="fit-image"/>
+                            </div>
+                            <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " class="testItemBox col-6" style="aspect-ratio: 1/1;">
+                                같은 사이즈의 빈 이미지 넣기
+                            </div>
+                            <div class="col-12 text-4xl"> 정답 </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="col-12">
+                                <span>{{ index + 1 }}. </span>                        
+                                <span v-html="renderItemAnswer(item.itemAnswer)"></span>
+                            </div>
+                        </div>
+                        <div v-else class="grid mx-2 my-4">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                                <div class="grid">
+                                    <div class="col-12 mx-3 mt-3 logo">
+                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="flex justify-content-between">
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
+                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
+                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
+                                        </div>
+                                        <div class="flex justify-content-between">
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ testName }}
+                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ userGrade }} {{ userDetail.userName }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index+1)">
+                                <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
+                                <div> 
+                                    <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800 flex align-items-center justify-content-center mb-2 mx-2"> {{ item.conceptName }}</div>
+                                    <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center"> 에 대한 문항입니다.</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " style="height: calc(23vw);" class="card col-6">
-                        같은 사이즈의 빈 이미지 넣기
-                    </div>
-                    <!-- <div>
-                        src/assets에 담아뒀을 때 목록 내 모든 이미지 보기 테스트
-                        <img :src="img" v-for="img of images" :key="img" class="card col-6"/>
-                    </div> -->
-                    <div>정답도 맘에 드는 템플릿 가져와서 사용하기</div>
-                    <div v-for="(item, index) in testDetail" :key="index" class="col-12">
-                        <!-- index+1 표시 -->
-                        <span>{{ index + 1 }}. </span>                        
-                        <!-- itemAnswer 표시 -->
-                        <span v-html="renderItemAnswer(item.itemAnswer)"></span>
-                    </div>
-                </div>
+                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                </ScrollPanel>
             </div>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
@@ -245,3 +359,36 @@ const yesClick = () => {
         </div>     
     </div>
 </template>
+
+<style scoped>
+.testItemBox {
+    position: relative;
+    border: 1px solid black;
+    padding: 5px;
+}
+.fit-image {
+    max-width: 100%; /* 최대 너비를 부모 요소인 div의 크기에 맞게 조정합니다. */
+    height: auto; /* 이미지의 가로세로 비율을 유지하면서 조정합니다. */
+    display: block; /* 인라인 요소와의 공간을 없애기 위해 블록 요소로 변경합니다. */
+}
+.overlay-text {
+    position: absolute;
+    top: 8%;
+    left: 6%;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    color: var(--surface-900);
+    font-size: 1.5rem;
+    font-weight: 500;
+    width: 100%;
+    border-radius: 12px;
+    padding: 5px;
+}
+.logo img {
+    height: auto;
+    max-width: 5%;
+    margin-right: 0.5rem;
+}
+</style>

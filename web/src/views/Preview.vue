@@ -46,6 +46,8 @@ onMounted(async() => {
     testId.value = 491;
     if (testId.value >= 491 && testId.value <= 495) {
         isImageExist.value = true;
+    } else {
+        isImageExist.value = false;
     }
     // console.log(isImageExist.value);
     try {
