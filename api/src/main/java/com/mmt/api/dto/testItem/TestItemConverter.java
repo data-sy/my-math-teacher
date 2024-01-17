@@ -14,6 +14,7 @@ public class TestItemConverter {
         testItemsResponse.setItemAnswer(testItems.getItemAnswer());
         testItemsResponse.setItemImagePath(testItems.getItemImagePath());
         testItemsResponse.setTestItemNumber(testItems.getTestItemNumber());
+        testItemsResponse.setConceptName(testItems.getConceptName());
         return testItemsResponse;
     }
 

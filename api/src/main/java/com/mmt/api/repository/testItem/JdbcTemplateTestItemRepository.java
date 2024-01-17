@@ -21,7 +21,8 @@ public class JdbcTemplateTestItemRepository implements TestItemRepository {
 
     @Override
     public List<TestItems> findByTestId(Long testId){
-        String sql = "SELECT i.item_id, i.item_answer, i.item_image_path, ti.test_item_number FROM tests_items ti JOIN items i ON ti.item_id = i.item_id WHERE ti.test_id = ?";
+        String sql = "SELECT i.item_id, i.item_answer, i.item_image_path, ti.test_item_number, c.concept_name " +
+                "FROM items i JOIN tests_items ti ON ti.item_id = i.item_id JOIN concepts c ON c.concept_id = i.concept_id WHERE ti.test_id = ?";
         return jdbcTemplate.query(sql, testItemsRowMapper(), testId);
     }
 
@@ -32,6 +33,7 @@ public class JdbcTemplateTestItemRepository implements TestItemRepository {
             testItems.setItemAnswer(rs.getString("item_answer"));
             testItems.setItemImagePath(rs.getString("item_image_path"));
             testItems.setTestItemNumber(rs.getInt("test_item_number"));
+            testItems.setConceptName(rs.getString("concept_name"));
             return testItems;
         };
     }

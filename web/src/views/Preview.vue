@@ -40,11 +40,18 @@ onMounted(async() => {
 });
 // 학습지 미리보기
 const testDetail = ref([]);
+const testId = ref(null);
+const isImageExist = ref(false);
 onMounted(async() => {
+    testId.value = 491;
+    if (testId.value >= 491 && testId.value <= 495) {
+        isImageExist.value = true;
+    }
+    // console.log(isImageExist.value);
     try {
-        const endpoint = '/tests/detail/491';
+        const endpoint = `/tests/detail/${testId.value}`;
         const response = await api.get(endpoint);
-        testDetail.value = response
+        testDetail.value = response;
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
     }    
@@ -63,7 +70,6 @@ onMounted(() => {
   updateDate();
   setInterval(updateDate, 60*1000); // 60초마다 갱신
 });
-
 
 // 문항이미지 비율
 const computeAspectRatio = (num) => {
@@ -88,7 +94,8 @@ const renderItemAnswer = (text) => {
 // pdf 다운로드
 const pdfAreaRef = ref(null);
 const generatePdf = () => {
-  htmlToPdf(pdfAreaRef.value, 'MyFile');
+    const fileName = `MMT_${testName.value}`;
+  htmlToPdf(pdfAreaRef.value, fileName);
 };
 // yes 버튼 클릭 시 
 const yesClick = () => {
@@ -145,7 +152,7 @@ const corstestvuespring = async () => {
                 <h5> 학습지 미리보기 </h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
                     <div id="testImage" ref="pdfAreaRef">
-                        <div class="grid mx-2 my-4">
+                        <div v-if="isImageExist" class="grid mx-2 my-4">
                             <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">
@@ -172,7 +179,7 @@ const corstestvuespring = async () => {
                                 </div>
                             </div>
                             <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6" :style="computeAspectRatio(index+1)">
-                                <div class="text-xl sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
+                                <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
                                 <img :src="item.itemImagePath" alt="Item Image" class="fit-image"/>
                             </div>
                             <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " class="testItemBox col-6" style="aspect-ratio: 1/1;">
@@ -183,20 +190,40 @@ const corstestvuespring = async () => {
                                 <span>{{ index + 1 }}. </span>                        
                                 <span v-html="renderItemAnswer(item.itemAnswer)"></span>
                             </div>
-                            <!-- <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제1 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제2 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제3 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제4 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제5 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 40/35;"> 문제6 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제7 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 1/1;"> 문제8 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제9 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 1/1;"> 문제10 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제11 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 40/37;"> 문제12 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제13 </div>
-                            <div class="testBox col-6" style="aspect-ratio: 1/1;"> 문제14 </div> -->
+                        </div>
+                        <div v-else class="grid mx-2 my-4">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                                <div class="grid">
+                                    <div class="col-12 mx-3 mt-3 logo">
+                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="flex justify-content-between">
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
+                                                {{ schoolLevel }} - {{ gradeLevel }} - {{ semester }}
+                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
+                                        </div>
+                                        <div class="flex justify-content-between">
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ testName }}
+                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ userGrade }} {{ userDetail.userName }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index+1)">
+                                <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
+                                <div> 
+                                    <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800 flex align-items-center justify-content-center mb-2 mx-2"> {{ item.conceptName }}</div>
+                                    <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center"> 에 대한 문항입니다.</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
@@ -204,6 +231,20 @@ const corstestvuespring = async () => {
             </div>
         </div>
     </div>
+<!-- <div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제1 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제2 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제3 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제4 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제5 </div>
+<div class="testBox col-6" style="aspect-ratio: 40/35;"> 문제6 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제7 </div>
+<div class="testBox col-6" style="aspect-ratio: 1/1;"> 문제8 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제9 </div>
+<div class="testBox col-6" style="aspect-ratio: 1/1;"> 문제10 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제11 </div>
+<div class="testBox col-6" style="aspect-ratio: 40/37;"> 문제12 </div>
+<div class="testBox col-6" style="aspect-ratio: 5/4;"> 문제13 </div>
+<div class="testBox col-6" style="aspect-ratio: 1/1;"> 문제14 </div> -->
 </template>
 
 <style scoped>

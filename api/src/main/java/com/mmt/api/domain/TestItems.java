@@ -12,6 +12,7 @@ public class TestItems {
     private String itemImagePath;
     // tests_items
     private int testItemNumber;
+    private String conceptName;
 
     // 디버깅 용 : System.out.println(testItems);
     @Override

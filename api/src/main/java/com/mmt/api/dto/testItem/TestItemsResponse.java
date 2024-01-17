@@ -9,5 +9,6 @@ public class TestItemsResponse {
     private String itemAnswer;
     private String itemImagePath;
     private int testItemNumber;
+    private String conceptName;
 
 }
