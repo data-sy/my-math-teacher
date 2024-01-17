@@ -51,12 +51,10 @@ const signup = async () => {
     // // 보내기 전에 데이터 형태 어떻게 되는지 확인
     // console.log(requestData.value);
   try {
-    const response = await api.post('/users', requestData.value);
-    data.value = response;
-    error.value = null;
+    const response = await api.post('/signup', requestData.value);
+    router.push({ name: 'home' });
   } catch (err) {
     console.error('데이터 생성 중 에러 발생:', err);
-    error.value = err;
   }
 };
 
@@ -76,10 +74,11 @@ const yesClick = () => {
     <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden mb-7">
         <div class="flex flex-column align-items-center justify-content-center mb-3">
             <div class="w-full surface-card py-6 px-7 sm:px-8 shadow-2 border-round">
-                <div class="text-center mb-7 cursor-pointer" @click="goToHome">
+                <!-- <div class="text-center mb-7 cursor-pointer" @click="goToHome"> 홈으로 가는 클릭 이벤트 없앰 (나중에 (페이지가 아니라) 컨펌창으로 만들 때 추가하기) -->
+                <div class="text-center mb-7">
                     <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
                     <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
-                    <div class="flex align-items-center justify-content-center mt-5"> 개인 프로젝트 입니다. <br/> 안전을 위해 사용빈도가 낮은 비밀번호를 입력해주세요. </div>
+                    <div class="flex align-items-center justify-content-center mt-5"> 개인 프로젝트 입니다. <br/> 안전을 위해 사용빈도가 낮은 비밀번호를 사용해주세요. </div>
 
                 </div>
                 <form v-on:submit.prevent="signup">
@@ -95,7 +94,7 @@ const yesClick = () => {
                         <label for="calender" class="block text-900 text-xl font-medium mb-2">BirthDate</label>
                         <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full mb-5" :inputStyle="{ padding: '1rem' }" v-model="calender">Calendar</Calendar>
                         <label for="comments" class="block text-900 text-xl font-medium mb-2">Comments</label>
-                        <Textarea placeholder="적고 싶은 기타사항을 적으세요." :autoResize="true" class="w-full mb-5" rows="3" v-model="comments" />
+                        <Textarea placeholder="적고 싶은 기타사항을 적으세요. (300자 이하)" :autoResize="true" class="w-full mb-5" rows="3" v-model="comments" />
                         <Button type="submit" label="Sign Up" class="w-full p-3 text-xl"></Button>
                         <!-- <Button label="Sign Up" class="w-full p-3 text-xl" @click="openConfirmation" />
                             <Dialog header="개인정보 확인" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">

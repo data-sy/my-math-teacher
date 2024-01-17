@@ -7,16 +7,16 @@
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
-                        <div class="text-900 font-medium text-xl mb-3"> 수학 지식을 점검하고, 부족한 부분을 찾아주는 사이트야. 어떤 선수지식이 필요한지 바로 알려주지! </div>
-                        <div class="text-900 font-medium text-xl mb-3"> MMT와 함께 더 재미있게 수학 공부해보자구~!  </div>
+                        <div class="text-900 font-medium text-2xl mb-3"> 수학 지식을 점검하고, 부족한 부분을 찾아주는 사이트야. 어떤 선수지식이 필요한지 바로 알려주지! </div>
+                        <div class="text-900 font-medium text-2xl mb-3"> MMT와 함께 더 재미있게 수학 공부해보자구~!  </div>
                         <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
-                        <span class="block text-600 font-medium mb-3"> 특정 개념의 선수지식이 궁금하다면? => 선수 지식 알아보기 </span>
-                        <span class="block text-500 font-medium mb-3"> 선수 지식 알아보기는 회원가입 없이 사용 가능합니다! </span>
-                        <span class="block text-600 font-medium mb-3"> 나에게 부족한 부분이 무엇인지 궁금하다면? => &#9312;->&#9313;->&#9314; </span>
-                        <div>
+                        <span class="block text-600 text-xl font-medium mb-3"> 특정 개념의 선수지식이 궁금하다면? => 선수 지식 알아보기 <span class="text-red-600 font-bold">(회원가입 없이 사용 가능합니다!)</span> </span>
+                        <span class="block text-600 text-xl s font-medium mb-3"> 나에게 부족한 부분이 무엇인지 궁금하다면? => &#9312;->&#9313;->&#9314;->&#9315; <span class="text-red-600">(회원가입이 필요한 기능입니다.)</span> </span>
+                        <div> 회원가입 및 로그인은 오른쪽 상단의 <i class="pi pi-user" style="font-size: 1.5rem" ></i> 아이콘 클릭</div>
+                        <!-- <div>
                             <i class="pi pi-question-circle"></i> 마우스 오버/아웃으로 설명 추가
                             <i class="pi pi-user-edit" style="font-size: 2rem"></i> 로그인 후에는 user아이콘이 user-edit아이콘이 되도록
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

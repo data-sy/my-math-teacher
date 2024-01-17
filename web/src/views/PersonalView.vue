@@ -262,6 +262,7 @@ const yesClick = () => {
         <div class="col-12 xl:col-6">
             <div class="card">
                 <h5>학습지 미리보기</h5>
+                학습지 이름은 notnull - validation 활용
             </div>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
