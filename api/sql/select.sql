@@ -111,8 +111,21 @@ FROM chapters
 GROUP BY chapter_name
 HAVING COUNT(*) > 1;
 
-SELECT ut.user_test_id, t.test_id, t.test_name, t.test_school_level, t.test_grade_level, t.test_semester,
+SELECT ut.user_test_id, ut.user_test_timestamp, t.test_id, t.test_name, t.test_school_level, t.test_grade_level, t.test_semester,
 CASE WHEN EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id)
 THEN TRUE ELSE FALSE END AS is_record
 FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id
 WHERE ut.user_id = 3;
+
+select * from tests where test_id = 492;
+
+SELECT i.item_id, i.item_answer, i.item_image_path, ti.test_item_number, c.concept_name
+FROM items i 
+JOIN tests_items ti ON ti.item_id = i.item_id 
+JOIN concepts c ON c.concept_id = i.concept_id
+WHERE ti.test_id = 491;
+
+
+
+
+

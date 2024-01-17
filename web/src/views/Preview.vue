@@ -60,7 +60,7 @@ onMounted(async() => {
 });
 // title에 넣을 데이터들
 const schoolLevel = ref('고등');
-const gradeLevel = ref('수학');
+const grade = ref('수학');
 const semester = ref('상');
 const testName = ref('복소수와 이차방정식(1)');
 // 날짜
@@ -70,9 +70,8 @@ const updateDate = () => {
 };
 onMounted(() => {
   updateDate();
-  setInterval(updateDate, 60*1000); // 60초마다 갱신
+  setInterval(updateDate, 1000); // 1초마다 갱신
 });
-
 // 문항이미지 비율
 const computeAspectRatio = (num) => {
     // 6보다 작거나 2의 배수가 아닐 때는 기본값 5/4
@@ -165,7 +164,7 @@ const corstestvuespring = async () => {
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
-                                                {{ schoolLevel }} - {{ gradeLevel }} - {{ semester }}
+                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
                                             </span>
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
                                         </div>
@@ -204,7 +203,7 @@ const corstestvuespring = async () => {
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
-                                                {{ schoolLevel }} - {{ gradeLevel }} - {{ semester }}
+                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
                                             </span>
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
                                         </div>

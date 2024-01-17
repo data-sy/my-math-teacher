@@ -1,17 +1,46 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useApi } from '@/composables/api.js';
+import TitleService from '@/service/TitleService';
 import axios from 'axios';
-import { useStore } from 'vuex';
+
 
 const store = useStore();
 const router = useRouter();
 const api = useApi();
 
+// 유저 정보
 const isLoggedIn = ref(false);
+const userDetail = ref({
+    userName: '',
+    userBirthdate: ''
+});
+const userGrade = ref('');
+onMounted(async() => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
+    watch(() => store.state.accessToken,
+        (newToken) => {
+            isLoggedIn.value = newToken !== null;
+        }
+    )
+    if (isLoggedIn.value) {
+        try {
+            const endpoint = 'users';
+            const response = await api.get(endpoint);
+            userDetail.value = response;
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
+
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    } else {
+        console.log("사용자가 로그인하지 않았습니다. 유저 정보를 건너뜁니다.");
+    }
+});
 const listboxTest = ref(null);
 const listboxTests = ref([]);
 // 학습지 목록
@@ -39,9 +68,25 @@ onMounted(async() => {
 // 학습지 미리보기
 const testDetail = ref([]);
 const testId = ref(null);
+const isImageExist = ref(false);
+const testName = ref('');
+const testDate = ref('')
 const userTestId = ref(null);
+const schoolLevel = ref('')
+const grade = ref(null);
+const semester = ref(null);
 watch(listboxTest, async (newValue) => {
     testId.value = newValue.testId;
+    testName.value = newValue.testName;
+    testDate.value = newValue.testDate;
+    schoolLevel.value = newValue.testSchoolLevel;
+    grade.value = newValue.testGradeLevel;
+    semester.value = newValue.testSemester;
+    if (testId.value >= 491 && testId.value <= 495) {
+        isImageExist.value = true;
+    } else {
+        isImageExist.value = false;
+    }
     userTestId.value = newValue.userTestId;
     try {
         const endpoint = `/tests/detail/${newValue.testId}`;
@@ -59,6 +104,22 @@ watch(listboxTest, async (newValue) => {
         console.error('데이터 생성 중 에러 발생:', err);
     }
 });
+// 문항이미지 비율
+const computeAspectRatio = (num) => {
+    // 6보다 작거나 2의 배수가 아닐 때는 기본값 5/4
+    // 6일 때는 40/35
+    // 6보다 큰 2의 배수이면서 6의 배수 아닐 때는 1/1
+    // 6보다 큰 2의 배수이면서 6의 배수일 때는 40/37
+    if (num < 6 || num % 2 !== 0) {
+        return { 'aspect-ratio': '5/4' };
+    } else if (num % 6 !== 0) {
+        return { 'aspect-ratio': '1/1' };
+    } else if (num === 6) {
+        return { 'aspect-ratio': '40/35' };
+    } else {
+        return { 'aspect-ratio': '40/37' };
+    }
+};
 // 답안 원문자 표현
 const renderItemAnswer = (text) => {
     return text;
@@ -156,6 +217,16 @@ const yesClick = async () => {
     await analysis();
     goToHome();
 };
+// [여기] 클릭 시 : userTestId 가지고 result로 이동
+const goToResultPage = async () => {
+    const data = {
+        userTestId: userTestId.value
+    }
+    router.push({
+        name: 'result',
+        state: {dataToSend: data}
+    });
+};
 </script>
 
 <template>
@@ -183,24 +254,32 @@ const yesClick = async () => {
                 </div>
             </div>
         </div>
-        <div class="col-12 lg:col-6 xl:col-3">
+        <div class="col-12 sm:col-6 xl:col-3">
             <div class="card">
-                <h5>학습지 목록</h5>
+                <h5>다운로드한 학습지 목록</h5>
                 <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" />
             </div>
         </div>
-        <div class="col-12 lg:col-6 xl:col-3">
+        <div class="col-12 sm:col-6 xl:col-3">
             <div class="card">
                 <h5>정오답 기록하기</h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div v-if="!listboxTest"></div>
-                    <div v-else-if="listboxTest.record"> {{listboxTest.testSchoolLevel}} - {{listboxTest.testGradeLevel}} 트루이면 안내문구와 함께 분석결과보기 링크</div>
+                    <div v-else-if="listboxTest.record"> 
+                        <div class="mx-2 my-5 text-2xl  text-bold text-pink-500">
+                            <div>정오답이 이미 기록된 학습지입니다.</div>
+                            <div>AI 분석 결과가 궁금하면 
+                                <span @click="goToResultPage" class="text-blue-500 cursor-pointer"> [여기] </span>
+                                를 클릭해주세요.
+                            </div>
+                        </div>
+                    </div>
                     <div v-else>
                         <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
                             <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>
                             <Column field="itemAnswer" header="정답" style="min-width: 5em">
                                 <template #body="rowData">
-                                    <span v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
+                                    <span v-if="isImageExist" v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
                                 </template>
                             </Column>
                             <Column field="answerCode" header="정오답입력" style="min-width: 5em">
@@ -218,6 +297,76 @@ const yesClick = async () => {
             <div class="card">
                 <!--'기록하기'에서는 정답 삭제-->
                 <h5>학습지 미리보기</h5>
+                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
+                    <div id="testImage" ref="pdfAreaRef">
+                        <div v-if="isImageExist" class="grid mx-2 my-4">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                                <div class="grid">
+                                    <div class="col-12 mx-3 mt-3 logo">
+                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="flex justify-content-between">
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
+                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
+                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ testDate }}</span>
+                                        </div>
+                                        <div class="flex justify-content-between">
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ testName }}
+                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ userGrade }} {{ userDetail.userName }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6" :style="computeAspectRatio(index+1)">
+                                <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
+                                <img :src="item.itemImagePath" alt="Item Image" class="fit-image"/>
+                            </div>
+                        </div>
+                        <div v-else class="grid mx-2 my-4">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                                <div class="grid">
+                                    <div class="col-12 mx-3 mt-3 logo">
+                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="flex justify-content-between">
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
+                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
+                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ testDate }}</span>
+                                        </div>
+                                        <div class="flex justify-content-between">
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ testName }}
+                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
+                                                {{ userGrade }} {{ userDetail.userName }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index+1)">
+                                <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
+                                <div> 
+                                    <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800 flex align-items-center justify-content-center mb-2 mx-2"> {{ item.conceptName }}</div>
+                                    <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center"> 에 대한 문항입니다.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                </ScrollPanel>
             </div>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
@@ -243,10 +392,35 @@ const yesClick = async () => {
     </div>
 </template>
 
-<style>
+<style scoped>
+.testItemBox {
+    position: relative;
+    border: 1px solid black;
+    padding: 5px;
+}
 .fit-image {
     max-width: 100%; /* 최대 너비를 부모 요소인 div의 크기에 맞게 조정합니다. */
     height: auto; /* 이미지의 가로세로 비율을 유지하면서 조정합니다. */
     display: block; /* 인라인 요소와의 공간을 없애기 위해 블록 요소로 변경합니다. */
+}
+.overlay-text {
+    position: absolute;
+    top: 8%;
+    left: 6%;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    color: var(--surface-900);
+    font-size: 1.5rem;
+    font-weight: 500;
+    width: 100%;
+    border-radius: 12px;
+    padding: 5px;
+}
+.logo img {
+    height: auto;
+    max-width: 5%;
+    margin-right: 0.5rem;
 }
 </style>

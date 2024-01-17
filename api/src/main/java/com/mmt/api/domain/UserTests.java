@@ -10,7 +10,8 @@ public class UserTests {
     // user_tests 테이블 + users 테이블 + tests 테이블
 
     private Long userTestId;
-//    // users
+    private String testDate;
+    //    // users
 //    private Long userId;
 //    private String userName;
 //    private LocalDate userBirthdate;

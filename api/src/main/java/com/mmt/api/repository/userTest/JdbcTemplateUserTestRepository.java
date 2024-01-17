@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
     @Override
     public List<UserTests> findByUserId(Long userId) {
         // is_record : answers 테이블 user_test_id 유무에 따라 T/F를 반환
-        String sql ="SELECT ut.user_test_id, t.test_id, t.test_name, t.test_school_level, t.test_grade_level, t.test_semester, \n" +
+        String sql ="SELECT ut.user_test_id, ut.user_test_timestamp, t.test_id, t.test_name, t.test_school_level, t.test_grade_level, t.test_semester, \n" +
                 "CASE WHEN EXISTS (SELECT 1 FROM answers a WHERE a.user_test_id = ut.user_test_id) \n" +
                 "THEN TRUE ELSE FALSE END AS is_record \n" +
                 "FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id \n" +
@@ -59,6 +60,7 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
         return (rs, rowNum) -> {
             UserTests userTests = new UserTests();
             userTests.setUserTestId(rs.getLong("user_test_id"));
+            userTests.setTestDate(formatTestDate(rs.getTimestamp("user_test_timestamp")));
             userTests.setTestId(rs.getLong("test_id"));
             userTests.setTestName(rs.getString("test_name"));
             userTests.setTestSchoolLevel(rs.getString("test_school_level"));
@@ -76,5 +78,18 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
             userTests.setTestName(rs.getString("test_name"));
             return userTests;
         };
+    }
+
+    private String formatTestDate(Timestamp timestamp) {
+        // 타임스탬프가 null인지 확인
+        if (timestamp == null) {
+            return "";
+        }
+        // 연, 월, 일 추출
+        int year = timestamp.toLocalDateTime().getYear() % 100;
+        int month = timestamp.toLocalDateTime().getMonthValue();
+        int day = timestamp.toLocalDateTime().getDayOfMonth();
+        // 날짜 포맷
+        return String.format("%02d/%02d/%02d", year, month, day);
     }
 }

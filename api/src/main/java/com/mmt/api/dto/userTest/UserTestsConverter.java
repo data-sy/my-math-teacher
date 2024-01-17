@@ -10,6 +10,7 @@ public class UserTestsConverter {
     public static UserTestsResponse convertToResponse(UserTests userTests){
         UserTestsResponse response = new UserTestsResponse();
         response.setUserTestId(userTests.getUserTestId());
+        response.setTestDate(userTests.getTestDate());
         response.setTestId(userTests.getTestId());
         response.setTestName(userTests.getTestName());
         response.setTestSchoolLevel(userTests.getTestSchoolLevel());

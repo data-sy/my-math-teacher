@@ -9,6 +9,7 @@ import lombok.Setter;
 public class UserTestsResponse {
 
     private Long userTestId;
+    private String testDate;
     private Long testId;
     private String testName;
     private String testSchoolLevel;

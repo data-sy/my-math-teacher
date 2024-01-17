@@ -110,9 +110,8 @@ const updateDate = () => {
 };
 onMounted(() => {
   updateDate();
-  setInterval(updateDate, 60*1000); // 60초마다 갱신
+  setInterval(updateDate, 1000); // 1초마다 갱신
 });
-
 // 문항이미지 비율
 const computeAspectRatio = (num) => {
     // 6보다 작거나 2의 배수가 아닐 때는 기본값 5/4
