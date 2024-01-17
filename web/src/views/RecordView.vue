@@ -41,9 +41,9 @@ onMounted(async() => {
         console.log("사용자가 로그인하지 않았습니다. 유저 정보를 건너뜁니다.");
     }
 });
+// 학습지 목록
 const listboxTest = ref(null);
 const listboxTests = ref([]);
-// 학습지 목록
 onMounted(async() => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
     watch(() => store.state.accessToken,
@@ -180,9 +180,8 @@ const confirm = (event) => {
     });
 };
 // 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
-const confirmPopup2 = useConfirm();
 const confirm2 = (event) => {
-    confirmPopup2.require({
+    confirmPopup.require({
         target: event.target,
         message: '로그인 혹은 회원가입을 해주세요.',
         icon: 'pi pi-exclamation-triangle',
@@ -190,6 +189,19 @@ const confirm2 = (event) => {
         rejectLabel: ' ',
         accept: () => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 기록할 수 있습니다.', life: 3000 });
+        },
+    });
+};
+// 이미 기록한 학습지에 대해서는, 이미 기록한 학습지라고 안내
+const confirm3 = (event) => {
+    confirmPopup.require({
+        target: event.target,
+        message: '이미 기록한 학습지 입니다.',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Ok',
+        rejectLabel: ' ',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: '3. 분석 결과보기로 확인하세요.', life: 3000 });
         },
     });
 };
@@ -378,6 +390,7 @@ const goToResultPage = async () => {
             <Toast />
             <Button v-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인을 해주세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
             <Button v-else-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
+            <Button v-else-if="listboxTest.record" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
