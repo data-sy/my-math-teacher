@@ -107,7 +107,7 @@ const logout = async () => {
                 </div>
                 <form v-on:submit.prevent="login">
                     <div>
-                        <InputText id="email" v-model="email" type="text" placeholder="이메일" class="w-full mb-3" style="padding: 1rem" />
+                        <InputText id="email" v-model="email" type="text" placeholder="아이디" class="w-full mb-3" style="padding: 1rem" />
                         <Password id="password" v-model="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }" :feedback="false"></Password>
                         <div class="flex align-items-center justify-content-between mb-4 gap-5">
                             <div class="flex align-items-center">
@@ -116,7 +116,7 @@ const logout = async () => {
                             </div>
                             <a class="font-medium no-underline ml-2 text-right cursor-pointer line-through-text" style="color: var(--primary-color)">Forgot password?</a>
                         </div>
-                        <Button type="submit" label="이메일로 로그인" class="w-full p-2.5 text-lg border-round-3xl"></Button>
+                        <Button type="submit" label="로그인" class="w-full p-2.5 text-lg border-round-2xl"></Button>
                     </div>
                 </form>
                 <div class="flex align-items-center justify-content-center mt-5 mb-5">

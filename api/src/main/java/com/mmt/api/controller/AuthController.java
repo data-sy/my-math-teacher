@@ -30,7 +30,7 @@ public class AuthController {
      * 유저 회원가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<UserDTO> signup(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> signup(@Valid @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.signup(userDTO));
     }
 
@@ -49,6 +49,15 @@ public class AuthController {
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token);
 
         return new ResponseEntity<>(TokenDTO.from(token), httpHeaders, HttpStatus.OK);
+    }
+
+    /**
+     * 아이디 중복 검사
+     */
+    @GetMapping("/checkDuplicate")
+    public ResponseEntity<Boolean> checkDuplicate(@RequestParam String userEmail) {
+        boolean isDuplicate = userService.isDuplicateUser(userEmail);
+        return ResponseEntity.ok(isDuplicate);
     }
 
 //    /**

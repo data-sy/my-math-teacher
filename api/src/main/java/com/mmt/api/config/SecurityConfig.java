@@ -75,7 +75,7 @@ public class SecurityConfig {
 //                                // 개발을 위해 우선 열어두자
 //                                .requestMatchers("/api/v1/**").permitAll()
                                 // 인증 없이 접근 가능
-                                .requestMatchers("/", "/favicon.ico", "/api/v1/hello/**", "/api/v1/signup", "/api/v1/authentication", "/api/v1/reissue", "/api/v1/login").permitAll()
+                                .requestMatchers("/", "/favicon.ico", "/api/v1/hello/**", "/api/v1/signup", "/api/v1/authentication", "/api/v1/checkDuplicate", "/api/v1/reissue", "/api/v1/login").permitAll()
                                 .requestMatchers("/api/v1/chapters/**", "/api/v1/concepts/**", "/api/v1/tests/school-level/**", "/api/v1/tests/detail/**").permitAll()
                                 .requestMatchers("/login.html", "/oauth2/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")

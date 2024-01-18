@@ -1,24 +1,22 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
-// import AppConfig from '@/layout/AppConfig.vue';
 import { useApi } from '@/composables/api.js';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 const api = useApi();
-const { layoutConfig } = useLayout();
-// data는 회원가입 잘되는지 토큰 보는 거였으니 나중에 삭제
-// const data = ref(null);
+
+const logoUrl = computed(() => {
+    return 'layout/images/logo-mmt4.png';
+});
+
+// input 데이터
 const email = ref('');
 const password = ref('');
 const name = ref('');
 const phone = ref('');
 const calender = ref('');
 const comments = ref('');
-// 에러 메세지도 id, 비번 다시 입력해달라는 걸로 수정
-const error = ref(null);
-const checked = ref(false);
 const requestData = ref({
     userEmail: email,
     userPassword: password,
@@ -27,18 +25,63 @@ const requestData = ref({
     userBirthdate: calender,
     userComments: comments
 });
-const logoUrl = computed(() => {
-    return 'layout/images/logo-mmt4.png';
-});
-// 홈으로
-const goToHome = () => {
-  try {
-    router.push({ path: '/' }); 
-  } catch (error) {
-    console.error('에러 발생:', error);
-  }
+// 유효성 검사
+const isEmailValid = ref(false);
+const emailErrorMessage = ref('아이디는 영어 소문자와 숫자로 구성된 3에서 20자리여야 합니다.');
+const validateEmail = () => {
+    const emailRegex = /^[a-z0-9]{3,20}$/;
+    isEmailValid.value = emailRegex.test(email.value);
+    emailErrorMessage.value = isEmailValid.value ? '' : '아이디는 영어 소문자와 숫자로 구성된 3에서 20자리여야 합니다.';
+};
+const isPasswordValid = ref(true);
+const passwordErrorMessage = ref('비밀번호는 8에서 16자리의 길이를 가져야 하며, 최소한 하나의 영문 대소문자, 하나의 숫자, 그리고 하나의 특수문자($, @, !, %, *, #, ?, &)를 포함해야 합니다.');
+const validatePassword = () => {
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$/;
+    isPasswordValid.value = passwordRegex.test(password.value);
+    passwordErrorMessage.value = isPasswordValid.value ? '' : '비밀번호는 8에서 16자리의 길이를 가져야 하며, 최소한 하나의 영문 대소문자, 하나의 숫자, 그리고 하나의 특수문자($, @, !, %, *, #, ?, &)를 포함해야 합니다.';
+};
+const isUserNameValid = ref(true);
+const userNameErrorMessage = ref('');
+const validateUserName = () => {
+    // @Size(max = 20)에 대한 유효성 검사 추가
+    isUserNameValid.value = name.value.length <= 20;
+    userNameErrorMessage.value = isUserNameValid.value ? '' : '이름은 20자 이하로 가능합니다.';
+};
+const isUserCommentsValid = ref(true);
+const userCommentsErrorMessage = ref('');
+const validateUserComments = () => {
+    // @Size(max = 200)에 대한 유효성 검사 추가
+    isUserCommentsValid.value = comments.value.length <= 200;
+    userCommentsErrorMessage.value = isUserCommentsValid.value ? '' : '기타사항은 200자 이하로 가능합니다.';
+};
+// 중복 확인
+const isCheckDuplicate = ref(false);
+const checkDuplicateResult = ref('');
+const checkDuplicate = async () => {
+    if (isEmailValid.value) {
+        try {
+            const endpoint = `/checkDuplicate?userEmail=${email.value}`;
+            const response = await api.get(endpoint);
+            isCheckDuplicate.value = response;
+            if (isCheckDuplicate.value) {
+                checkDuplicateResult.value = '이미 사용중인 아이디입니다.';
+            } else {
+                checkDuplicateResult.value = '사용 가능한 아이디입니다.';
+            }
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    }
 };
 
+// 홈으로
+const goToHome = () => {
+    try {
+        router.push({ path: '/' });
+    } catch (error) {
+        console.error('에러 발생:', error);
+    }
+};
 // 회원가입 확인 창
 const displayConfirmation = ref(false);
 const openConfirmation = () => {
@@ -50,24 +93,22 @@ const closeConfirmation = () => {
 const signup = async () => {
     // // 보내기 전에 데이터 형태 어떻게 되는지 확인
     // console.log(requestData.value);
-  try {
-    const response = await api.post('/signup', requestData.value);
-    router.push({ name: 'home' });
-  } catch (err) {
-    console.error('데이터 생성 중 에러 발생:', err);
-  }
+    try {
+        const response = await api.post('/signup', requestData.value);
+        router.push({ name: 'home' });
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    }
 };
 
 const yesClick = () => {
     document.querySelector('form').submit();
     closeConfirmation(); // 첫 번째 이벤트 핸들러에서 실행할 동작
     // goToHome();
-//   download(); // 두 번째 이벤트 핸들러에서 실행할 동작
-  // create api 추가
-//   signup();
+    //   download(); // 두 번째 이벤트 핸들러에서 실행할 동작
+    // create api 추가
+    //   signup();
 };
-
-
 </script>
 
 <template>
@@ -78,24 +119,32 @@ const yesClick = () => {
                 <div class="text-center mb-7">
                     <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
                     <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
-                    <div class="flex align-items-center justify-content-center mt-5"> 개인 프로젝트 입니다. <br/> 안전을 위해 사용빈도가 낮은 비밀번호를 사용해주세요. </div>
-
+                    <div class="flex align-items-center justify-content-center mt-5">
+                        개인 프로젝트 입니다. <br />
+                        안전을 위해 사용빈도가 낮은 아이디, 비밀번호를 사용해주세요.
+                    </div>
                 </div>
                 <form v-on:submit.prevent="signup">
                     <div>
-                        <label for="email" class="block text-900 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email" type="text" placeholder="이메일" class="w-full mb-5" style="padding: 1rem" v-model="email" />
+                        <label for="email" class="block text-900 text-xl font-medium mb-2">ID</label>
+                        {{ emailErrorMessage }}
+                        <InputText id="email" type="text" placeholder="아이디" class="w-full mb-5" style="padding: 1rem" v-model="email" @input="validateEmail" />
+                        <Button @click="checkDuplicate" :disabled="!isEmailValid" label="중복확인"></Button>
+                        {{ checkDuplicateResult }}
                         <label for="password" class="block text-900 font-medium text-xl mb-2">Password</label>
-                        <Password id="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-5" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="password"></Password>
+                        {{ passwordErrorMessage }}
+                        <Password id="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-5" inputClass="w-full" :feedback="false" :inputStyle="{ padding: '1rem' }" v-model="password" @input="validatePassword"></Password>
                         <label for="name" class="block text-900 text-xl font-medium mb-2">Name</label>
-                        <InputText id="name" type="text" placeholder="이름" class="w-full mb-5" style="padding: 1rem" v-model="name" />
-                        <label for="phone" class="block text-900 text-xl font-medium mb-2">Phone</label>
-                        <InputText id="phone" type="text" placeholder="핸드폰 번호" class="w-full  mb-5" style="padding: 1rem" v-model="phone" />
+                        {{ userNameErrorMessage }}
+                        <InputText id="name" type="text" placeholder="이름" class="w-full mb-5" style="padding: 1rem" v-model="name" @input="validateUserName" :maxlength="20" />
+                        <!-- <label for="phone" class="block text-900 text-xl font-medium mb-2">Phone</label>
+                        <InputText id="phone" type="text" placeholder="핸드폰 번호" class="w-full  mb-5" style="padding: 1rem" v-model="phone" /> -->
                         <label for="calender" class="block text-900 text-xl font-medium mb-2">BirthDate</label>
                         <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full mb-5" :inputStyle="{ padding: '1rem' }" v-model="calender">Calendar</Calendar>
                         <label for="comments" class="block text-900 text-xl font-medium mb-2">Comments</label>
-                        <Textarea placeholder="적고 싶은 기타사항을 적으세요. (300자 이하)" :autoResize="true" class="w-full mb-5" rows="3" v-model="comments" />
-                        <Button type="submit" label="Sign Up" class="w-full p-3 text-xl"></Button>
+                        {{ userCommentsErrorMessage }}
+                        <Textarea placeholder="적고 싶은 기타사항을 적으세요. (200자 이하)" :autoResize="true" class="w-full mb-5" rows="3" v-model="comments" @input="validateUserComments" :maxlength="200" />
+                        <Button type="submit" label="회원가입" class="w-full p-3 text-xl"></Button>
                         <!-- <Button label="Sign Up" class="w-full p-3 text-xl" @click="openConfirmation" />
                             <Dialog header="개인정보 확인" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                                 <div class="flex align-items-center justify-content-center">
@@ -110,8 +159,6 @@ const yesClick = () => {
                             </Dialog> -->
                     </div>
                 </form>
-                <!-- <div>{{ data }}</div> -->
-                <div v-if="error" style="color: red">{{ error.message }}</div>
             </div>
         </div>
     </div>

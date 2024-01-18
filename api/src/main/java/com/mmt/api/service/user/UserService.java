@@ -104,11 +104,17 @@ public class UserService {
 //        usersRepository.save(userDTO.toEntity(userDTO));
 //    }
 
+    @Transactional
     public void delete(Long userId) {
         if(!usersRepository.existsByUserId(userId)){
             throw new IllegalArgumentException();
         }
         usersRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public boolean isDuplicateUser(String userEmail) {
+        return usersRepository.findOneWithAuthoritiesByUserEmail(userEmail).isPresent();
     }
 
 }
