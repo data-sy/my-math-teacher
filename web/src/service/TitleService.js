@@ -13,7 +13,7 @@ const calculateGrade = (birthdate) => {
     } else if (age >= 17 && age <= 19) {
         return `고${age - 16}`;
     } else {
-        return '성인';
+        return '';
     }
 };
 const padZero = (num) => (num < 10 ? `0${num}` : num.toString());
