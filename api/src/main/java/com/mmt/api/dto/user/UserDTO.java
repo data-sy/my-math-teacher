@@ -23,11 +23,11 @@ public class UserDTO {
     private Long userId;
 
     @NotBlank(message = "아이디를 입력하세요.")
-    @Pattern(regexp = "^[a-z0-9]{3,20}$", message = "아이디는 영어 소문자와 숫자로 구성된 3에서 20자리여야 합니다.")
+    @Pattern(regexp = "^[a-z0-9_-]{5,20}$", message = "아이디는 5~20자의 영문 소문자, 숫자만 사용 가능합니다.")
     private String userEmail;
 
     @NotBlank(message = "비밀번호를 입력하세요.")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$", message = "비밀번호는 8에서 16자리의 길이를 가져야 하며, 최소한 하나의 영문 대소문자, 하나의 숫자, 그리고 하나의 특수문자($, @, !, %, *, #, ?, &)를 포함해야 합니다.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,16}$", message = "비밀번호는 8~16자, 최소한 하나의 대문자, 하나의 소문자, 하나의 숫자를 포함해야 합니다.")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String userPassword;
 
