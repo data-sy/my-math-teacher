@@ -39,16 +39,30 @@ onMounted(() => {
     )
 });
 
+const loginErrorMessage = ref('');
 const login = async () => {
     try {
         const response = await api.post('/authentication', requestData.value);
-        store.commit('setAccessToken', response.accessToken);
-        store.commit('setRefreshToken', response.refreshToken);
-        error.value = null;
-        closeDialog();
-        router.push({ name: 'home' });
+        if (response.accessToken){
+            store.commit('setAccessToken', response.accessToken);
+            store.commit('setRefreshToken', response.refreshToken);
+            error.value = null;
+            closeDialog();
+            router.push({ name: 'home' });
+        } else {
+            console.log(response);
+        }
     } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+        console.error('에러 발생:', err);
+        // 401 에러코드 점검하는 부분은 - 다음에 구현하기 
+        // // 에러 객체의 속성들을 출력
+        // for (let key in err) {
+        //     console.log(key, ':', err[key]);
+        // }
+        // // 에러 객체의 타입 확인
+        // console.error('에러 객체 타입:', typeof err);
+        // console.log(JSON.stringify(err, null, 2))
+        loginErrorMessage.value = '아이디 또는 비밀번호를 잘못 입력했습니다. <br> 입력하신 내용을 다시 확인해주세요.'
         error.value = err;
     }
 };
@@ -116,6 +130,7 @@ const logout = async () => {
                             </div>
                             <a class="font-medium no-underline ml-2 text-right cursor-pointer line-through-text" style="color: var(--primary-color)">Forgot password?</a>
                         </div>
+                        <p v-html="loginErrorMessage" class="text-red-600 text-base text-font-medium"></p>
                         <Button type="submit" label="로그인" class="w-full p-2.5 text-lg border-round-2xl"></Button>
                     </div>
                 </form>
@@ -149,7 +164,7 @@ const logout = async () => {
                     </div>
                 </div>
                 <div class="flex align-items-center justify-content-center mt-5 mb-5"> ( 참고 : 취소선은 아직 개발하지 않은 기능을 의미합니다.) </div>
-                <div v-if="error" style="color: red">{{ error.message }}</div>
+                <!-- <div v-if="error" style="color: red">{{ error.message }}</div> -->
             </div>
         </Dialog>
     </div>

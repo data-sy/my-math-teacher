@@ -56,7 +56,7 @@ const listboxConcepts = ref([]);
 watch(selectedTreeValue, async (newValue) => {
     const key = Object.keys(newValue)[0];
     const chapterId = parseInt(key);
-    console.log(chapterId);
+    // console.log(chapterId);
     if (!isNaN(chapterId)){
         try {
             const endpoint = `/concepts?chapterId=${chapterId}`;

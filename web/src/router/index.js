@@ -17,6 +17,11 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
+                    path: '/error',
+                    name: 'error',
+                    component: () => import('@/views/ErrorView.vue'),
+                },
+                {
                     path: '/preview',
                     name: 'preview',
                     component: () => import('@/views/Preview.vue'),

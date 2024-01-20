@@ -31,20 +31,24 @@ const requestData = ref({
 });
 // 유효성 검사
 const isEmailValid = ref(false);
-const emailErrorMessage = ref('영어 소문자와 숫자로 구성. 3에서 16자리의 길이');
+const emailErrorMessage = ref('5~20자의 영문 소문자, 숫자만 사용 가능합니다.');
 const validateEmail = () => {
-    const emailRegex = /^[a-z0-9]{3,20}$/;
+    const emailRegex = /^[a-z0-9]{5,20}$/;
     isEmailValid.value = emailRegex.test(email.value);
-    emailErrorMessage.value = isEmailValid.value ? '' : '영어 소문자와 숫자로 구성. 3에서 20자리의 길이';
+    emailErrorMessage.value = isEmailValid.value ? '' : '5~20자의 영문 소문자, 숫자만 사용 가능합니다.';
     isNotDuplicate.value = false;
     checkDuplicateResult.value = '';
 };
 const isPasswordValid = ref(false);
-const passwordErrorMessage = ref('최소한 하나의 영문 대소문자, 숫자, 특수문자 포함. 8에서 16자리의 길이');
+const isPasswordLengthValid = ref(false)
+const passwordErrorMessage = ref('8~16자, 최소한 하나의 대문자, 하나의 소문자, 하나의 숫자를 포함해야 합니다.');
+const passwordLengthErrorMessage = ref('');
 const validatePassword = () => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,16}$/;
     isPasswordValid.value = passwordRegex.test(password.value);
-    // passwordErrorMessage.value = isPasswordValid.value ? '' : '최소한 하나의 영문 대소문자, 숫자, 특수문자 포함. 8에서 16자리의 길이';
+    // passwordErrorMessage.value = isPasswordValid.value ? '' : '8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.';
+    isPasswordLengthValid.value = password.value.length <=16;
+    passwordLengthErrorMessage.value = isPasswordLengthValid.value? '' : '16자 이하로 가능합니다.';
 };
 const isUserNameValid = ref(true);
 const userNameErrorMessage = ref('');
@@ -159,22 +163,23 @@ const yesClick = async () => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="password" class="text-900 text-2xl font-medium">Password
+                        <span class="text-red-600 text-base text-font-medium mx-2" >{{passwordLengthErrorMessage }}</span>
                         <!-- <span class="text-red-600 text-lg text-font-medium mx-2" >{{passwordErrorMessage }}</span> -->
                     </label>
                 </div>
                 <Password id="password" placeholder="비밀번호" :toggleMask="true" class="w-full" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="password" @input="validatePassword">
                     <template #header>
-                        <h6>Pick a password</h6>
+                        <h6> 비밀번호 안전도 </h6>
                     </template>
                     <template #footer>
                         <Divider />
-                        <p class="mt-2">제안 사항</p>
+                        <p class="mt-2">요구사항</p>
                         <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                            <li>최소한 하나의 영어 대문자</li>
-                            <li>최소한 하나의 영어 소문자</li>
-                            <li>최소한 하나의 숫자</li>
-                            <li>최소한 하나의 특수문자</li>
-                            <li>길이는 8에서 20자리</li>
+                            <li>8에서 16자의 길이</li>
+                            <li>하나 이상의 대문자</li>
+                            <li>하나 이상의 소문자</li>
+                            <li>하나 이상의 숫자</li>
+                            <li>특수문자도 사용 가능합니다.</li>
                         </ul>
                     </template>
                 </Password>
@@ -215,7 +220,7 @@ const yesClick = async () => {
                 <div class="text-lg mx-3 mb-5">
                     <div class="my-2"> ID : {{ requestData.userEmail }}</div>
                     <!--비번은 어떤 방식으로 보여줄 수 있을지 생각해보기-->
-                    <!-- <div> Password : {{ requestData.userPassword }}</div> --> 
+                    <!-- <div> Password : {{ requestData.userPassword }}</div>  -->
                     <div class="my-2"> Name : {{ requestData.userName }}</div>
                     <div class="my-2"> BirthDate : {{ requestData.userBirthdate }}</div>
                     <div class="my-2"> Comments : {{ requestData.userComments }}</div>
