@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useApi } from '@/composables/api.js';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
@@ -19,14 +19,29 @@ const email = ref('');
 const password = ref('');
 const name = ref('');
 const phone = ref('');
-const calender = ref('');
+const calendar = ref('');
+const calendarShow = ref('');
+watch(calendar, (newVal) => {
+  if (newVal) {
+    calendarShow.value = formatDate(new Date(newVal));
+  } else {
+    calendarShow.value = '';
+  }
+});
+// 날짜 포맷팅 함수
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}년 ${month}월 ${day}일`;
+};
 const comments = ref('');
 const requestData = ref({
     userEmail: email,
     userPassword: password,
     userName: name,
     userPhone: phone,
-    userBirthdate: calender,
+    userBirthdate: calendar,
     userComments: comments
 });
 // 유효성 검사
@@ -129,7 +144,7 @@ const login = async () => {
 // yes 버튼 클릭 시
 const yesClick = async () => {
     // document.querySelector('form').submit();
-    closeConfirmation(); // 첫 번째 이벤트 핸들러에서 실행할 동작
+    closeConfirmation();
     await signup();
     await login();
     goToHome();
@@ -196,11 +211,11 @@ const yesClick = async () => {
             <InputText id="phone" type="text" placeholder="핸드폰 번호" class="w-full  mb-5" style="padding: 1rem" v-model="phone" /> -->
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="calender" class="block text-900 text-2xl font-medium mb-2">BirthDate
+                    <label for="calendar" class="block text-900 text-2xl font-medium mb-2">BirthDate
                         <span class="text-600 text-base font-normal mx-2" > 연도를 클릭하여 해당 연도를 찾아보세요. </span>
                     </label>
                 </div>
-                <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full" :inputStyle="{ padding: '1rem' }" v-model="calender">Calendar</Calendar>
+                <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full" :inputStyle="{ padding: '1rem' }" v-model="calendar">Calendar</Calendar>
             </div>
             <div class="mb-7">
                 <div class="flex flex-row mb-2">
@@ -222,7 +237,7 @@ const yesClick = async () => {
                     <!--비번은 어떤 방식으로 보여줄 수 있을지 생각해보기-->
                     <!-- <div> Password : {{ requestData.userPassword }}</div>  -->
                     <div class="my-2"> Name : {{ requestData.userName }}</div>
-                    <div class="my-2"> BirthDate : {{ requestData.userBirthdate }}</div>
+                    <div class="my-2"> BirthDate : {{ calendarShow }}</div>
                     <div class="my-2"> Comments : {{ requestData.userComments }}</div>
                 </div>
                 <div class="text-900 text-xl font-medium mx-3"> 회원가입 하시겠습니까?</div>
