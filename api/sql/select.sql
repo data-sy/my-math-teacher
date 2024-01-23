@@ -125,7 +125,8 @@ JOIN tests_items ti ON ti.item_id = i.item_id
 JOIN concepts c ON c.concept_id = i.concept_id
 WHERE ti.test_id = 491;
 
+select test_item_number from tests_items where test_id = 491;
 
+select * from items where item_id in (select item_id from tests_items where test_id = 491);
 
-
-
+select * from items where item_id in (select item_id from tests_items where test_id = 492);
