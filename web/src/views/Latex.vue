@@ -20,34 +20,38 @@ const treeValue = ref(null);
 const listboxLevel = ref(null);
 const listboxLevels = ref([]);
 watch(selectButtonLevel, (newValue, oldValue) => {
-    if (newValue.name === '초등') {
-        listboxLevels.value = levelDic['초등'];
-    } else if (newValue.name === '중등') {
-        listboxLevels.value = levelDic['중등'];
-    } else if (newValue.name === '고등') {
-        listboxLevels.value = levelDic['고등'];
-    }
-    if (oldValue!==null && newValue.name !== oldValue.name){
-        treeValue.value = null;
+    if (newValue !== null ) {
+        if (newValue.name === '초등') {
+            listboxLevels.value = levelDic['초등'];
+        } else if (newValue.name === '중등') {
+            listboxLevels.value = levelDic['중등'];
+        } else if (newValue.name === '고등') {
+            listboxLevels.value = levelDic['고등'];
+        }
+        if (oldValue!==null && newValue.name !== oldValue.name){
+            treeValue.value = null;
+        }
     }
 });
 // chapeterLevel
 watch(listboxLevel, async (newValue) => {
-    const grade = newValue.grade;
-    const semester = newValue.semester;
-    try {
-        const endpoint = `/chapters?grade=${grade}&semester=${semester}`;
-        const response = await api.get(endpoint);
-        if (response[0]['label'] === "") {
-            treeValue.value = response[0]['children']
+    if (newValue !== null ) {
+        const grade = newValue.grade;
+        const semester = newValue.semester;
+        try {
+            const endpoint = `/chapters?grade=${grade}&semester=${semester}`;
+            const response = await api.get(endpoint);
+            if (response[0]['label'] === "") {
+                treeValue.value = response[0]['children']
+            }
+            else {
+                treeValue.value = response;         
+            }
+            error.value = null;
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+            error.value = err;
         }
-        else {
-            treeValue.value = response;         
-        }
-        error.value = null;
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
-        error.value = err;
     }
 });
 // 단위개념 목록
@@ -75,9 +79,11 @@ const conceptId = ref(null);
 const conceptDetail = ref(null);
 const isValidMarkdown = ref(false);
 watch(listboxConcept, (newValue) => {
-    conceptDetail.value  = newValue;
-    conceptId.value = conceptDetail.value.conceptId;
-    conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n');
+    if (newValue !== null ) {
+        conceptDetail.value  = newValue;
+        conceptId.value = conceptDetail.value.conceptId;
+        conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n');
+    }
 });
 
 // 단위개념을 누르지 않고 [선수지식 확인]버튼을 누르면, 단위개념 목록에서 단위개념을 먼저 골라달라고 안내
