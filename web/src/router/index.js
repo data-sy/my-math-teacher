@@ -17,6 +17,11 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
+                    path: '/latex',
+                    name: 'latex',
+                    component: () => import('@/views/Latex.vue'),
+                },
+                {
                     path: '/error',
                     name: 'error',
                     component: () => import('@/views/ErrorView.vue'),

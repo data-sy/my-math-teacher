@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
@@ -7,11 +7,6 @@ import { useConfirm } from 'primevue/useconfirm';
 import levelDic from '@/assets/data/level.json';
 import { VMarkdownView } from 'vue3-markdown'
 import 'vue3-markdown/dist/style.css'
-
-const content = ref('## One of the world\'s most popular markdown editors $ \\pm 2 \\alpha$')
-const mode = ref('light')
-const markdownText = ref('이차방정식 $ax^2+bx+c=0$의 두 근을 $\\alpha,\\beta$라 하면 다음 관계가 성립한다.\n1) 두 근의 합 : $\\alpha+\\beta=-\\frac{b}{a}$\n2) 두 근의 곱 : $\\alpha\\beta=\\frac{c}{a}$\n3) 두 근의 차 : $\\vert\\alpha-\\beta\\vert=\\frac{\\sqrt[]{b^2-4ac}}{\\vert a\\vert}$')
-const replaceBackslashN = (input) => input.replace(/\\n/g, '\n');
 
 const router = useRouter()
 const api = useApi();
@@ -78,13 +73,12 @@ watch(selectedTreeValue, async (newValue) => {
 // 단위개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
+const isValidMarkdown = ref(false);
 watch(listboxConcept, (newValue) => {
     conceptDetail.value  = newValue;
     conceptId.value = conceptDetail.value.conceptId;
     conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n');
-    // console.log(conceptId.value);
 });
-// 추가) LaTex 적용
 
 // 단위개념을 누르지 않고 [선수지식 확인]버튼을 누르면, 단위개념 목록에서 단위개념을 먼저 골라달라고 안내
 const popup = ref(null);
@@ -140,8 +134,6 @@ const goToNextPage = async () => {
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
-                        <VMarkdownView :mode="mode" :content="content"></VMarkdownView>
-                        <VMarkdownView :content="markdownText"></VMarkdownView>
                     </div>
                 </div>
             </div>
@@ -172,7 +164,9 @@ const goToNextPage = async () => {
             </div>
             <div class="card">
                 <div class="surface-section" v-if="conceptDetail">
-                    <div class="font-medium text-4xl text-900 mb-3">{{ conceptDetail.conceptName }}</div>
+                    <div class="font-medium text-4xl text-900 mb-3">
+                        <VMarkdownView :content="conceptDetail.conceptName"></VMarkdownView>
+                    </div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
@@ -188,9 +182,11 @@ const goToNextPage = async () => {
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
-                                <!-- {{ conceptDetail.conceptDescription }} -->
+                            <div v-if="!error" class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
                                 <VMarkdownView :content="conceptDetail.conceptDescription"></VMarkdownView>
+                            </div>
+                            <div v-else class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                                {{ conceptDetail.conceptDescription }}
                             </div>
                         </li>
                     </ul>
