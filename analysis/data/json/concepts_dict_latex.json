@@ -112,7 +112,7 @@
     "skill_id": 1861
   },
   "7595": {
-    "name": "'+'와 '=' 기호를 사용하여 덧셈을 쓰고 읽기",
+    "name": "\\'+\\'와 \\'=\\' 기호를 사용하여 덧셈을 쓰고 읽기",
     "description": "쓰기: 5+2=7\\n읽기: 5 더하기 2는 7과 같습니다. 5와 2의 합은 7입니다.",
     "concept_chapter_id": 14,
     "achievement_id": 9,
@@ -136,7 +136,7 @@
     "skill_id": 32
   },
   "7598": {
-    "name": "'-'와 '=' 기호를 사용하여 뺄셈식을 쓰고 읽기",
+    "name": "\\'-\\'와 \\'=\\' 기호를 사용하여 뺄셈식을 쓰고 읽기",
     "description": "쓰기: 7-2=5\\n읽기: 7 빼기 2는 5와 같습니다. 7과 2의 차는 5입니다.",
     "concept_chapter_id": 17,
     "achievement_id": 9,
@@ -297,7 +297,7 @@
   },
   "7790": {
     "name": "수의 크기 비교를 기호를 사용하여 나타내기",
-    "description": "'65는 72보다 작습니다.'를 65<72와 같이 씁니다. '72는 65보다 큽니다.'를 72>65와 같이 씁니다.",
+    "description": "\\'65는 72보다 작습니다.\\'를 65<72와 같이 씁니다. \\'72는 65보다 큽니다.\\'를 72>65와 같이 씁니다.",
     "concept_chapter_id": 36,
     "achievement_id": 6,
     "achievement_name": "100까지의 수의 계열을 이해하고, 수의 크기를 비교할 수 있다.",
@@ -476,7 +476,7 @@
     "description": "짧은 바늘이 11, 긴 바늘이 12를 가리킬 때 시계는 11시를 나타내고 열한 시라고 읽습니다.",
     "concept_chapter_id": 56,
     "achievement_id": 231,
-    "achievement_name": "시계를 보고 시각을 '몇 시' 또는 '몇 시 30분'으로 읽을 수 있다.",
+    "achievement_name": "시계를 보고 시각을 \\'몇 시\\' 또는 \\'몇 시 30분\\'으로 읽을 수 있다.",
     "skill_id": 1297
   },
   "7808": {
@@ -484,7 +484,7 @@
     "description": "짧은 바늘이 7과 8 사이, 긴바늘이 6을 가리킬 때 시계는 7시 30분을 나타내고 열 시 삼십 분이라고 읽습니다.",
     "concept_chapter_id": 57,
     "achievement_id": 231,
-    "achievement_name": "시계를 보고 시각을 '몇 시' 또는 '몇 시 30분'으로 읽을 수 있다.",
+    "achievement_name": "시계를 보고 시각을 \\'몇 시\\' 또는 \\'몇 시 30분\\'으로 읽을 수 있다.",
     "skill_id": 1298
   },
   "7809": {
@@ -788,7 +788,7 @@
     "description": "길이가 자의 눈금 사이에 있을 때는 가까이에 있는 쪽의 숫자를 읽으며, 숫자 앞에 약을 붙여 말합니다.",
     "concept_chapter_id": 97,
     "achievement_id": 241,
-    "achievement_name": "구체물의 길이를 재는 과정에서 자의 눈금과 일치하지 않는 길이의 측정값을 '약'으로 표현할 수 있다.",
+    "achievement_name": "구체물의 길이를 재는 과정에서 자의 눈금과 일치하지 않는 길이의 측정값을 \\'약\\'으로 표현할 수 있다.",
     "skill_id": 1311
   },
   "7937": {
@@ -1060,7 +1060,7 @@
     "description": "시계의 긴바늘이 가리키는 숫자가 1이면 5분, 2이면 10분, 3이면 15분 …… 을 나타냅니다.",
     "concept_chapter_id": 129,
     "achievement_id": 232,
-    "achievement_name": "시계를 보고 시각을 '몇 시 몇 분'으로 읽을 수 있다.",
+    "achievement_name": "시계를 보고 시각을 \\'몇 시 몇 분\\'으로 읽을 수 있다.",
     "skill_id": 1299
   },
   "8130": {
@@ -1068,7 +1068,7 @@
     "description": "시계에서 긴바늘이 가리키는 작은 눈금 한 칸은 1분을 나타냅니다.",
     "concept_chapter_id": 130,
     "achievement_id": 232,
-    "achievement_name": "시계를 보고 시각을 '몇 시 몇 분'으로 읽을 수 있다.",
+    "achievement_name": "시계를 보고 시각을 \\'몇 시 몇 분\\'으로 읽을 수 있다.",
     "skill_id": 1300
   },
   "8131": {
@@ -1076,7 +1076,7 @@
     "description": "3시 55분을 4시 5분 전이라고도 합니다.",
     "concept_chapter_id": 131,
     "achievement_id": 232,
-    "achievement_name": "시계를 보고 시각을 '몇 시 몇 분'으로 읽을 수 있다.",
+    "achievement_name": "시계를 보고 시각을 \\'몇 시 몇 분\\'으로 읽을 수 있다.",
     "skill_id": 1301
   },
   "8132": {
@@ -1084,7 +1084,7 @@
     "description": "시계의 긴바늘이 한 바퀴 도는 데 60분의 시간이 걸립니다.\\n1시간은 60분입니다.",
     "concept_chapter_id": 132,
     "achievement_id": 233,
-    "achievement_name": "1시간은 60분임을 알고, 시간을 '시간','분'으로 표현할 수 있다.",
+    "achievement_name": "1시간은 60분임을 알고, 시간을 \\'시간\\',\\'분\\'으로 표현할 수 있다.",
     "skill_id": 1302
   },
   "8133": {
@@ -1105,7 +1105,7 @@
   },
   "8135": {
     "name": "자료를 보고 표로 나타내기",
-    "description": "자료를 분류하여 분류한 종류에 맞게 수를 세어 표로 나타냅니다.\\n자료를 보고 바로 표로 나타낼 때에는 '正'의 표시 방법을 이용하여 자료를 빠뜨리지 않고 센 후 표를 완성합니다.\\n표로 나타내면 종류별 자료의 수를 쉽게 알 수 있습니다. 전체 자료의 수를 쉽게 알 수 있습니다.",
+    "description": "자료를 분류하여 분류한 종류에 맞게 수를 세어 표로 나타냅니다.\\n자료를 보고 바로 표로 나타낼 때에는 \\'正\\'의 표시 방법을 이용하여 자료를 빠뜨리지 않고 센 후 표를 완성합니다.\\n표로 나타내면 종류별 자료의 수를 쉽게 알 수 있습니다. 전체 자료의 수를 쉽게 알 수 있습니다.",
     "concept_chapter_id": 135,
     "achievement_id": 293,
     "achievement_name": "분류한 자료를 표로 나타내고, 표로 나타내면 편리한 점을 말할 수 있다.",
@@ -1177,7 +1177,7 @@
   },
   "8096": {
     "name": "쌓은 모양에서 규칙찾기",
-    "description": "쌓기나무는 'ㄴ'자 모양으로 쌓으면서 쌓기나무가 2개씩 늘어나는 규칙이 있습니다.",
+    "description": "쌓기나무는 \\'ㄴ\\'자 모양으로 쌓으면서 쌓기나무가 2개씩 늘어나는 규칙이 있습니다.",
     "concept_chapter_id": 144,
     "achievement_id": 118,
     "achievement_name": "자신이 정한 규칙에 따라 물체, 무늬, 수 등을 배열할 수 있다.",
@@ -1249,7 +1249,7 @@
   },
   "331": {
     "name": "선분",
-    "description": "선분 : 두 점을 곧게 이은 선을 선분이라고 합니다. 점 ㄱ과 점 ㄴ을 이은 선분을 '선분 ㄱㄴ' 또는 '선분 ㄴㄱ'이라고 합니다.",
+    "description": "선분 : 두 점을 곧게 이은 선을 선분이라고 합니다. 점 ㄱ과 점 ㄴ을 이은 선분을 \\'선분 ㄱㄴ\\' 또는 \\'선분 ㄴㄱ\\'이라고 합니다.",
     "concept_chapter_id": 152,
     "achievement_id": 148,
     "achievement_name": "직선, 선분, 반직선을 알고 구별할 수 있다.",
@@ -1257,7 +1257,7 @@
   },
   "332": {
     "name": "각",
-    "description": "한 점에서 그은 두 반직선으로 이루어진 도형을 '각'이라고 합니다. 반직선 ㄴㄱ과 반직선 ㄴㄷ으로 이루어진 각을 '각 ㄱㄴㄷ' 또는 '각 ㄷㄴㄱ'이라고 하고, 이때 점 ㄴ을 각의 꼭짓점이라 합니다. 반직선 ㄴㄱ과 반직선 ㄴㄷ을 각의 '변'이라고 하고, 이 변을 '변 ㄴㄱ'과 '변 ㄴㄷ'이라고 합니다.",
+    "description": "한 점에서 그은 두 반직선으로 이루어진 도형을 \\'각\\'이라고 합니다. 반직선 ㄴㄱ과 반직선 ㄴㄷ으로 이루어진 각을 \\'각 ㄱㄴㄷ\\' 또는 \\'각 ㄷㄴㄱ\\'이라고 하고, 이때 점 ㄴ을 각의 꼭짓점이라 합니다. 반직선 ㄴㄱ과 반직선 ㄴㄷ을 각의 \\'변\\'이라고 하고, 이 변을 \\'변 ㄴㄱ\\'과 \\'변 ㄴㄷ\\'이라고 합니다.",
     "concept_chapter_id": 153,
     "achievement_id": 149,
     "achievement_name": "각과 직각의 의미를 이해하고, 생활 주변에서 예를 찾을 수 있다.",
@@ -1281,7 +1281,7 @@
   },
   "346": {
     "name": "정사각형",
-    "description": "네 각이 모두 직각이고 네 변의 길이가 모두 같은 사각형을 '정사각형'이라고 합니다.\\n(참고) 정사각형은 네 각이 모두 직각이므로 직사각형이라고 할 수 있습니다.",
+    "description": "네 각이 모두 직각이고 네 변의 길이가 모두 같은 사각형을 \\'정사각형\\'이라고 합니다.\\n(참고) 정사각형은 네 각이 모두 직각이므로 직사각형이라고 할 수 있습니다.",
     "concept_chapter_id": 157,
     "achievement_id": 149,
     "achievement_name": "각과 직각의 의미를 이해하고, 생활 주변에서 예를 찾을 수 있다.",
@@ -1289,7 +1289,7 @@
   },
   "351": {
     "name": "나눗셈",
-    "description": "$6\\div2=3$과 같은 식을 '나눗셈식'이라고 하고 '6 나누기 2는 3과 같습니다.'라고 읽습니다. 이때 3은 6을 2로 나눈 '몫', 6은 '나누어지는 수', 2는 '나누는 수'라고 합니다.",
+    "description": "$6\\div2=3$과 같은 식을 \\'나눗셈식\\'이라고 하고 \\'6 나누기 2는 3과 같습니다.\\'라고 읽습니다. 이때 3은 6을 2로 나눈 \\'몫\\', 6은 \\'나누어지는 수\\', 2는 \\'나누는 수\\'라고 합니다.",
     "concept_chapter_id": 158,
     "achievement_id": 59,
     "achievement_name": "나눗셈이 이루어지는 실생활 상황을 통하여 나눗셈의 의미를 이해한다.",
@@ -1473,7 +1473,7 @@
   },
   "471": {
     "name": "소수와 소수점",
-    "description": "$\\frac{1}{10}=0.1$\\n-전체를 똑같이 10으로 나눈 것 중의 1은 $\\frac{1}{10}$입니다.\\n-분수 $\\frac{1}{10}$을 0.1이라 쓰고 영 점 일이라고 읽습니다.\\n-0.1, 0.2, 0.3과 같은 수를 소수라고 하고 '.'을 소수점이라고 합니다.",
+    "description": "$\\frac{1}{10}=0.1$\\n-전체를 똑같이 10으로 나눈 것 중의 1은 $\\frac{1}{10}$입니다.\\n-분수 $\\frac{1}{10}$을 0.1이라 쓰고 영 점 일이라고 읽습니다.\\n-0.1, 0.2, 0.3과 같은 수를 소수라고 하고 \\'.\\'을 소수점이라고 합니다.",
     "concept_chapter_id": 179,
     "achievement_id": 18,
     "achievement_name": "분모가 10인 진분수를 통하여 소수 한 자릿수를 이해하고 읽고 쓸수 있다.",
@@ -1673,7 +1673,7 @@
   },
   "1726": {
     "name": "분수로 나타내기",
-    "description": "부분은 전체의 얼마인지 분수로 나타낼 때에는 '전체'는 '분모'에 '부분'은 '분자'에 나타냅니다.\\n-전체 2묶음 중에서 1묶음은 전체의 $\\frac{1}{2}$입니다.",
+    "description": "부분은 전체의 얼마인지 분수로 나타낼 때에는 \\'전체\\'는 \\'분모\\'에 \\'부분\\'은 \\'분자\\'에 나타냅니다.\\n-전체 2묶음 중에서 1묶음은 전체의 $\\frac{1}{2}$입니다.",
     "concept_chapter_id": 203,
     "achievement_id": 14,
     "achievement_name": "양의 등분할을 통하여 분수를 이해하고 읽고 쓸 수 있다.",
@@ -2705,7 +2705,7 @@
   },
   "3704": {
     "name": "생활 속에서 대응 관계를 찾아 식으로 나타내기",
-    "description": "? [서로 관계가 있는 두 양] : '접시의 수'(기호: ○) / '딸기의 수'(기호: □)\\n→ [대응 관계] : 접시의 수를 5배 한 수만큼 딸기가 있습니다.\\n→ [대응 관계를 나타낸 식]: $○\\times5=□$ 또는 $□\\div5=○$\\n? [서로 관계가 있는 두 양] : '포크의 수'(기호: △) / '접시의 수'(기호: ☆)\\n→ [대응 관계] : 포크의 수를 2로 나눈 수만큼 접시가 있습니다.\\n→ [대응 관계를 나타낸 식] : $△\\div2=☆$",
+    "description": "? [서로 관계가 있는 두 양] : \\'접시의 수\\'(기호: ○) / \\'딸기의 수\\'(기호: □)\\n→ [대응 관계] : 접시의 수를 5배 한 수만큼 딸기가 있습니다.\\n→ [대응 관계를 나타낸 식]: $○\\times5=□$ 또는 $□\\div5=○$\\n? [서로 관계가 있는 두 양] : \\'포크의 수\\'(기호: △) / \\'접시의 수\\'(기호: ☆)\\n→ [대응 관계] : 포크의 수를 2로 나눈 수만큼 접시가 있습니다.\\n→ [대응 관계를 나타낸 식] : $△\\div2=☆$",
     "concept_chapter_id": 307,
     "achievement_id": 121,
     "achievement_name": "한 양이 변할 때 다른 양이 그에 종속하여 변하는 대응 관계를 나타낸 표에서 규칙을 찾아 설명하고, □, △ 등을 사용하여 식으로 나타낼 수 있다.",
@@ -3873,7 +3873,7 @@
   },
   "770": {
     "name": "나누어 주고 남는 양",
-    "description": "-나누어지는 수에서 나누는 수를 몇 번 빼고 남은 수가 '나누어 주고 남는 양'이 됩니다.\\n-세로로 계산하여 몫을 자연수 부분까지 구했을 때 남은 수가 '나누어 주고 남는 양'이 됩니다. 이때 나누어 주고 남는 양을 구할 때에는 소수점의 위치에 주의합니다.",
+    "description": "-나누어지는 수에서 나누는 수를 몇 번 빼고 남은 수가 \\'나누어 주고 남는 양\\'이 됩니다.\\n-세로로 계산하여 몫을 자연수 부분까지 구했을 때 남은 수가 \\'나누어 주고 남는 양\\'이 됩니다. 이때 나누어 주고 남는 양을 구할 때에는 소수점의 위치에 주의합니다.",
     "concept_chapter_id": 410,
     "achievement_id": 77,
     "achievement_name": "‘(자연수)/(소수)’, ‘(소수)/(소수)’의 계산 원리를 이해하고 그 계산을 할 수 있다.",
@@ -4777,7 +4777,7 @@
   },
   "6826": {
     "name": "그래프가 지나는 점",
-    "description": "그래프가 점 (p,q)를 지난다.' 또는 '점 (p,q)가 그래프 위에 있다.' \\n>>x와 y 사이의 관계식에 $x=p,y=q$를 대입하면 등식이 성립한다.",
+    "description": "\\'그래프가 점 (p,q)를 지난다.\\' 또는 \\'점 (p,q)가 그래프 위에 있다.\\' \\n>>x와 y 사이의 관계식에 $x=p,y=q$를 대입하면 등식이 성립한다.",
     "concept_chapter_id": 451,
     "achievement_id": 129,
     "achievement_name": "정비례, 반비례 관계를 이해하고, 그 관계를 표, 식, 그래프로 나타낼 수있다.",
@@ -6449,7 +6449,7 @@
   },
   "4979": {
     "name": "일차방정식의 그래프와 연립일차방정식의 관계",
-    "description": "연립방정식$\\begin{cases}{ax+by+c=0} \\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해는 두 일차방정식 $ax+by+c=0, a'x+b'y+c'=0$의 그래프의 교점의 좌표와 같다.\\n연립방정식의 해 $x=p, y=q <=>$ 두 그래프의 교점의 좌표 (p, q)",
+    "description": "연립방정식$\\begin{cases}{ax+by+c=0} \\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해는 두 일차방정식 $ax+by+c=0, a^{\\prime}x+b^{\\prime}y+c^{\\prime}=0$의 그래프의 교점의 좌표와 같다.\\n연립방정식의 해 $x=p, y=q <=>$ 두 그래프의 교점의 좌표 (p, q)",
     "concept_chapter_id": 495,
     "achievement_id": 134,
     "achievement_name": "두 일차함수의 그래프와 연립일차방정식의 관계를 이해한다.",
@@ -6457,7 +6457,7 @@
   },
   "4980": {
     "name": "두 그래프의 위치관계와 연립방정식의 해의 개수",
-    "description": "연립방정식 $\\begin{cases}{ax+by+c=0} \\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해의 개수는 두 일차방정식 $ax+by+c=0, a'x+b'y+c'=0$의 그래프의 교점의 개수와 같다. \\n(1) 두 그래프의 위치관계 : 한점에서 만난다,  두 그래프의 교점의 개수 : 한 개, 연립방정식의 해의 개수 : 한 쌍의 해, 기울기와 y절편 : 기울기가 다르다. $\\frac{a}\\n{a^{\\prime}}e\\frac{b}{b^{\\prime}}$\\n(2) 두 그래프의 위치관계 : 평행하다,  두 그래프의 교점의 개수 : 없다, 연립방정식의 해의 개수 : 해가 없다, 기울기와 y절편 : 기울기는 같고 y절편은 다르다. $\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}e\\frac{c}{c^{\\prime}}$ \\n(3) 두 그래프의 위치관계 : 일치한다,  두 그래프의 교점의 개수 : 무수히 많다, 연립방정식의 해의 개수 : 해가 무수히 많다, 기울기와 y절편 : 기울기와 y절편이 각각 같다. \\n$\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}=\\frac{c}{c^{\\prime}}$",
+    "description": "연립방정식 $\\begin{cases}{ax+by+c=0} \\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해의 개수는 두 일차방정식 $ax+by+c=0, a^{\\prime}x+b^{\\prime}y+c^{\\prime}=0$의 그래프의 교점의 개수와 같다. \\n(1) 두 그래프의 위치관계 : 한점에서 만난다,  두 그래프의 교점의 개수 : 한 개, 연립방정식의 해의 개수 : 한 쌍의 해, 기울기와 y절편 : 기울기가 다르다. $\\frac{a}\\n{a^{\\prime}}e\\frac{b}{b^{\\prime}}$\\n(2) 두 그래프의 위치관계 : 평행하다,  두 그래프의 교점의 개수 : 없다, 연립방정식의 해의 개수 : 해가 없다, 기울기와 y절편 : 기울기는 같고 y절편은 다르다. $\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}e\\frac{c}{c^{\\prime}}$ \\n(3) 두 그래프의 위치관계 : 일치한다,  두 그래프의 교점의 개수 : 무수히 많다, 연립방정식의 해의 개수 : 해가 무수히 많다, 기울기와 y절편 : 기울기와 y절편이 각각 같다. \\n$\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}=\\frac{c}{c^{\\prime}}$",
     "concept_chapter_id": 495,
     "achievement_id": 134,
     "achievement_name": "두 일차함수의 그래프와 연립일차방정식의 관계를 이해한다.",
@@ -7056,8 +7056,8 @@
     "skill_id": 1420
   },
   "8429": {
-    "name": "'적어도 하나는 ~일' 확률을 구하는 방법",
-    "description": "적어도 하나는 ~일' 확률은 어떤 사건이 일어나지 않을 확률을 이용한다.\\n(적어도 하나는 ~일 확률)=1-(모두 ~가 아닐 확률)",
+    "name": "\\'적어도 하나는 ~일\\' 확률을 구하는 방법",
+    "description": "\\'적어도 하나는 ~일\\' 확률은 어떤 사건이 일어나지 않을 확률을 이용한다.\\n(적어도 하나는 ~일 확률)=1-(모두 ~가 아닐 확률)",
     "concept_chapter_id": 508,
     "achievement_id": 284,
     "achievement_name": "확률의 개념과 그 기본성질을 이해하고, 확률을 구할 수 있다.",
@@ -7113,7 +7113,7 @@
   },
   "4697": {
     "name": "제곱근의 표현",
-    "description": "(1) 제곱근은 기호 $\\sqrt{\\phantom{ab}}$를 사용하여 나타내는데 이것을 근호라 하고, '제곱근' 또는 '루트(root)'라 읽는다. \\n\\n(2) 양수 a의 제곱근 중에서 양수인 것을 양의 제곱근, 음수인 것을 음의 제곱근이라 하고 다음과 같이 나타낸다.\\n양의 제곱근 : $\\sqrt[]{a}$\\n음의 제곱근 : $-\\sqrt[]{a}$",
+    "description": "(1) 제곱근은 기호 $\\sqrt{\\phantom{ab}}$를 사용하여 나타내는데 이것을 근호라 하고, \\'제곱근\\' 또는 \\'루트(root)\\'라 읽는다. \\n\\n(2) 양수 a의 제곱근 중에서 양수인 것을 양의 제곱근, 음수인 것을 음의 제곱근이라 하고 다음과 같이 나타낸다.\\n양의 제곱근 : $\\sqrt[]{a}$\\n음의 제곱근 : $-\\sqrt[]{a}$",
     "concept_chapter_id": 510,
     "achievement_id": 38,
     "achievement_name": "제곱근의 뜻을 알고, 그 성질을 이해한다.",
@@ -7705,7 +7705,7 @@
   },
   "2010": {
     "name": "삼각비",
-    "description": "$\\angle B=90^{\\circ}$인 직각삼각형 ABC에서\\n(1) $($\\angle A$의 사인) = $\\frac{(높이)}{(빗변의 길이)}$\\n→$\\sin A=\\frac{\\overline{BC}}{\\overline{AC}}=\\frac{a}{b}$\\n(2) $($\\angle A$의 코사인) = $\\frac{(밑변의 길이)}{(빗변의 길이)}$\\n→$\\cos A=\\frac{\\overline{AB}}{\\overline{AC}}=\\frac{c}{b}$\\n(3) $($\\angle A$의 탄젠트) = $\\frac{(높이)}{(밑변의 길이)}$\\n→$\\tan A=\\frac{\\overline{BC}}{\\overline{AB}}=\\frac{a}{c}$\\n$\\sin A$, $\\cos A$, $\\tan A$를 $\\angle A$의 삼각비라 한다.",
+    "description": "$\\angle B=90^{\\circ}$인 직각삼각형 ABC에서\\n(1) $(\\angle A의 사인) = \\frac{(높이)}{(빗변의 길이)}$ → $\\sin A=\\frac{\\overline{BC}}{\\overline{AC}}=\\frac{a}{b}$\\n(2) $(\\angle A의 코사인) = \\frac{(밑변의 길이)}{(빗변의 길이)}$ → $\\cos A=\\frac{\\overline{AB}}{\\overline{AC}}=\\frac{c}{b}$\\n(3) $(\\angle A의 탄젠트) = \\frac{(높이)}{(밑변의 길이)}$ → $\\tan A=\\frac{\\overline{BC}}{\\overline{AB}}=\\frac{a}{c}$\\n$\\sin A$, $\\cos A$, $\\tan A$를 $\\angle A$의 삼각비라 한다.",
     "concept_chapter_id": 527,
     "achievement_id": 181,
     "achievement_name": "삼각비의 뜻을 알고, 간단한 삼각비의 값을 구할 수 있다.",
@@ -7737,7 +7737,7 @@
   },
   "9921": {
     "name": "$0\\degree$, $90\\degree$의 삼각비의 값",
-    "description": "(1) $sin0\\degree=0$, $cos0\\degree=1$, $tan0\\degree=0$\\n(2) $sin90\\degree=1$, $cos90\\degree=0$, $tan90\\degree$의 값은 정할 수 없다.",
+    "description": "(1) $sin0\\degree=0$, $cos0\\degree=1$, $tan0\\degree=0$ \\n(2) $sin90\\degree=1$, $cos90\\degree=0$, $tan90\\degree$의 값은 정할 수 없다.",
     "concept_chapter_id": 528,
     "achievement_id": 181,
     "achievement_name": "삼각비의 뜻을 알고, 간단한 삼각비의 값을 구할 수 있다.",
@@ -7745,7 +7745,7 @@
   },
   "10769": {
     "name": "각의 크기에 따른 삼각비의 값의 대소 관계",
-    "description": "(1) $x$의 크기가 $0\\degree$에서 $90\\degree$까지 증가하면\\n(1-1) $sinx$의 값은 $0$에서 $1$까지 증가한다.\\n(1-2) $cosx$의 값은 $1$에서 $0$까지 감소한다.\\n(1-3) $tanx$의 값은 $0$에서 무한히 증가한다.\\n(2-1) $0\\degree\\leqx<45\\degree$일 때 $sinx<cosx$\\n(2-2) $x=45\\degree$일 때 $sinx=cosx<tanx$\\n(2-3) $45\\degree<x<90\\degree$일 때 $cosx<sinx<tanx$",
+    "description": "(1) $x$의 크기가 $0\\degree$에서 $90\\degree$까지 증가하면\\n(1-1) $sinx$의 값은 $0$에서 $1$까지 증가한다.\\n(1-2) $cosx$의 값은 $1$에서 $0$까지 감소한다.\\n(1-3) $tanx$의 값은 $0$에서 무한히 증가한다.\\n(2-1) $0\\degree\\leq x<45\\degree$일 때 $sinx<cosx$\\n(2-2) $x=45\\degree$일 때 $sinx=cosx<tanx$\\n(2-3) $45\\degree<x<90\\degree$일 때 $cosx<sinx<tanx$",
     "concept_chapter_id": 528,
     "achievement_id": 181,
     "achievement_name": "삼각비의 뜻을 알고, 간단한 삼각비의 값을 구할 수 있다.",
@@ -8265,7 +8265,7 @@
   },
   "3490": {
     "name": "허수단위 $i$와 복소수",
-    "description": "1. 허수단위 $i$\\n제곱하여 -1이 되는 새로운 수 하나를 $i$로 나타내기로 한다. 이때 $i$를 허수단위라 하고, 제곱하여 -1이 된다는 뜻에서 $i=\\sqrt[]{-1}$과 같이 나타내기로 한다. \\n$i=\\sqrt[]{-1}$\\n$i^2=-1$\\n2. 복소수\\n$a,b$가 실수일 때, $a+bi$꼴로 나타내는 수를 복소수라 한다. 이 때 $a$를 실수부분, $b$를 허수부분이라 한다.",
+    "description": "1. 허수단위 $i$\\n제곱하여 -1이 되는 새로운 수 하나를 $i$로 나타내기로 한다. 이때 $i$를 허수단위라 하고, 제곱하여 -1이 된다는 뜻에서 $i=\\sqrt[]{-1}$과 같이 나타내기로 한다. \\n$i=\\sqrt[]{-1}$, \\n$i^2=-1$\\n2. 복소수\\n$a,b$가 실수일 때, $a+bi$꼴로 나타내는 수를 복소수라 한다. 이 때 $a$를 실수부분, $b$를 허수부분이라 한다.",
     "concept_chapter_id": 546,
     "achievement_id": 105,
     "achievement_name": "복소수의 뜻과 성질을 이해하고 사칙연산을 할 수 있다.",
@@ -8273,7 +8273,7 @@
   },
   "3520": {
     "name": "복소수의 분류",
-    "description": "1. 허수와 순허수\\n실수가 아닌 복소수 $a+bi(b\\ne0)$를 순허수라 하고, 실수부분이 0인 허수 $bi(b\\ne0)$를 순허수라 한다.\\n2. 복소수의 분류 임의의 실수 $a,b$에 대하여 복소수 $a+bi$를 분류하면 다음과 같다.\\n$a+bi\\begin{cases}{b=0\\colon실수a} \\\\ {b}\\ne0\\colon허수a+bi\\begin{cases}{a=0\\colon순허수bi} \\\\ {a\\ne0\\colon순허수가아닌허수a+bi}\\end{cases}\\end{cases}$",
+    "description": "1. 허수와 순허수\\n실수가 아닌 복소수 $a+bi(b\\ne0)$를 순허수라 하고, 실수부분이 0인 허수 $bi(b\\ne0)$를 순허수라 한다.\\n2. 복소수의 분류 임의의 실수 $a,b$에 대하여 복소수 $a+bi$를 분류하면 다음과 같다.\\n$a+bi \\begin{cases} \\begin{aligned} &b=0 : &&\\text{실수 } a \\\\ &b\neq 0 : &&\\text{허수 } a+bi \\begin{cases} &a=0 : &&\\text{순허수} \\\\ &a\neq 0 : &&\\text{순허수가 아닌 수} \\end{cases} \\end{aligned} \\end{cases}$",
     "concept_chapter_id": 546,
     "achievement_id": 105,
     "achievement_name": "복소수의 뜻과 성질을 이해하고 사칙연산을 할 수 있다.",
@@ -8385,7 +8385,7 @@
   },
   "10816": {
     "name": "근의 공식을 이용한 이차방정식의 풀이",
-    "description": "근의 공식을 이용한 풀이\\ni) 계수가 실수인 이차방정식\\n$ax^2+bx+c=0\\Rightarrow x=\\frac{-b\\pm\\sqrt[]{b^2-4ac}}{2a}$\\nii) 계수가 실수인 이차방정식\\n$ax^2+2{b}^{\\prime}x+c=0\\Rightarrow x=\\frac{-{b}^{\\prime}\\pm\\sqrt[]{{{b}^{\\prime2}}^{}^{}-ac}}{a}$",
+    "description": "근의 공식을 이용한 풀이\\ni) 계수가 실수인 이차방정식\\n$ax^2+bx+c=0\\Rightarrow x=\\frac{-b\\pm\\sqrt[]{b^2-4ac}}{2a}$\\nii) 계수가 실수인 이차방정식\\n$ax^2+2{b}^{\\prime}x+c=0\\Rightarrow x=\\frac{-{b}^{\\prime}\\pm\\sqrt[]{{b}^{\\prime2}-ac}}{a}$",
     "concept_chapter_id": 548,
     "achievement_id": 103,
     "achievement_name": "이차방정식을 풀 수 있다.",
@@ -8425,7 +8425,7 @@
   },
   "3843": {
     "name": "방정식과 일차방정식",
-    "description": "1. 방정식\\n1) 방정식 : 등식에 포함된 미지수의 값에 따라 참일 수도 있고 거짓일 수도 있는 등식을 방정식이라 한다.\\n2) 방정식의 해(근) : 방정식이 참이 되는 미지수의 값을 그 방정식의 해 또는 근이라 하고, 방정식의 해를 모두 구하는 것을 '방정식을 푼다'고 한다.",
+    "description": "1. 방정식\\n1) 방정식 : 등식에 포함된 미지수의 값에 따라 참일 수도 있고 거짓일 수도 있는 등식을 방정식이라 한다.\\n2) 방정식의 해(근) : 방정식이 참이 되는 미지수의 값을 그 방정식의 해 또는 근이라 하고, 방정식의 해를 모두 구하는 것을 \\'방정식을 푼다\\'고 한다.",
     "concept_chapter_id": 548,
     "achievement_id": 94,
     "achievement_name": "방정식과 그 해의 의미를 알 수 있다.",
@@ -8577,7 +8577,7 @@
   },
   "4145": {
     "name": "완전제곱식을 이용한 이차식의 최대$\\cdotp$최소",
-    "description": "실수 $x$, $y$'의 조건이 있는 $x$, $y$에 대한 이차식 $ax^2+by^2+cx+dy+e$의 최댓값 또는 최솟값\\n→  $x$, $y$에 대한 완전제곱식 꼴, 즉 $a(x-m)^2+b(y-n)^2+k$ ($a$, $b$, $k$, $m$, $n$은 상수)의 꼴로 변형한 후 $(실수)^2\\geq0$임을 이용한다.\\n이때, $a>0$, $b>0$이면 최솟값 $k$를 갖고, $a<0$, $b<0$이면 최댓값 $k$를 갖는다.",
+    "description": "실수 $x$, $y^{\\prime}$의 조건이 있는 $x$, $y$에 대한 이차식 $ax^2+by^2+cx+dy+e$의 최댓값 또는 최솟값\\n→  $x$, $y$에 대한 완전제곱식 꼴, 즉 $a(x-m)^2+b(y-n)^2+k$ ($a$, $b$, $k$, $m$, $n$은 상수)의 꼴로 변형한 후 $(실수)^2\\geq0$임을 이용한다.\\n이때, $a>0$, $b>0$이면 최솟값 $k$를 갖고, $a<0$, $b<0$이면 최댓값 $k$를 갖는다.",
     "concept_chapter_id": 552,
     "achievement_id": 111,
     "achievement_name": "이차함수의 최대, 최소를 이해하고, 이를 활용하여 문제를 해결할 수 있다.",
@@ -9064,7 +9064,7 @@
     "skill_id": 1177
   },
   "4842": {
-    "name": "표준형으로 표현된 두 직선의 위치관계\\n",
+    "name": "표준형으로 표현된 두 직선의 위치관계",
     "description": "표준형으로 표현된 두 직선 $y=mx+n,y={m}^{\\prime}x+{n}^{\\prime}$의 위치 관계와 연립방정식\\n$\\begin{cases}{y=mx+n} \\\\ {y={m}^{\\prime}x+{n}^{\\prime}}\\end{cases}$의 해의 개수는 다음과 같다.\\n1) $m={m}^{\\prime},ne{n}^{\\prime}\\Rightarrow $ $\\begin{cases}{평행하다.} \\\\ {두 직선의교점은 없다.} \\\\ {연립방정식의 해는없다.(불능)}\\end{cases}$\\n2) $m={m}^{\\prime},n={n}^{\\prime}\\Rightarrow $ $\\begin{cases}{일치한다.} \\\\ {두 직선의교점은 무수히 많다.} \\\\ {연립방정식의 해는 무수히 많다.(부정)}\\end{cases}$\\n3) $me {m}^{\\prime} \\Rightarrow $ $\\begin{cases}{한 점에서 만난다.} \\\\ {두 직선의 교점은 한 개이다.} \\\\ {연립방정식의 해는한 쌍이다.}\\end{cases}$",
     "concept_chapter_id": 561,
     "achievement_id": 205,
@@ -9313,7 +9313,7 @@
   },
   "107": {
     "name": "서로 같은 집합",
-    "description": "1. 두 집합 $A, B$에 대하여 $A\\subset B$이고 $B\\subset A$일 때, '$A$와 $B$는 서로 같다.'고 하며, 이것을 기호로 $A=B$와 같이 나타낸다.\\n2. 두 집합 $A$와 $B$가 서로 같지 않을 때, 이것을 기호로 $A\\ne B$와 같이 나타낸다.",
+    "description": "1. 두 집합 $A, B$에 대하여 $A\\subset B$이고 $B\\subset A$일 때, \\'$A$와 $B$는 서로 같다.\\'고 하며, 이것을 기호로 $A=B$와 같이 나타낸다.\\n2. 두 집합 $A$와 $B$가 서로 같지 않을 때, 이것을 기호로 $A\\ne B$와 같이 나타낸다.",
     "concept_chapter_id": 568,
     "achievement_id": 80,
     "achievement_name": "두 집합 사이의 포함 관계를 이해한다.",
@@ -9400,8 +9400,8 @@
     "skill_id": 358
   },
   "3893": {
-    "name": "'모든'이나 '어떤'이 있는 명제",
-    "description": "일반적으로 조건 $p(x)$는 명제가 아니지만 조건 $p(x)$ 앞에 '모든'이나 '어떤'이라는 단어가 있으면 $x$의 값이 정해지지 않아도 참, 거짓을 판별할 수 있는 명제가 된다.\\n즉 공집합이 아닌 전체집합$U$ 에서의 조건$p(x)$ 에 대하여 그 진리집합을 $P$라 하면 다음이 성립한다.\\n(1) 모든 $x$ 에 대하여 $p(x)$$\\rightarrow$$\\begin{cases}{P=U이면 참} \\\\ {Pe U이면 거짓}\\end{cases}$\\n(2) 어떤 $x$ 에 대하여$p(x)$$\\rightarrow\\begin{cases} {Pe\\emptyset이면참}\\\\{P=\\emptyset이면거짓}\\end{cases}$$$",
+    "name": "\\'모든\\'이나 \\'어떤\\'이 있는 명제",
+    "description": "일반적으로 조건 $p(x)$는 명제가 아니지만 조건 $p(x)$ 앞에 \\'모든\\'이나 \\'어떤\\'이라는 단어가 있으면 $x$의 값이 정해지지 않아도 참, 거짓을 판별할 수 있는 명제가 된다.\\n즉, 공집합이 아닌 전체집합$U$ 에서의 조건$p(x)$ 에 대하여 그 진리집합을 $P$라 하면 다음이 성립한다.\\n(1) 모든 $x$ 에 대하여 $p(x)$$\\rightarrow$$\\begin{cases}{P=U이면 참} \\\\ {Pe U이면 거짓}\\end{cases}$\\n(2) 어떤 $x$ 에 대하여$p(x)$$\\rightarrow\\begin{cases} {Pe\\emptyset이면참}\\\\{P=\\emptyset이면거짓}\\end{cases}$",
     "concept_chapter_id": 571,
     "achievement_id": 82,
     "achievement_name": "명제와 조건의 뜻을 알고, ‘모든’, ‘어떤’을 포함한 명제를 이해한다.",
@@ -9417,7 +9417,7 @@
   },
   "3890": {
     "name": "명제 $p\\longrightarrow q$",
-    "description": "두 조건 $p$,$q$로 이루어진 명제 '$p$이면 $q$이다.' 를 기호로 $p\\longrightarrow q$와 같이 나타내고, $p$를 이 명제의 가정, $q$를 이 명제의 결론이라 한다.",
+    "description": "두 조건 $p$,$q$로 이루어진 명제 \\'$p$이면 $q$이다.\\' 를 기호로 $p\\longrightarrow q$와 같이 나타내고, $p$를 이 명제의 가정, $q$를 이 명제의 결론이라 한다.",
     "concept_chapter_id": 571,
     "achievement_id": 82,
     "achievement_name": "명제와 조건의 뜻을 알고, ‘모든’, ‘어떤’을 포함한 명제를 이해한다.",
@@ -9593,7 +9593,7 @@
   },
   "7952": {
     "name": "이차함수의 일반형 $y=ax^2+bx+c$의 그래프",
-    "description": "(1)이차함수의 기본형 $y=ax^2$의 그래프\\n1.꼭짓점$\\colon$$(0,0)$\\n2.축$\\colon $$y축$$(직선x=0)$\\n3.$\\begin{cases}{a>0이면\\bigcup 의 꼴로 아래쪽으로 볼록하다.} \\\\ {a<0이면 \\bigcap 의 꼴로 위로 볼록하다.}\\end{cases}$4.$|a|$의 값이 클수록 그래프의 폭은 좁아진다.\\n\\n(2)이차함수의 표준형 $y=a(x-p)^2+q$의 그래프\\n1.이차함수 $y=ax^2$의 그래프를 $x$축의 방향으로 $p$만큼, $y$축의 방향으로 $q$만큼 평행이동한 것이다.\\n2.꼭짓점$\\colon$\\n3.축$\\colon$직선 $x=p$\\n\\n(3)이차함수$y=ax^2+bx+c$의 그래프\\n$y=ax^2+bx+c=a(x+\\frac{b}{2a})^2-\\frac{b^2-4ac}{4a}$이므로 이차함수$y=ax^2+bx+c$의 그래프는 다음과 같은 성질이 있다.\\n1.이차함수 $y=ax^2$ 의 그래프를 $x$축의 방향으로 $-\\frac{b}{2a}$만큼, $y$축의 방향으로 $-\\frac{b^2-4ac}{4a}$만큼 평행이동한 것이다.\\n2.꼭짓점$\\colon$점$(-\\frac{b}{2a},-\\frac{b^2-4ac}{4a})$\\n3.축$\\colon = -\\frac{b}{2a}$\\n4.$y$절편$\\colon$$c$",
+    "description": "(1)이차함수의 기본형 $y=ax^2$의 그래프\\n1.꼭짓점$\\colon$$(0,0)$\\n2.축$\\colon$$y축$$(직선x=0)$\\n3.$\\begin{cases}{a>0이면\\bigcup 의 꼴로 아래쪽으로 볼록하다.} \\\\ {a<0이면 \\bigcap 의 꼴로 위로 볼록하다.}\\end{cases}$\\n4.$|a|$의 값이 클수록 그래프의 폭은 좁아진다.\\n\\n(2)이차함수의 표준형 $y=a(x-p)^2+q$의 그래프\\n1.이차함수 $y=ax^2$의 그래프를 $x$축의 방향으로 $p$만큼, $y$축의 방향으로 $q$만큼 평행이동한 것이다.\\n2.꼭짓점$\\colon$$(p,q)$\\n3.축$\\colon$직선 $x=p$\\n\\n(3)이차함수$y=ax^2+bx+c$의 그래프\\n$y=ax^2+bx+c=a(x+\\frac{b}{2a})^2-\\frac{b^2-4ac}{4a}$이므로 이차함수$y=ax^2+bx+c$의 그래프는 다음과 같은 성질이 있다.\\n1.이차함수 $y=ax^2$ 의 그래프를 $x$축의 방향으로 $-\\frac{b}{2a}$만큼, $y$축의 방향으로 $-\\frac{b^2-4ac}{4a}$만큼 평행이동한 것이다.\\n2.꼭짓점$\\colon$점$(-\\frac{b}{2a},-\\frac{b^2-4ac}{4a})$\\n3.축$\\colon = -\\frac{b}{2a}$\\n4.$y$절편$\\colon$$c$",
     "concept_chapter_id": 577,
     "achievement_id": 136,
     "achievement_name": "이차함수의 그래프의 성질을 이해한다.",
@@ -9712,7 +9712,7 @@
     "skill_id": 790
   },
   "278": {
-    "name": "유리함수\\n",
+    "name": "유리함수",
     "description": "유리함수란, 함수 $y=f(x)$에서 $f(x)$가 $x$에 대한 유리식일 때, 이 함수를 유리함수라 한다. 특히, $f(x)$가 $x$에 대한 다항식인 유리함수를 다항함수로라 한다.",
     "concept_chapter_id": 580,
     "achievement_id": 140,
@@ -9745,7 +9745,7 @@
   },
   "290": {
     "name": "유리함수 $y=\\frac{ax+b}{cx+d}(ad-bc\\ne0,c\\ne0)$의 역함수 구하기",
-    "description": "유리함수 $y=\\frac{ax+b}{cx+d}(ad-bc\\ne0, c\\ne0)$의 역함수를 구하는 방법은 먼저 $y=f(x)$를 $x$에 대하여 푼 후, $x=f^{-1}(y)$에서 $x$와 $y$를 서로 바꾸어 $y=f^{-1}(x)$로 나타낸다.\\n또는 아래의 공식을 이용한다.\\n$f(x)=\\frac{ax+b}{cx+d}\\implies f^{-1}(x)=\\frac{-\\differentialD x+b}{cx-a}$",
+    "description": "유리함수 $y=\\frac{ax+b}{cx+d}(ad-bc\\ne0, c\\ne0)$의 역함수를 구하는 방법은 먼저 $y=f(x)$를 $x$에 대하여 푼 후, $x=f^{-1}(y)$에서 $x$와 $y$를 서로 바꾸어 $y=f^{-1}(x)$로 나타낸다.\\n또는 아래의 공식을 이용한다.\\n$f(x)=\\frac{ax+b}{cx+d}\\implies f^{-1}(x)=\\frac{-dx+b}{cx-a}$",
     "concept_chapter_id": 581,
     "achievement_id": 140,
     "achievement_name": "유리함수 $y=\\frac{(ax+b)}{(cx+d)}$의 그래프를 그릴 수 있고, 그 그래프의 성질을 이해한다.",
@@ -9776,7 +9776,7 @@
     "skill_id": 792
   },
   "291": {
-    "name": "무리식\\n",
+    "name": "무리식",
     "description": "무리식이란, 근호 안에 문자가 포함된 식 중에서 유리식으로 나타낼 수 없는 식",
     "concept_chapter_id": 582,
     "achievement_id": 141,
@@ -10625,7 +10625,7 @@
   },
   "157": {
     "name": "무한대",
-    "description": "$x$의 값이 한없이 커지는 것을 기호 $\\infty$를 사용하여 $x\\to\\infty$와 같이 나타내고, $x$의 값이 음수이면서 그 절댓값이 한없이 커지는 것을 $x\\to-\\infty$와 같이 나타낸다. 이때 $\\infty$를 '무한대'라 읽는다.",
+    "description": "$x$의 값이 한없이 커지는 것을 기호 $\\infty$를 사용하여 $x\\to\\infty$와 같이 나타내고, $x$의 값이 음수이면서 그 절댓값이 한없이 커지는 것을 $x\\to-\\infty$와 같이 나타낸다. 이때 $\\infty$를 \\'무한대\\'라 읽는다.",
     "concept_chapter_id": 608,
     "achievement_id": 329,
     "achievement_name": "함수의 극한의 뜻과 성질을 이해하고, 함수의 극한값을 구할 수 있다.",
@@ -10729,7 +10729,7 @@
   },
   "9110": {
     "name": "함수의 극한값 구하는 방법-부정형의 극한값",
-    "description": "① $\\frac{0}{0}$꼴의 극한\\n? 유리식 -> 분모, 분자를 인수분해한 다음 약분하여 극한값을 구한다.\\n(인수정리, 조립제법 이용)\\n? 무리식 -> 분모, 분자 중 $\\sqrt{\\placeholder{}}$가 있는 쪽을 먼저 유리화한 후 약분하여 극한값을 구한다.\\n② $\\frac{\\infty}{\\infty}$ 꼴의 극한\\n(1) 분모의 최고차항으로 분모, 분자를 각각 나눈다.\\n(2) $\\lim _{x\\to\\infty}\\frac{k}{x^p}=0$ ($k$는 상수, $p$는 양수)임을 이용하여 극한값을 구한다.\\n(분자의 차수)$<$(분모의 차수) -> 극한값은 0이다.\\n(분자의 차수)$=$(분모의 차수) -> 극한값은 분모, 분자의 최고차항의 계수의 비이다.\\n(분자의 차수)$>$(분모의 차수) -> 발산한다.\\n③ $\\infty-\\infty$꼴의 극한\\n? 다항식인 경우 -> 최고차항으로 묶는다.\\n? $\\sqrt{\\placeholder{}}$가 있는 경우 -> 분모를 1로 보고 분자를 유리화한다.\\n④ $\\infty\\times0$꼴의 극한\\n? 분모 또는 분자에 다항식이 있는 경우 -> 통분하거나 인수분해한다.\\n? 분모 또는 분자에 $\\sqrt{\\placeholder{}}$가 있는 경우 -> $\\sqrt{\\placeholder{}}$가 있는 쪽을 유리화한다.",
+    "description": "① $\\frac{0}{0}$꼴의 극한\\n? 유리식 -> 분모, 분자를 인수분해한 다음 약분하여 극한값을 구한다.\\n(인수정리, 조립제법 이용)\\n? 무리식 -> 분모, 분자 중 $\\sqrt{\\phantom{ab}}$가 있는 쪽을 먼저 유리화한 후 약분하여 극한값을 구한다.\\n② $\\frac{\\infty}{\\infty}$ 꼴의 극한\\n(1) 분모의 최고차항으로 분모, 분자를 각각 나눈다.\\n(2) $\\lim _{x\\to\\infty}\\frac{k}{x^p}=0$ ($k$는 상수, $p$는 양수)임을 이용하여 극한값을 구한다.\\n(분자의 차수)$<$(분모의 차수) -> 극한값은 0이다.\\n(분자의 차수)$=$(분모의 차수) -> 극한값은 분모, 분자의 최고차항의 계수의 비이다.\\n(분자의 차수)$>$(분모의 차수) -> 발산한다.\\n③ $\\infty-\\infty$꼴의 극한\\n? 다항식인 경우 -> 최고차항으로 묶는다.\\n? $\\sqrt{\\phantom{ab}}$가 있는 경우 -> 분모를 1로 보고 분자를 유리화한다.\\n④ $\\infty\\times0$꼴의 극한\\n? 분모 또는 분자에 다항식이 있는 경우 -> 통분하거나 인수분해한다.\\n? 분모 또는 분자에 $\\sqrt{\\phantom{ab}}$가 있는 경우 -> $\\sqrt{\\phantom{ab}}$가 있는 쪽을 유리화한다.",
     "concept_chapter_id": 609,
     "achievement_id": 330,
     "achievement_name": "함수의 극한의 뜻과 성질을 이해하고, 함수의 극한값을 구할 수 있다.",
@@ -10833,7 +10833,7 @@
   },
   "1211": {
     "name": "미분계수를 이용한 극한값의 계산",
-    "description": "$\\frac{0}{0}$꼴의 극한값을 구할 때, 미분계수의 정의를 이용하면 간단히 해결되는 경우가 많다. 분모의 항의 개수에 따라 미분계수의 정의를 활용할 수 있는 식으로 변형하는 방법에 대하여 알아보자.\\n⑴ 분모의 항이 $1$개인 경우 ->${f}^{\\prime}(a)=\\lim _{\\differencedelta x\\to0}\\frac{f(a+\\differencedelta x)-f(a)}{\\differencedelta x}$를 이용한다.\\n이상을 정리하면 다음과 같다.\\n${f}^{\\prime}(a)=\\lim _{\\square\\to0}\\frac{f(a+\\square)-f(a)}{\\square}$에서 $\\square$가 모두 같아지도록 주어진 식을 변형한다.\\n⑵ 분모의 항이 $2$개인 경우 -> ${f}^{\\prime}(a)=\\lim _{x\\to a}\\frac{f(x)-f(a)}{x-a}$를 이용한다.\\n이상을 정리하면 다음과 같다.\\n${f}^{\\prime}(○)=\\lim _{\\triangle\\to○}\\frac{f(\\triangle)-f(○)}{\\triangle-○}$에서 $\\triangle$는 $\\triangle$ 끼리, $○$는 $○$끼리 서로 같아지도록 주어진 식을 변형한다.",
+    "description": "$\\frac{0}{0}$꼴의 극한값을 구할 때, 미분계수의 정의를 이용하면 간단히 해결되는 경우가 많다. 분모의 항의 개수에 따라 미분계수의 정의를 활용할 수 있는 식으로 변형하는 방법에 대하여 알아보자.\\n⑴ 분모의 항이 $1$개인 경우 ->${f}^{\\prime}(a)=\\lim _{\\Delta x\\to0}\\frac{f(a+\\Delta x)-f(a)}{\\Delta x}$를 이용한다.\\n이상을 정리하면 다음과 같다.\\n${f}^{\\prime}(a)=\\lim _{\\square\\to0}\\frac{f(a+\\square)-f(a)}{\\square}$에서 $\\square$가 모두 같아지도록 주어진 식을 변형한다.\\n⑵ 분모의 항이 $2$개인 경우 -> ${f}^{\\prime}(a)=\\lim _{x\\to a}\\frac{f(x)-f(a)}{x-a}$를 이용한다.\\n이상을 정리하면 다음과 같다.\\n${f}^{\\prime}(○)=\\lim _{\\triangle\\to○}\\frac{f(\\triangle)-f(○)}{\\triangle-○}$에서 $\\triangle$는 $\\triangle$ 끼리, $○$는 $○$끼리 서로 같아지도록 주어진 식을 변형한다.",
     "concept_chapter_id": 612,
     "achievement_id": 333,
     "achievement_name": "미분계수의 뜻과 기하적 의미를 이해하고, 그 값을 구할 수 있다.",
@@ -10841,7 +10841,7 @@
   },
   "320": {
     "name": "증분",
-    "description": "함수 $y=f(x)$에서 $x$의 값이 $a$에서 $b$까지 변할 때, 함숫값은 $f(a)$에서 $f(b)$까지 변한다. 이때,\\n$x$의 값의 변화량 $b-a$를 $x$의 증분,\\n$y$의 값의 변화량 $f(b)-f(a)$를 $y$의 증분이라 하고, 이것을 기호로 각각 $\\differencedelta x,\\differencedelta y$와 같이 나타낸다. 즉,\\n$\\differencedelta x=b-a$,\\n$\\differencedelta y=f(b)-f(a)=f(a+\\differencedelta x)-f(a)$\\nRemark> $\\differencedelta$는 차를 뜻하는 Difference의 첫 글자 D에 해당하는 그리스 문자로 '델타(delta)'라 읽는다.",
+    "description": "함수 $y=f(x)$에서 $x$의 값이 $a$에서 $b$까지 변할 때, 함숫값은 $f(a)$에서 $f(b)$까지 변한다. 이때,\\n$x$의 값의 변화량 $b-a$를 $x$의 증분,\\n$y$의 값의 변화량 $f(b)-f(a)$를 $y$의 증분이라 하고, 이것을 기호로 각각 $\\Delta x,\\Delta y$와 같이 나타낸다. 즉,\\n$\\Delta x=b-a$,\\n$\\Delta y=f(b)-f(a)=f(a+\\Delta x)-f(a)$\\nRemark> $\\Delta$는 차를 뜻하는 Difference의 첫 글자 D에 해당하는 그리스 문자로 \\'델타(delta)\\'라 읽는다.",
     "concept_chapter_id": 612,
     "achievement_id": 333,
     "achievement_name": "미분계수의 뜻과 기하적 의미를 이해하고, 그 값을 구할 수 있다.",
@@ -10889,7 +10889,7 @@
   },
   "9195": {
     "name": "도함수",
-    "description": "미분 가능한 함수 $y=f(x)$의 정의역의 각 원소 $x$에 미분 계수 $f^{\\prime}(x)$를 대응시키면 새로운\\n함수\\n$f^{\\prime}(x)=\\lim _{\\Delta x\\to0}\\frac{f(x+\\Delta x)-f(x)}{\\Delta x}$\\n를 얻는다. 이때 이 함수 $f^{\\prime}(x)$를 함수 $f(x)$의 도함수라고 하고, 이것을 기호$f'(x)$, $y'$, $\\frac{dy}{dx}$, $\\frac d{dx}f(x)$로 나타낸다.",
+    "description": "미분 가능한 함수 $y=f(x)$의 정의역의 각 원소 $x$에 미분 계수 $f^{\\prime}(x)$를 대응시키면 새로운 함수 $f^{\\prime}(x)=\\lim _{\\Delta x\\to0}\\frac{f(x+\\Delta x)-f(x)}{\\Delta x}$를 얻는다.\\n이때 이 함수 $f^{\\prime}(x)$를 함수 $f(x)$의 도함수라고 하고, 이것을 기호$f^{\\prime}(x)$, $y^{\\prime}$, $\\frac{dy}{dx}$, $\\frac d{dx}f(x)$로 나타낸다.",
     "concept_chapter_id": 614,
     "achievement_id": 337,
     "achievement_name": "다항함수의 도함수를 구할 수 있다.",
@@ -11097,7 +11097,7 @@
   },
   "1227": {
     "name": "시각에 대한 변화율",
-    "description": "시각 $t$의 함수 $y=f(t)$가 주어질 때, $y$는 $t$에 대한 변화율은 다음과 같다.\\n$\\lim _{\\differencedelta x\\to0}\\frac{\\differencedelta y}{\\differencedelta t}=\\frac{\\differentialD y}{\\differentialD t}={f}^{\\prime}(t)$\\nRemark> 시각 $t$에서의 변화율 $\\differencedelta t\\to0$일 때의 평균변화율의 극한값, 즉 순간변화율을 뜻한다.",
+    "description": "시각 $t$의 함수 $y=f(t)$가 주어질 때, $y$는 $t$에 대한 변화율은 다음과 같다.\\n$\\lim _{\\Delta x\\to0}\\frac{\\Delta y}{\\Delta t}=\\frac{dy}{dt}={f}^{\\prime}(t)$\\nRemark> 시각 $t$에서의 변화율 $\\Delta t\\to0$일 때의 평균변화율의 극한값, 즉 순간변화율을 뜻한다.",
     "concept_chapter_id": 619,
     "achievement_id": 343,
     "achievement_name": "속도와 가속도에 대한 문제를 해결할 수 있다.",
@@ -11105,7 +11105,7 @@
   },
   "1226": {
     "name": "속도와 가속도",
-    "description": "수직선 위를 움직이는 점 $P$의 시각 $t$에서의 위치 $x$가 $x=f(t)$일 때, 시각 $t$에서 점 $P$의 속도를 $v$, 가속도를 $a$라 하면 다음이 성립한다.\\n① $v=\\frac{\\differentialD x}{\\differentialD t}={f}^{\\prime}(t)$\\n② $a=\\frac{\\differentialD v}{\\differentialD t}$\\nRemark> 속도의 절댓값 $\\lvert v\\lvert$를 시각 $t$에서 점 $P$의 속도의 크기 또는 속력이라 하고,  $\\lvert a\\lvert$를 가속도의 크기라 한다.",
+    "description": "수직선 위를 움직이는 점 $P$의 시각 $t$에서의 위치 $x$가 $x=f(t)$일 때, 시각 $t$에서 점 $P$의 속도를 $v$, 가속도를 $a$라 하면 다음이 성립한다.\\n① $v=\\frac{dx}{dt}={f}^{\\prime}(t)$\\n② $a=\\frac{dv}{dt}$\\nRemark> 속도의 절댓값 $\\lvert v\\lvert$를 시각 $t$에서 점 $P$의 속도의 크기 또는 속력이라 하고,  $\\lvert a\\lvert$를 가속도의 크기라 한다.",
     "concept_chapter_id": 619,
     "achievement_id": 343,
     "achievement_name": "속도와 가속도에 대한 문제를 해결할 수 있다.",
@@ -11121,7 +11121,7 @@
   },
   "1371": {
     "name": "부정적분",
-    "description": "⑴ 부정적분\\n함수 $F(x)$의 도함수 $f(x)$일 때, 즉\\n${F}^{\\prime}(x)=f(x)$일 때, $F(x)$를 $f(x)$의 부정적분이라 하고, 이것을 기호로 $\\int f(x)\\differentialD x$와 같이 나타낸다.\\n⑵ 함수 $f(x)$의 한 부정적분을 $F(x)$라 하면\\n$\\int f(x)\\differentialD x=F(x)+C$ (단, $C$는 상수)\\n로 나타낸다. 이때 $f(x)$를 피적분함수, $C$를 적분상수, $x$를 적분변수라 한다.\\n또 함수 $f(x)$의 부정적분을 구하는 것을 $f(x)$를 적분한다고 하고, 그 계산법을 적분법이라 한다.\\nRemark> \\n· 적분은 미분의 역연산이다.\\n· $\\int f(x)\\differentialD x$를 '적분 $f(x)\\differentialD x$' 또는 '인테그럴(integral) $f(x)\\differentialD x$'라 읽는다.\\n· $\\int f(x)\\differentialD x$에서 $\\differentialD x$는 $x$에 대하여 적분한다는 뜻이다.",
+    "description": "⑴ 부정적분\\n함수 $F(x)$의 도함수 $f(x)$일 때, 즉\\n${F}^{\\prime}(x)=f(x)$일 때, $F(x)$를 $f(x)$의 부정적분이라 하고, 이것을 기호로 $\\int f(x)dx$와 같이 나타낸다.\\n⑵ 함수 $f(x)$의 한 부정적분을 $F(x)$라 하면\\n$\\int f(x)dx=F(x)+C$ (단, $C$는 상수)\\n로 나타낸다. 이때 $f(x)$를 피적분함수, $C$를 적분상수, $x$를 적분변수라 한다.\\n또 함수 $f(x)$의 부정적분을 구하는 것을 $f(x)$를 적분한다고 하고, 그 계산법을 적분법이라 한다.\\nRemark> \\n· 적분은 미분의 역연산이다.\\n· $\\int f(x)dx$를 \\'적분 $f(x)dx$\\' 또는 \\'인테그럴(integral) $f(x)dx$\\'라 읽는다.\\n· $\\int f(x)dx$에서 $dx$는 $x$에 대하여 적분한다는 뜻이다.",
     "concept_chapter_id": 620,
     "achievement_id": 344,
     "achievement_name": "부정적분의 뜻을 알고, 다항함수의 부정적분을 구할 수 있다.",
@@ -11129,7 +11129,7 @@
   },
   "1372": {
     "name": "부정적분과 도함수의 관계",
-    "description": "함수 $f(x)$에 대하여 다음이 성립한다.\\n⑴ $\\frac{\\differentialD}{\\differentialD x}|\\{\\int f(x)\\differentialD x|\\}=f(x)$\\n⑵ $\\int |\\{\\frac{\\differentialD}{\\differentialD x}f(x)|\\}\\differentialD x=f(x)+C$ (단, $C$는 적분상수)",
+    "description": "함수 $f(x)$에 대하여 다음이 성립한다.\\n⑴ $\\frac{d}{dx}\\{\\int f(x)dx\\}=f(x)$\\n⑵ $\\int \\{\\frac{d}{dx}f(x)\\}dx=f(x)+C$ (단, $C$는 적분상수)",
     "concept_chapter_id": 620,
     "achievement_id": 344,
     "achievement_name": "부정적분의 뜻을 알고, 다항함수의 부정적분을 구할 수 있다.",
@@ -11145,7 +11145,7 @@
   },
   "1374": {
     "name": "부정적분의 성질",
-    "description": "두 함수 $f(x), g(x)$에 대하여 다음이 성립한다.\\n① $\\int kf(x)\\differentialD x=k\\int f(x)\\differentialD x$ (단, $k$는 $0$이 아닌 실수)\\n② $\\int \\lbrace f(x)\\pm g(x)\\rbrace\\differentialD x=\\int f(x)\\differentialD x\\pm\\int g(x)\\differentialD x$ (복호동순)\\nRemark> ②는 세 개 이상의 함수에 대해서도 성립한다.",
+    "description": "두 함수 $f(x), g(x)$에 대하여 다음이 성립한다.\\n① $\\int kf(x)dx=k\\int f(x)dx$ (단, $k$는 $0$이 아닌 실수)\\n② $\\int \\lbrace f(x)\\pm g(x)\\rbrace dx=\\int f(x)dx\\pm\\int g(x)dx$ (복호동순)\\nRemark> ②는 세 개 이상의 함수에 대해서도 성립한다.",
     "concept_chapter_id": 621,
     "achievement_id": 345,
     "achievement_name": "부정적분의 뜻을 알고, 다항함수의 부정적분을 구할 수 있다.",
@@ -11153,7 +11153,7 @@
   },
   "1375": {
     "name": "정적분",
-    "description": "⑴ 정적분\\n함수 $f(x)$가 두 실수 $a, b$를 포함하는 구간에서 연속일 때, $f(x)$의 한 부정적분을 $F(x)$라 하면 $x$의 값이 $a$에서 $b$까지 변할 때의 $F(x)$의 변화량 $F(b)-F(a)$를 함수 $f(x)$의 $a$에서 $b$까지의 정적분이라 하고, 이것을 기호로\\n$\\int ^b_af(x)\\differentialD x$와 같이 나타낸다. 또 $F(b)-F(a)$를 기호로\\n$|[F(x)|]^b_a$와 같이 나타낸다.\\n$\\int ^b_af(x)\\differentialD x=|[F(x)|]^b_a=F(b)=F(a)$\\n정적분 $\\int ^b_af(x)\\differentialD x$의 값을 구하는 것을 함수 $f(x)$를 $a$에서 $b$까지 적분한다고 하고, $a$를 아래끝, $b$를 위끝이라 한다. 이때 $a$에서 $b$까지를 적분 구간이라 한다.\\nRemark> 정적분 $\\int ^b_af(x)\\differentialD x$의 함수 $f$와 아래끝 $a$, 위끝 $b$에 의하여 결정되므로 적분변수와는 상관이 없다. 즉, $\\int ^b_af(x)\\differentialD x=\\int ^b_af(y)\\differentialD y=\\int ^b_af(t)\\differentialD t$이다.\\n⑵ 함수 $f(x)$가 두 실수 $a, b$를 포함하는 구간에서 연속일 때, 다음이 성립한다.\\n① $\\int ^a_af(x)\\differentialD x=0$\\n② $\\int ^a_bf(x)\\differentialD x=-\\int ^b_af(x)\\differentialD x$",
+    "description": "⑴ 정적분\\n함수 $f(x)$가 두 실수 $a, b$를 포함하는 구간에서 연속일 때, $f(x)$의 한 부정적분을 $F(x)$라 하면 $x$의 값이 $a$에서 $b$까지 변할 때의 $F(x)$의 변화량 $F(b)-F(a)$를 함수 $f(x)$의 $a$에서 $b$까지의 정적분이라 하고, 이것을 기호로\\n$\\int ^b_af(x)dx$와 같이 나타낸다. 또 $F(b)-F(a)$를 기호로\\n$|[F(x)|]^b_a$와 같이 나타낸다.\\n$\\int ^b_af(x)dx=|[F(x)|]^b_a=F(b)=F(a)$\\n정적분 $\\int ^b_af(x)dx$의 값을 구하는 것을 함수 $f(x)$를 $a$에서 $b$까지 적분한다고 하고, $a$를 아래끝, $b$를 위끝이라 한다. 이때 $a$에서 $b$까지를 적분 구간이라 한다.\\nRemark> 정적분 $\\int ^b_af(x)dx$의 함수 $f$와 아래끝 $a$, 위끝 $b$에 의하여 결정되므로 적분변수와는 상관이 없다. 즉, $\\int ^b_af(x)dx=\\int ^b_af(y)dy=\\int ^b_af(t)dt$이다.\\n⑵ 함수 $f(x)$가 두 실수 $a, b$를 포함하는 구간에서 연속일 때, 다음이 성립한다.\\n① $\\int ^a_af(x)dx=0$\\n② $\\int ^a_bf(x)dx=-\\int ^b_af(x)dx$",
     "concept_chapter_id": 622,
     "achievement_id": 346,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
@@ -11161,15 +11161,15 @@
   },
   "1535": {
     "name": "정적분의 성질",
-    "description": "두 함수 $f(x)$, $g(x)$가 세 실수 $a, b, c$를 포함하는 구간에서 연속일 때, 다음이 성립한다.\\n① $\\int ^b_akf(x)\\differentialD x=k\\int ^b_af(x)\\differentialD x$ (단, $k$는 실수)\\n② $\\int ^b_a\\lbrace f(x)+g(x)\\rbrace\\differentialD x=\\int ^b_af(x)\\differentialD x+\\int ^b_ag(x)\\differentialD x$\\n③ $\\int ^b_a\\lbrace f(x)-g(x)\\rbrace\\differentialD x=\\int ^b_af(x)\\differentialD x-\\int ^b_ag(x)\\differentialD x$\\n④ $\\int ^c_af(x)\\differentialD x+\\int ^b_cf(x)\\differentialD x=\\int ^b_af(x)\\differentialD x$ <-$a, b, c$의 대소에 관계없이 성립한다.",
+    "description": "두 함수 $f(x)$, $g(x)$가 세 실수 $a, b, c$를 포함하는 구간에서 연속일 때, 다음이 성립한다.\\n① $\\int ^b_akf(x)dx=k\\int ^b_af(x)dx$ (단, $k$는 실수)\\n② $\\int ^b_a\\lbrace f(x)+g(x)\\rbrace dx=\\int ^b_af(x)dx+\\int ^b_ag(x)dx$\\n③ $\\int ^b_a\\lbrace f(x)-g(x)\\rbrace dx=\\int ^b_af(x)dx-\\int ^b_ag(x)dx$\\n④ $\\int ^c_af(x)dx+\\int ^b_cf(x)dx=\\int ^b_af(x)dx$ <-$a, b, c$의 대소에 관계없이 성립한다.",
     "concept_chapter_id": 623,
     "achievement_id": 347,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
     "skill_id": 1693
   },
   "1536": {
-    "name": "정적분 $\\int ^a_{-a}x^n\\differentialD x$의 계산",
-    "description": "$n$이 자연수일 때, 정적분 $\\int ^a_{-a}x^n\\differentialD x$에 대하여 다음이 성립한다.\\n① $n$이 짝수일 때 $\\int ^a_{-a}x^n\\differentialD x=2\\int ^a_0x^n\\differentialD x$\\n② $n$이 홀수일 때 $\\int ^a_{-a}x^n\\differentialD x=0$",
+    "name": "정적분 $\\int ^a_{-a}x^ndx$의 계산",
+    "description": "$n$이 자연수일 때, 정적분 $\\int ^a_{-a}x^ndx$에 대하여 다음이 성립한다.\\n① $n$이 짝수일 때 $\\int ^a_{-a}x^ndx=2\\int ^a_0x^ndx$\\n② $n$이 홀수일 때 $\\int ^a_{-a}x^ndx=0$",
     "concept_chapter_id": 623,
     "achievement_id": 347,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
@@ -11177,7 +11177,7 @@
   },
   "1537": {
     "name": "정적분으로 정의된 함수",
-    "description": "정적분 $\\int ^x_af(t)\\differentialD t$($a$는 상수)에서 $f(t)$의 한 부정적분을 $F(t)$라 하면\\n$\\int ^x_af(t)\\differentialD t=|[F(t)|]^b_a=F(x)-F(a)$이므로 $\\int ^x_af(t)\\differentialD t$는 $x$에 대한 함수이다.\\n이와 같이 정적분의 위끝 또는 아래끝에 적분변수가 아닌 다른 변수가 있는 정적분으로 함수를 정의할 수 있다.\\nRemark> $\\int ^x_af(t)\\differentialD t$에서 $t$는 적분변수이므로 $\\int ^x_af(t)\\differentialD t$는 $t$에 대한 함수가 아니고 $x$에 대한 함수이다.",
+    "description": "정적분 $\\int ^x_af(t)dt$($a$는 상수)에서 $f(t)$의 한 부정적분을 $F(t)$라 하면\\n$\\int ^x_af(t)dt=|[F(t)|]^b_a=F(x)-F(a)$이므로 $\\int ^x_af(t)dt$는 $x$에 대한 함수이다.\\n이와 같이 정적분의 위끝 또는 아래끝에 적분변수가 아닌 다른 변수가 있는 정적분으로 함수를 정의할 수 있다.\\nRemark> $\\int ^x_af(t)dt$에서 $t$는 적분변수이므로 $\\int ^x_af(t)dt$는 $t$에 대한 함수가 아니고 $x$에 대한 함수이다.",
     "concept_chapter_id": 623,
     "achievement_id": 347,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
@@ -11185,7 +11185,7 @@
   },
   "1538": {
     "name": "정적분으로 정의된 함수의 미분",
-    "description": "정적분으로 정의된 함수 $\\int ^x_af(t)\\differentialD t$, $\\int ^{x+a}_xf(t)\\differentialD t$를 $x$에 대하여 미분하면 다음과 같다.\\n① $\\frac{\\differentialD}{\\differentialD x}\\int ^x_af(t)\\differentialD t=f(x)$\\n② $\\frac{\\differentialD}{\\differentialD x}\\int ^{x+a}_xf(t)\\differentialD t=f(x+a)-f(x)$ (단, $a$는 상수)\\nRemark> ②에서 위끝과 아래끝이 $x+a$ ($a$는 상수) 꼴이 아닌 경우에는 등식이 성립하지 않는다.",
+    "description": "정적분으로 정의된 함수 $\\int ^x_af(t)dt$, $\\int ^{x+a}_xf(t)dt$를 $x$에 대하여 미분하면 다음과 같다.\\n① $\\frac{d}{dx}\\int ^x_af(t)dt=f(x)$\\n② $\\frac{d}{dx}\\int ^{x+a}_xf(t)dt=f(x+a)-f(x)$ (단, $a$는 상수)\\nRemark> ②에서 위끝과 아래끝이 $x+a$ ($a$는 상수) 꼴이 아닌 경우에는 등식이 성립하지 않는다.",
     "concept_chapter_id": 623,
     "achievement_id": 347,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
@@ -11193,7 +11193,7 @@
   },
   "1539": {
     "name": "정적분을 포함한 등식에서 함수 구하기",
-    "description": "정적분을 포함한 등식에서 $f(x)$는 다음과 같은 방법으로 구한다. (단, $a, b$는 상수)\\n⑴ $f(x)=g(x)+\\int ^b_af(t)\\differentialD t$와 같이 아래끝과 위끝이 상수인 경우\\n-> $\\int ^b_af(t)\\differentialD t=k$($k$는 상수)로 놓고 $f(x)=g(x)+k$임을 이용한다.\\n⑵ $\\int ^x_af(t)\\differentialD t=g(x)$와 같이 아래끝 또는 위끝에 변수 $x$가 있는 경우\\n-> 양변을 $x$에 대하여 미분하고 $\\int ^a_af(t)\\differentialD t=0$임을 이용한다.\\n⑶ $\\int ^x_a(x-t)f(t)\\differentialD t=g(x)$와 같이 아래끝 또는 위끝, 피적분함수에 변수 $x$가 있는 경우\\n-> 좌변을 $x\\int ^x_af(t)\\differentialD t-\\int ^x_atf(t)\\differentialD t$로 변형한 후 양변을 $x$에 대하여 미분한다.",
+    "description": "정적분을 포함한 등식에서 $f(x)$는 다음과 같은 방법으로 구한다. (단, $a, b$는 상수)\\n⑴ $f(x)=g(x)+\\int ^b_af(t)dt$와 같이 아래끝과 위끝이 상수인 경우\\n-> $\\int ^b_af(t)dt=k$($k$는 상수)로 놓고 $f(x)=g(x)+k$임을 이용한다.\\n⑵ $\\int ^x_af(t)dt=g(x)$와 같이 아래끝 또는 위끝에 변수 $x$가 있는 경우\\n-> 양변을 $x$에 대하여 미분하고 $\\int ^a_af(t)dt=0$임을 이용한다.\\n⑶ $\\int ^x_a(x-t)f(t)dt=g(x)$와 같이 아래끝 또는 위끝, 피적분함수에 변수 $x$가 있는 경우\\n-> 좌변을 $x\\int ^x_af(t)dt-\\int ^x_atf(t)dt$로 변형한 후 양변을 $x$에 대하여 미분한다.",
     "concept_chapter_id": 623,
     "achievement_id": 347,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
@@ -11201,7 +11201,7 @@
   },
   "1540": {
     "name": "정적분으로 정의된 함수의 극한",
-    "description": "정적분으로 정의된 함수의 극한에 대하여 다음이 성립한다.\\n① $\\lim _{x\\to a}\\frac{1}{x-a}\\int ^x_af(t)\\differentialD t=f(a)$\\n② $\\lim _{x\\to0}\\frac{1}{x}\\int ^{x+a}_af(t)\\differentialD t=f(a)$",
+    "description": "정적분으로 정의된 함수의 극한에 대하여 다음이 성립한다.\\n① $\\lim _{x\\to a}\\frac{1}{x-a}\\int ^x_af(t)dt=f(a)$\\n② $\\lim _{x\\to0}\\frac{1}{x}\\int ^{x+a}_af(t)dt=f(a)$",
     "concept_chapter_id": 623,
     "achievement_id": 347,
     "achievement_name": "정적분의 뜻을 알고, 다항함수의 정적분을 구할 수 있다.",
@@ -11217,7 +11217,7 @@
   },
   "1541": {
     "name": "정적분의 기하학적 의미",
-    "description": "함수 $f(x)$가 닫힌구간 $|[a,b|]$에서 연속이고 $f(x)\\ge0$일 때, 정적분 $\\int ^b_af(x)\\differentialD x$는 곡선 $y=f(x)$와 $x$축 및 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이 $S$와 같다.",
+    "description": "함수 $f(x)$가 닫힌구간 $|[a,b|]$에서 연속이고 $f(x)\\ge0$일 때, 정적분 $\\int ^b_af(x)dx$는 곡선 $y=f(x)$와 $x$축 및 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이 $S$와 같다.",
     "concept_chapter_id": 624,
     "achievement_id": 348,
     "achievement_name": "곡선으로 둘러싸인 도형의 넓이를 구할 수 있다.",
@@ -11225,7 +11225,7 @@
   },
   "1542": {
     "name": "곡선과 $x$축 사이의 넓이",
-    "description": "함수 $f(x)$가 닫힌구간 $|[a,b|]$에서 연속일 때, 곡선 $y=f(x)$와 $x$축 및 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이 $S$는 다음과 같다.\\n$S=\\int ^b_a|f(x)|\\differentialD x$",
+    "description": "함수 $f(x)$가 닫힌구간 $|[a,b|]$에서 연속일 때, 곡선 $y=f(x)$와 $x$축 및 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이 $S$는 다음과 같다.\\n$S=\\int ^b_a|f(x)|dx$",
     "concept_chapter_id": 624,
     "achievement_id": 348,
     "achievement_name": "곡선으로 둘러싸인 도형의 넓이를 구할 수 있다.",
@@ -11233,7 +11233,7 @@
   },
   "1543": {
     "name": "곡선과 $y$축 사이의 넓이",
-    "description": "함수 $g(y)$가 닫힌구간 $|[c,d|]$에서 연속일 때, 곡선 $x=g(y)$와 $y$축 및 두 직선 $y=c$, $y=d$로 둘러싸인 도형의 넓이 $S$는 다음과 같다.\\n$S=\\int ^d_c|g(y)|\\differentialD y$",
+    "description": "함수 $g(y)$가 닫힌구간 $|[c,d|]$에서 연속일 때, 곡선 $x=g(y)$와 $y$축 및 두 직선 $y=c$, $y=d$로 둘러싸인 도형의 넓이 $S$는 다음과 같다.\\n$S=\\int ^d_c|g(y)|dy$",
     "concept_chapter_id": 624,
     "achievement_id": 348,
     "achievement_name": "곡선으로 둘러싸인 도형의 넓이를 구할 수 있다.",
@@ -11241,7 +11241,7 @@
   },
   "1544": {
     "name": "두 곡선 사이의 넓이",
-    "description": "두 함수 $f(x)$, $g(x)$가 닫힌구간 $|[a,b|]$에서 연속일 때, 두 곡선 $y=f(x)$, $y=g(x)$와 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이 $S$는 다음과 같다.\\n$S=\\int ^b_a|f(x)-g(x)|\\differentialD x$",
+    "description": "두 함수 $f(x)$, $g(x)$가 닫힌구간 $|[a,b|]$에서 연속일 때, 두 곡선 $y=f(x)$, $y=g(x)$와 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이 $S$는 다음과 같다.\\n$S=\\int ^b_a|f(x)-g(x)|dx$",
     "concept_chapter_id": 624,
     "achievement_id": 348,
     "achievement_name": "곡선으로 둘러싸인 도형의 넓이를 구할 수 있다.",
@@ -11249,7 +11249,7 @@
   },
   "1546": {
     "name": "주기함수의 정적분",
-    "description": "함수 $f(x)$가 주기가 $p$인 주기함수이면 $y=f(x)$의 그래프는 오른쪽 그림과 같이 일정한 모양이 반복된다. 따라서 함수 $y=f(x)$의 그래프와 $x=a$, $x=b$로 둘러싸인 도형의 넓이가 정적분 $\\int ^b_a|f(x)|\\differentialD x$의 값과 같음을 이용하면 주기함수의 정적분의 값을 간단히 구할 수 있다.\\n함수 $f(x)$가 주기가 $p$인 주기함수이고 $f(x)\\ge0$일 때, 다음이 성립한다.\\n① ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이) $=$ ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=a+p$, $x=b+p$로 둘러싸인 도형의 넓이)\\n-> $\\int ^b_af(x)\\differentialD x=\\int ^{b+p}_{a+p}f(x)\\differentialD x$\\n② ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=a$, $x=a+p$로 둘러싸인 도형의 넓이) $=$ ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=b$, $x=b+p$로 둘러싸인 도형의 넓이)\\n-> $\\int ^{a+p}_af(x)\\differentialD x=\\int ^{b+p}_bf(x)\\differentialD x$ -> 한 주기에 해당하는 구간에서의 정적분의 값은 항상 일정하다.\\n위의 성질은 $f(x)$의 부호에 관계없이 항상 성립한다.",
+    "description": "함수 $f(x)$가 주기가 $p$인 주기함수이면 $y=f(x)$의 그래프는 오른쪽 그림과 같이 일정한 모양이 반복된다. 따라서 함수 $y=f(x)$의 그래프와 $x=a$, $x=b$로 둘러싸인 도형의 넓이가 정적분 $\\int ^b_a|f(x)|dx$의 값과 같음을 이용하면 주기함수의 정적분의 값을 간단히 구할 수 있다.\\n함수 $f(x)$가 주기가 $p$인 주기함수이고 $f(x)\\ge0$일 때, 다음이 성립한다.\\n① ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=a$, $x=b$로 둘러싸인 도형의 넓이) $=$ ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=a+p$, $x=b+p$로 둘러싸인 도형의 넓이)\\n-> $\\int ^b_af(x)dx=\\int ^{b+p}_{a+p}f(x)dx$\\n② ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=a$, $x=a+p$로 둘러싸인 도형의 넓이) $=$ ($y=f(x)$의 그래프와 $x$축 및 두 직선 $x=b$, $x=b+p$로 둘러싸인 도형의 넓이)\\n-> $\\int ^{a+p}_af(x)dx=\\int ^{b+p}_bf(x)dx$ -> 한 주기에 해당하는 구간에서의 정적분의 값은 항상 일정하다.\\n위의 성질은 $f(x)$의 부호에 관계없이 항상 성립한다.",
     "concept_chapter_id": 624,
     "achievement_id": 348,
     "achievement_name": "곡선으로 둘러싸인 도형의 넓이를 구할 수 있다.",
@@ -11265,7 +11265,7 @@
   },
   "1638": {
     "name": "직선 위의 운동에서 위치와 위치의 변화량",
-    "description": "수직선 위를 움직이는 점 $P$의 시각 $t$에서의 속도가 $v(t)$이고, 시각 $t=a$에서의 위치가 $x_0$일 때, 다음이 성립한다.\\n① 시각 $t$에서 점 $P$의 위치 $x$는\\n$x=x_0+\\int ^t_av(t)\\differentialD t$\\n② 시각 $t=a$에서 $t=b$까지 점 $P$의 위치의 변화량은\\n$\\int ^b_av(t)\\differentialD t$",
+    "description": "수직선 위를 움직이는 점 $P$의 시각 $t$에서의 속도가 $v(t)$이고, 시각 $t=a$에서의 위치가 $x_0$일 때, 다음이 성립한다.\\n① 시각 $t$에서 점 $P$의 위치 $x$는\\n$x=x_0+\\int ^t_av(t)dt$\\n② 시각 $t=a$에서 $t=b$까지 점 $P$의 위치의 변화량은\\n$\\int ^b_av(t)dt$",
     "concept_chapter_id": 625,
     "achievement_id": 349,
     "achievement_name": "속도와 거리에 대한 문제를 해결할 수 있다.",
@@ -11321,7 +11321,7 @@
   },
   "5507": {
     "name": "중복순열",
-    "description": "(1) 중복순열\\n서로 다른 n개에서 중복을 허용하여 r개를 택하는 순열을 중복순열이라 하고, 이 중복순열의 수를 기호로 $_n\\Pi_r$와 같이 나타낸다.\\n(2) 중복순열의 수\\n서로 다른 n개에서 r개를 택하는 중복순열의 수는 $_n\\Pi_r=n\\times n\\times n\\times\\cdots\\times n=n^r$\\n(3) 중복순열인 경우\\n(3-1) 중복을 허용하여 만드는 정수의 개수 문제\\n(3-2) 기명 투표 문제\\n(3-3) 모스 부호 문제\\n(3-4) 깃발 신호 문제\\n(3-5) 우체통 문제\\n(3-6) 반 편성 문제\\n(3-7) 함수의 개수 문제\\n(3-8) 호텔 투숙 문제\\n(4) $_n\\Pi_r$의 $_{\\placeholder{}}\\Pi_{\\placeholder{}}$는 곱을 뜻하는 Product의 첫 글자 P에 해당하는 그리스 문자로 '파이'라 읽는다.\\n(5) '서로 다른', '중복 불허'의 뜻이 있으면 순열(중복순열이 아닌 순열)이고, '중복 불허'의 뜻이 없으면 무조건 중복순열이다.\\n(6) $_nP_r$에서는 반드시 $n\\geq r$이어야 하지만, $_n\\Pi_r$에서는 중복하여 택할 수 있기 때문에 $n<r$일 수도 있다.\\n",
+    "description": "(1) 중복순열\\n서로 다른 n개에서 중복을 허용하여 r개를 택하는 순열을 중복순열이라 하고, 이 중복순열의 수를 기호로 $_n\\Pi_r$와 같이 나타낸다.\\n(2) 중복순열의 수\\n서로 다른 n개에서 r개를 택하는 중복순열의 수는 $_n\\Pi_r=n\\times n\\times n\\times\\cdots\\times n=n^r$\\n(3) 중복순열인 경우\\n(3-1) 중복을 허용하여 만드는 정수의 개수 문제\\n(3-2) 기명 투표 문제\\n(3-3) 모스 부호 문제\\n(3-4) 깃발 신호 문제\\n(3-5) 우체통 문제\\n(3-6) 반 편성 문제\\n(3-7) 함수의 개수 문제\\n(3-8) 호텔 투숙 문제\\n(4) $_n\\Pi_r$의 $_{}\\Pi_{}$는 곱을 뜻하는 Product의 첫 글자 P에 해당하는 그리스 문자로 \\'파이\\'라 읽는다.\\n(5) \\'서로 다른\\', \\'중복 불허\\'의 뜻이 있으면 순열(중복순열이 아닌 순열)이고, \\'중복 불허\\'의 뜻이 없으면 무조건 중복순열이다.\\n(6) $_nP_r$에서는 반드시 $n\\geq r$이어야 하지만, $_n\\Pi_r$에서는 중복하여 택할 수 있기 때문에 $n<r$일 수도 있다.",
     "concept_chapter_id": 626,
     "achievement_id": 276,
     "achievement_name": "중복순열을 이해하고, 그 순열의 수를 구할 수 있다.",
@@ -11441,7 +11441,7 @@
   },
   "5775": {
     "name": "여사건의 확률",
-    "description": "표본공간 $S$의 사건 $A$와 그 여사건 $A^{\\complement}$에 대하여 다음이 성립한다.\\n$P(A^{\\complement})=1-P(A)$\\n\\nRemark\\n1) '적어도 ~인', '~이상(이하)인', '~가 아닌' 사건의 확률을 구할 때에는 여사건의 확률을 이용하면 편리하다.\\n2) $P(A^{\\complement}\\cap B^{\\complement})=P((A\\cup B)^{\\complement})=1-P(A\\cup B)$, $P(A^{\\complement}\\cup B^{\\complement})=P((A\\cap B)^{\\complement})=1-P(A\\cap B)$",
+    "description": "표본공간 $S$의 사건 $A$와 그 여사건 $A^{\\complement}$에 대하여 다음이 성립한다.\\n$P(A^{\\complement})=1-P(A)$\\n\\nRemark\\n1) \\'적어도 ~인\\', \\'~이상(이하)인\\', \\'~가 아닌\\' 사건의 확률을 구할 때에는 여사건의 확률을 이용하면 편리하다.\\n2) $P(A^{\\complement}\\cap B^{\\complement})=P((A\\cup B)^{\\complement})=1-P(A\\cup B)$, $P(A^{\\complement}\\cup B^{\\complement})=P((A\\cap B)^{\\complement})=1-P(A\\cap B)$",
     "concept_chapter_id": 630,
     "achievement_id": 288,
     "achievement_name": "여사건의 확률의 뜻을 알고, 이를 활용할 수 있다.",
@@ -11529,7 +11529,7 @@
   },
   "842": {
     "name": "이산확률변수 X의 분산과 표준편차",
-    "description": "이산확률변수 X의 확률질량함수가 $P(X=x_i)=p_i(i=1,2,3\\cdots,n)$이고 X의 기댓값 $E(X)$를 m이라 할 때,\\n(1) 분산 : $(X-m)^2$의 기댓값을 확률변수 X의 분산이라 하고, 기호로 $V(X)$와 같이 나타낸다. $V(X)=E((X-m)^2)=E(X^2)-\\{E(X)\\}^2$\\n(2) 표준편차 : 분산 $V(X)$의 양의 제곱근 $\\sqrt[]{V(X)}$를 확률변수 X의 표준편차라 하고, 이것을 기호로  $\\sigma(X)$와 같이 나타낸다.\\n$\\sigma(X)=\\sqrt[]{V(X)}$\\n(3) $V(X)$에서 V는 분산을 뜻하는 Variance의 첫 글자이다. \\n(4) $\\sigma(X)$에서 $\\sigma$는 표준편차를 뜻하는 standard deviation의 첫 글자 s에 해당하는 그리스 문자이고 '시그마'라 읽는다.\\n(5) (1)에서 $X-m$은 '편차'를 의미한다\\n(6) $E(X^2)$은 $X^2$의 기댓값(평균)을 뜻한다.",
+    "description": "이산확률변수 X의 확률질량함수가 $P(X=x_i)=p_i(i=1,2,3\\cdots,n)$이고 X의 기댓값 $E(X)$를 m이라 할 때,\\n(1) 분산 : $(X-m)^2$의 기댓값을 확률변수 X의 분산이라 하고, 기호로 $V(X)$와 같이 나타낸다. $V(X)=E((X-m)^2)=E(X^2)-\\{E(X)\\}^2$\\n(2) 표준편차 : 분산 $V(X)$의 양의 제곱근 $\\sqrt[]{V(X)}$를 확률변수 X의 표준편차라 하고, 이것을 기호로  $\\sigma(X)$와 같이 나타낸다.\\n$\\sigma(X)=\\sqrt[]{V(X)}$\\n(3) $V(X)$에서 V는 분산을 뜻하는 Variance의 첫 글자이다. \\n(4) $\\sigma(X)$에서 $\\sigma$는 표준편차를 뜻하는 standard deviation의 첫 글자 s에 해당하는 그리스 문자이고 \\'시그마\\'라 읽는다.\\n(5) (1)에서 $X-m$은 \\'편차\\'를 의미한다\\n(6) $E(X^2)$은 $X^2$의 기댓값(평균)을 뜻한다.",
     "concept_chapter_id": 633,
     "achievement_id": 308,
     "achievement_name": "이산확률변수의 기댓값(평균)과 표준편차를 구할 수 있다.",
@@ -11585,7 +11585,7 @@
   },
   "1015": {
     "name": "표준정규분포",
-    "description": "(1)평균이 0이고 분산이 1인 정규분포를 표준정규분포라 하고, 기호로 $N(0,1)$과 같이 나타낸다.\\n(2) 확률변수 Z가 표준정규분포를 따르면 Z의 확률밀도함수는 $f(z)=\\frac{1}{\\sqrt[]{2\\pi}}\\exponentialE^{-\\frac{z^2}{2^{}}}$ (z는 모든 실수)\\n이다. 이때 확률변수 Z가 0 이상 a 이하의 값을 가질 확률 $P(0\\leq Z\\leq a)$는 오른쪽 그리에서 색칠한 도형의 넓이와 같고, 그 값은 표준정규분포표에 주어져 있다.\\n(3) $f(x)=\\frac{1}{\\sqrt[]{2\\pi\\sigma}}\\exponentialE^{-\\frac{(x-m)^2}{2\\sigma^2^{}}}$에서 m=0, $\\sigma$=1을 대입하고 x 대신 z를 사용하면 $f(z)=\\frac{1}{\\sqrt[]{2\\pi}}\\exponentialE^{-\\frac{z^2}{2^{}}}$이다.",
+    "description": "(1)평균이 0이고 분산이 1인 정규분포를 표준정규분포라 하고, 기호로 $N(0,1)$과 같이 나타낸다.\\n(2) 확률변수 Z가 표준정규분포를 따르면 Z의 확률밀도함수는 $f(z)=\\frac{1}{\\sqrt[]{2\\pi}}e^{-\\frac{z^2}{2^{}}}$ (z는 모든 실수)이다. 이때 확률변수 Z가 0 이상 a 이하의 값을 가질 확률 $P(0\\leq Z\\leq a)$는 오른쪽 그리에서 색칠한 도형의 넓이와 같고, 그 값은 표준정규분포표에 주어져 있다.\\n(3) $f(x)=\\frac{1}{\\sigma\\sqrt[]{2\\pi}}e^{-\\frac{(x-m)^2}{2\\sigma^2}}$에서 m=0, $\\sigma$=1을 대입하고 x 대신 z를 사용하면 $f(z)=\\frac{1}{\\sqrt[]{2\\pi}}e^{-\\frac{z^2}{2^{}}}$이다.",
     "concept_chapter_id": 636,
     "achievement_id": 310,
     "achievement_name": "정규분포의 뜻을 알고, 그 성질을 이해할 수 있다.",
@@ -11617,7 +11617,7 @@
   },
   "7518": {
     "name": "정규분포",
-    "description": "(1) 실수 전체의 집합에서 정의된 연속확률변수 X의 확률밀도함수 $f(x)$가 $f(x)=\\frac{1}{\\sqrt[]{2\\pi\\sigma}}\\exponentialE^{-\\frac{(x-m)^2}{2\\sigma^2}}$ (x는 모든 실수) 일 때, X의 확률분포를 정규분포라 하고 확률밀도함수 $f(x)$의 그래프를 정규분포곡선이라 한다. 여기서 m과 $\\sigma(\\sigma>0)$는 각각 연속확률변수 X의 평균과 표준편차를 나타내는 상수이고, e는 그 값이$2.71828\\cdots$인 무리수이다.\\n(2) 평균이 m, 표준편차가$\\sigma$인 정규분포를 기호로 $N(m,\\sigma^2)$과 같이 나타내고,  연속확률변수 X는 정규분포 $N(m,\\sigma^2)$을 따른다고 한다.\\n(3) $N(m,\\sigma^2)$에서 N은 정규분포를 뜻하는 Normal distribution의 첫 글자이다.\\n(4) $확률변수\\begin{cases}{이산확률변수 - 확률질량함수, 이항분포B(n,p)} \\\\ {연속확률변수 - 확률밀도함수, 정규분포$N(m,\\sigma^2)$ }\\end{cases}$",
+    "description": "(1) 실수 전체의 집합에서 정의된 연속확률변수 X의 확률밀도함수 $f(x)$가 $f(x)=\\frac{1}{\\sigma\\sqrt[]{2\\pi}}e^{-\\frac{(x-m)^2}{2\\sigma^2}}$ (x는 모든 실수) 일 때, X의 확률분포를 정규분포라 하고 확률밀도함수 $f(x)$의 그래프를 정규분포곡선이라 한다. 여기서 m과 $\\sigma(\\sigma>0)$는 각각 연속확률변수 X의 평균과 표준편차를 나타내는 상수이고, e는 그 값이$2.71828\\cdots$인 무리수이다.\\n(2) 평균이 m, 표준편차가$\\sigma$인 정규분포를 기호로 $N(m,\\sigma^2)$과 같이 나타내고,  연속확률변수 X는 정규분포 $N(m,\\sigma^2)$을 따른다고 한다.\\n(3) $N(m,\\sigma^2)$에서 N은 정규분포를 뜻하는 Normal distribution의 첫 글자이다.\\n(4) $확률변수\\begin{cases}이산확률변수 - 확률질량함수, 이항분포B(n,p) \\\\ 연속확률변수 - 확률밀도함수, 정규분포N(m,\\sigma^2) \\end{cases}$",
     "concept_chapter_id": 636,
     "achievement_id": 310,
     "achievement_name": "정규분포의 뜻을 알고, 그 성질을 이해할 수 있다.",
@@ -11689,7 +11689,7 @@
   },
   "3001": {
     "name": "수열의 발산",
-    "description": "수열 $\\lbrace a_n\\rbrace$이 수렴하지 않을 때, 수열  $\\lbrace a_n\\rbrace$은 발산한다고 한다.\\n(1) 양의 무한대로 발산: 수열  $\\lbrace a_n\\rbrace$에서 $n$이 한없이 커질 때, 일반항  $a_n$의 값이 한없이 커지면 수열  $\\lbrace a_n\\rbrace$은 양의 무한대로 발산한다고 하며, 기호로 다음과 같이 나타낸다.\\n$\\lim ^{}_{n\\to\\infty}a_n=\\infty$ 또는 $n\\to\\infty$일 때 $a^n\\to\\infty$\\n(2) 음의 무한대로 발산: 수열 $\\lbrace a_n\\rbrace$에서 $n$이 한없이 커질 때, 일반항 $a_n$의 값이 음수이면서 그 절댓값이 한없이 커지면 수열 $\\lbrace a_n\\rbrace$은 음의 무한대로 발산한다고 하며, 기호로 다음과 같이 나타낸다,\\n$\\lim ^{}_{n\\to\\infty}a_n=\\-infty$ 또는 $n\\to\\infty$일 때 $a^n\\to\\-infty$\\n(3) 진동: 수렴하지도 않고 양의 무한대나 음의 무한대로 발산하지도 않는 경우",
+    "description": "수열 $\\lbrace a_n\\rbrace$이 수렴하지 않을 때, 수열  $\\lbrace a_n\\rbrace$은 발산한다고 한다.\\n(1) 양의 무한대로 발산: 수열  $\\lbrace a_n\\rbrace$에서 $n$이 한없이 커질 때, 일반항  $a_n$의 값이 한없이 커지면 수열  $\\lbrace a_n\\rbrace$은 양의 무한대로 발산한다고 하며, 기호로 다음과 같이 나타낸다.\\n$\\lim ^{}_{n\\to\\infty}a_n=\\infty$ 또는 $n\\to\\infty$일 때 $a^n\\to\\infty$\\n(2) 음의 무한대로 발산: 수열 $\\lbrace a_n\\rbrace$에서 $n$이 한없이 커질 때, 일반항 $a_n$의 값이 음수이면서 그 절댓값이 한없이 커지면 수열 $\\lbrace a_n\\rbrace$은 음의 무한대로 발산한다고 하며, 기호로 다음과 같이 나타낸다,\\n$\\lim ^{}_{n\\to\\infty}a_n=-\\infty$ 또는 $n\\to\\infty$일 때 $a^n\\to-\\infty$\\n(3) 진동: 수렴하지도 않고 양의 무한대나 음의 무한대로 발산하지도 않는 경우",
     "concept_chapter_id": 639,
     "achievement_id": 350,
     "achievement_name": "수열의 수렴, 발산의 뜻을 알고, 이를 판별할 수 있다.",
@@ -11705,7 +11705,7 @@
   },
   "3160": {
     "name": "수열의 극한값의 계산",
-    "description": "(1) $\\frac{\\infty}{\\infty}$ 꼴의 극한\\n=> 분모의 최고차항으로 분모, 분자를 각각 나눈다. ($\\sqrt{\\placeholder{}}$의 유$\\cdot$무에 관계없이)\\n(2) $\\infty-\\infty$ 꼴의 극한\\n? $\\sqrt{\\placeholder{}}$가 있을 때: $\\sqrt{\\placeholder{}}$가 있는 쪽을 유리화한다.\\n? $\\sqrt{\\placeholder{}}$가 없는 다항식일 때: 최고차항으로 묶어서 $\\infty\\times(상수)$의 꼴로 변형한다.",
+    "description": "(1) $\\frac{\\infty}{\\infty}$ 꼴의 극한\\n=> 분모의 최고차항으로 분모, 분자를 각각 나눈다. ($\\sqrt{\\phantom{ab}}$의 유$\\cdot$무에 관계없이)\\n(2) $\\infty-\\infty$ 꼴의 극한\\n? $\\sqrt{\\phantom{ab}}$가 있을 때: $\\sqrt{\\phantom{ab}}$가 있는 쪽을 유리화한다.\\n? $\\sqrt{\\phantom{ab}}$가 없는 다항식일 때: 최고차항으로 묶어서 $\\infty\\times(상수)$의 꼴로 변형한다.",
     "concept_chapter_id": 640,
     "achievement_id": 351,
     "achievement_name": "수열의 극한에 대한 기본 성질을 이해하고, 이를 이용하여 극한값을 구할 수 있다.",
@@ -11713,7 +11713,7 @@
   },
   "3161": {
     "name": "수열의 극한의 대소 관계",
-    "description": "수렴하는 두 수열 $\\lbrace a_n\\rbrace$, $\\lbrace b_n\\rbrace$에 대하여 $\\lim _{n\\to\\infty}a_n=\\alpha$, $\\lim _{n\\to\\infty}b_n=\\beta$ ($\\alpha$, $\\beta$는 실수) 일 때\\n(1) 모든 자연수 $n$에 대하여 $a_n\\leq b_n$이면 $\\alpha_{}\\leq\\beta$이다.\\n(2) 수열 $\\lbrace c_n\\rbrace$이 모든 자연수 $n$에 대하여 $a_n\\leq c_n\\leq b_n_{}_{}$이고 $\\alpha_{}=\\beta$이면 수열 $\\lbrace c_n\\rbrace$은 수렴하고\\n$\\lim _{n\\to\\infty}c_n=\\alpha$",
+    "description": "수렴하는 두 수열 $\\lbrace a_n\\rbrace$, $\\lbrace b_n\\rbrace$에 대하여 $\\lim _{n\\to\\infty}a_n=\\alpha$, $\\lim _{n\\to\\infty}b_n=\\beta$ ($\\alpha$, $\\beta$는 실수) 일 때\\n(1) 모든 자연수 $n$에 대하여 $a_n\\leq b_n$이면 $\\alpha_{}\\leq\\beta$이다.\\n(2) 수열 $\\lbrace c_n\\rbrace$이 모든 자연수 $n$에 대하여 $a_n\\leq c_n\\leq b_n$이고 $\\alpha_{}=\\beta$이면 수열 $\\lbrace c_n\\rbrace$은 수렴하고\\n$\\lim _{n\\to\\infty}c_n=\\alpha$",
     "concept_chapter_id": 640,
     "achievement_id": 351,
     "achievement_name": "수열의 극한에 대한 기본 성질을 이해하고, 이를 이용하여 극한값을 구할 수 있다.",
@@ -11801,7 +11801,7 @@
   },
   "6888": {
     "name": "급수의 성질",
-    "description": "두 급수 $\\sum ^{\\infty}_{n\\mathop=1}a_n$, $\\sum ^{\\infty}_{n\\mathop=1}b_n$이 수렴하고, 그 합을 각각 $S$, $T$라 할 때,\\n(1) $\\sum ^{\\infty}_{n\\mathop=1}ca_n=c\\sum ^{\\infty}_{n\\mathop=1}a_n=cS$\\n(2) $\\sum ^{\\infty}_{n\\mathop=1}(a_n+b_n)=\\sum ^{\\infty}_{n\\mathop{=}1}a_n+\\sum ^{\\infty}_{n\\mathop{=}1}_{}b_n=S+T$\\n(3) $\\sum ^{\\infty}_{n\\mathop=1}(a_n-b_n)=\\sum ^{\\infty}_{n\\mathop{=}1}a_n-\\sum ^{\\infty}_{n\\mathop{=}1}_{}b_n=S-T$",
+    "description": "두 급수 $\\sum ^{\\infty}_{n\\mathop=1}a_n$, $\\sum ^{\\infty}_{n\\mathop=1}b_n$이 수렴하고, 그 합을 각각 $S$, $T$라 할 때,\\n(1) $\\sum ^{\\infty}_{n\\mathop=1}ca_n=c\\sum ^{\\infty}_{n\\mathop=1}a_n=cS$\\n(2) $\\sum ^{\\infty}_{n\\mathop=1}(a_n+b_n)=\\sum ^{\\infty}_{n\\mathop{=}1}a_n+\\sum ^{\\infty}_{n\\mathop{=}1}b_n=S+T$\\n(3) $\\sum ^{\\infty}_{n\\mathop=1}(a_n-b_n)=\\sum ^{\\infty}_{n\\mathop{=}1}a_n-\\sum ^{\\infty}_{n\\mathop{=}1}b_n=S-T$",
     "concept_chapter_id": 642,
     "achievement_id": 353,
     "achievement_name": "급수의 수렴, 발산의 뜻을 알고, 이를 판별할 수 있다.",
@@ -11985,7 +11985,7 @@
   },
   "4086": {
     "name": "합성함수의 미분법",
-    "description": "두 함수 $y=f(u),u=g(x)$가 미분가능 할 때 합성함수 $y=f(g(x))$도 미분가능하며, 그 도함수는 다음과 같다.\\n$\\frac{\\differentialD y}{\\differentialD x}=\\frac{\\differentialD y}{\\differentialD u}\\cdot\\frac{\\differentialD u}{\\differentialD x}$ 또는 $y^{\\prime}=f^{\\prime}(g(x))g^{\\prime}(x)$",
+    "description": "두 함수 $y=f(u),u=g(x)$가 미분가능 할 때 합성함수 $y=f(g(x))$도 미분가능하며, 그 도함수는 다음과 같다.\\n$\\frac{dy}{dx}=\\frac{dy}{du}\\cdot\\frac{du}{dx}$ 또는 $y^{\\prime}=f^{\\prime}(g(x))g^{\\prime}(x)$",
     "concept_chapter_id": 651,
     "achievement_id": 362,
     "achievement_name": "합성함수를 미분할 수 있다.",
@@ -11993,7 +11993,7 @@
   },
   "4101": {
     "name": "지수함수의 도함수",
-    "description": "(1) $y=e^x$ => $y'=e^x$\\n(2) $y=a^x$ => $y'=a^x\\ln a$ (단, $a>0$, $a\\ne1$)\\n미분가능한 함수 $f(x)에 대하여\\n(3) $y=e^f(x)$ => $y'=e^f(x)f'(x)$\\n(4) $y=a^f(x)$ => $y'=a^f(x)f'(x)\\lna$ (단, $a>0$, $a\\ne1$)",
+    "description": "(1) $y=e^x$ => $y\\'=e^x$\\n(2) $y=a^x$ => $y\\'=a^x\\ln a$ (단, $a>0$, $a\\ne1$)\\n미분가능한 함수 $f(x)에 대하여\\n(3) $y=e^f(x)$ => $y\\'=e^f(x)f\\'(x)$\\n(4) $y=a^f(x)$ => $y\\'=a^f(x)f\\'(x)\\lna$ (단, $a>0$, $a\\ne1$)",
     "concept_chapter_id": 651,
     "achievement_id": 362,
     "achievement_name": "합성함수를 미분할 수 있다.",
@@ -12025,7 +12025,7 @@
   },
   "4107": {
     "name": "매개변수로 나타낸 함수의 미분법",
-    "description": "매개변수로 타나낸 두 함수 $x=f(t),y=g(t)$가 $t$에 대하여 미분가능하고 $f^{\\prime}(t)e0$일 때, $\\frac{\\differentialD y}{\\differentialD x}=\\frac{\\frac{\\differentialD y}{\\differentialD t}}{\\frac{\\differentialD x}{\\differentialD t}}=\\frac{g^{\\prime}(t)}{f^{\\prime}(t)}$",
+    "description": "매개변수로 타나낸 두 함수 $x=f(t),y=g(t)$가 $t$에 대하여 미분가능하고 $f^{\\prime}(t)e0$일 때, $\\frac{dy}{dx}=\\frac{\\frac{dy}{dt}}{\\frac{dx}{dt}}=\\frac{g^{\\prime}(t)}{f^{\\prime}(t)}$",
     "concept_chapter_id": 652,
     "achievement_id": 363,
     "achievement_name": "매개변수로 나타낸 함수를 미분할 수 있다.",
@@ -12049,7 +12049,7 @@
   },
   "4226": {
     "name": "음함수의 미분법",
-    "description": "$x$의 함수 $y$가 $f(x,y)=0$ 꼴로 주어졌을 때에는 $y$를 $x$의 함수로 보고 각 항을 $x$에 대하여 미분하여 $\\frac{\\differentialD y}{\\differentialD x}$를 구한다.",
+    "description": "$x$의 함수 $y$가 $f(x,y)=0$ 꼴로 주어졌을 때에는 $y$를 $x$의 함수로 보고 각 항을 $x$에 대하여 미분하여 $\\frac{dy}{dx}$를 구한다.",
     "concept_chapter_id": 653,
     "achievement_id": 364,
     "achievement_name": "음함수를 미분할 수 있다.",
@@ -12065,7 +12065,7 @@
   },
   "4260": {
     "name": "이계도함수",
-    "description": "함수 $f(x)$의 도함수 $f^{\\prime}(x)$가 미분가능할 때, $f^{\\prime}(x)$의 도함수 $\\lim _{\\Delta x\\to0}\\frac{f^{\\prime}(x+\\Delta x)-f^{\\prime}(x)}{\\Delta x}$를 함수 $f(x)$의 이계도함수라 하고, 기호로 $f^{\\doubleprime}(x),y^{\\doubleprime},\\frac{d^2y}{dx^2},\\frac{d^2}{dx^2}f(x)$와 같이 나타낸다.",
+    "description": "함수 $f(x)$의 도함수 $f^{\\prime}(x)$가 미분가능할 때, $f^{\\prime}(x)$의 도함수 $\\lim _{\\Delta x\\to0}\\frac{f^{\\prime}(x+\\Delta x)-f^{\\prime}(x)}{\\Delta x}$를 함수 $f(x)$의 이계도함수라 하고, 기호로 $f^{\\prime\\prime}(x),y^{\\prime\\prime},\\frac{d^2y}{dx^2},\\frac{d^2}{dx^2}f(x)$와 같이 나타낸다.",
     "concept_chapter_id": 654,
     "achievement_id": 366,
     "achievement_name": "이계도함수를 구할 수 있다.",
@@ -12073,7 +12073,7 @@
   },
   "4434": {
     "name": "접선의 방정식",
-    "description": "함수 $f(x)$가 $x=a$에서 미분가능할 때, 곡선 $y=f(x)$ 위의 점 $P(a, f(a))$에서의 접선의 기울기는 $x=a$에서의 미분계수 $f'(a)$와 같으므로 접선의 방정식은 $y-f(a)=f'(a)(x-a)$",
+    "description": "함수 $f(x)$가 $x=a$에서 미분가능할 때, 곡선 $y=f(x)$ 위의 점 $P(a, f(a))$에서의 접선의 기울기는 $x=a$에서의 미분계수 $f\\'(a)$와 같으므로 접선의 방정식은 $y-f(a)=f\\'(a)(x-a)$",
     "concept_chapter_id": 655,
     "achievement_id": 367,
     "achievement_name": "접선의 방정식을 구할 수 있다.",
@@ -12081,7 +12081,7 @@
   },
   "4676": {
     "name": "접선의 방정식을 구하는 방법",
-    "description": "곡선 $y=f(x)$에 대하여\\n(1) 접점의 좌표 $(a,f(a))$가 주어진 경우\\n(ⅰ) 접선의 기울기 $f'(a)$를 구한다.\\n(ⅱ) $y-f(a)=f'(a)(x-a)$를 이용하여 접선의 방정식을 구한다.\\n(2) 기울기 $m$이 주어진 경우\\n(ⅰ) 접점의 좌표를 $(a,f(a))$로 놓는다.\\n(ⅱ) $f'(a)=m$을 이용하여 접점의 좌표를 구한다.\\n(ⅲ) $y-f(a)=m(x-a)$를 이용하여 접선의 방정식을 구한다.\\n(3) 곡선 밖의 한 점의 좌표 $(x_1,y_1)$이 주어진 경우\\n(ⅰ) 접점의 좌표를 $(a,f(a))$로 놓는다.\\n(ⅱ) 접선의 기울기가 $f'(a)$이므로 접선의 방정식은 $y-f(a)=f'(a)(x-a)$   ······㉠\\n(ⅲ) ㉠에 점 $(x_1,y_1)$을 대입하여 $a$의 값을 구한다.\\n(ⅳ) $a$의 값을 ㉠에 대입하여 접선의 방정식을 구한다.",
+    "description": "곡선 $y=f(x)$에 대하여\\n(1) 접점의 좌표 $(a,f(a))$가 주어진 경우\\n(ⅰ) 접선의 기울기 $f\\'(a)$를 구한다.\\n(ⅱ) $y-f(a)=f\\'(a)(x-a)$를 이용하여 접선의 방정식을 구한다.\\n(2) 기울기 $m$이 주어진 경우\\n(ⅰ) 접점의 좌표를 $(a,f(a))$로 놓는다.\\n(ⅱ) $f\\'(a)=m$을 이용하여 접점의 좌표를 구한다.\\n(ⅲ) $y-f(a)=m(x-a)$를 이용하여 접선의 방정식을 구한다.\\n(3) 곡선 밖의 한 점의 좌표 $(x_1,y_1)$이 주어진 경우\\n(ⅰ) 접점의 좌표를 $(a,f(a))$로 놓는다.\\n(ⅱ) 접선의 기울기가 $f\\'(a)$이므로 접선의 방정식은 $y-f(a)=f\\'(a)(x-a)$   ······㉠\\n(ⅲ) ㉠에 점 $(x_1,y_1)$을 대입하여 $a$의 값을 구한다.\\n(ⅳ) $a$의 값을 ㉠에 대입하여 접선의 방정식을 구한다.",
     "concept_chapter_id": 655,
     "achievement_id": 367,
     "achievement_name": "접선의 방정식을 구할 수 있다.",
@@ -12089,7 +12089,7 @@
   },
   "4677": {
     "name": "매개변수로 나타낸 곡선의 접선의 방정식 구하기",
-    "description": "매개변수로 나타낸 곡선 $x=f(t),y=g(t)$ 위의 점 $(x_1,y_1)$에서의 접선의 방정식을 구하는 방법은 다음과 같다.\\n1. 매개변수로 나타낸 함수의 미분법을 이용하여 $\\frac{\\differentialD y}{\\differentialD x}=\\frac{g^{\\prime}(t)}{f^{\\prime}(t)}$을 구한다.\\n2. $f(t_1)=x_1,g(t_1)=y_1$을 만족시키는 $t_1$의 값을 구한다.\\n3. $t=t_1$을 $y-y_1=\\frac{g^{\\prime}(t_1)}{f^{\\prime}(t_1)}(x-x_1)$에 대입하여 접선의 방정식을 구한다.",
+    "description": "매개변수로 나타낸 곡선 $x=f(t),y=g(t)$ 위의 점 $(x_1,y_1)$에서의 접선의 방정식을 구하는 방법은 다음과 같다.\\n1. 매개변수로 나타낸 함수의 미분법을 이용하여 $\\frac{dy}{dx}=\\frac{g^{\\prime}(t)}{f^{\\prime}(t)}$을 구한다.\\n2. $f(t_1)=x_1,g(t_1)=y_1$을 만족시키는 $t_1$의 값을 구한다.\\n3. $t=t_1$을 $y-y_1=\\frac{g^{\\prime}(t_1)}{f^{\\prime}(t_1)}(x-x_1)$에 대입하여 접선의 방정식을 구한다.",
     "concept_chapter_id": 655,
     "achievement_id": 338,
     "achievement_name": "접선의 방정식을 구할 수 있다.",
@@ -12097,7 +12097,7 @@
   },
   "4698": {
     "name": "곡선 $f(x,y)=0$의 접선의 방정식 구하기",
-    "description": "곡선 $f(x,y)=0$ 위의 점 $P$에서의 접선의 방정식을 구하는 방법은 다음과 같다.\\n1. 음함수의 미분법을 이용하여 $\\frac{\\differentialD y}{\\differentialD x}$를 구한다.\\n2. 1에서 구한 $\\frac{\\differentialD y}{\\differentialD x}$에 $P$의 좌표를 대입하여 접선의 기울기를 구한다.\\n3. 점 $P$의 좌표와 2에서 구한 기울기를 이용하여 접선의 방정식을 구한다.",
+    "description": "곡선 $f(x,y)=0$ 위의 점 $P$에서의 접선의 방정식을 구하는 방법은 다음과 같다.\\n1. 음함수의 미분법을 이용하여 $\\frac{dy}{dx}$를 구한다.\\n2. 1에서 구한 $\\frac{dy}{dx}$에 $P$의 좌표를 대입하여 접선의 기울기를 구한다.\\n3. 점 $P$의 좌표와 2에서 구한 기울기를 이용하여 접선의 방정식을 구한다.",
     "concept_chapter_id": 655,
     "achievement_id": 338,
     "achievement_name": "접선의 방정식을 구할 수 있다.",
@@ -12105,7 +12105,7 @@
   },
   "4719": {
     "name": "함수의 극대와 극소",
-    "description": "(1) 함수의 극대와 극소\\n함수 $f(x)$에서 $x=a$를 포함하는 어떤 열린 구간에 속하는 모든 $x$에 대하여\\n? $f(x)\\leq f(a)$일 때, 함수 $f(x)$는 $x=a$에서 극대라 하고, $f(a)$를 극댓값이라 한다.\\n? $f(x)\\geq f(a)$일 때, 함수 $f(x)$는 $x=a$에서 극소라 하고, $f(a)$를 극솟값이라 한다.\\n이때 극댓값과 극솟값을 통틀어 극값이라 한다.\\n(2) 극값과 미분계수\\n미분 가능한 함수 $f(x)$가 $x=a$에서 극값을 가지면 $f'(a)=0$이다.",
+    "description": "(1) 함수의 극대와 극소\\n함수 $f(x)$에서 $x=a$를 포함하는 어떤 열린 구간에 속하는 모든 $x$에 대하여\\n? $f(x)\\leq f(a)$일 때, 함수 $f(x)$는 $x=a$에서 극대라 하고, $f(a)$를 극댓값이라 한다.\\n? $f(x)\\geq f(a)$일 때, 함수 $f(x)$는 $x=a$에서 극소라 하고, $f(a)$를 극솟값이라 한다.\\n이때 극댓값과 극솟값을 통틀어 극값이라 한다.\\n(2) 극값과 미분계수\\n미분 가능한 함수 $f(x)$가 $x=a$에서 극값을 가지면 $f\\'(a)=0$이다.",
     "concept_chapter_id": 656,
     "achievement_id": 340,
     "achievement_name": "함수의 증가와 감소, 극대와 극소를 판정하고 설명할 수 있다.",
@@ -12129,7 +12129,7 @@
   },
   "5296": {
     "name": "함수의 그래프의 개형",
-    "description": "함수 $y=f(x)$의 그래프의 개형은 다음을 고려하여 그린다.\\n(1) 함수의 정의역과 치역\\n(2) 좌표축과의 교점\\n(3) 그래프의 대칭성과 주기\\n(4) 함수의 증가와 감소, 극대와 극소\\n(5) 곡선의 오목과 볼록, 변곡점\\n(6) $\\lim _{x\\to\\infty}f(x)$, $\\lim _{x\\to\\-infty}f(x)$, 점근선",
+    "description": "함수 $y=f(x)$의 그래프의 개형은 다음을 고려하여 그린다.\\n(1) 함수의 정의역과 치역\\n(2) 좌표축과의 교점\\n(3) 그래프의 대칭성과 주기\\n(4) 함수의 증가와 감소, 극대와 극소\\n(5) 곡선의 오목과 볼록, 변곡점\\n(6) $\\lim _{x\\to\\infty}f(x)$, $\\lim _{x\\to-\\infty}f(x)$, 점근선",
     "concept_chapter_id": 656,
     "achievement_id": 368,
     "achievement_name": "함수의 그래프의 개형을 그릴 수 있다.",
@@ -12137,7 +12137,7 @@
   },
   "6889": {
     "name": "함수의 극대와 극소의 판정",
-    "description": "(1) 도함수를 이용한 함수의 극대와 극소의 판정 [수학Ⅱ 112쪽]\\n미분가능한 함수 $f(x)$에 대하여 $f^{\\prime}(a)=0$이고, $x=a$의 좌우에서\\n? $f^{\\prime}(x)$의 부호가 양에서 음으로 바뀌면 $f(x)$는 $x=a$에서 극대이고, 극댓값은 $f(a)$이다.\\n? $f^{\\prime}(x)$의 부호가 음에서 양으로 바뀌면 $f(x)$는 $x=a$에서 극소이고, 극솟값은 $f(a)$이다.\\n(2) 이계도함수를 이용한 함수의 극대와 극소의 판정\\n이계도함수를 갖는 함수 $f(x)$에 대하여 $f^{\\prime}(a)=0$일 때\\n? $f^{\\doubleprime}(a)<0$이면 $f(x)$는 $x=a$에서 극대이고, 극댓값 $f(a)$를 갖는다.\\n? $f^{\\doubleprime}(a)<0$이면 $f(x)$는 $x=a$에서 극대이고, 극댓값 $f(a)$를 갖는다.",
+    "description": "(1) 도함수를 이용한 함수의 극대와 극소의 판정 [수학Ⅱ 112쪽]\\n미분가능한 함수 $f(x)$에 대하여 $f^{\\prime}(a)=0$이고, $x=a$의 좌우에서\\n? $f^{\\prime}(x)$의 부호가 양에서 음으로 바뀌면 $f(x)$는 $x=a$에서 극대이고, 극댓값은 $f(a)$이다.\\n? $f^{\\prime}(x)$의 부호가 음에서 양으로 바뀌면 $f(x)$는 $x=a$에서 극소이고, 극솟값은 $f(a)$이다.\\n(2) 이계도함수를 이용한 함수의 극대와 극소의 판정\\n이계도함수를 갖는 함수 $f(x)$에 대하여 $f^{\\prime}(a)=0$일 때\\n? $f^{\\prime\\prime}(a)<0$이면 $f(x)$는 $x=a$에서 극대이고, 극댓값 $f(a)$를 갖는다.\\n? $f^{\\prime\\prime}(a)<0$이면 $f(x)$는 $x=a$에서 극대이고, 극댓값 $f(a)$를 갖는다.",
     "concept_chapter_id": 656,
     "achievement_id": 340,
     "achievement_name": "함수의 증가와 감소, 극대와 극소를 판정하고 설명할 수 있다.",
@@ -12161,7 +12161,7 @@
   },
   "5294": {
     "name": "변곡점의 판정",
-    "description": "함수 $y=f(x)$에서 $f^{\\doubleprime}(x)=0$이고 $x=a$의 좌우에서 $f^{\\doubleprime}(x)$의 부호가 바뀌면 점 $(a,f(a))$는 곡선 $y=f(x)$의 변곡점이다.",
+    "description": "함수 $y=f(x)$에서 $f^{\\prime\\prime}(x)=0$이고 $x=a$의 좌우에서 $f^{\\prime\\prime}(x)$의 부호가 바뀌면 점 $(a,f(a))$는 곡선 $y=f(x)$의 변곡점이다.",
     "concept_chapter_id": 656,
     "achievement_id": 341,
     "achievement_name": "함수의 그래프의 개형을 그릴 수 있다.",
@@ -12193,7 +12193,7 @@
   },
   "5371": {
     "name": "부등식에의 활용",
-    "description": "(1) 모든 실수 $x$에 대하여 부등식 $f(x)>0$ 또는 $f(x)<0$이 성립함을 증명\\n? 모든 실수 $x$에 대하여 부등식 $f(x)>0$이 성립\\n=> 함수 $f(x)$에 대하여 ($f(x)$의 최솟값)>0임을 보인다.\\n? 모든 실수 $x$에 대하여 부등식 $f(x)<0$이 성립\\n=> 함수 $f(x)$에 대하여 ($f(x)$의 최댓값)<0임을 보인다.\\n(2) $x>a$에서 부등식 $f(x)>0$이 성립함을 증명\\n? 함수 $f(x)$의 최솟값이 존재할 때\\n=> $x>a$에서 ($f(x)$의 최솟값)>0임을 보인다.\\n? 함수 $f(x)$의 최솟값이 존재하지 않을 때\\n=> $x>a$에서 함수 $f(x)$가 증가하고, $f(a)\\geq0$임을 보인다.\\n즉, $f'(x)>0$, $f(a)\\geq0$임을 보인다.",
+    "description": "(1) 모든 실수 $x$에 대하여 부등식 $f(x)>0$ 또는 $f(x)<0$이 성립함을 증명\\n? 모든 실수 $x$에 대하여 부등식 $f(x)>0$이 성립\\n=> 함수 $f(x)$에 대하여 ($f(x)$의 최솟값)>0임을 보인다.\\n? 모든 실수 $x$에 대하여 부등식 $f(x)<0$이 성립\\n=> 함수 $f(x)$에 대하여 ($f(x)$의 최댓값)<0임을 보인다.\\n(2) $x>a$에서 부등식 $f(x)>0$이 성립함을 증명\\n? 함수 $f(x)$의 최솟값이 존재할 때\\n=> $x>a$에서 ($f(x)$의 최솟값)>0임을 보인다.\\n? 함수 $f(x)$의 최솟값이 존재하지 않을 때\\n=> $x>a$에서 함수 $f(x)$가 증가하고, $f(a)\\geq0$임을 보인다.\\n즉, $f\\'(x)>0$, $f(a)\\geq0$임을 보인다.",
     "concept_chapter_id": 657,
     "achievement_id": 369,
     "achievement_name": "방정식가 부등식에 대한 문제를 해결할 수 있다.",
@@ -12201,7 +12201,7 @@
   },
   "6890": {
     "name": "직선 운동에서의 속도와 가속도",
-    "description": "수직선 위를 움직이는 점 $P$의 시각 $t$에서의 위치 $x$가 $x=f(t)$일 때, 시각 $t$에서의 점 $P$의 속도 $v$와 가속도 $a$는 다음과 같다.\\n1. $v=\\frac{\\differentialD x}{\\differentialD t}=f^{\\prime}(t)$\\n2. $a=\\frac{dv}{\\differentialD t}=f^{\\doubleprime}(t)$",
+    "description": "수직선 위를 움직이는 점 $P$의 시각 $t$에서의 위치 $x$가 $x=f(t)$일 때, 시각 $t$에서의 점 $P$의 속도 $v$와 가속도 $a$는 다음과 같다.\\n1. $v=\\frac{dx}{dt}=f^{\\prime}(t)$\\n2. $a=\\frac{dv}{dt}=f^{\\prime\\prime}(t)$",
     "concept_chapter_id": 658,
     "achievement_id": 370,
     "achievement_name": "속도와 가속도에 대한 문제를 해결할 수 있다.",
@@ -12209,7 +12209,7 @@
   },
   "6891": {
     "name": "평면 운동에서의 속도와 가속도",
-    "description": "좌표평면 위를 움직이는 점 $P$의 시각 $t$에서의 위치 $(x,y)$가 $x=f(t)$, $y=g(t)$일 때, 시각 $t$에서의 점 $P$의 속도와 가속도는 다음과 같다.\\n1. 속도 : $(\\frac{\\differentialD x}{\\differentialD t},\\frac{\\differentialD y}{\\differentialD t})$, 즉 $(f^{\\prime}(t),g^{\\prime}(t))$\\n2. 가속도 : $(\\frac{d^2x}{\\differentialD t^2},\\frac{d^2y}{\\differentialD t^2})$,즉 $(f^{\\doubleprime}(t),g^{\\doubleprime}(t))$",
+    "description": "좌표평면 위를 움직이는 점 $P$의 시각 $t$에서의 위치 $(x,y)$가 $x=f(t)$, $y=g(t)$일 때, 시각 $t$에서의 점 $P$의 속도와 가속도는 다음과 같다.\\n1. 속도 : $(\\frac{dx}{dt},\\frac{dy}{dt})$, 즉 $(f^{\\prime}(t),g^{\\prime}(t))$\\n2. 가속도 : $(\\frac{d^2x}{dt^2},\\frac{d^2y}{dt^2})$,즉 $(f^{\\prime\\prime}(t),g^{\\prime\\prime}(t))$",
     "concept_chapter_id": 658,
     "achievement_id": 370,
     "achievement_name": "속도와 가속도에 대한 문제를 해결할 수 있다.",
@@ -12225,7 +12225,7 @@
   },
   "5521": {
     "name": "지수함수의 부정적분",
-    "description": "지수함수의 부정적분은 다음과 같다. (단, $C$는 적분상수)\\n(1) $\\int \\exponentialE^x^{}dx=\\exponentialE^x+C$\\n(2) $\\int a^xdx=\\frac{a^x}{\\ln a}+C$ (단, $a>0$, $a\\ne1$)",
+    "description": "지수함수의 부정적분은 다음과 같다. (단, $C$는 적분상수)\\n(1) $\\int e^xdx=e^x+C$\\n(2) $\\int a^xdx=\\frac{a^x}{\\ln a}+C$ (단, $a>0$, $a\\ne1$)",
     "concept_chapter_id": 659,
     "achievement_id": 374,
     "achievement_name": "지수함수와 로그함수의 부정적분과 정적분을 구할 수 있다.",
@@ -12249,7 +12249,7 @@
   },
   "5540": {
     "name": "치환적분법의 적용",
-    "description": "피적분함수의 꼴에 따라 다음과 같이 치환적분법을 적용할 수 있다. (단, $C$는 적분상수)\\n(1) $f(ax+b)$ ($a$, $b$는 상수, $a\\ne0$)의 꼴인 경우\\n$\\int f(x)\\mathrm{d}x=F(x)+C$이면\\n$\\int f(ax+b)\\mathrm{d}x=\\frac{1}{a}F(ax+b)+C$\\n(2) $f(g(x))g^{\\prime}(x)$의 꼴인 경우\\n$g(x)=t$로 놓으면\\n$\\int f(g(x))g^{\\prime}(x)\\mathrm{d}x=\\int f(t)\\differentialD t$\\n(3) $\\frac{f^{\\prime}(x)}{f(x)}$의 꼴인 경우\\n$\\int \\frac{f^{\\prime}(x)}{f(x)}\\mathrm{d}x=\\ln |f(x)|+C$",
+    "description": "피적분함수의 꼴에 따라 다음과 같이 치환적분법을 적용할 수 있다. (단, $C$는 적분상수)\\n(1) $f(ax+b)$ ($a$, $b$는 상수, $a\\ne0$)의 꼴인 경우\\n$\\int f(x)\\mathrm{d}x=F(x)+C$이면\\n$\\int f(ax+b)\\mathrm{d}x=\\frac{1}{a}F(ax+b)+C$\\n(2) $f(g(x))g^{\\prime}(x)$의 꼴인 경우\\n$g(x)=t$로 놓으면\\n$\\int f(g(x))g^{\\prime}(x)\\mathrm{d}x=\\int f(t)dt$\\n(3) $\\frac{f^{\\prime}(x)}{f(x)}$의 꼴인 경우\\n$\\int \\frac{f^{\\prime}(x)}{f(x)}\\mathrm{d}x=\\ln |f(x)|+C$",
     "concept_chapter_id": 660,
     "achievement_id": 371,
     "achievement_name": "치환적분법을 이해하고, 이를 활용할 수 있다.",
@@ -12265,7 +12265,7 @@
   },
   "5806": {
     "name": "치환적분법을 이용한 정적분",
-    "description": "닫힌구간 $\\lbrack a,b\\rbrack$에서 연속인 함수 $f(x)$에 대하여 미분가능한 함수 $x=g(t)$의 도함수 $g'(t)$가 닫힌구간 $\\lbrack\\alpha,\\beta\\rbrack$에서 연속이고 $a=g(\\alpha)$, $b=g(\\beta)$이면\\n$\\int ^b_af(x)\\mathrm{d}x=\\int ^{\\beta}_{\\alpha}f(g(t))g^{\\prime}(t)\\mathrm{d}t$",
+    "description": "닫힌구간 $\\lbrack a,b\\rbrack$에서 연속인 함수 $f(x)$에 대하여 미분가능한 함수 $x=g(t)$의 도함수 $g\\'(t)$가 닫힌구간 $\\lbrack\\alpha,\\beta\\rbrack$에서 연속이고 $a=g(\\alpha)$, $b=g(\\beta)$이면\\n$\\int ^b_af(x)\\mathrm{d}x=\\int ^{\\beta}_{\\alpha}f(g(t))g^{\\prime}(t)\\mathrm{d}t$",
     "concept_chapter_id": 660,
     "achievement_id": 371,
     "achievement_name": "치환적분법을 이해하고, 이를 활용할 수 있다.",
@@ -12289,7 +12289,7 @@
   },
   "5917": {
     "name": "부분적분법을 이용한 정적분",
-    "description": "닫힌구간 $\\lbrack a,b\\rbrack$에서 두 함수 $f(x)$, $g(x)$가 미분가능하고 $f'(x)$, $g'(x)$가 연속일 때\\n$\\int ^b_af(x)g^{\\prime}(x)\\mathrm{d}x=\\lbrack f(x)g(x)\\rbrack^b_a-\\int ^b_af^{\\prime}(x)g(x)\\mathrm{d}x$",
+    "description": "닫힌구간 $\\lbrack a,b\\rbrack$에서 두 함수 $f(x)$, $g(x)$가 미분가능하고 $f\\'(x)$, $g\\'(x)$가 연속일 때\\n$\\int ^b_af(x)g^{\\prime}(x)\\mathrm{d}x=\\lbrack f(x)g(x)\\rbrack^b_a-\\int ^b_af^{\\prime}(x)g(x)\\mathrm{d}x$",
     "concept_chapter_id": 661,
     "achievement_id": 372,
     "achievement_name": "부분적분법을 이해하고, 이를 활용할 수 있다.",
@@ -12329,7 +12329,7 @@
   },
   "5922": {
     "name": "정적분으로 정의된 함수의 미분",
-    "description": "정적분 $\\int ^x_af(t)\\mathrm{d}t$ ($a$는 상수)에서 $f(t)$의 한 부정적분을 $F(t)$라 하면\\n$\\int ^x_af(t)\\mathrm{d}t=\\lbrack F(t)\\rbrack^b_a=F(x)-F(a)$\\n이므로 $\\int ^x_af(t)\\mathrm{d}t$는 $x$에 대한 함수이다. 이와 같이 정적분으로 정의된 함수 $\\int ^x_af(t)\\mathrm{d}t$, $\\int ^{x+a}_af(t)\\mathrm{d}t$를 $x$에 대하여 미분하면 다음과 같다.\\n(1) $\\frac{\\differentialD}{\\differentialD x}\\int ^x_af(t)\\mathrm{d}t=f(x)$ (단, $a$는 상수) \\n(2) $\\frac{\\differentialD}{\\differentialD x}\\int ^{x+a}_af(t)\\mathrm{d}t=f(x+a)=f(x)$ (단, $a$는 상수)",
+    "description": "정적분 $\\int ^x_af(t)\\mathrm{d}t$ ($a$는 상수)에서 $f(t)$의 한 부정적분을 $F(t)$라 하면\\n$\\int ^x_af(t)\\mathrm{d}t=\\lbrack F(t)\\rbrack^b_a=F(x)-F(a)$\\n이므로 $\\int ^x_af(t)\\mathrm{d}t$는 $x$에 대한 함수이다. 이와 같이 정적분으로 정의된 함수 $\\int ^x_af(t)\\mathrm{d}t$, $\\int ^{x+a}_af(t)\\mathrm{d}t$를 $x$에 대하여 미분하면 다음과 같다.\\n(1) $\\frac{d}{dx}\\int ^x_af(t)\\mathrm{d}t=f(x)$ (단, $a$는 상수) \\n(2) $\\frac{d}{dx}\\int ^{x+a}_af(t)\\mathrm{d}t=f(x+a)=f(x)$ (단, $a$는 상수)",
     "concept_chapter_id": 662,
     "achievement_id": 373,
     "achievement_name": "함수 y = x^n (n은 실수)의 부정적분과 정적분을 구할 수 있다.",
@@ -12345,7 +12345,7 @@
   },
   "5979": {
     "name": "정적분과 급수",
-    "description": "(1) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(\\frac{p}{n}k)\\times\\frac{p}{n}=\\int ^p_0f(x)\\mathrm{d}x$\\n(2) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(a+\\frac{b-a}{n}k)\\times\\frac{b-a}{n}=\\int ^b_af(x)\\mathrm{d}x$\\n(3) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(a+\\frac{p}{n}k)\\times\\frac{p}{n}=\\int ^{a+p}_af(x)\\mathrm{d}x$=\\int ^p_{}f|(x+a|)\\mathrm{d}x$\\n(4) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(a+\\frac{p}{n}k)\\times\\frac{q}{n}=q\\int ^1_0f(a+px)\\mathrm{d}x$",
+    "description": "(1) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(\\frac{p}{n}k)\\times\\frac{p}{n}=\\int ^p_0f(x)\\mathrm{d}x$\\n(2) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(a+\\frac{b-a}{n}k)\\times\\frac{b-a}{n}=\\int ^b_af(x)\\mathrm{d}x\\n(3) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(a+\\frac{p}{n}k)\\times\\frac{p}{n}=\\int ^{a+p}_af(x)\\mathrm{d}x$=\\int ^p_{0}f(x+a)\\mathrm{d}x$\\n(4) $\\lim _{n\\to\\infty}\\sum ^n_{k\\mathop=1}f(a+\\frac{p}{n}k)\\times\\frac{q}{n}=q\\int ^1_0f(a+px)\\mathrm{d}x$",
     "concept_chapter_id": 663,
     "achievement_id": 376,
     "achievement_name": "정적분과 급수의 합 사이의 관계를 이해하고 이를 활용할 수 있다.",
@@ -12393,7 +12393,7 @@
   },
   "6930": {
     "name": "곡선의 길이",
-    "description": "1. 곡선 $x=f(t)$, $y=g(t)$$(a\\le t\\le b)$의 겹치는 부분이 없을 때 길이 $l$은 다음과 같다.\\n$l=\\int ^b_a\\sqrt[]{(\\frac{\\differentialD x}{\\differentialD t})^2+(\\frac{\\differentialD y}{\\differentialD t})^2}\\mathrm{d}t=\\int ^b_a\\sqrt[]{\\{f^{\\prime}(t)\\}^2+\\{g^{\\prime}(t)\\}^2}\\mathrm{d}t$\\n2. 곡선 $y=f(x)$$(a\\le t\\le b)$의 길이 $l$은 다음과 같다.\\n$l=\\int ^b_a\\sqrt[]{1+\\{f^{\\prime}(x)\\}^2}\\mathrm{d}x$",
+    "description": "1. 곡선 $x=f(t)$, $y=g(t)(a\\le t\\le b)$의 겹치는 부분이 없을 때 길이 $l$은 다음과 같다.\\n$l=\\int ^b_a\\sqrt[]{(\\frac{dx}{dt})^2+(\\frac{dy}{dt})^2}\\mathrm{d}t=\\int ^b_a\\sqrt[]{\\{f^{\\prime}(t)\\}^2+\\{g^{\\prime}(t)\\}^2}\\mathrm{d}t$\\n2. 곡선 $y=f(x)(a\\le t\\le b)$의 길이 $l$은 다음과 같다.\\n$l=\\int ^b_a\\sqrt[]{1+\\{f^{\\prime}(x)\\}^2}\\mathrm{d}x$",
     "concept_chapter_id": 666,
     "achievement_id": 379,
     "achievement_name": "속도와 거리에 대한 문제를 해결할 수 있다.",
@@ -12401,7 +12401,7 @@
   },
   "6929": {
     "name": "평면 위의 점이 움직인 거리",
-    "description": "좌표평면 위를 움직이는 $P$의 시각 $t$에서의 위치 $(x,y)$가 $x=f(t)$, $y=g(t)$일 때, 시각 $t=a$에서 $t=b$까지 점 $P$가 움직인 거리 $s$는 다음과 같다.\\n$s=\\int ^b_a\\sqrt[]{(\\frac{\\differentialD x}{\\differentialD t})^2+(\\frac{\\differentialD y}{\\differentialD t})^2}\\mathrm{d}t=\\int ^b_a\\sqrt[]{\\{f^{\\prime}(t)\\}^2+\\{g^{\\prime}(t)\\}^2}\\mathrm{d}t$",
+    "description": "좌표평면 위를 움직이는 $P$의 시각 $t$에서의 위치 $(x,y)$가 $x=f(t)$, $y=g(t)$일 때, 시각 $t=a$에서 $t=b$까지 점 $P$가 움직인 거리 $s$는 다음과 같다.\\n$s=\\int ^b_a\\sqrt[]{(\\frac{dx}{dt})^2+(\\frac{dy}{dt})^2}\\mathrm{d}t=\\int ^b_a\\sqrt[]{\\{f^{\\prime}(t)\\}^2+\\{g^{\\prime}(t)\\}^2}\\mathrm{d}t$",
     "concept_chapter_id": 666,
     "achievement_id": 379,
     "achievement_name": "속도와 거리에 대한 문제를 해결할 수 있다.",
@@ -12649,7 +12649,7 @@
   },
   "2531": {
     "name": "$\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취",
-    "description": "(1) $m+n=1$일 때 $\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취는 직선 AB\\n(2) $m>0, n>0, m+n<1$일 때 \\n$\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취는  삼각형 AOB의 내부이다.\\n(3) $0\\lem\\le1, 0\\len\\le1$일 때 $\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취는두 변 OA, OB를 이웃하는 두 변으로 하는 평행사변형의 내부와 둘레이다.\\n",
+    "description": "(1) $m+n=1$일 때 $\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취는 직선 AB\\n(2) $m>0, n>0, m+n<1$일 때 \\n$\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취는  삼각형 AOB의 내부이다.\\n(3) $0\\le m\\le1, 0\\le n\\le1$일 때 $\\vec{OP}=m\\vec{OA}+n\\vec{OB}$를 만족시키는 점 P의 자취는두 변 OA, OB를 이웃하는 두 변으로 하는 평행사변형의 내부와 둘레이다.",
     "concept_chapter_id": 676,
     "achievement_id": 218,
     "achievement_name": "위치벡터의 뜻을 알고, 평면벡터와 좌표의 대응을 이해한다.",
@@ -12769,7 +12769,7 @@
   },
   "3084": {
     "name": "직선의 방정식",
-    "description": "(1) 방향벡터를 이용한 직선의 방정식\\n점 $A$를 지나고 영벡터가 아닌 벡터 $\\vec{u}$에 평행한 직선 $l$ 위의 임의의 점을 $P$라 할 때, 두 점 $A$, $P$의 위치벡터를 각각 $\\vec{a}$, $\\vec{p}$라 하면 직선 $l$의 방정식은\\n$\\vec{p}=\\vec{a}+t\\vec{u}$ (단, $t$는 실수)\\n이때 벡터 $\\vec{u}$를 직선 $l$의 방향벡터라 한다.\\n\\n(2) 한 점과 방향벡터가 주어진 직선의 방정식\\n점 $A(x_1,y_1)$을 지나고 방향벡터가 $\\vec{u}=(u_1,u_2)$인 직선의 방정식은 \\n$\\frac{x-x_1}{u_1}=\\frac{y-y_1}{u_2}$ (단, $u_1u_2 \\ne0$)\\n\\n(3) 두 점을 지나는 직선의 방정식\\n서로 다른 두 점 $A(x_1,y_2)$, $B(x_2,y_2)$를 지나는 직선의 방정식은 \\n$\\frac{x-x_1}{x_2-x_1_{}}=\\frac{y-y_1}{y_2-y_1_{}}$  (단, $x_1\\ne x_2$, $y_1\\ne y_2$)\\n\\n(4) 법선벡터를 이용한 직선의 방정식(벡터로 나타낸 직선 l의 방정식에서 벡터 $\\vec{n}$를 직선 l의 법선벡터라고 한다.)\\n점 $A$를 지나고 영벡터가 아닌 벡터 $\\vec{n}$에 수직인 직선 $l$ 위의 임의의 점을 $P$라고 할 때, 두 점 $A$, $P$의 위치벡터를 각각 $\\vec{a}$, $\\vec{p}$라 하면 직선 $l$의 방정식은\\n($\\vec{p}-\\vec{a})\\cdot\\vec{n}=0$\\n이때, 벡터 $\\vec{n}$을 직선 $l$의 법선벡터라 한다.\\n\\n(5)한 점과 법선벡터가 주어진 직선의 방정식\\n점 $A(x_1,y_1)$을 지나고 법선벡터가 $\\vec{n}=(a,b)$인 직선의 방정식은 \\n$a(x-x_1)+b(y-y_1)=0$",
+    "description": "(1) 방향벡터를 이용한 직선의 방정식\\n점 $A$를 지나고 영벡터가 아닌 벡터 $\\vec{u}$에 평행한 직선 $l$ 위의 임의의 점을 $P$라 할 때, 두 점 $A$, $P$의 위치벡터를 각각 $\\vec{a}$, $\\vec{p}$라 하면 직선 $l$의 방정식은 $\\vec{p}=\\vec{a}+t\\vec{u}$ (단, $t$는 실수)\\n이때 벡터 $\\vec{u}$를 직선 $l$의 방향벡터라 한다.\\n(2) 한 점과 방향벡터가 주어진 직선의 방정식\\n점 $A(x_1,y_1)$을 지나고 방향벡터가 $\\vec{u}=(u_1,u_2)$인 직선의 방정식은 $\\frac{x-x_1}{u_1}=\\frac{y-y_1}{u_2}$ (단, $u_1u_2 \\ne0$)\\n(3) 두 점을 지나는 직선의 방정식\\n서로 다른 두 점 $A(x_1,y_2)$, $B(x_2,y_2)$를 지나는 직선의 방정식은 $\\frac{x-x_1}{x_2-x_1}=\\frac{y-y_1}{y_2-y_1}$ (단, $x_1\\ne x_2$, $y_1\\ne y_2$)\\n(4) 법선벡터를 이용한 직선의 방정식(벡터로 나타낸 직선 l의 방정식에서 벡터 $\\vec{n}$를 직선 l의 법선벡터라고 한다.)\\n점 $A$를 지나고 영벡터가 아닌 벡터 $\\vec{n}$에 수직인 직선 $l$ 위의 임의의 점을 $P$라고 할 때, 두 점 $A$, $P$의 위치벡터를 각각 $\\vec{a}$, $\\vec{p}$라 하면 직선 $l$의 방정식은 ($\\vec{p}-\\vec{a})\\cdot\\vec{n}=0$\\n이때, 벡터 $\\vec{n}$을 직선 $l$의 법선벡터라 한다.\\n(5)한 점과 법선벡터가 주어진 직선의 방정식\\n점 $A(x_1,y_1)$을 지나고 법선벡터가 $\\vec{n}=(a,b)$인 직선의 방정식은 $a(x-x_1)+b(y-y_1)=0$",
     "concept_chapter_id": 679,
     "achievement_id": 221,
     "achievement_name": "평면에서 직선의 방정식을 벡터를 이용하여 나타낼 수 있다.",
@@ -12921,7 +12921,7 @@
   },
   "3208": {
     "name": "정사영",
-    "description": "한 점 P에서 평면 $\\alpha$에 내린 수선의 발을 P'라 할 때, 점 P'를 점 P의 평면 $\\alpha$위로의 정사영이라 한다.\\n또, 도형 F에 속하는 각 점 평면 $\\alpha$위로의 정사영으로 이루어진 도형 F'을 도형 F의 평면 $\\alpha$위로의 정사영이라 한다.",
+    "description": "한 점 P에서 평면 $\\alpha$에 내린 수선의 발을 P\\'라 할 때, 점 P\\'를 점 P의 평면 $\\alpha$위로의 정사영이라 한다.\\n또, 도형 F에 속하는 각 점 평면 $\\alpha$위로의 정사영으로 이루어진 도형 F\\'을 도형 F의 평면 $\\alpha$위로의 정사영이라 한다.",
     "concept_chapter_id": 682,
     "achievement_id": 225,
     "achievement_name": "정사영의 뜻을 알고, 이를 구할 수 있다.",
@@ -12929,7 +12929,7 @@
   },
   "3209": {
     "name": "정사영의 길이",
-    "description": "선분 AB의 평면 $\\alpha$위로의 정사영을 선분 A'B', 직선 AB와 평면 $\\alpha$가 이루는 각의 크기를 $\\theta \\n(0^o\\le\\theta\\le90^o)$라 하면 다음이 성립한다.\\n$\\overline{A'B'}=\\overline{AB}\\cos\\theta$",
+    "description": "선분 AB의 평면 $\\alpha$위로의 정사영을 선분 $A^{\\prime}, B^{\\prime}$, 직선 AB와 평면 $\\alpha$가 이루는 각의 크기를 $\\theta (0^o\\le\\theta\\le90^o)$라 하면 다음이 성립한다.\\n$\\overline{A^{\\prime}B^{\\prime}}=\\overline{AB}\\cos\\theta$",
     "concept_chapter_id": 682,
     "achievement_id": 225,
     "achievement_name": "정사영의 뜻을 알고, 이를 구할 수 있다.",
@@ -13025,7 +13025,7 @@
   },
   "3202": {
     "name": "두 구의 위치 관계",
-    "description": "두 구의 위치 관계는 다음과 같다.\\n(1) 만나서 교선이 생긴다.\\n$|r-r'|<d<|r+r'|$\\n(2) 한 점에서 만난다.\\n$d=r+r'$또는$d=|r-r'|$\\n(3) 만나지 않는다.\\n$d>r+r'$또는$d<|r-r'|$",
+    "description": "두 구의 위치 관계는 다음과 같다.\\n(1) 만나서 교선이 생긴다.\\n$|r-r^{\\prime}|<d<|r+r^{\\prime}|$\\n(2) 한 점에서 만난다.\\n$d=r+r^{\\prime}$또는$d=|r-r^{\\prime}|$\\n(3) 만나지 않는다.\\n$d>r+r^{\\prime}$또는$d<|r-r^{\\prime}|$",
     "concept_chapter_id": 686,
     "achievement_id": 229,
     "achievement_name": "구의 방정식을 구할 수 있다.",
