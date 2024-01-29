@@ -17,19 +17,9 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: '/latex',
-                    name: 'latex',
-                    component: () => import('@/views/Latex.vue'),
-                },
-                {
                     path: '/error',
                     name: 'error',
                     component: () => import('@/views/ErrorView.vue'),
-                },
-                {
-                    path: '/preview',
-                    name: 'preview',
-                    component: () => import('@/views/Preview.vue'),
                 },
                 {
                     path: '/user-edit',
@@ -41,30 +31,20 @@ const router = createRouter({
                     },
                 },
                 {
-                    path: '/login',
-                    name: 'login',
-                    component: () => import('@/views/OauthLogin.vue'),
-                },
-                {
                     path: '/personal',
                     name: 'personal',
                     component: () => import('@/views/PersonalView.vue'),
 
                 },
                 {
-                    path: '/signup',
-                    name: 'signup',
-                    component: () => import('@/views/SignUpView.vue'),
+                    path: '/result',
+                    name: 'result',
+                    component: () => import('@/views/ResultView.vue'),
                 },
                 {
                     path: '/record',
                     name: 'record',
                     component: () => import('@/views/RecordView.vue'),
-                },
-                {
-                    path: '/result',
-                    name: 'result',
-                    component: () => import('@/views/ResultView.vue'),
                 },
                 {
                     path: '/diagnosis',
@@ -80,6 +60,16 @@ const router = createRouter({
                     path: '/conceptlist',
                     name: 'conceptlist',
                     component: () => import('@/views/ConceptListView.vue')
+                },
+                {
+                    path: '/login',
+                    name: 'login',
+                    component: () => import('@/views/OauthLogin.vue'),
+                },
+                {
+                    path: '/signup',
+                    name: 'signup',
+                    component: () => import('@/views/SignUpView.vue'),
                 },
                 {
                     path: '/',
