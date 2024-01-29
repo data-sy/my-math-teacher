@@ -149,17 +149,17 @@ const logout = async () => {
                 <div class="flex justify-content-center gap-7">
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/google">
-                            <img src="@/images/oauth2/google-logo.png" alt="Google" class="icon" />
+                            <img src="images/oauth2/google-logo.png" alt="Google" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/naver">
-                            <img src="@/images/oauth2/naver-logo.png" alt="Naver" class="icon" />
+                            <img src="images/oauth2/naver-logo.png" alt="Naver" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container kakao">
                         <a href="http://localhost:8080/oauth2/authorization/kakao">
-                            <img src="@/images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
+                            <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
                         </a>
                     </div>
                 </div>

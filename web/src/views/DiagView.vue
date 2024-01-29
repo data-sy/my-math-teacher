@@ -8,6 +8,8 @@ import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import TitleService from '@/service/TitleService';
 import levelDic from '@/assets/data/level.json';
+import { VMarkdownView } from 'vue3-markdown'
+import 'vue3-markdown/dist/style.css'
 
 const store = useStore();
 const router = useRouter();
@@ -132,6 +134,9 @@ const computeAspectRatio = (num) => {
 const renderItemAnswer = (text) => {
     return text;
 };
+const isLatex = (answer) => {
+    return !answer.includes('&#');
+}
 // pdf 다운로드
 const pdfAreaRef = ref(null);
 const generatePdf = () => {
@@ -202,7 +207,6 @@ const yesClick = () => {
   closeConfirmation();
   generatePdf();
   createDiagTest();
-//   goToHome();
 };
 
 </script>
@@ -260,7 +264,7 @@ const yesClick = () => {
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
                     <div id="testImage" ref="pdfAreaRef">
                         <div v-if="isImageExist" class="grid mx-2 my-4">
-                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                            <div class="test-title col-12" style="aspect-ratio: 5/1;">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img src="layout/images/logo-mmt4.png" alt="logo"/>
@@ -289,13 +293,11 @@ const yesClick = () => {
                                 <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
                                 <img :src="item.itemImagePath" alt="Item Image" class="fit-image"/>
                             </div>
-                            <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " class="testItemBox col-6" style="aspect-ratio: 1/1;">
-                                같은 사이즈의 빈 이미지 넣기
-                            </div>
-                            <div class="col-12 text-4xl"> 정답 </div>
+                            <div v-for="i in (6-(testDetail.length%6))%6 " :key="'empty_' + i " class="testItemBox col-6" style="aspect-ratio: 1/1;"></div>
+                            <div class="col-12 text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl"> 정답 </div>
                             <div v-for="(item, index) in testDetail" :key="index" class="col-12">
-                                <span>{{ index + 1 }}. </span>                        
-                                <span v-html="renderItemAnswer(item.itemAnswer)"></span>
+                                <VMarkdownView v-if="isLatex(item.itemAnswer)" :content="index+1+'.'+item.itemAnswer" class="text-xs sm:text-xs md:text-base lg:text-base xl:text-base"></VMarkdownView>
+                                <span v-else v-html="index+1+'. '+renderItemAnswer(item.itemAnswer)" class="text-xs sm:text-xs md:text-base lg:text-base xl:text-base text-800"></span>
                             </div>
                         </div>
                         <div v-else class="grid mx-2 my-4">
@@ -327,7 +329,9 @@ const yesClick = () => {
                             <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index+1)">
                                 <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
                                 <div> 
-                                    <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800 flex align-items-center justify-content-center mb-2 mx-2"> {{ item.conceptName }}</div>
+                                    <div class="flex align-items-center justify-content-center mb-2 mx-2">
+                                        <VMarkdownView :content="item.conceptName" class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800"></VMarkdownView>
+                                    </div>
                                     <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center"> 에 대한 문항입니다.</div>
                                 </div>
                             </div>
@@ -360,9 +364,14 @@ const yesClick = () => {
 </template>
 
 <style scoped>
-.testItemBox {
+.test-title{
     position: relative;
     border: 1px solid black;
+    padding: 5px;
+}
+.testItemBox {
+    position: relative;
+    /* border: 1px solid black; */
     padding: 5px;
 }
 .fit-image {

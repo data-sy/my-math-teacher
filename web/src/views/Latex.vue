@@ -77,16 +77,13 @@ watch(selectedTreeValue, async (newValue) => {
 // 단위개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
-const isValidMarkdown = ref(false);
 watch(listboxConcept, (newValue) => {
     if (newValue !== null ) {
         conceptDetail.value  = newValue;
         conceptId.value = conceptDetail.value.conceptId;
-        conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n');
+        // conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n');
         conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n')
-                                                                        .replace(/\\neq/g, '\\neq')
-                                                                        .replace(/\ne/g, '\\ne');
-
+                                                                        .replace(/\ne/g, '\\ne'); // ne, neq 모두 \\로 변경됨
     }
 });
 
@@ -174,8 +171,8 @@ const goToNextPage = async () => {
             </div>
             <div class="card">
                 <div class="surface-section" v-if="conceptDetail">
-                    <div class="font-medium text-4xl text-900 mb-3">
-                        <VMarkdownView :content="conceptDetail.conceptName"></VMarkdownView>
+                    <div>
+                        <VMarkdownView :content="conceptDetail.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
                     </div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
@@ -192,11 +189,8 @@ const goToNextPage = async () => {
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div v-if="!error" class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
                                 <VMarkdownView :content="conceptDetail.conceptDescription"></VMarkdownView>
-                            </div>
-                            <div v-else class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
-                                {{ conceptDetail.conceptDescription }}
                             </div>
                         </li>
                     </ul>

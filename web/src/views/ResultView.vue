@@ -7,6 +7,8 @@ import { useConfirm } from 'primevue/useconfirm';
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
 import { useStore } from 'vuex';
+import { VMarkdownView } from 'vue3-markdown'
+import 'vue3-markdown/dist/style.css'
 
 const store = useStore();
 const dataToSend = history.state.dataToSend;
@@ -402,7 +404,7 @@ const goToNextPage = async () => {
                         </ul>
                         <span class="block text-600 font-medium"> 2. [분석 결과보기] </span>
                         <ul style="list-style-type: disc;">
-                            <li class=mb-2> 개념(파란 글씨)을 클릭하면 [선수지식 TREE]를 볼 수 있어 </li>
+                            <li class=mb-2> <span class="text-blue-500 font-semibold">개념(파란 글씨)</span>을 클릭하면 [선수지식 TREE]를 볼 수 있어 </li>
                             <li class=mb-2> 화살표 <i class="pi pi-chevron-right" style="color: #57606f;"></i>를 클릭하면 학습이 필요한 선수지식을 보여줄거야 </li>
                         </ul>
                         <span class="block text-600 font-medium"> 3. [맞춤 학습지 출제] 버튼 누르기 </span>
@@ -439,7 +441,7 @@ const goToNextPage = async () => {
                         <Column field="conceptName" header="개념">
                             <template #body="slotProps">
                                 <span class="clickable" @click="selectConceptId(slotProps.data.conceptId)">
-                                    {{ slotProps.data.conceptName }}
+                                    <VMarkdownView :content="slotProps.data.conceptName" class="text-base text-blue-600"></VMarkdownView>
                                 </span>
                             </template>
                         </Column>
@@ -464,7 +466,7 @@ const goToNextPage = async () => {
                                 <DataTable :value="slotProps.data.prerequisiteList" responsiveLayout="scroll">
                                     <Column field="conceptName" header="개념">
                                         <template #body="slotProps">
-                                            {{ slotProps.data.conceptName }}
+                                            <VMarkdownView :content="slotProps.data.conceptName.replace(/imes/g, '\\times')" class="text-base"></VMarkdownView>
                                         </template>
                                     </Column>
                                     <Column field="depth" header="선수지식 깊이" :sortable="true">

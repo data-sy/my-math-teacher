@@ -130,3 +130,5 @@ select test_item_number from tests_items where test_id = 491;
 select * from items where item_id in (select item_id from tests_items where test_id = 491);
 
 select * from items where item_id in (select item_id from tests_items where test_id = 492);
+
+select * from answers;

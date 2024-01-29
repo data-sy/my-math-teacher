@@ -5,7 +5,8 @@ import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import levelDic from '@/assets/data/level.json';
-// import MathJax from 'mathjax';
+import { VMarkdownView } from 'vue3-markdown'
+import 'vue3-markdown/dist/style.css'
 
 const router = useRouter()
 const api = useApi();
@@ -19,34 +20,38 @@ const treeValue = ref(null);
 const listboxLevel = ref(null);
 const listboxLevels = ref([]);
 watch(selectButtonLevel, (newValue, oldValue) => {
-    if (newValue.name === '초등') {
-        listboxLevels.value = levelDic['초등'];
-    } else if (newValue.name === '중등') {
-        listboxLevels.value = levelDic['중등'];
-    } else if (newValue.name === '고등') {
-        listboxLevels.value = levelDic['고등'];
-    }
-    if (oldValue!==null && newValue.name !== oldValue.name){
-        treeValue.value = null;
+    if (newValue !== null ) {
+        if (newValue.name === '초등') {
+            listboxLevels.value = levelDic['초등'];
+        } else if (newValue.name === '중등') {
+            listboxLevels.value = levelDic['중등'];
+        } else if (newValue.name === '고등') {
+            listboxLevels.value = levelDic['고등'];
+        }
+        if (oldValue!==null && newValue.name !== oldValue.name){
+            treeValue.value = null;
+        }
     }
 });
 // chapeterLevel
 watch(listboxLevel, async (newValue) => {
-    const grade = newValue.grade;
-    const semester = newValue.semester;
-    try {
-        const endpoint = `/chapters?grade=${grade}&semester=${semester}`;
-        const response = await api.get(endpoint);
-        if (response[0]['label'] === "") {
-            treeValue.value = response[0]['children']
+    if (newValue !== null ) {
+        const grade = newValue.grade;
+        const semester = newValue.semester;
+        try {
+            const endpoint = `/chapters?grade=${grade}&semester=${semester}`;
+            const response = await api.get(endpoint);
+            if (response[0]['label'] === "") {
+                treeValue.value = response[0]['children']
+            }
+            else {
+                treeValue.value = response;         
+            }
+            error.value = null;
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+            error.value = err;
         }
-        else {
-            treeValue.value = response;         
-        }
-        error.value = null;
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
-        error.value = err;
     }
 });
 // 단위개념 목록
@@ -73,11 +78,14 @@ watch(selectedTreeValue, async (newValue) => {
 const conceptId = ref(null);
 const conceptDetail = ref(null);
 watch(listboxConcept, (newValue) => {
-    conceptDetail.value  = newValue;
-    conceptId.value = conceptDetail.value.conceptId;
-    // console.log(conceptId.value);
+    if (newValue !== null ) {
+        conceptDetail.value  = newValue;
+        conceptId.value = conceptDetail.value.conceptId;
+        // console.log(conceptId.value);
+        conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n')
+                                                                        .replace(/\ne/g, '\\ne');
+    }
 });
-// 추가) LaTex 적용
 
 // 단위개념을 누르지 않고 [선수지식 확인]버튼을 누르면, 단위개념 목록에서 단위개념을 먼저 골라달라고 안내
 const popup = ref(null);
@@ -158,7 +166,7 @@ const goToNextPage = async () => {
             <div class="card">
                 <h5> 대단원-중단원-소단원 </h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
-                    <Tree :value="treeValue" selectionMode="single" v-model:selectionKeys="selectedTreeValue"></Tree>
+                    <Tree :value="treeValue" :filter="true" filterMode="lenient" selectionMode="single" v-model:selectionKeys="selectedTreeValue"></Tree>
                 <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
             </div>
@@ -170,7 +178,9 @@ const goToNextPage = async () => {
             </div>
             <div class="card">
                 <div class="surface-section" v-if="conceptDetail">
-                    <div class="font-medium text-4xl text-900 mb-3">{{ conceptDetail.conceptName }}</div>
+                    <div>
+                        <VMarkdownView :content="conceptDetail.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                    </div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
@@ -186,7 +196,9 @@ const goToNextPage = async () => {
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                                <VMarkdownView :content="conceptDetail.conceptDescription"></VMarkdownView>
+                            </div>
                         </li>
                     </ul>
                 </div>

@@ -3,6 +3,8 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
+import { VMarkdownView } from 'vue3-markdown'
+import 'vue3-markdown/dist/style.css'
 
 cytoscape.use(klay);
 const cyElement = ref(null);
@@ -153,6 +155,8 @@ onMounted(() => {
   if (receivedData.value) {
     // 해당 concept
     conceptDetail.value = receivedData.value.nodes.find(node => node.conceptId === receivedData.value.conceptId);
+    conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n')
+                                                                        .replace(/\ne/g, '\\ne');
     // nodes -> knowledgeSpace의 data
     receivedData.value.nodes.forEach(node => {
       uniqueConceptIds.add(node.conceptId);
@@ -263,6 +267,8 @@ watch(clickedNodeId, (newValue) => {
   const selectedNodeId = parseInt(newValue);
   if (newValue && receivedData.value && receivedData.value.nodes) {
     selectedNode.value = receivedData.value.nodes.find(node => node.conceptId === selectedNodeId);
+    selectedNode.value.conceptDescription = selectedNode.value.conceptDescription.replace(/\\n/g, '\n')
+                                                                        .replace(/\ne/g, '\\ne');
   }
 });
 // '이전' 버튼 (conceptlist로)
@@ -306,9 +312,11 @@ const goToHome = () => {
         </div>
         <div class="col-12 lg:col-6">
             <div class="card">
-                <h5> 선수단위개념 상세보기 </h5>
+                <h5> 선수지식 상세보기 </h5>
                 <div class="surface-section" v-if="selectedNode"> 
-                    <div class="font-medium text-4xl text-900 mb-3">{{ selectedNode.conceptName }}</div>
+                    <div>
+                      <VMarkdownView :content="selectedNode.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                    </div>
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
@@ -325,7 +333,9 @@ const goToHome = () => {
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptDescription }}</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                              <VMarkdownView :content="selectedNode.conceptDescription"></VMarkdownView>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -355,9 +365,11 @@ const goToHome = () => {
         </div>
         <div class="col-12 lg:col-6">
             <div class="card">
-                <h5> 단위개념 상세보기 </h5>
+                <h5> 개념 상세보기 </h5>
                 <div class="surface-section" v-if="conceptDetail"> 
-                    <div class="font-medium text-4xl text-900 mb-3">{{ conceptDetail.conceptName }}</div>
+                    <div>
+                      <VMarkdownView :content="conceptDetail.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                    </div>
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
@@ -374,7 +386,9 @@ const goToHome = () => {
                         </li>
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">{{ conceptDetail.conceptDescription }}</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                              <VMarkdownView :content="conceptDetail.conceptDescription"></VMarkdownView>
+                            </div>
                         </li>
                     </ul>
                 </div>

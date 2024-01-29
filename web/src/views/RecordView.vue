@@ -7,7 +7,8 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import TitleService from '@/service/TitleService';
 import axios from 'axios';
-
+import { VMarkdownView } from 'vue3-markdown'
+import 'vue3-markdown/dist/style.css'
 
 const store = useStore();
 const router = useRouter();
@@ -76,32 +77,34 @@ const schoolLevel = ref('')
 const grade = ref(null);
 const semester = ref(null);
 watch(listboxTest, async (newValue) => {
-    testId.value = newValue.testId;
-    testName.value = newValue.testName;
-    testDate.value = newValue.testDate;
-    schoolLevel.value = newValue.testSchoolLevel;
-    grade.value = newValue.testGradeLevel;
-    semester.value = newValue.testSemester;
-    if (testId.value >= 491 && testId.value <= 495) {
-        isImageExist.value = true;
-    } else {
-        isImageExist.value = false;
-    }
-    userTestId.value = newValue.userTestId;
-    try {
-        const endpoint = `/tests/detail/${newValue.testId}`;
-        const response = await api.get(endpoint);
-        testDetail.value = response.map((item) => {
-            return { ...item, answerCode: true };
-        });
-        // const modules = await import.meta.glob(`@/assets/images/items/diag/${testId.value}/*.jpg`);
-        // const images = [];
-        // for (const img in modules) {
-        //     images.push(modules[img].default);
-        // }
-        // console.log(images);
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+    if (newValue !== null ) {
+        testId.value = newValue.testId;
+        testName.value = newValue.testName;
+        testDate.value = newValue.testDate;
+        schoolLevel.value = newValue.testSchoolLevel;
+        grade.value = newValue.testGradeLevel;
+        semester.value = newValue.testSemester;
+        if (testId.value >= 491 && testId.value <= 495) {
+            isImageExist.value = true;
+        } else {
+            isImageExist.value = false;
+        }
+        userTestId.value = newValue.userTestId;
+        try {
+            const endpoint = `/tests/detail/${newValue.testId}`;
+            const response = await api.get(endpoint);
+            testDetail.value = response.map((item) => {
+                return { ...item, answerCode: true };
+            });
+            // const modules = await import.meta.glob(`@/assets/images/items/diag/${testId.value}/*.jpg`);
+            // const images = [];
+            // for (const img in modules) {
+            //     images.push(modules[img].default);
+            // }
+            // console.log(images);
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
     }
 });
 // 문항이미지 비율
@@ -124,6 +127,9 @@ const computeAspectRatio = (num) => {
 const renderItemAnswer = (text) => {
     return text;
 };
+const isLatex = (answer) => {
+    return !answer.includes('&#');
+}
 // 정오답 DB에 저장
 const createRecord = async () => {
     if (isLoggedIn.value && userTestId.value !== null) {
@@ -291,7 +297,10 @@ const goToResultPage = async () => {
                             <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>
                             <Column field="itemAnswer" header="정답" style="min-width: 5em">
                                 <template #body="rowData">
-                                    <span v-if="isImageExist" v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
+                                    <span v-if="isImageExist">
+                                        <VMarkdownView v-if="isLatex(rowData.data.itemAnswer)" :content="rowData.data.itemAnswer"></VMarkdownView>
+                                        <span v-else v-html="renderItemAnswer(rowData.data.itemAnswer)"></span>
+                                    </span>
                                 </template>
                             </Column>
                             <Column field="answerCode" header="정오답입력" style="min-width: 5em">
@@ -371,7 +380,9 @@ const goToResultPage = async () => {
                             <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index+1)">
                                 <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
                                 <div> 
-                                    <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800 flex align-items-center justify-content-center mb-2 mx-2"> {{ item.conceptName }}</div>
+                                    <div class="flex align-items-center justify-content-center mb-2 mx-2">
+                                        <VMarkdownView :content="item.conceptName" class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800"></VMarkdownView>
+                                    </div>
                                     <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center"> 에 대한 문항입니다.</div>
                                 </div>
                             </div>
@@ -393,6 +404,7 @@ const goToResultPage = async () => {
             <Button v-else-if="listboxTest.record" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+                <div class="text-500 font-semibold px-3 mb-5"> 기록 성공 시, HOME으로 이동합니다.</div>
                 <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
                     <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }}</div>
                 </div>
@@ -408,7 +420,7 @@ const goToResultPage = async () => {
 <style scoped>
 .testItemBox {
     position: relative;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 5px;
 }
 .fit-image {
