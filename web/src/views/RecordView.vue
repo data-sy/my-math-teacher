@@ -76,6 +76,7 @@ const userTestId = ref(null);
 const schoolLevel = ref('')
 const grade = ref(null);
 const semester = ref(null);
+const isRecord = ref(false);
 watch(listboxTest, async (newValue) => {
     if (newValue !== null ) {
         testId.value = newValue.testId;
@@ -84,6 +85,7 @@ watch(listboxTest, async (newValue) => {
         schoolLevel.value = newValue.testSchoolLevel;
         grade.value = newValue.testGradeLevel;
         semester.value = newValue.testSemester;
+        isRecord.value = newValue.record;
         if (testId.value >= 491 && testId.value <= 495) {
             isImageExist.value = true;
         } else {
@@ -401,7 +403,7 @@ const goToResultPage = async () => {
             <Toast />
             <Button v-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인을 해주세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
             <Button v-else-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
-            <Button v-else-if="listboxTest.record" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
+            <Button v-else-if="isRecord" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-500 font-semibold px-3 mb-5"> 기록 성공 시, HOME으로 이동합니다.</div>

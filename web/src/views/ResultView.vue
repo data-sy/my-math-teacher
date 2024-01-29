@@ -68,18 +68,20 @@ onMounted(async() => {
 // 리팩토링) 기록 페이지에서 넘어왔다면 학습지 목록에 가상의 클릭 이벤트 추가하기
 // 분석 결과
 watch(listboxTest, async (newValue) => {
-    userTestId.value = newValue.userTestId;
-    // isLoggedIn도 사실 넣어야 하지만 listboxTest가 isLoggedIn가 있어야만 생성되는 아이니까 패스
-    if (userTestId.value !== null) {
-        try {
-            const endpoint = `/result/${userTestId.value}`;
-            const response = await api.get(endpoint);
-            resultList.value = response
-        } catch (err) {
-            console.error('데이터 생성 중 에러 발생:', err);
+    if (newValue !== null ) {
+        userTestId.value = newValue.userTestId;
+        // isLoggedIn도 사실 넣어야 하지만 listboxTest가 isLoggedIn가 있어야만 생성되는 아이니까 패스
+        if (userTestId.value !== null) {
+            try {
+                const endpoint = `/result/${userTestId.value}`;
+                const response = await api.get(endpoint);
+                resultList.value = response
+            } catch (err) {
+                console.error('데이터 생성 중 에러 발생:', err);
+            }
+        } else {
+            console.log("사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.");
         }
-    } else {
-        console.log("사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.");
     }
 });
 const expandedRows = ref([]);

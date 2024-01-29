@@ -53,21 +53,23 @@ const listboxLevel = ref(null);
 const listboxLevels = ref([]);
 const listboxTestsAll = ref(null);
 watch(selectButtonLevel, async (newValue) => {
-    schoolLevel.value = newValue.name;
-    if (newValue.name === '초등') {
-        listboxLevels.value = levelDic['초등'];
-    } else if (newValue.name === '중등') {
-        listboxLevels.value = levelDic['중등'];
-    } else if (newValue.name === '고등') {
-        listboxLevels.value = levelDic['고등'];
-    }
-    try {
-        const endpoint = `/tests/school-level/${newValue.name}`;
-        const response = await api.get(endpoint);
-        listboxTestsAll.value = response
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
-    }    
+    if (newValue !== null ) {
+        schoolLevel.value = newValue.name;
+        if (newValue.name === '초등') {
+            listboxLevels.value = levelDic['초등'];
+        } else if (newValue.name === '중등') {
+            listboxLevels.value = levelDic['중등'];
+        } else if (newValue.name === '고등') {
+            listboxLevels.value = levelDic['고등'];
+        }
+        try {
+            const endpoint = `/tests/school-level/${newValue.name}`;
+            const response = await api.get(endpoint);
+            listboxTestsAll.value = response
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    } 
 });
 const listboxTest = ref(null);
 const listboxTests = ref([]);
@@ -75,13 +77,15 @@ const grade = ref(null);
 const semester = ref(null);
 // 학습지 목록
 watch(listboxLevel, (newValue) => {
-    grade.value = newValue.grade;
-    semester.value = newValue.semester;
-    if (listboxTestsAll.value) {
-        const filteredTests = listboxTestsAll.value.filter(test => {
-            return test.testGradeLevel === grade.value && test.testSemester === semester.value;
-        });
-        listboxTests.value = filteredTests
+    if (newValue !== null ) {
+        grade.value = newValue.grade;
+        semester.value = newValue.semester;
+        if (listboxTestsAll.value) {
+            const filteredTests = listboxTestsAll.value.filter(test => {
+                return test.testGradeLevel === grade.value && test.testSemester === semester.value;
+            });
+            listboxTests.value = filteredTests
+        }
     }
 });
 // 학습지 미리보기
@@ -90,19 +94,21 @@ const testId = ref(null);
 const isImageExist = ref(false);
 const testName = ref('');
 watch(listboxTest, async (newValue) => {
-    testId.value = newValue.testId;
-    testName.value = newValue.testName;
-    if (testId.value >= 491 && testId.value <= 495) {
-        isImageExist.value = true;
-    } else {
-        isImageExist.value = false;
-    }
-    try {
-        const endpoint = `/tests/detail/${testId.value}`;
-        const response = await api.get(endpoint);
-        testDetail.value = response
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+    if (newValue !== null ) {
+        testId.value = newValue.testId;
+        testName.value = newValue.testName;
+        if (testId.value >= 491 && testId.value <= 495) {
+            isImageExist.value = true;
+        } else {
+            isImageExist.value = false;
+        }
+        try {
+            const endpoint = `/tests/detail/${testId.value}`;
+            const response = await api.get(endpoint);
+            testDetail.value = response
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
     }
 });
 // 날짜

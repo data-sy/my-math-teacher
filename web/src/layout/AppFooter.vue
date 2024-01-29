@@ -14,7 +14,7 @@ const logoUrl = computed(() => {
         <div class="col-12 sm:col-6 xl:col-6 ">
             <h4>Contact Us</h4>
             <p>Email: contact.mmt.2024@gmail.com</p>
-            <p>Phone: 010-0000-0000</p>
+            <!-- <p>Phone: 010-0000-0000</p> -->
             <p></p>
         </div>
         <nav class="col-12 sm:col-6 xl:col-6 vertical-links">
@@ -25,9 +25,9 @@ const logoUrl = computed(() => {
             <a href="https://www.instagram.com/example" target="_blank">
                 Notion <i class="pi pi-link"></i>
             </a>
-            <a href="https://www.facebook.com/example" target="_blank">
+            <!-- <a href="https://www.facebook.com/example" target="_blank">
                 Blog <i class="pi pi-link"></i>
-            </a>
+            </a> -->
         </nav>
         <div class="col-12">
             <p>&copy; Copyright 2024 MMT. All rights reserved.</p>
