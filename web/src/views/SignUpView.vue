@@ -9,7 +9,7 @@ const router = useRouter();
 const api = useApi();
 
 const logoUrl = computed(() => {
-    return 'layout/images/logo-mmt4.png';
+    return 'images/logo/logo-mmt4.png';
 });
 
 // input 데이터

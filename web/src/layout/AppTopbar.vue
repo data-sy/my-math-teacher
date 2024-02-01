@@ -11,7 +11,7 @@ const loginDialog = ref(false);
 const submitted = ref(false);
 
 const logoUrl = computed(() => {
-    return 'layout/images/logo-mmt4.png';
+    return 'images/logo/logo-mmt4.png';
 });
 
 const email = ref('');

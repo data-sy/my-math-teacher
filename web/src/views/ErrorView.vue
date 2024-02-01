@@ -18,7 +18,7 @@
                             <i class="pi pi-fw pi-arrow-left text-blue-500 font-bold mr-2" style="vertical-align: center"></i>
                             <router-link to="/" class="text-blue-500 text-3xl">
                                 Go to home
-                                <!-- <img src="layout/images/logo-mmt4.png" alt="logo" class="w-3rem" /> -->
+                                <!-- <img src="images/logo/logo-mmt4.png" alt="logo" class="w-3rem" /> -->
                             </router-link>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast';
@@ -15,6 +15,10 @@ const store = useStore();
 const router = useRouter();
 const api = useApi();
 const { htmlToPdf } = useHtmlToPdf();
+
+const logoUrl = computed(() => {
+    return 'images/logo/logo-mmt4.png';
+});
 
 // 유저 정보
 const isLoggedIn = ref(false);
@@ -273,7 +277,7 @@ const yesClick = () => {
                             <div class="test-title col-12" style="aspect-ratio: 5/1;">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">
-                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <img :src="logoUrl" alt="logo"/>
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
                                         <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
                                     </div>
@@ -310,7 +314,7 @@ const yesClick = () => {
                             <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">
-                                        <img src="layout/images/logo-mmt4.png" alt="logo"/>
+                                        <img :src="logoUrl" alt="logo"/>
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
                                         <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
                                     </div>
