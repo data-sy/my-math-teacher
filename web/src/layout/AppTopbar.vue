@@ -13,6 +13,15 @@ const submitted = ref(false);
 const logoUrl = computed(() => {
     return 'images/logo/logo-mmt4.png';
 });
+const oauth2googlelogoUrl = computed(() => {
+    return 'images/oauth2/google-logo.png';
+});
+const oauth2naverlogoUrl = computed(() => {
+    return 'images/oauth2/naver-logo.png';
+});
+const oauth2kakaologoUrl = computed(() => {
+    return 'images/oauth2/kakao-logo.png';
+});
 
 const email = ref('');
 const password = ref('');
@@ -149,17 +158,17 @@ const logout = async () => {
                 <div class="flex justify-content-center gap-7">
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/google">
-                            <img src="images/oauth2/google-logo.png" alt="Google" class="icon" />
+                            <img :src="oauth2googlelogoUrl" alt="Google" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/naver">
-                            <img src="images/oauth2/naver-logo.png" alt="Naver" class="icon" />
+                            <img :src="oauth2naverlogoUrl" alt="Naver" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container kakao">
                         <a href="http://localhost:8080/oauth2/authorization/kakao">
-                            <img src="images/oauth2/kakao-logo.png" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
+                            <img :src="oauth2kakaologoUrl" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
                         </a>
                     </div>
                 </div>
