@@ -33,7 +33,7 @@ onMounted(async() => {
     )
     if (isLoggedIn.value) {
         try {
-            const endpoint = 'users';
+            const endpoint = '/api/v1/users';
             const response = await api.get(endpoint);
             userDetail.value = response;
             userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
@@ -57,7 +57,7 @@ onMounted(async() => {
     )
     if (isLoggedIn.value) {
         try {
-            const endpoint = 'tests/user';
+            const endpoint = '/api/v1/tests/user';
             const response = await api.get(endpoint);
             listboxTests.value = response;
         } catch (err) {
@@ -96,7 +96,7 @@ watch(listboxTest, async (newValue) => {
         }
         userTestId.value = newValue.userTestId;
         try {
-            const endpoint = `/tests/detail/${newValue.testId}`;
+            const endpoint = `/api/v1/tests/detail/${newValue.testId}`;
             const response = await api.get(endpoint);
             testDetail.value = response.map((item) => {
                 return { ...item, answerCode: true };
@@ -144,7 +144,7 @@ const createRecord = async () => {
             answerCodeCreateRequestList: answerCodeCreateRequestList
         });
         try {
-            await api.post('/record', requestData.value);
+            await api.post('/api/v1/record', requestData.value);
         } catch (err) {
             console.error(`POST ${endpoint} failed:`, err);
         }
@@ -257,7 +257,7 @@ const goToResultPage = async () => {
         <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div>
-        <div class="col-12">
+        <!-- <div class="col-12">
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
@@ -276,7 +276,7 @@ const goToResultPage = async () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="col-12 sm:col-6 xl:col-3">
             <div class="card">
                 <h5>다운로드한 학습지 목록</h5>

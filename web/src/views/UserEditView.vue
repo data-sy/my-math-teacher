@@ -69,7 +69,7 @@ const signup = async () => {
     // // 보내기 전에 데이터 형태 어떻게 되는지 확인
     // console.log(requestData.value);
   try {
-    const response = await api.post('/users', requestData.value);
+    const response = await api.post('/api/v1/users', requestData.value);
     data.value = response;
     error.value = null;
   } catch (err) {

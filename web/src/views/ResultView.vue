@@ -36,7 +36,7 @@ onMounted(async() => {
     )
     if (isLoggedIn.value) {
         try {
-            const endpoint = "tests/user/is-record" 
+            const endpoint = "/api/v1/tests/user/is-record" 
             const response = await api.get(endpoint);
             listboxTests.value = response;
         } catch (err) {
@@ -50,7 +50,7 @@ onMounted(async() => {
             userTestId.value = receivedData.value.userTestId;
             if (userTestId.value !== null) {
                 try {
-                    const endpoint = `/result/${userTestId.value}`;
+                    const endpoint = `/api/v1/result/${userTestId.value}`;
                     const response = await api.get(endpoint);
                     resultList.value = response
                 } catch (err) {
@@ -73,7 +73,7 @@ watch(listboxTest, async (newValue) => {
         // isLoggedIn도 사실 넣어야 하지만 listboxTest가 isLoggedIn가 있어야만 생성되는 아이니까 패스
         if (userTestId.value !== null) {
             try {
-                const endpoint = `/result/${userTestId.value}`;
+                const endpoint = `/api/v1/result/${userTestId.value}`;
                 const response = await api.get(endpoint);
                 resultList.value = response
             } catch (err) {
@@ -231,9 +231,9 @@ watch(selectedConceptId, async (newValue) => {
     const uniqueConceptIds = new Set();
     const knowledgeSpace = [];
     try {
-        const nodesEndpoint = `/concepts/nodes/${newValue}`;
+        const nodesEndpoint = `/api/v1/concepts/nodes/${newValue}`;
         const nodesResponse = await api.get(nodesEndpoint);
-        const edgesEndpoint = `/concepts/edges/${newValue}`;
+        const edgesEndpoint = `/api/v1/concepts/edges/${newValue}`;
         const edgesResponse = await api.get(edgesEndpoint);
         // nodesResponse -> knowledgeSpace의 data
         nodesResponse.forEach(node => {

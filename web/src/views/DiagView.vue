@@ -36,7 +36,7 @@ onMounted(async() => {
     )
     if (isLoggedIn.value) {
         try {
-            const endpoint = 'users';
+            const endpoint = '/api/v1/users';
             const response = await api.get(endpoint);
             userDetail.value = response;
             userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
@@ -67,7 +67,7 @@ watch(selectButtonLevel, async (newValue) => {
             listboxLevels.value = levelDic['고등'];
         }
         try {
-            const endpoint = `/tests/school-level/${newValue.name}`;
+            const endpoint = `/api/v1/tests/school-level/${newValue.name}`;
             const response = await api.get(endpoint);
             listboxTestsAll.value = response
         } catch (err) {
@@ -107,7 +107,7 @@ watch(listboxTest, async (newValue) => {
             isImageExist.value = false;
         }
         try {
-            const endpoint = `/tests/detail/${testId.value}`;
+            const endpoint = `/api/v1/tests/detail/${testId.value}`;
             const response = await api.get(endpoint);
             testDetail.value = response
         } catch (err) {
@@ -157,7 +157,7 @@ const generatePdf = () => {
 const createDiagTest = async () => {
     if (isLoggedIn.value) {
         try {
-            const endpoint = `/tests/${testId.value}`;
+            const endpoint = `/api/v1/tests/${testId.value}`;
             await api.post(endpoint);
         } catch (err) {
             console.error(`POST ${endpoint} failed:`, err);
@@ -230,7 +230,7 @@ const yesClick = () => {
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
-                        <div class="text-900 font-medium text-xl mb-3"> 여기는 진단학습지를 출력하는 곳이야. </div>
+                        <!-- <div class="text-900 font-medium text-xl mb-3"> 여기는 진단학습지를 출력하는 곳이야. </div>
                         <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
                         <span class="block text-600 font-medium mb-3"> 1. [School Level]에서 원하는 학교군 선택하기 </span>
                         <span class="block text-600 font-medium mb-3"> 2. [Gradel Level]에서 원하는 학년-학기 선택하기 </span>
@@ -243,7 +243,7 @@ const yesClick = () => {
                         <ul style="list-style-type: disc;">
                             <li> pdf 파일이 저장되고 홈 화면으로 이동할 거야.</li>
                         </ul>
-                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
+                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" /> -->
                         <span class="block text-red-500 font-medium"> 준비된 학습지 : 고등 -> 수학(상) -> 복소수와 이차방정식(1)~(5) </span>
                     </div>
                 </div>

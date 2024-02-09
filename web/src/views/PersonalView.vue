@@ -42,7 +42,7 @@ onMounted(async() => {
     )
     if (isLoggedIn.value) {
         try {
-            const endpoint = 'tests/user/is-record';
+            const endpoint = '/api/v1/tests/user/is-record';
             const response = await api.get(endpoint);
             listboxTests.value = response;
             if (dataToSend) {
@@ -81,7 +81,7 @@ const setTest = () => {
 // watch(listboxTest, async (newValue) => {
 //     testId.value = newValue.testId;
 //     try {
-//         const endpoint = `/tests/detail/${testId.value}`;
+//         const endpoint = `/api/v1/tests/detail/${testId.value}`;
 //         const response = await api.get(endpoint);
 //         testDetail.value = response
 //     } catch (err) {
@@ -101,7 +101,7 @@ const generatePdf = () => {
 // 유저-학습지 DB에 저장 => createPersonalTest로 수정
 // const createDiagTest = async () => {
 //   try {
-//     const endpoint = `/tests/${testId.value}`;
+//     const endpoint = `/api/v1/tests/${testId.value}`;
 //     await api.post(endpoint);
 //   } catch (err) {
 //     console.error(`POST ${endpoint} failed:`, err);

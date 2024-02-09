@@ -83,7 +83,7 @@ const checkDuplicateResult = ref('');
 const checkDuplicate = async () => {
     if (isEmailValid.value) {
         try {
-            const endpoint = `/checkDuplicate?userEmail=${email.value}`;
+            const endpoint = `/api/v1/auth/checkDuplicate?userEmail=${email.value}`;
             const response = await api.get(endpoint);
             isNotDuplicate.value = !response;
             if (isNotDuplicate.value) {
@@ -119,7 +119,7 @@ const signup = async () => {
     // // 보내기 전에 데이터 형태 어떻게 되는지 확인
     // console.log(requestData.value);
     try {
-        const response = await api.post('/signup', requestData.value);
+        const response = await api.post('/api/v1/auth/signup', requestData.value);
         router.push({ name: 'home' });
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
@@ -134,7 +134,7 @@ const login = async () => {
     requestData2.value.userEmail = requestData.value.userEmail;
     requestData2.value.userPassword = requestData.value.userPassword;
     try {
-        const response = await api.post('/authentication', requestData2.value);
+        const response = await api.post('/api/v1/auth/authentication', requestData2.value);
         store.commit('setAccessToken', response.accessToken);
         store.commit('setRefreshToken', response.refreshToken);
     } catch (err) {

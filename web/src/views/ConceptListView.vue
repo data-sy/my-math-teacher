@@ -39,7 +39,7 @@ watch(listboxLevel, async (newValue) => {
         const grade = newValue.grade;
         const semester = newValue.semester;
         try {
-            const endpoint = `/chapters?grade=${grade}&semester=${semester}`;
+            const endpoint = `/api/v1/chapters?grade=${grade}&semester=${semester}`;
             const response = await api.get(endpoint);
             if (response[0]['label'] === "") {
                 treeValue.value = response[0]['children']
@@ -54,6 +54,20 @@ watch(listboxLevel, async (newValue) => {
         }
     }
 });
+const handleNodeSelect = (node) => {
+  // Here you can load and display the children of the selected node
+  console.log('Node selected:', node);
+  // Example: Load children of the selected node
+  if (!node.children) {
+    // Simulated asynchronous loading
+    setTimeout(() => {
+      node.children = [
+        { label: 'Loaded Child 1' },
+        { label: 'Loaded Child 2' }
+      ];
+    }, 500);
+  }
+};
 // 단위개념 목록
 const selectedTreeValue = ref(null);
 const listboxConcept = ref(null);
@@ -64,7 +78,7 @@ watch(selectedTreeValue, async (newValue) => {
     // console.log(chapterId);
     if (!isNaN(chapterId)){
         try {
-            const endpoint = `/concepts?chapterId=${chapterId}`;
+            const endpoint = `/api/v1/concepts?chapterId=${chapterId}`;
             const response = await api.get(endpoint);
             listboxConcepts.value = response;
             error.value = null;
@@ -114,9 +128,9 @@ const goToHome = () => {
 // '다음' 버튼 : api & 화면이동
 const goToNextPage = async () => {
     try {
-        const nodesEndpoint = `/concepts/nodes/${conceptDetail.value.conceptId}`;
+        const nodesEndpoint = `/api/v1/concepts/nodes/${conceptDetail.value.conceptId}`;
         const nodesResponse = await api.get(nodesEndpoint);
-        const edgesEndpoint = `/concepts/edges/${conceptDetail.value.conceptId}`;
+        const edgesEndpoint = `/api/v1/concepts/edges/${conceptDetail.value.conceptId}`;
         const edgesResponse = await api.get(edgesEndpoint);
         const data = {
             conceptId: conceptId.value,
@@ -137,7 +151,7 @@ const goToNextPage = async () => {
 
 <template>
     <div class="grid p-fluid">
-        <div class="col-12">
+        <!-- <div class="col-12">
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
@@ -151,7 +165,7 @@ const goToNextPage = async () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5> School Level </h5>
@@ -166,7 +180,7 @@ const goToNextPage = async () => {
             <div class="card">
                 <h5> 대단원-중단원-소단원 </h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
-                    <Tree :value="treeValue" :filter="true" filterMode="lenient" selectionMode="single" v-model:selectionKeys="selectedTreeValue"></Tree>
+                    <Tree :value="treeValue" :filter="true" filterMode="lenient" selectionMode="single" v-model:selectionKeys="selectedTreeValue" @node-select="handleNodeSelect"></Tree>
                 <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
             </div>

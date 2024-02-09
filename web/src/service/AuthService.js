@@ -23,7 +23,7 @@ const isExpired = (token) => {
 // refreshToken을 사용해서 token 재생성
 const reissue = async (requestData, store) => {
     try {
-      const response = await api.post('/reissue', requestData.value);
+      const response = await api.post('/api/v1/auth/reissue', requestData.value);
       // 토큰을 store에 저장
       store.commit('setAccessToken', response.accessToken);
       store.commit('setRefreshToken', response.refreshToken);

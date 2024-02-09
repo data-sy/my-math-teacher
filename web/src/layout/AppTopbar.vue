@@ -51,7 +51,7 @@ onMounted(() => {
 const loginErrorMessage = ref('');
 const login = async () => {
     try {
-        const response = await api.post('/authentication', requestData.value);
+        const response = await api.post('/api/v1/auth/authentication', requestData.value);
         if (response.accessToken){
             store.commit('setAccessToken', response.accessToken);
             store.commit('setRefreshToken', response.refreshToken);
@@ -88,7 +88,7 @@ const goToSignup = () => {
 
 const logout = async () => {
     try {
-        await api.del('/authentication');
+        await api.del('api/v1/auth/authentication');
         store.commit('setAccessToken', null);
         store.commit('setRefreshToken', null);
         localStorage.removeItem('accessToken');
