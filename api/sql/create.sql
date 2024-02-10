@@ -10,9 +10,9 @@
 CREATE TABLE chapters (
 	chapter_id INT,
 	chapter_name VARCHAR(50),
-	school_level CHAR(2),
-	grade_level CHAR(2),
-	semester VARCHAR(3),
+	school_level VARCHAR(5),
+	grade_level VARCHAR(5),
+	semester VARCHAR(5),
 	chapter_main VARCHAR(50),
 	chapter_sub VARCHAR(50),
 	PRIMARY KEY (chapter_id)

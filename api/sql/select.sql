@@ -80,8 +80,8 @@ select * from items where item_id = 1000;
 select * from tests_items where test_id=491;
 
 select * from user_authority;
-delete from user_authority where user_id>3;
-delete from users where user_id>3;
+delete from user_authority where user_id>2;
+delete from users where user_id>2;
 select * from users;
 
 SELECT ut.user_test_id, t.test_id, t.test_name FROM users_tests ut JOIN tests t ON ut.test_id = t.test_id
@@ -132,3 +132,4 @@ select * from items where item_id in (select item_id from tests_items where test
 select * from items where item_id in (select item_id from tests_items where test_id = 492);
 
 select * from answers;
+
