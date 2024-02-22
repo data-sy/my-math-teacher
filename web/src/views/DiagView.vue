@@ -214,9 +214,10 @@ const closeConfirmation = () => {
 };
 // yes 버튼 클릭 시 
 const yesClick = () => {
-  closeConfirmation();
-  generatePdf();
-  createDiagTest();
+    closeConfirmation();
+    generatePdf();
+    createDiagTest();
+    goToHome();
 };
 
 </script>
