@@ -4,13 +4,12 @@ import { useRouter } from 'vue-router'
 import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import levelDic from '@/assets/data/level.json';
 import { VMarkdownView } from 'vue3-markdown'
 import 'vue3-markdown/dist/style.css'
+import levelDic from '@/assets/data/level.json';
 
 const router = useRouter()
 const api = useApi();
-const error = ref(null);
 
 // schoolLevel
 const selectButtonLevel = ref(null);
@@ -47,61 +46,49 @@ watch(listboxLevel, async (newValue) => {
             else {
                 treeValue.value = response;         
             }
-            error.value = null;
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
-            error.value = err;
         }
     }
 });
-const handleNodeSelect = (node) => {
-  // Here you can load and display the children of the selected node
-  console.log('Node selected:', node);
-  // Example: Load children of the selected node
-  if (!node.children) {
-    // Simulated asynchronous loading
-    setTimeout(() => {
-      node.children = [
-        { label: 'Loaded Child 1' },
-        { label: 'Loaded Child 2' }
-      ];
-    }, 500);
-  }
-};
-// 단위개념 목록
+// 개념 목록
 const selectedTreeValue = ref(null);
+const expandedKeys = ref({});
 const listboxConcept = ref(null);
 const listboxConcepts = ref([]);
 watch(selectedTreeValue, async (newValue) => {
     const key = Object.keys(newValue)[0];
+    // 대단원, 중단원일 때 : 클릭 시 expandNode & collapse 토글
+    if (!expandedKeys.value[key]) { // 확장되지 않은 상태면 확장
+        expandedKeys.value[key] = true;
+    } else { // 이미 확장된 상태면 축소
+        delete expandedKeys.value[key];
+    }
+    // 소단원일 때 : key가 정수 & 클릭 시 개념 목록 api
     const chapterId = parseInt(key);
-    // console.log(chapterId);
     if (!isNaN(chapterId)){
         try {
             const endpoint = `/api/v1/concepts?chapterId=${chapterId}`;
             const response = await api.get(endpoint);
             listboxConcepts.value = response;
-            error.value = null;
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
-            error.value = err;
         }
     }
 });
-// 단위개념 상세보기
+// 개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
 watch(listboxConcept, (newValue) => {
     if (newValue !== null ) {
         conceptDetail.value  = newValue;
         conceptId.value = conceptDetail.value.conceptId;
-        // console.log(conceptId.value);
         conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n')
                                                                         .replace(/\ne/g, '\\ne');
     }
 });
 
-// 단위개념을 누르지 않고 [선수지식 확인]버튼을 누르면, 단위개념 목록에서 단위개념을 먼저 골라달라고 안내
+// 개념을 누르지 않고 [선수지식 확인]버튼을 누르면, 개념 목록에서 개념을 먼저 골라달라고 안내
 const popup = ref(null);
 const toast = useToast();
 const confirmPopup = useConfirm();
@@ -121,8 +108,8 @@ const confirm = (event) => {
 const goToHome = () => {
   try {
     router.push({ path: '/' }); 
-  } catch (error) {
-    console.error('에러 발생:', error);
+  } catch (err) {
+    console.error('에러 발생:', err);
   }
 };
 // '다음' 버튼 : api & 화면이동
@@ -141,31 +128,14 @@ const goToNextPage = async () => {
             name: 'concepttree',
             state: {dataToSend: data}
         });
-        error.value = null;
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
-        error.value = err;
     }
 };
 </script>
 
 <template>
     <div class="grid p-fluid">
-        <!-- <div class="col-12">
-            <div class="card">
-                <div class="flex justify-content-between">
-                    <div>
-                        <div class="text-900 font-medium text-xl mb-3"> 여기는 선수지식이 궁금한 개념을 선택하는 곳이야. </div>
-                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
-                        <span class="block text-600 font-medium mb-3"> 1. [School Level]에서 원하는 학교군 선택하기 </span>
-                        <span class="block text-600 font-medium mb-3"> 2. [Gradel Level]에서 원하는 학년-학기 선택하기 </span>
-                        <span class="block text-600 font-medium"> 3. [대단원-중단원-소단원]에서 원하는 소단원 선택하기 (<span style="color: hotpink; font-weight: bold;">화살표 <i class="pi pi-chevron-right" style="color: #57606f;"></i> 클릭</span>)</span>
-                        <span class="block text-600 font-medium mb-3"> 4. 개념 목록에서 원하는 개념 선택하기 </span>
-                        <span class="block text-600 font-medium"> 5. [선수지식 확인] 버튼 누르기 </span>
-                    </div>
-                </div>
-            </div>
-        </div> -->
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5> School Level </h5>
@@ -180,8 +150,8 @@ const goToNextPage = async () => {
             <div class="card">
                 <h5> 대단원-중단원-소단원 </h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
-                    <Tree :value="treeValue" :filter="true" filterMode="lenient" selectionMode="single" v-model:selectionKeys="selectedTreeValue" @node-select="handleNodeSelect"></Tree>
-                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                    <Tree :value="treeValue" :filter="true" filterMode="lenient" selectionMode="single" v-model:selectionKeys="selectedTreeValue" v-model:expandedKeys="expandedKeys" loadingMode="icon"></Tree>
+                    <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
             </div>
         </div>
