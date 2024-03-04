@@ -48,6 +48,15 @@ onMounted(async() => {
 // 학습지 목록
 const listboxTest = ref(null);
 const listboxTests = ref([]);
+const sampleTest = {
+    "testId" : 491,
+    "testName" : '샘플 학습지',
+    "testDate" : '2024/01/01',
+    "testSchoolLevel" : '고등',
+    "testGradeLevel" : '수학', 
+    "testSemester" : '상',
+    "record" : false,
+};
 onMounted(async() => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
     watch(() => store.state.accessToken,
@@ -65,6 +74,9 @@ onMounted(async() => {
         }
     } else {
         console.log("사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.");
+        // 샘플 학습지 제공
+        listboxTests.value.push(sampleTest);
+
     }
 });
 // 추가) 정오답에 따라 활성화 주고, 기록 이미 한 학습지는 분석결과 보러가기 or 재기록 버튼 (새 userTest로 다시 저장되도록)
@@ -80,6 +92,7 @@ const schoolLevel = ref('')
 const grade = ref(null);
 const semester = ref(null);
 const isRecord = ref(false);
+const sampleDetail = 
 watch(listboxTest, async (newValue) => {
     if (newValue !== null ) {
         testId.value = newValue.testId;
@@ -238,7 +251,7 @@ const yesClick = async () => {
     closeConfirmation();
     await createRecord();
     await analysis();
-    goToHome();
+    goToResultPage();
 };
 // [여기] 클릭 시 : userTestId 가지고 result로 이동
 const goToResultPage = async () => {
@@ -257,26 +270,6 @@ const goToResultPage = async () => {
         <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div>
-        <!-- <div class="col-12">
-            <div class="card">
-                <div class="flex justify-content-between">
-                    <div>
-                        <div class="text-900 font-medium text-xl mb-3">여기는 진단학습지의 정오답을 기록하는 곳이야.</div>
-                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
-                        <span class="block text-600 font-medium mb-3"> 1. [학습지 목록]에서 기록할 학습지 선택</span>
-                        <ul style="list-style-type: disc">
-                            <li class="mb-2">"&#9312; 실력 점검하기"에서 다운로드했던 진단학습지 목록이 준비되어 있어</li>
-                        </ul>
-                        <span class="block text-600 font-medium mb-3"> 2. [정오답 기록하기]에서 o/x 선택하기 </span>
-                        <ul style="list-style-type: disc">
-                            <li class="mb-2">"정오답입력"의 ox버튼을 클릭하면 o/x를 선택할 수 있어</li>
-                            <li class="mb-2">맞은 문제는 o, 틀린 문제는 x를 선택하면 돼</li>
-                        </ul>
-                        <span class="block text-600 font-medium"> 3. [기록하기] 버튼 누르기</span>
-                    </div>
-                </div>
-            </div>
-        </div> -->
         <div class="col-12 sm:col-6 xl:col-3">
             <div class="card">
                 <h5>다운로드한 학습지 목록</h5>

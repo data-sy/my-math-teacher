@@ -231,21 +231,8 @@ const yesClick = () => {
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
-                        <!-- <div class="text-900 font-medium text-xl mb-3"> 여기는 진단학습지를 출력하는 곳이야. </div>
-                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
-                        <span class="block text-600 font-medium mb-3"> 1. [School Level]에서 원하는 학교군 선택하기 </span>
-                        <span class="block text-600 font-medium mb-3"> 2. [Gradel Level]에서 원하는 학년-학기 선택하기 </span>
-                        <span class="block text-600 font-medium"> 3. [학습지 목록]에서 원하는 학습지 선택하기 </span>
-                        <ul style="list-style-type: disc;">
-                            <li class=mb-2> 소단원을 기준으로 진단학습지가 준비되어 있어.</li>
-                        </ul>
-                        <span class="block text-600 font-medium mb-3"> 4. [학습지 미리보기]로 문제 확인 </span>
-                        <span class="block text-600 font-medium"> 5. [다운로드] 버튼 누르기 </span>
-                        <ul style="list-style-type: disc;">
-                            <li> pdf 파일이 저장되고 홈 화면으로 이동할 거야.</li>
-                        </ul>
-                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" /> -->
-                        <span class="block text-red-500 font-medium"> 준비된 학습지 : 고등 -> 수학(상) -> 복소수와 이차방정식(1)~(5) </span>
+                        <span class="text-red-500 text-lg font-medium"> 저작권 제약으로 실제 문제가 제공되지는 않습니다. </span>
+                        <span class="mt-2 block font-medium"> - 준비된 샘플 학습지 : 고등 -> 수학(상) -> 복소수와 이차방정식(1)~(5) </span>
                     </div>
                 </div>
             </div>
