@@ -79,6 +79,7 @@ watch(selectedTreeValue, async (newValue) => {
 // 개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
+const testtest = ref(null);
 watch(listboxConcept, (newValue) => {
     if (newValue !== null ) {
         conceptDetail.value  = newValue;
