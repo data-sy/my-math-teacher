@@ -43,6 +43,10 @@ public class ConceptService {
         return conceptRepository.findNodesIdByConceptId(conceptId);
     }
 
+    public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
+        return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
+    }
+
     public int findSkillIdByConceptId (int conceptId){
         return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }
