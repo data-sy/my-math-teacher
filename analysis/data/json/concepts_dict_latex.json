@@ -4377,7 +4377,7 @@
   },
   "5762": {
     "name": "거듭제곱의 부호",
-    "description": "(1) 양수의 거듭제곱 : 항상 양수이다.\\n(2) 음수의 거듭제곱 : 지수가$\\begin{cases}{짝수이면\\to+} \\\\ {홀수이면\\to-}\\end{cases}$",
+    "description": "(1) 양수의 거듭제곱 : 항상 양수이다.\\n(2) 음수의 거듭제곱 : 지수가$\\begin{cases}{짝수이면\\to+} \\\\\\ {홀수이면\\to-}\\end{cases}$",
     "concept_chapter_id": 440,
     "achievement_id": 36,
     "achievement_name": "정수와 유리수의 사칙계산의 원리를 이해하고, 그 계산을 할 수 있다.",
@@ -4425,7 +4425,7 @@
   },
   "5781": {
     "name": "유리수의 곱셈과 나눗셈의 혼합 계산",
-    "description": "(1) 나눗셈을 역수의 곱셈으로 바꾼다.\\n(2) 음수의 개수에 따라 부호를 결정한다.$\\to음수가\\begin{cases}{짝수 개이면\\to+} \\\\ {홀수 개이면\\to-}\\end{cases}$\\n(3) 각 수의 절댓값의 곱에 (2)의 부호를 붙여서 계산한다.",
+    "description": "(1) 나눗셈을 역수의 곱셈으로 바꾼다.\\n(2) 음수의 개수에 따라 부호를 결정한다.$\\to음수가\\begin{cases}{짝수 개이면\\to+} \\\\\\ {홀수 개이면\\to-}\\end{cases}$\\n(3) 각 수의 절댓값의 곱에 (2)의 부호를 붙여서 계산한다.",
     "concept_chapter_id": 441,
     "achievement_id": 36,
     "achievement_name": "정수와 유리수의 사칙계산의 원리를 이해하고, 그 계산을 할 수 있다.",
@@ -4633,7 +4633,7 @@
   },
   "6795": {
     "name": "복잡한 일차방정식의 풀이",
-    "description": "(1) 계수가 소수 또는 분수이면 양변에 적당한 수를 곱하여 계수를 정수로 고친다.$\\to\\begin{cases}{계수 중에 소수가 있을 때\\to 방정식의 양변에 10, 100, 1000, \\cdot\\cdot\\cdot과 같은 10의 거듭제곱을 곱한다.} \\\\ {계수 중에 분수가 있을 때\\to 방정식의 양변에 분모의 최소공배수를 곱한다.}\\end{cases}$\\n(2) 괄호가 있으면 괄호를 풀어 정리한다.\\n(3) x를 포함하는 항은 좌변으로, 상수항은 우변으로 이항한다.\\n(4) 양변을 정리하여 ax=b ($a\\ne0$) 꼴로 나타낸다.\\n(5) x의 계수 a로 양변을 나누어 해를 구한다.",
+    "description": "(1) 계수가 소수 또는 분수이면 양변에 적당한 수를 곱하여 계수를 정수로 고친다.$\\to\\begin{cases}{계수 중에 소수가 있을 때\\to 방정식의 양변에 10, 100, 1000, \\cdot\\cdot\\cdot과 같은 10의 거듭제곱을 곱한다.} \\\\\\ {계수 중에 분수가 있을 때\\to 방정식의 양변에 분모의 최소공배수를 곱한다.}\\end{cases}$\\n(2) 괄호가 있으면 괄호를 풀어 정리한다.\\n(3) x를 포함하는 항은 좌변으로, 상수항은 우변으로 이항한다.\\n(4) 양변을 정리하여 ax=b ($a\\ne0$) 꼴로 나타낸다.\\n(5) x의 계수 a로 양변을 나누어 해를 구한다.",
     "concept_chapter_id": 448,
     "achievement_id": 96,
     "achievement_name": "일차방정식을 풀 수 있다.",
@@ -5873,7 +5873,7 @@
   },
   "4660": {
     "name": "지수법칙 (3) - 지수의 차",
-    "description": "$a\\ne0$이고 m, n이 자연수일 때\\n$a^m\\div a^n=\\begin{cases}{m>n이면a^{m-n}} \\\\ {m=m이면1} \\\\ {m<n이면\\frac{1}{a^{n-m}}}\\end{cases}$",
+    "description": "$a\\ne0$이고 m, n이 자연수일 때\\n$a^m\\div a^n=\\begin{cases}{m>n이면a^{m-n}} \\\\\\ {m=m이면1} \\\\\\ {m<n이면\\frac{1}{a^{n-m}}}\\end{cases}$",
     "concept_chapter_id": 481,
     "achievement_id": 88,
     "achievement_name": "지수법칙을 이해한다.",
@@ -6185,7 +6185,7 @@
   },
   "4800": {
     "name": "A=B=C 꼴의 방정식의 풀이",
-    "description": "A=B=C 꼴의 방정식은 다음 세 연립방정식 중 하나로 고쳐서 푼다. 이때 다음 세 연립방정식은 해가 모두 같으므로 세 가지 중 가장 간단한 것을 선택하여 푼다.\\n$\\begin{cases}{A=B} \\\\ A=C{}\\end{cases}$, $\\begin{cases}{A=B} \\\\ B=C{}\\end{cases}$, $\\begin{cases}{A=C} \\\\ B=C{}\\end{cases}$",
+    "description": "A=B=C 꼴의 방정식은 다음 세 연립방정식 중 하나로 고쳐서 푼다. 이때 다음 세 연립방정식은 해가 모두 같으므로 세 가지 중 가장 간단한 것을 선택하여 푼다.\\n$\\begin{cases}{A=B} \\\\\\ A=C{}\\end{cases}$, $\\begin{cases}{A=B} \\\\\\ B=C{}\\end{cases}$, $\\begin{cases}{A=C} \\\\\\ B=C{}\\end{cases}$",
     "concept_chapter_id": 489,
     "achievement_id": 101,
     "achievement_name": "미지수가 2개인 연립일차방정식을 풀 수 있다.",
@@ -6233,7 +6233,7 @@
   },
   "2849": {
     "name": "연립일차방정식의 활용-나이에 대한 문제",
-    "description": "현재 x세인 사람의 $\\begin{cases}{a년전의나이=>(x-a)세} \\\\ b년후의나이=>(x+b)세\\end{cases}$",
+    "description": "현재 x세인 사람의 $\\begin{cases}{a년전의나이=>(x-a)세} \\\\\\ b년후의나이=>(x+b)세\\end{cases}$",
     "concept_chapter_id": 490,
     "achievement_id": 102,
     "achievement_name": "미지수가 2개인 연립일차방정식을 활용하여 문제를 해결할 수 있다.",
@@ -6449,7 +6449,7 @@
   },
   "4979": {
     "name": "일차방정식의 그래프와 연립일차방정식의 관계",
-    "description": "연립방정식$\\begin{cases}{ax+by+c=0} \\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해는 두 일차방정식 $ax+by+c=0, a^{\\prime}x+b^{\\prime}y+c^{\\prime}=0$의 그래프의 교점의 좌표와 같다.\\n연립방정식의 해 $x=p, y=q <=>$ 두 그래프의 교점의 좌표 (p, q)",
+    "description": "연립방정식$\\begin{cases}{ax+by+c=0} \\\\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해는 두 일차방정식 $ax+by+c=0, a^{\\prime}x+b^{\\prime}y+c^{\\prime}=0$의 그래프의 교점의 좌표와 같다.\\n연립방정식의 해 $x=p, y=q <=>$ 두 그래프의 교점의 좌표 (p, q)",
     "concept_chapter_id": 495,
     "achievement_id": 134,
     "achievement_name": "두 일차함수의 그래프와 연립일차방정식의 관계를 이해한다.",
@@ -6457,7 +6457,7 @@
   },
   "4980": {
     "name": "두 그래프의 위치관계와 연립방정식의 해의 개수",
-    "description": "연립방정식 $\\begin{cases}{ax+by+c=0} \\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해의 개수는 두 일차방정식 $ax+by+c=0, a^{\\prime}x+b^{\\prime}y+c^{\\prime}=0$의 그래프의 교점의 개수와 같다. \\n(1) 두 그래프의 위치관계 : 한점에서 만난다,  두 그래프의 교점의 개수 : 한 개, 연립방정식의 해의 개수 : 한 쌍의 해, 기울기와 y절편 : 기울기가 다르다. $\\frac{a}\\n{a^{\\prime}}e\\frac{b}{b^{\\prime}}$\\n(2) 두 그래프의 위치관계 : 평행하다,  두 그래프의 교점의 개수 : 없다, 연립방정식의 해의 개수 : 해가 없다, 기울기와 y절편 : 기울기는 같고 y절편은 다르다. $\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}e\\frac{c}{c^{\\prime}}$ \\n(3) 두 그래프의 위치관계 : 일치한다,  두 그래프의 교점의 개수 : 무수히 많다, 연립방정식의 해의 개수 : 해가 무수히 많다, 기울기와 y절편 : 기울기와 y절편이 각각 같다. \\n$\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}=\\frac{c}{c^{\\prime}}$",
+    "description": "연립방정식 $\\begin{cases}{ax+by+c=0} \\\\\\ {a^{\\prime}x+b^{\\prime}y+}c^{\\prime}=0\\end{cases}$ 의 해의 개수는 두 일차방정식 $ax+by+c=0, a^{\\prime}x+b^{\\prime}y+c^{\\prime}=0$의 그래프의 교점의 개수와 같다. \\n(1) 두 그래프의 위치관계 : 한점에서 만난다,  두 그래프의 교점의 개수 : 한 개, 연립방정식의 해의 개수 : 한 쌍의 해, 기울기와 y절편 : 기울기가 다르다. $\\frac{a}\\n{a^{\\prime}}e\\frac{b}{b^{\\prime}}$\\n(2) 두 그래프의 위치관계 : 평행하다,  두 그래프의 교점의 개수 : 없다, 연립방정식의 해의 개수 : 해가 없다, 기울기와 y절편 : 기울기는 같고 y절편은 다르다. $\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}e\\frac{c}{c^{\\prime}}$ \\n(3) 두 그래프의 위치관계 : 일치한다,  두 그래프의 교점의 개수 : 무수히 많다, 연립방정식의 해의 개수 : 해가 무수히 많다, 기울기와 y절편 : 기울기와 y절편이 각각 같다. \\n$\\frac{a}{a^{\\prime}}=\\frac{b}{b^{\\prime}}=\\frac{c}{c^{\\prime}}$",
     "concept_chapter_id": 495,
     "achievement_id": 134,
     "achievement_name": "두 일차함수의 그래프와 연립일차방정식의 관계를 이해한다.",
@@ -7137,7 +7137,7 @@
   },
   "4709": {
     "name": "$\\sqrt{a^2}$의 성질",
-    "description": "모든 수 a에 대하여 $\\sqrt{a^2}=|a|=\\begin{cases}{a\\geq0,}\\sqrt[]{a^2}=a \\\\ {a<0}$,$\\sqrt[]{(-a)^2}=a\\end{cases}$\\n(모든 수 $a$에 대하여 $\\sqrt{a^2}$는 |a|와 같고,  $a$가 $0$보다 크거나 같을 때 $\\sqrt{a^2}$은 a이고, $a$가 $0$보다 작을 때 $\\sqrt{a^2}$은 $-a$이다.)",
+    "description": "모든 수 a에 대하여 $\\sqrt{a^2}=|a|=\\begin{cases}{a\\geq0,}\\sqrt[]{a^2}=a \\\\\\ {a<0}$,$\\sqrt[]{(-a)^2}=a\\end{cases}$\\n(모든 수 $a$에 대하여 $\\sqrt{a^2}$는 |a|와 같고,  $a$가 $0$보다 크거나 같을 때 $\\sqrt{a^2}$은 a이고, $a$가 $0$보다 작을 때 $\\sqrt{a^2}$은 $-a$이다.)",
     "concept_chapter_id": 511,
     "achievement_id": 38,
     "achievement_name": "제곱근의 뜻을 알고, 그 성질을 이해한다.",
@@ -8049,7 +8049,7 @@
   },
   "2792": {
     "name": "지수법칙",
-    "description": "a, b 는 실수, m, n은 자연수일 때 다음 법칙이 성립한다.\\n1) $a^m\\times a^n=a^{m+n}$\\n2) $a^m\\div a^n=\\frac{a^m}{a^n}\\begin{cases}{a^{m-n},(m>n)} \\\\ {1,(m=n)} \\\\ {\\frac{1}{a^{n-m}},(m<n)}\\end{cases}$\\n3) $(a^m)^n=a^{mn}$\\n4) $(ab)^n=a^nb^n$\\n5) $(\\frac{b}{a})^n=\\frac{b^n}{a^n}$(단,$a\\ne0$)",
+    "description": "a, b 는 실수, m, n은 자연수일 때 다음 법칙이 성립한다.\\n1) $a^m\\times a^n=a^{m+n}$\\n2) $a^m\\div a^n=\\frac{a^m}{a^n}\\begin{cases}{a^{m-n},(m>n)} \\\\\\ {1,(m=n)} \\\\\\ {\\frac{1}{a^{n-m}},(m<n)}\\end{cases}$\\n3) $(a^m)^n=a^{mn}$\\n4) $(ab)^n=a^nb^n$\\n5) $(\\frac{b}{a})^n=\\frac{b^n}{a^n}$(단,$a\\ne0$)",
     "concept_chapter_id": 540,
     "achievement_id": 89,
     "achievement_name": "다항식의 곱셈을 할 수있다.",
@@ -8121,7 +8121,7 @@
   },
   "2832": {
     "name": "항등식의 성질",
-    "description": "1) $\\begin{cases}{ax+b=0이x에대한항등식\\Leftrightarrow a=0,b=0} \\\\ {ax+b={a}^{\\prime}x+{b}^{\\prime}이x에대한항등식\\Leftrightarrow a=a^{\\prime},b={b}^{\\prime}}\\end{cases}$\\n2) $\\begin{cases}{ax^2+bx+c=0이x에대한항등식\\Leftrightarrow a=0,b=0},c=0 \\\\ {ax^2+bx+c={a}^{\\prime}x^2+{b}^{\\prime}x+{c}^{\\prime}이x에대한항등식\\Leftrightarrow a=a^{\\prime},b={b}^{\\prime},c={c}^{\\prime}}\\end{cases}$\\n3) $\\begin{cases}{ax+by+c=0이 x,y에 대한 항등식\\Leftrightarrow a=0,b=0},c=0 \\\\ {ax+by+c={a}^{\\prime}x+{b}^{\\prime}y+{c}^{\\prime}이 x,y에 대한 항등식\\Leftrightarrow a=a^{\\prime},b={b}^{\\prime},c={c}^{\\prime}}\\end{cases}$",
+    "description": "1) $\\begin{cases}{ax+b=0이x에대한항등식\\Leftrightarrow a=0,b=0} \\\\\\ {ax+b={a}^{\\prime}x+{b}^{\\prime}이x에대한항등식\\Leftrightarrow a=a^{\\prime},b={b}^{\\prime}}\\end{cases}$\\n2) $\\begin{cases}{ax^2+bx+c=0이x에대한항등식\\Leftrightarrow a=0,b=0},c=0 \\\\\\ {ax^2+bx+c={a}^{\\prime}x^2+{b}^{\\prime}x+{c}^{\\prime}이x에대한항등식\\Leftrightarrow a=a^{\\prime},b={b}^{\\prime},c={c}^{\\prime}}\\end{cases}$\\n3) $\\begin{cases}{ax+by+c=0이 x,y에 대한 항등식\\Leftrightarrow a=0,b=0},c=0 \\\\\\ {ax+by+c={a}^{\\prime}x+{b}^{\\prime}y+{c}^{\\prime}이 x,y에 대한 항등식\\Leftrightarrow a=a^{\\prime},b={b}^{\\prime},c={c}^{\\prime}}\\end{cases}$",
     "concept_chapter_id": 542,
     "achievement_id": 92,
     "achievement_name": "항등식의 성질을 이해한다.",
@@ -8273,7 +8273,7 @@
   },
   "3520": {
     "name": "복소수의 분류",
-    "description": "1. 허수와 순허수\\n실수가 아닌 복소수 $a+bi(b\\ne0)$를 순허수라 하고, 실수부분이 0인 허수 $bi(b\\ne0)$를 순허수라 한다.\\n2. 복소수의 분류 임의의 실수 $a,b$에 대하여 복소수 $a+bi$를 분류하면 다음과 같다.\\n$a+bi \\begin{cases} \\begin{aligned} &b=0 : &&\\text{실수 } a \\\\ &b\\ne 0 : &&\\text{허수 } a+bi \\begin{cases} &a=0 : &&\\text{순허수} \\\\ &a\\ne 0 : &&\\text{순허수가 아닌 수} \\end{cases} \\end{aligned} \\end{cases}$",
+    "description": "1. 허수와 순허수\\n실수가 아닌 복소수 $a+bi(b\\ne0)$를 순허수라 하고, 실수부분이 0인 허수 $bi(b\\ne0)$를 순허수라 한다.\\n2. 복소수의 분류 임의의 실수 $a,b$에 대하여 복소수 $a+bi$를 분류하면 다음과 같다.\\n$a+bi \\begin{cases} \\begin{aligned} &b=0 : &&\\text{실수 } a \\\\\\ &b\\ne 0 : &&\\text{허수 } a+bi \\begin{cases} &a=0 : &&\\text{순허수} \\\\\\ &a\\ne 0 : &&\\text{순허수가 아닌 수} \\end{cases} \\end{aligned} \\end{cases}$",
     "concept_chapter_id": 546,
     "achievement_id": 105,
     "achievement_name": "복소수의 뜻과 성질을 이해하고 사칙연산을 할 수 있다.",
@@ -8353,7 +8353,7 @@
   },
   "3844": {
     "name": "방정식 $ax=b$의 풀이",
-    "description": "$x$에 대한 방정식 $ax=b$의 해는 다음과 같다.\\n1) $a\\ne0$일 때, $x=\\frac{b}{a}$(오직 하나의 해)\\n2) $a=0$일 때, $\\begin{cases}{b=0\\Rightarrow 해가 무수히 많다.(부정)} \\\\ {b\\ne0\\Rightarrow 해가 없다.(불능)}\\end{cases}$",
+    "description": "$x$에 대한 방정식 $ax=b$의 해는 다음과 같다.\\n1) $a\\ne0$일 때, $x=\\frac{b}{a}$(오직 하나의 해)\\n2) $a=0$일 때, $\\begin{cases}{b=0\\Rightarrow 해가 무수히 많다.(부정)} \\\\\\ {b\\ne0\\Rightarrow 해가 없다.(불능)}\\end{cases}$",
     "concept_chapter_id": 548,
     "achievement_id": 96,
     "achievement_name": "일차방정식을 풀 수 있다.",
@@ -8481,7 +8481,7 @@
   },
   "3867": {
     "name": "이차함수의 기본형 $y=ax^2$의 그래프",
-    "description": "1) 꼭짓점 : 원점 (0,0)\\n2) 축 : $y$축(직선 $x=0$) \\n3) $\\begin{cases}{a>0이면아래로볼록한포물선모양이다.} \\\\ {a<0이면 위로 볼록한 포물선 모양이다.}\\end{cases}$\\n4) $\\vert a\\vert$의 값이 클수록 그래프의 폭은 좁아진다.",
+    "description": "1) 꼭짓점 : 원점 (0,0)\\n2) 축 : $y$축(직선 $x=0$) \\n3) $\\begin{cases}{a>0이면아래로볼록한포물선모양이다.} \\\\\\ {a<0이면 위로 볼록한 포물선 모양이다.}\\end{cases}$\\n4) $\\vert a\\vert$의 값이 클수록 그래프의 폭은 좁아진다.",
     "concept_chapter_id": 551,
     "achievement_id": 135,
     "achievement_name": "이차함수의 의미를 이해하고, 그 그래프를 그릴 수 있다.",
@@ -8673,7 +8673,7 @@
   },
   "4244": {
     "name": "미지수가 2개인 연립이차방정식",
-    "description": "$\\begin{cases}{x-y=1} \\\\ {x^2+y^2=5}\\end{cases},\\begin{cases}{x^2-3xy+2y^2=0} \\\\ {2x^2+5xy-y^2=1}\\end{cases}$과 같이 미지수가 2개인 연립방정식에서 가장 높은 방정식이 이차방정식일 때, 이 연립방정식을 미지수가 2개인 연립이차방정식이라 한다.",
+    "description": "$\\begin{cases}{x-y=1} \\\\\\ {x^2+y^2=5}\\end{cases},\\begin{cases}{x^2-3xy+2y^2=0} \\\\\\ {2x^2+5xy-y^2=1}\\end{cases}$과 같이 미지수가 2개인 연립방정식에서 가장 높은 방정식이 이차방정식일 때, 이 연립방정식을 미지수가 2개인 연립이차방정식이라 한다.",
     "concept_chapter_id": 554,
     "achievement_id": 113,
     "achievement_name": "미지수가 2개인 연립이차방정식을 풀 수 있다.",
@@ -8681,7 +8681,7 @@
   },
   "4252": {
     "name": "미지수가 2개인 연립이차방정식의 풀이",
-    "description": "1) $\\begin{cases}{(일차식)=0} \\\\ {(이차식)=0}\\end{cases}$의 풀이\\n일차방정식과 이차방정식으로 이루어진 연립방정식은 다음과 같은 순서로 푼다.\\n  i) $(일차식)=0$에서 한 미지수를 다른 미지수에 대한 식으로 나타낸다.\\n  ii) i)에서 얻은 식을 이차방정식에 대입하여 푼다.\\n2) $\\begin{cases}{(이차식)=0} \\\\ {(이차식)=0}\\end{cases}$의 풀이 \\n두 이차방정식으로 이루어진 연립방정식은 다음과 같은 순서로 푼다.\\n  i) 한 이차방정식을 $AB=0$($A,B$는 일차식) 꼴로 인수분해한다.\\n  ii) 두 일차방정식 $A=0,B=0$을 다른 이차방정식과 각각 연립하여 푼다.",
+    "description": "1) $\\begin{cases}{(일차식)=0} \\\\\\ {(이차식)=0}\\end{cases}$의 풀이\\n일차방정식과 이차방정식으로 이루어진 연립방정식은 다음과 같은 순서로 푼다.\\n  i) $(일차식)=0$에서 한 미지수를 다른 미지수에 대한 식으로 나타낸다.\\n  ii) i)에서 얻은 식을 이차방정식에 대입하여 푼다.\\n2) $\\begin{cases}{(이차식)=0} \\\\\\ {(이차식)=0}\\end{cases}$의 풀이 \\n두 이차방정식으로 이루어진 연립방정식은 다음과 같은 순서로 푼다.\\n  i) 한 이차방정식을 $AB=0$($A,B$는 일차식) 꼴로 인수분해한다.\\n  ii) 두 일차방정식 $A=0,B=0$을 다른 이차방정식과 각각 연립하여 푼다.",
     "concept_chapter_id": 554,
     "achievement_id": 113,
     "achievement_name": "미지수가 2개인 연립이차방정식을 풀 수 있다.",
@@ -8721,7 +8721,7 @@
   },
   "4237": {
     "name": "미지수가 2개인 연립일차방정식",
-    "description": "$\\begin{cases}{x+y=1} \\\\ {2x-y=2}\\end{cases}$와 같이 미지수가 2개이고 일차방정식으로만 이루어진 연립방정식을 미지수가 2개인 연립일차방정식이라 한다. \\n또 두 방정식을 동시에 만족시키는 $x=1,y=0$을 연립방정식의 해 또는 근이라 하고, 해를 구하는 것을 연립방정식을 푼다고 한다.",
+    "description": "$\\begin{cases}{x+y=1} \\\\\\ {2x-y=2}\\end{cases}$와 같이 미지수가 2개이고 일차방정식으로만 이루어진 연립방정식을 미지수가 2개인 연립일차방정식이라 한다. \\n또 두 방정식을 동시에 만족시키는 $x=1,y=0$을 연립방정식의 해 또는 근이라 하고, 해를 구하는 것을 연립방정식을 푼다고 한다.",
     "concept_chapter_id": 554,
     "achievement_id": 101,
     "achievement_name": "미지수가 2개인 연립일차방정식을 풀 수 있다.",
@@ -8737,7 +8737,7 @@
   },
   "4239": {
     "name": "미지수가 3개인 연립일차방정식",
-    "description": "$\\begin{cases}{x+2y+3z=-2} \\\\ {2x+y+z=1} \\\\ {x-y+2z=-1}\\end{cases}$과 같이 미지수가 3개이고 일차방정식으로만 이루어진 연립방정식을 미지수가 3개인 연립일차방정식이라 한다.",
+    "description": "$\\begin{cases}{x+2y+3z=-2} \\\\\\ {2x+y+z=1} \\\\\\ {x-y+2z=-1}\\end{cases}$과 같이 미지수가 3개이고 일차방정식으로만 이루어진 연립방정식을 미지수가 3개인 연립일차방정식이라 한다.",
     "concept_chapter_id": 554,
     "achievement_id": 102,
     "achievement_name": "미지수가 2개인 연립일차방정식을 활용하여 문제를 해결할 수 있다.",
@@ -8753,7 +8753,7 @@
   },
   "4262": {
     "name": "두 이차방정식으로 이루어진 연립방정식-인수분해 되는 식이 없는 경우",
-    "description": "두 이차방정식으로 이루어진 연립방정식 $\\begin{cases}{(이차식)=0} \\\\ {(이차식)=0}\\end{cases}$ 에서 인수분해되는 식이 없는 경우에는 다음과 같은 방법으로 일차방정식을 얻어 $\\begin{cases}{(일차식)=0} \\\\ {(이차식)=0}\\end{cases}$ 꼴의 연립방정식을 푼다.\\n1) 이차항을 소거할 수 있으면 $\\Rightarrow$ 이차항을 소거하여 일차방정식을 얻는다.\\n2) 이차항을 소거할 수 없으면\\n$\\Rightarrow$ $\\begin{cases}{상수항을소거하여인수분해되는식을얻는다} \\\\ {AB=0(A,B는 일차식) 꼴로 인수분해하여 일차방정식을 얻는다.}\\end{cases}$",
+    "description": "두 이차방정식으로 이루어진 연립방정식 $\\begin{cases}{(이차식)=0} \\\\\\ {(이차식)=0}\\end{cases}$ 에서 인수분해되는 식이 없는 경우에는 다음과 같은 방법으로 일차방정식을 얻어 $\\begin{cases}{(일차식)=0} \\\\\\ {(이차식)=0}\\end{cases}$ 꼴의 연립방정식을 푼다.\\n1) 이차항을 소거할 수 있으면 $\\Rightarrow$ 이차항을 소거하여 일차방정식을 얻는다.\\n2) 이차항을 소거할 수 없으면\\n$\\Rightarrow$ $\\begin{cases}{상수항을소거하여인수분해되는식을얻는다} \\\\\\ {AB=0(A,B는 일차식) 꼴로 인수분해하여 일차방정식을 얻는다.}\\end{cases}$",
     "concept_chapter_id": 554,
     "achievement_id": 113,
     "achievement_name": "미지수가 2개인 연립이차방정식을 풀 수 있다.",
@@ -8801,7 +8801,7 @@
   },
   "4372": {
     "name": "부등식 $ax>b$의 풀이",
-    "description": "$x$에 대한 부등식 $ax>b$의 해는 다음과 같다.\\n1) $a>0$일 때, $x>\\frac{b}{a}$\\n2) $a<0$일 때, $x<\\frac{b}{a}$\\n3) $a=0$일 때, $\\begin{cases}{b\\geq0이면\\Rightarrow해는없다.} \\\\ {b<0이면\\Rightarrow 해는 모든 실수이다.}\\end{cases}$",
+    "description": "$x$에 대한 부등식 $ax>b$의 해는 다음과 같다.\\n1) $a>0$일 때, $x>\\frac{b}{a}$\\n2) $a<0$일 때, $x<\\frac{b}{a}$\\n3) $a=0$일 때, $\\begin{cases}{b\\geq0이면\\Rightarrow해는없다.} \\\\\\ {b<0이면\\Rightarrow 해는 모든 실수이다.}\\end{cases}$",
     "concept_chapter_id": 555,
     "achievement_id": 99,
     "achievement_name": "일차부등식을 풀 수 있다.",
@@ -8817,7 +8817,7 @@
   },
   "4375": {
     "name": "$A<B<C$꼴의 부등식",
-    "description": "$A<B<C$ 꼴의 부등식은 연립부등식$\\begin{cases}{A<B} \\\\ {B<C}\\end{cases}$ 꼴로 고쳐서 푼다.",
+    "description": "$A<B<C$ 꼴의 부등식은 연립부등식$\\begin{cases}{A<B} \\\\\\ {B<C}\\end{cases}$ 꼴로 고쳐서 푼다.",
     "concept_chapter_id": 555,
     "achievement_id": 114,
     "achievement_name": "미지수가 1개인 연립일차부등식을 풀 수 있다.",
@@ -8833,7 +8833,7 @@
   },
   "4553": {
     "name": "해가 하나뿐인 연립부등식",
-    "description": "다음과 같은 경우는 해가 하나뿐이다.\\n$\\begin{cases}{x\\leq a} \\\\ {x\\geq a}\\end{cases}$ → $x=a$",
+    "description": "다음과 같은 경우는 해가 하나뿐이다.\\n$\\begin{cases}{x\\leq a} \\\\\\ {x\\geq a}\\end{cases}$ → $x=a$",
     "concept_chapter_id": 555,
     "achievement_id": 114,
     "achievement_name": "미지수가 1개인 연립일차부등식을 풀 수 있다.",
@@ -8841,7 +8841,7 @@
   },
   "4554": {
     "name": "해가 없는 연립부등식",
-    "description": "다음과 같은 경우는 해가 없다.\\n(1) $\\begin{cases}{x\\leq a} \\\\ {x\\geq b}\\end{cases}$ (단, $a<b$)\\n(2) $\\begin{cases}{x<a} \\\\ {x>a}\\end{cases}$\\n(3) $\\begin{cases}{x<a} \\\\ {x\\geq a}\\end{cases}$",
+    "description": "다음과 같은 경우는 해가 없다.\\n(1) $\\begin{cases}{x\\leq a} \\\\\\ {x\\geq b}\\end{cases}$ (단, $a<b$)\\n(2) $\\begin{cases}{x<a} \\\\\\ {x>a}\\end{cases}$\\n(3) $\\begin{cases}{x<a} \\\\\\ {x\\geq a}\\end{cases}$",
     "concept_chapter_id": 555,
     "achievement_id": 114,
     "achievement_name": "미지수가 1개인 연립일차부등식을 풀 수 있다.",
@@ -9065,7 +9065,7 @@
   },
   "4842": {
     "name": "표준형으로 표현된 두 직선의 위치관계",
-    "description": "표준형으로 표현된 두 직선 $y=mx+n,y={m}^{\\prime}x+{n}^{\\prime}$의 위치 관계와 연립방정식\\n$\\begin{cases}{y=mx+n} \\\\ {y={m}^{\\prime}x+{n}^{\\prime}}\\end{cases}$의 해의 개수는 다음과 같다.\\n1) $m={m}^{\\prime},ne{n}^{\\prime}\\Rightarrow $ $\\begin{cases}{평행하다.} \\\\ {두 직선의교점은 없다.} \\\\ {연립방정식의 해는없다.(불능)}\\end{cases}$\\n2) $m={m}^{\\prime},n={n}^{\\prime}\\Rightarrow $ $\\begin{cases}{일치한다.} \\\\ {두 직선의교점은 무수히 많다.} \\\\ {연립방정식의 해는 무수히 많다.(부정)}\\end{cases}$\\n3) $me {m}^{\\prime} \\Rightarrow $ $\\begin{cases}{한 점에서 만난다.} \\\\ {두 직선의 교점은 한 개이다.} \\\\ {연립방정식의 해는한 쌍이다.}\\end{cases}$",
+    "description": "표준형으로 표현된 두 직선 $y=mx+n,y={m}^{\\prime}x+{n}^{\\prime}$의 위치 관계와 연립방정식\\n$\\begin{cases}{y=mx+n} \\\\\\ {y={m}^{\\prime}x+{n}^{\\prime}}\\end{cases}$의 해의 개수는 다음과 같다.\\n1) $m={m}^{\\prime},ne{n}^{\\prime}\\Rightarrow $ $\\begin{cases}{평행하다.} \\\\\\ {두 직선의교점은 없다.} \\\\\\ {연립방정식의 해는없다.(불능)}\\end{cases}$\\n2) $m={m}^{\\prime},n={n}^{\\prime}\\Rightarrow $ $\\begin{cases}{일치한다.} \\\\\\ {두 직선의교점은 무수히 많다.} \\\\\\ {연립방정식의 해는 무수히 많다.(부정)}\\end{cases}$\\n3) $me {m}^{\\prime} \\Rightarrow $ $\\begin{cases}{한 점에서 만난다.} \\\\\\ {두 직선의 교점은 한 개이다.} \\\\\\ {연립방정식의 해는한 쌍이다.}\\end{cases}$",
     "concept_chapter_id": 561,
     "achievement_id": 205,
     "achievement_name": "두 직선의 평행 조건을 이해하고, 주어진 직선에 평행인 직선의 방정식을 구할 수 있다.",
@@ -9081,7 +9081,7 @@
   },
   "4693": {
     "name": "표준형으로 표현된 두 직선의 수직 관계",
-    "description": "$\\begin{cases}{y=mx+n} \\\\ {y=m^{\\prime}x+n^{\\prime}}\\end{cases}$일 때,\\n두 직선이 수직이다.\\n(1) $mm^{\\prime}=-1$ → (두 직선의 기울기의 곱)=$-1$\\n(2) 두 직선의 교점 개수 : 한 개\\n(3) 연립방정식의 해의 개수 : 한 쌍",
+    "description": "$\\begin{cases}{y=mx+n} \\\\\\ {y=m^{\\prime}x+n^{\\prime}}\\end{cases}$일 때,\\n두 직선이 수직이다.\\n(1) $mm^{\\prime}=-1$ → (두 직선의 기울기의 곱)=$-1$\\n(2) 두 직선의 교점 개수 : 한 개\\n(3) 연립방정식의 해의 개수 : 한 쌍",
     "concept_chapter_id": 561,
     "achievement_id": 206,
     "achievement_name": "두 직선의 수직 조건을 이해하고, 주어진 직선에 수직인 직선의 방정식을 구할 수 있다.",
@@ -9089,7 +9089,7 @@
   },
   "4887": {
     "name": "일반형으로 표현된 두 직선",
-    "description": "일반형으로 표현된 두 직선 $ax+by+c=0,{a}^{\\prime}x+{b}^{\\prime}y+{c}^{\\prime}=0$의 위치 관계와 연립방정식$\\begin{cases}{ax+by+c=0} \\\\ {{a}^{\\prime}x+{b}^{\\prime}y+{c}^{\\prime}=0}\\end{cases}$의 해의 개수는 다음과 같다.\\n1) $\\frac{a}{{a}^{\\prime}}=\\frac{b}{{b}^{\\prime}}e\\frac{c}{{c}^{\\prime}}\\Rightarrow$ $\\begin{cases}{두 직선은 평행하다.} \\\\ {연립방정식의 해는 없다.(불능)}\\end{cases}$\\n2) $\\frac{a}{{a}^{\\prime}}=\\frac{b}{{b}^{\\prime}}=\\frac{c}{{c}^{\\prime}}\\Rightarrow$ $\\begin{cases}{두 직선은 일치한다.} \\\\ {연립방정식의 해는 무수히 많다.(부정)}\\end{cases}$\\n3) $\\frac{a}{{a}^{\\prime}}e \\frac{b}{{b}^{\\prime}}\\Rightarrow$ $\\begin{cases}{두 직선은 한 점에서 만난다.} \\\\ {연립방정식의 해는 한 쌍이다.}\\end{cases}$\\n4) $a{a}^{\\prime}+b{b}^{\\prime}=0 \\Rightarrow$ $\\begin{cases}{두 직선은 수직이다.} \\\\ {연립방정식의 해는 한 쌍이다.}\\end{cases}$",
+    "description": "일반형으로 표현된 두 직선 $ax+by+c=0,{a}^{\\prime}x+{b}^{\\prime}y+{c}^{\\prime}=0$의 위치 관계와 연립방정식$\\begin{cases}{ax+by+c=0} \\\\\\ {{a}^{\\prime}x+{b}^{\\prime}y+{c}^{\\prime}=0}\\end{cases}$의 해의 개수는 다음과 같다.\\n1) $\\frac{a}{{a}^{\\prime}}=\\frac{b}{{b}^{\\prime}}e\\frac{c}{{c}^{\\prime}}\\Rightarrow$ $\\begin{cases}{두 직선은 평행하다.} \\\\\\ {연립방정식의 해는 없다.(불능)}\\end{cases}$\\n2) $\\frac{a}{{a}^{\\prime}}=\\frac{b}{{b}^{\\prime}}=\\frac{c}{{c}^{\\prime}}\\Rightarrow$ $\\begin{cases}{두 직선은 일치한다.} \\\\\\ {연립방정식의 해는 무수히 많다.(부정)}\\end{cases}$\\n3) $\\frac{a}{{a}^{\\prime}}e \\frac{b}{{b}^{\\prime}}\\Rightarrow$ $\\begin{cases}{두 직선은 한 점에서 만난다.} \\\\\\ {연립방정식의 해는 한 쌍이다.}\\end{cases}$\\n4) $a{a}^{\\prime}+b{b}^{\\prime}=0 \\Rightarrow$ $\\begin{cases}{두 직선은 수직이다.} \\\\\\ {연립방정식의 해는 한 쌍이다.}\\end{cases}$",
     "concept_chapter_id": 561,
     "achievement_id": 206,
     "achievement_name": "두 직선의 수직 조건을 이해하고, 주어진 직선에 수직인 직선의 방정식을 구할 수 있다.",
@@ -9401,7 +9401,7 @@
   },
   "3893": {
     "name": "\\'모든\\'이나 \\'어떤\\'이 있는 명제",
-    "description": "일반적으로 조건 $p(x)$는 명제가 아니지만 조건 $p(x)$ 앞에 \\'모든\\'이나 \\'어떤\\'이라는 단어가 있으면 $x$의 값이 정해지지 않아도 참, 거짓을 판별할 수 있는 명제가 된다.\\n즉, 공집합이 아닌 전체집합$U$ 에서의 조건$p(x)$ 에 대하여 그 진리집합을 $P$라 하면 다음이 성립한다.\\n(1) 모든 $x$ 에 대하여 $p(x)$$\\rightarrow$$\\begin{cases}{P=U이면 참} \\\\ {Pe U이면 거짓}\\end{cases}$\\n(2) 어떤 $x$ 에 대하여$p(x)$$\\rightarrow\\begin{cases} {Pe\\emptyset이면참}\\\\{P=\\emptyset이면거짓}\\end{cases}$",
+    "description": "일반적으로 조건 $p(x)$는 명제가 아니지만 조건 $p(x)$ 앞에 \\'모든\\'이나 \\'어떤\\'이라는 단어가 있으면 $x$의 값이 정해지지 않아도 참, 거짓을 판별할 수 있는 명제가 된다.\\n즉, 공집합이 아닌 전체집합$U$ 에서의 조건$p(x)$ 에 대하여 그 진리집합을 $P$라 하면 다음이 성립한다.\\n(1) 모든 $x$ 에 대하여 $p(x)$$\\rightarrow$$\\begin{cases}{P=U이면 참} \\\\\\ {Pe U이면 거짓}\\end{cases}$\\n(2) 어떤 $x$ 에 대하여$p(x)$$\\rightarrow\\begin{cases} {Pe\\emptyset이면참}\\\\\\{P=\\emptyset이면거짓}\\end{cases}$",
     "concept_chapter_id": 571,
     "achievement_id": 82,
     "achievement_name": "명제와 조건의 뜻을 알고, ‘모든’, ‘어떤’을 포함한 명제를 이해한다.",
@@ -9577,7 +9577,7 @@
   },
   "7950": {
     "name": "이차함수의 기본형 $y=ax^2$의 그래프",
-    "description": "(1)꼭짓점: 원점(0,0)\\n(2)축: $y$축 (직선$x=0$)\\n(3)$\\begin{cases}{a>0이면 아래로 볼록하다.} \\\\ {a<0이면 위로볼록하다.}\\end{cases}$\\n(4)$|a|$의 값이 클수록 그래프의 폭은 좁아진다.",
+    "description": "(1)꼭짓점: 원점(0,0)\\n(2)축: $y$축 (직선$x=0$)\\n(3)$\\begin{cases}{a>0이면 아래로 볼록하다.} \\\\\\\\ {a<0이면 위로볼록하다.}\\end{cases}$\\n(4)$|a|$의 값이 클수록 그래프의 폭은 좁아진다.",
     "concept_chapter_id": 577,
     "achievement_id": 136,
     "achievement_name": "이차함수의 그래프의 성질을 이해한다.",
@@ -9593,7 +9593,7 @@
   },
   "7952": {
     "name": "이차함수의 일반형 $y=ax^2+bx+c$의 그래프",
-    "description": "(1)이차함수의 기본형 $y=ax^2$의 그래프\\n1.꼭짓점$\\colon$$(0,0)$\\n2.축$\\colon$$y축$$(직선x=0)$\\n3.$\\begin{cases}{a>0이면\\bigcup 의 꼴로 아래쪽으로 볼록하다.} \\\\ {a<0이면 \\bigcap 의 꼴로 위로 볼록하다.}\\end{cases}$\\n4.$|a|$의 값이 클수록 그래프의 폭은 좁아진다.\\n\\n(2)이차함수의 표준형 $y=a(x-p)^2+q$의 그래프\\n1.이차함수 $y=ax^2$의 그래프를 $x$축의 방향으로 $p$만큼, $y$축의 방향으로 $q$만큼 평행이동한 것이다.\\n2.꼭짓점$\\colon$$(p,q)$\\n3.축$\\colon$직선 $x=p$\\n\\n(3)이차함수$y=ax^2+bx+c$의 그래프\\n$y=ax^2+bx+c=a(x+\\frac{b}{2a})^2-\\frac{b^2-4ac}{4a}$이므로 이차함수$y=ax^2+bx+c$의 그래프는 다음과 같은 성질이 있다.\\n1.이차함수 $y=ax^2$ 의 그래프를 $x$축의 방향으로 $-\\frac{b}{2a}$만큼, $y$축의 방향으로 $-\\frac{b^2-4ac}{4a}$만큼 평행이동한 것이다.\\n2.꼭짓점$\\colon$점$(-\\frac{b}{2a},-\\frac{b^2-4ac}{4a})$\\n3.축$\\colon = -\\frac{b}{2a}$\\n4.$y$절편$\\colon$$c$",
+    "description": "(1)이차함수의 기본형 $y=ax^2$의 그래프\\n1.꼭짓점: $(0,0)$\\n2.축: $y축$ (직선$x=0$)\\n3.$\\begin{cases}{a>0이면\\bigcup 의 꼴로 아래쪽으로 볼록하다.} \\\\\\ {a<0이면 \\bigcap 의 꼴로 위로 볼록하다.}\\end{cases}$\\n4.$|a|$의 값이 클수록 그래프의 폭은 좁아진다.\\n\\n(2)이차함수의 표준형 $y=a(x-p)^2+q$의 그래프\\n1.이차함수 $y=ax^2$의 그래프를 $x$축의 방향으로 $p$만큼, $y$축의 방향으로 $q$만큼 평행이동한 것이다.\\n2.꼭짓점: $(p,q)$\\n3.축: 직선 $x=p$\\n\\n(3)이차함수$y=ax^2+bx+c$의 그래프\\n$y=ax^2+bx+c=a(x+\\frac{b}{2a})^2-\\frac{b^2-4ac}{4a}$이므로 이차함수$y=ax^2+bx+c$의 그래프는 다음과 같은 성질이 있다.\\n1.이차함수 $y=ax^2$ 의 그래프를 $x$축의 방향으로 $-\\frac{b}{2a}$만큼, $y$축의 방향으로 $-\\frac{b^2-4ac}{4a}$만큼 평행이동한 것이다.\\n2.꼭짓점: 점$(-\\frac{b}{2a},-\\frac{b^2-4ac}{4a})$\\n3.축: $x = -\\frac{b}{2a}$\\n4.$y$절편: $c$",
     "concept_chapter_id": 577,
     "achievement_id": 136,
     "achievement_name": "이차함수의 그래프의 성질을 이해한다.",
@@ -9857,7 +9857,7 @@
   },
   "3": {
     "name": "지수가 자연수일 때의 지수법칙",
-    "description": "$a$, $b$가 실수이고 $m$, $n$이 자연수일 때\\n\\n(1)$a^ma^n=a^{m+n}$\\n(2)$a^n\\div a^n=\\frac{a^m}{a^n}=\\begin{cases}{a^{m-n}}(m>n) \\\\ {1}(m=n) \\\\ {\\frac{1}{a^{n-m}}(m<n)}\\end{cases}(a\\ne0)$\\n(3)$(a^m)^n=a^{nm}$\\n(4)$(ab)^n=a^nb^n$\\n(5)$(\\frac{a}{b})^n=\\frac{a^n}{b^n}(b\\ne0)$",
+    "description": "$a$, $b$가 실수이고 $m$, $n$이 자연수일 때\\n\\n(1)$a^ma^n=a^{m+n}$\\n(2)$a^n\\div a^n=\\frac{a^m}{a^n}=\\begin{cases}{a^{m-n}}(m>n) \\\\\\ {1}(m=n) \\\\\\ {\\frac{1}{a^{n-m}}(m<n)}\\end{cases}(a\\ne0)$\\n(3)$(a^m)^n=a^{nm}$\\n(4)$(ab)^n=a^nb^n$\\n(5)$(\\frac{a}{b})^n=\\frac{a^n}{b^n}(b\\ne0)$",
     "concept_chapter_id": 587,
     "achievement_id": 314,
     "achievement_name": "거듭제곱과 거듭제곱근의 뜻을 알고, 그 성질을 설명할 수 있다.",
@@ -10449,7 +10449,7 @@
   },
   "1137": {
     "name": "등차수열의 합이 될 조건",
-    "description": "(1) 등차수열의 일반항\\n$a_n=An+B$ ($A$, $B$는 상수)\\n(2) 등차수열의 합\\n$S_n=An^2+Bn$ ($A$, $B$는 상수)의 꼴로서 $n$에 대한 이차식이고 상수항은 0이다. 그리고 (공차)$=2A$\\n(3) $S_n$이 등차수열의 합이 되기 위한 필요충분조건은 $S_n=An^2+Bn$\\n(4) $S_n=An^2+Bn+C$($A$, $B$, $C$는 실수)의 꼴\\n$\\begin{cases}{C=0이면첫째항부터등차수열} \\\\ {C\\ne0이면제2항부터등차수열}\\end{cases}$",
+    "description": "(1) 등차수열의 일반항\\n$a_n=An+B$ ($A$, $B$는 상수)\\n(2) 등차수열의 합\\n$S_n=An^2+Bn$ ($A$, $B$는 상수)의 꼴로서 $n$에 대한 이차식이고 상수항은 0이다. 그리고 (공차)$=2A$\\n(3) $S_n$이 등차수열의 합이 되기 위한 필요충분조건은 $S_n=An^2+Bn$\\n(4) $S_n=An^2+Bn+C$($A$, $B$, $C$는 실수)의 꼴\\n$\\begin{cases}{C=0이면첫째항부터등차수열} \\\\\\ {C\\ne0이면제2항부터등차수열}\\end{cases}$",
     "concept_chapter_id": 602,
     "achievement_id": 382,
     "achievement_name": "등차수열의 첫째항부터 제 n 항까지의 합을 구할 수 있다.",
@@ -11553,7 +11553,7 @@
   },
   "844": {
     "name": "이항분포",
-    "description": "1. 1회의 시행에서 어떤 사건 A가 일어날 확률이 p, 일어나지 않을 확률이 $q(=1-p)$일 때, n 회의 독립시행에서 사건 A가 일어나는 횟수를 확률변수 X라 하자. 이때 X가 가질 수 있는 값은 0, 1, 2, $\\cdots$, n이고, X의 확률질량함수는 $P(X=x)=\\begin{cases}{_nC_0q^n(x=0)} \\\\ {_nC_xp^xq^{n-x}(x=1,2,3,\\cdots,n-1)} \\\\ {_nC_np^n(x=n)}\\end{cases}$이다. 또, X의 확률분포를 표로 나타내면 다음과 같다. 위의 표에서 각 확률은 $(q+p)^n$을 이항정리에 의하여 전개한 다음 식의 우변의 각 항과 같다. $(q+p)^n=_nC_0q^n+_nC_1p^1q^{n-1}+_nC_2p^2q^{n-2}+\\cdots+_nC_np^n$이와 같은 확률변수 X의 확률분포를 이항분포라 하고, 기호로 $B(n,p)$와 같이 나타내며 확률변수는 X는 이항분포 \\n$B(n,p)$를 따른다고 한다.\\n(1) $B(n,p)$의 B는 이항분포를 뜻하는 Binomial distribution의 첫 글자이다.\\n(2) $_nC_xp^xq^{n-x}$에서 $_nC_x$는 n 회의 시행에서 사건 A가 x 회 일어나는 경우의 수이며 $p^xq^{n-x}$은 각 경우의 확률이다.\\n(3) $q+p=1$이므로 $C_0q^n+_nC_1p^1q^{n-1}+_nC_2p^2q^{n-2}+\\cdots+_nC_np^n=1$이다.",
+    "description": "1. 1회의 시행에서 어떤 사건 A가 일어날 확률이 p, 일어나지 않을 확률이 $q(=1-p)$일 때, n 회의 독립시행에서 사건 A가 일어나는 횟수를 확률변수 X라 하자. 이때 X가 가질 수 있는 값은 0, 1, 2, $\\cdots$, n이고, X의 확률질량함수는 $P(X=x)=\\begin{cases}{_nC_0q^n(x=0)} \\\\\\ {_nC_xp^xq^{n-x}(x=1,2,3,\\cdots,n-1)} \\\\\\ {_nC_np^n(x=n)}\\end{cases}$이다. 또, X의 확률분포를 표로 나타내면 다음과 같다. 위의 표에서 각 확률은 $(q+p)^n$을 이항정리에 의하여 전개한 다음 식의 우변의 각 항과 같다. $(q+p)^n=_nC_0q^n+_nC_1p^1q^{n-1}+_nC_2p^2q^{n-2}+\\cdots+_nC_np^n$이와 같은 확률변수 X의 확률분포를 이항분포라 하고, 기호로 $B(n,p)$와 같이 나타내며 확률변수는 X는 이항분포 \\n$B(n,p)$를 따른다고 한다.\\n(1) $B(n,p)$의 B는 이항분포를 뜻하는 Binomial distribution의 첫 글자이다.\\n(2) $_nC_xp^xq^{n-x}$에서 $_nC_x$는 n 회의 시행에서 사건 A가 x 회 일어나는 경우의 수이며 $p^xq^{n-x}$은 각 경우의 확률이다.\\n(3) $q+p=1$이므로 $C_0q^n+_nC_1p^1q^{n-1}+_nC_2p^2q^{n-2}+\\cdots+_nC_np^n=1$이다.",
     "concept_chapter_id": 634,
     "achievement_id": 309,
     "achievement_name": "이항분포의 뜻을 알고, 평균과 표준편차를 구할 수 있다.",
@@ -11617,7 +11617,7 @@
   },
   "7518": {
     "name": "정규분포",
-    "description": "(1) 실수 전체의 집합에서 정의된 연속확률변수 X의 확률밀도함수 $f(x)$가 $f(x)=\\frac{1}{\\sigma\\sqrt[]{2\\pi}}e^{-\\frac{(x-m)^2}{2\\sigma^2}}$ (x는 모든 실수) 일 때, X의 확률분포를 정규분포라 하고 확률밀도함수 $f(x)$의 그래프를 정규분포곡선이라 한다. 여기서 m과 $\\sigma(\\sigma>0)$는 각각 연속확률변수 X의 평균과 표준편차를 나타내는 상수이고, e는 그 값이$2.71828\\cdots$인 무리수이다.\\n(2) 평균이 m, 표준편차가$\\sigma$인 정규분포를 기호로 $N(m,\\sigma^2)$과 같이 나타내고,  연속확률변수 X는 정규분포 $N(m,\\sigma^2)$을 따른다고 한다.\\n(3) $N(m,\\sigma^2)$에서 N은 정규분포를 뜻하는 Normal distribution의 첫 글자이다.\\n(4) $확률변수\\begin{cases}이산확률변수 - 확률질량함수, 이항분포B(n,p) \\\\ 연속확률변수 - 확률밀도함수, 정규분포N(m,\\sigma^2) \\end{cases}$",
+    "description": "(1) 실수 전체의 집합에서 정의된 연속확률변수 X의 확률밀도함수 $f(x)$가 $f(x)=\\frac{1}{\\sigma\\sqrt[]{2\\pi}}e^{-\\frac{(x-m)^2}{2\\sigma^2}}$ (x는 모든 실수) 일 때, X의 확률분포를 정규분포라 하고 확률밀도함수 $f(x)$의 그래프를 정규분포곡선이라 한다. 여기서 m과 $\\sigma(\\sigma>0)$는 각각 연속확률변수 X의 평균과 표준편차를 나타내는 상수이고, e는 그 값이$2.71828\\cdots$인 무리수이다.\\n(2) 평균이 m, 표준편차가$\\sigma$인 정규분포를 기호로 $N(m,\\sigma^2)$과 같이 나타내고,  연속확률변수 X는 정규분포 $N(m,\\sigma^2)$을 따른다고 한다.\\n(3) $N(m,\\sigma^2)$에서 N은 정규분포를 뜻하는 Normal distribution의 첫 글자이다.\\n(4) $확률변수\\begin{cases}이산확률변수 - 확률질량함수, 이항분포B(n,p) \\\\\\ 연속확률변수 - 확률밀도함수, 정규분포N(m,\\sigma^2) \\end{cases}$",
     "concept_chapter_id": 636,
     "achievement_id": 310,
     "achievement_name": "정규분포의 뜻을 알고, 그 성질을 이해할 수 있다.",
