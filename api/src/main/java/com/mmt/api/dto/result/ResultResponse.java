@@ -15,13 +15,8 @@ public class ResultResponse {
     private int toConceptDepth;
     private double probabilityPercent;
     private String conceptName;
-    private String schoolLevel;
-    private String gradeLevel;
-    private String semester;
-    private String chapterMain;
-    private String chapterSub;
-    private String chapterName;
-    private List<ResultResponse> prerequisiteList;
+    private String level;
+    private String chapter;
 
     // 디버깅 용 : System.out.println(resultResponse);
     @Override
