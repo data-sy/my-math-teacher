@@ -42,7 +42,7 @@ onMounted(async() => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
-        // 기록하기 화면에서 넘어왔을 때
+        // [기록하기] 화면에서 넘어왔을 때는 해당 학습지 선택
         if (dataToSend) {
             receivedData.value = dataToSend
         }
@@ -52,14 +52,22 @@ onMounted(async() => {
                 try {
                     const endpoint = `/api/v1/result/${userTestId.value}`;
                     const response = await api.get(endpoint);
-                    resultList.value = response
+                    resultList.value = response;
+                    resultList.value.forEach(item => {
+                        const representativeItem = resultList.value.find(e => e.testItemNumber === item.testItemNumber && e.toConceptDepth === 0);
+                        if (representativeItem) {
+                            item.representative = {
+                                testItemNumber: item.testItemNumber,
+                                conceptName: representativeItem.conceptName
+                            };
+                        }
+                    });
                 } catch (err) {
                     console.error('데이터 생성 중 에러 발생:', err);
                 }
             } else {
                 console.log("사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.");
             }
-
         }
     } else {
         console.log("사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.");
@@ -75,7 +83,16 @@ watch(listboxTest, async (newValue) => {
             try {
                 const endpoint = `/api/v1/result/${userTestId.value}`;
                 const response = await api.get(endpoint);
-                resultList.value = response
+                resultList.value = response;
+                resultList.value.forEach(item => {
+                    const representativeItem = resultList.value.find(e => e.testItemNumber === item.testItemNumber && e.toConceptDepth === 0);
+                    if (representativeItem) {
+                        item.representative = {
+                            testItemNumber: item.testItemNumber,
+                            conceptName: representativeItem.conceptName
+                        };
+                    }
+                });
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
             }
@@ -84,13 +101,13 @@ watch(listboxTest, async (newValue) => {
         }
     }
 });
-const expandedRows = ref([]);
-const expandAll = () => {
-    expandedRows.value = resultList.value.filter((p) => p.probabilityId);
-};
-const collapseAll = () => {
-    expandedRows.value = null;
-};
+// const expandedRows = ref([]);
+// const expandAll = () => {
+//     expandedRows.value = resultList.value.filter((p) => p.probabilityId);
+// };
+// const collapseAll = () => {
+//     expandedRows.value = null;
+// };
 // 선수지식 TREE 셋팅
 const getNodeColor = (nodeData) => {
   const gradeLevel = nodeData.conceptGradeLevel;
@@ -394,29 +411,6 @@ const goToNextPage = async () => {
         <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div>
-        <div class="col-12">
-            <div class="card">
-                <div class="flex justify-content-between">
-                    <div>
-                        <div class="text-900 font-medium text-xl mb-3"> 여기는 AI 분석 결과를 보여주는 곳이야 </div>
-                        <hr class="my-3 mx-0 border-top-1 border-none surface-border" />
-                        <span class="block text-600 font-medium mb-3"> 1. [학습지 목록]에서 학습지 선택하기 </span>
-                        <ul style="list-style-type: disc;">
-                            <li class=mb-2> 정오답을 기록한 학습지에 대해 분석 결과를 볼 수 있어.</li>
-                        </ul>
-                        <span class="block text-600 font-medium"> 2. [분석 결과보기] </span>
-                        <ul style="list-style-type: disc;">
-                            <li class=mb-2> <span class="text-blue-500 font-semibold">개념(파란 글씨)</span>을 클릭하면 [선수지식 TREE]를 볼 수 있어 </li>
-                            <li class=mb-2> 화살표 <i class="pi pi-chevron-right" style="color: #57606f;"></i>를 클릭하면 학습이 필요한 선수지식을 보여줄거야 </li>
-                        </ul>
-                        <span class="block text-600 font-medium"> 3. [맞춤 학습지 출제] 버튼 누르기 </span>
-                        <ul style="list-style-type: disc;">
-                            <li class=mb-2> 분석 결과에 따른 맞춤 학습지를 출제하러 가볼까?! </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card"> 
                 <h5> 정오답 기록한 학습지 목록 </h5>
@@ -424,77 +418,10 @@ const goToNextPage = async () => {
             </div>
         </div>
         <div class="col-12 xl:col-9">
+            {{ resultList }}
             <div class="card">
-                <h5> 분석 결과 보기 </h5>
+                <h5> 분석 결과 </h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
-                    <DataTable :value="resultList" v-model:expandedRows="expandedRows" dataKey="probabilityId" responsiveLayout="scroll">
-                        <template #header>
-                            <div>
-                                <Button icon="pi pi-plus" label="모두 열기" @click="expandAll" class="mr-2 mb-2" :style="{width: '10rem'}"/>
-                                <Button icon="pi pi-minus" label="모두 닫기" @click="collapseAll" class="mb-2" :style="{width: '10rem'}"/>
-                            </div>
-                        </template>
-                        <Column :expander="true" headerStyle="min-width: 3rem" />
-                        <Column field="testItemNumber" header="번호" :sortable="true">
-                            <template #body="slotProps">
-                                {{ slotProps.data.testItemNumber }}
-                            </template>
-                        </Column>
-                        <Column field="conceptName" header="개념">
-                            <template #body="slotProps">
-                                <span class="clickable" @click="selectConceptId(slotProps.data.conceptId)">
-                                    <VMarkdownView :content="slotProps.data.conceptName" class="text-base text-blue-600"></VMarkdownView>
-                                </span>
-                            </template>
-                        </Column>
-                        <Column field="level" header="학교-학년-학기" :sortable="true">
-                            <template #body="slotProps">
-                                {{ slotProps.data.schoolLevel}}-{{ slotProps.data.gradeLevel}}-{{ slotProps.data.semester}}
-                            </template>
-                        </Column>
-                        <Column field="chapter" header="단원">
-                            <template #body="slotProps">
-                                {{ slotProps.data.chapterMain}}-{{ slotProps.data.chapterSub}}-{{ slotProps.data.chapterName}}
-                            </template>
-                        </Column>
-                        <Column field="probability" header="확률" :sortable="true">
-                            <template #body="slotProps">
-                                {{ slotProps.data.probabilityPercent}} <!--상중하로 수정-->
-                            </template>
-                        </Column>
-                        <template #expansion="slotProps">
-                            <div class="p-3">
-                                <h5> [{{ slotProps.data.conceptName }}]에서 파생된 학습 목록(선수지식 목록)</h5>
-                                <DataTable :value="slotProps.data.prerequisiteList" responsiveLayout="scroll">
-                                    <Column field="conceptName" header="개념">
-                                        <template #body="slotProps">
-                                            <VMarkdownView :content="slotProps.data.conceptName.replace(/imes/g, '\\times')" class="text-base"></VMarkdownView>
-                                        </template>
-                                    </Column>
-                                    <Column field="depth" header="선수지식 깊이" :sortable="true">
-                                        <template #body="slotProps">
-                                            {{ slotProps.data.toConceptDepth }}
-                                        </template>
-                                    </Column>
-                                    <Column field="level" header="학교-학년-학기" :sortable="true">
-                                        <template #body="slotProps">
-                                            {{ slotProps.data.schoolLevel}}-{{ slotProps.data.gradeLevel}}-{{ slotProps.data.semester}}
-                                        </template>
-                                    </Column>
-                                    <Column field="chapter" header="단원">
-                                        <template #body="slotProps">
-                                            {{ slotProps.data.chapterMain}}-{{ slotProps.data.chapterSub}}-{{ slotProps.data.chapterName}}
-                                        </template>
-                                    </Column>
-                                    <Column field="probability" header="확률" :sortable="true">
-                                        <template #body="slotProps">
-                                            {{ slotProps.data.probabilityPercent}} <!--상중하로 수정-->
-                                        </template>
-                                    </Column>
-                                </DataTable>
-                            </div>
-                        </template>
-                    </DataTable>
                 <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
             </div>
