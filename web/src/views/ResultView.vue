@@ -25,7 +25,27 @@ const isLoggedIn = ref(false);
 const listboxTest = ref(null);
 const listboxTests = ref([]);
 const resultList = ref([]);
+const sortedResultList = ref([]);
 const userTestId = ref(null);
+// 확률 값을 가져오는 함수
+const getProbability = (item) => item.probability;
+// 확률 값을 기준으로 정렬하는 함수
+const sortDataByProbability = (data) => {
+    return data.slice().sort((a, b) => getProbability(a) - getProbability(b));
+};
+// severity 값을 할당하는 함수
+const getSeverity = (data) => {
+    const totalItems = data.length;
+    data.forEach((item, index) => {
+        if (index < totalItems / 3) {
+            item.severity = '상';
+        } else if (index < (totalItems * 2) / 3) {
+            item.severity = '중';
+        } else {
+            item.severity = '하';
+        }
+    });
+};
 // 학습지 목록
 onMounted(async() => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
@@ -62,6 +82,8 @@ onMounted(async() => {
                             };
                         }
                     });
+                    // sortedResultList.value = sortDataByProbability(resultList.value);
+                    // getSeverity(sortedResultList.value);
                 } catch (err) {
                     console.error('데이터 생성 중 에러 발생:', err);
                 }
@@ -89,10 +111,12 @@ watch(listboxTest, async (newValue) => {
                     if (representativeItem) {
                         item.representative = {
                             testItemNumber: item.testItemNumber,
-                            conceptName: representativeItem.conceptName
+                            name: representativeItem.conceptName
                         };
                     }
                 });
+                // sortedResultList.value = sortDataByProbability(resultList.value);
+                // getSeverity(sortedResultList.value);
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
             }
@@ -101,13 +125,17 @@ watch(listboxTest, async (newValue) => {
         }
     }
 });
-// const expandedRows = ref([]);
-// const expandAll = () => {
-//     expandedRows.value = resultList.value.filter((p) => p.probabilityId);
-// };
-// const collapseAll = () => {
-//     expandedRows.value = null;
-// };
+const calculateResultTotal = (testItemNumber) => {
+    let total = 0;
+    if (resultList.value) {
+        for (let result of resultList.value) {
+            if (result.testItemNumber === testItemNumber) {
+                total++;
+            }
+        }
+    }
+    return total;
+};
 // 선수지식 TREE 셋팅
 const getNodeColor = (nodeData) => {
   const gradeLevel = nodeData.conceptGradeLevel;
@@ -418,12 +446,34 @@ const goToNextPage = async () => {
             </div>
         </div>
         <div class="col-12 xl:col-9">
-            {{ resultList }}
+             <!-- {{ resultList }} -->
             <div class="card">
                 <h5> 분석 결과 </h5>
-                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
+                <!-- <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}">  -->
+                    <DataTable :value="resultList" rowGroupMode="subheader" groupRowsBy="representative.testItemNumber" sortMode="single"
+                            sortField="representative.testItemNumber" :sortOrder="1" scrollable scrollHeight="30rem" tableStyle="min-width: 50rem">
+                        <Column field="representative.testItemNumber" header="Representative"></Column>
+                        <!-- <Column field="priority" header="ㅇ">
+                            <template #body="slotProps">
+                                <Tag :value="slotProps.data.priority" :severity="getSeverity(slotProps.data.severity)" />
+                            </template>
+                        </Column> -->
+                        <Column field="toConceptDepth" header="선수지식 깊이" style="min-width: 20px"></Column>
+                        <Column field="conceptName" header="개념" style="min-width: 200px"></Column>
+                        <Column field="level" header="학교-학년-학기" style="min-width: 120px"></Column>
+                        <Column field="chapter" header="단원" style="min-width: 300px"></Column>
+                        <template #groupheader="slotProps">
+                            <div class="flex align-items-center gap-2 text-xl text-primary">
+                                <span class="font-bold mx-2"> [문항 {{ slotProps.data.testItemNumber }}번] </span>
+                                <span>{{ slotProps.data.representative.name }}</span>
+                            </div>
+                        </template>
+                        <template #groupfooter="slotProps">
+                            <div class="flex justify-content-end font-bold w-full"> 전체 개수 : {{ calculateResultTotal(slotProps.data.testItemNumber) }}</div>
+                        </template>
+
+                    </DataTable>
                 <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
-                </ScrollPanel>
             </div>
             <div class="card">
                 <h5> 선수지식 TREE </h5>
