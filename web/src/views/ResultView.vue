@@ -82,8 +82,8 @@ onMounted(async() => {
                             };
                         }
                     });
-                    // sortedResultList.value = sortDataByProbability(resultList.value);
-                    // getSeverity(sortedResultList.value);
+                    sortedResultList.value = sortDataByProbability(resultList.value);
+                    getSeverity(sortedResultList.value);
                 } catch (err) {
                     console.error('데이터 생성 중 에러 발생:', err);
                 }
@@ -115,8 +115,8 @@ watch(listboxTest, async (newValue) => {
                         };
                     }
                 });
-                // sortedResultList.value = sortDataByProbability(resultList.value);
-                // getSeverity(sortedResultList.value);
+                sortedResultList.value = sortDataByProbability(resultList.value);
+                getSeverity(sortedResultList.value);
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
             }
@@ -453,11 +453,11 @@ const goToNextPage = async () => {
                     <DataTable :value="resultList" rowGroupMode="subheader" groupRowsBy="representative.testItemNumber" sortMode="single"
                             sortField="representative.testItemNumber" :sortOrder="1" scrollable scrollHeight="30rem" tableStyle="min-width: 50rem">
                         <Column field="representative.testItemNumber" header="Representative"></Column>
-                        <!-- <Column field="priority" header="ㅇ">
+                        <Column field="priority" header="ㅇ">
                             <template #body="slotProps">
                                 <Tag :value="slotProps.data.priority" :severity="getSeverity(slotProps.data.severity)" />
                             </template>
-                        </Column> -->
+                        </Column>
                         <Column field="toConceptDepth" header="선수지식 깊이" style="min-width: 20px"></Column>
                         <Column field="conceptName" header="개념" style="min-width: 200px"></Column>
                         <Column field="level" header="학교-학년-학기" style="min-width: 120px"></Column>
