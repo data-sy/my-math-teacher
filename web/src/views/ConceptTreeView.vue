@@ -303,11 +303,14 @@ const goToHome = () => {
     <div class="grid p-fluid">
       <div class="col-12">
             <div class="card">
-                <h5> 선수지식 TREE <i class="pi pi-question-circle" @mouseover="showSpec" @mouseout="hideSpec"></i></h5>
+                <div class="flex align-items-center mb-5">
+                  <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
+                  <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
+                </div>
                   <OverlayPanel ref="op" appendTo="body">
                       <li class="text-600 font-medium mb-3"> 스크롤 : 화면 확대/축소 </li>
                       <li class="text-600 font-medium mb-3"> 점 클릭 & 드래그 : 점 이동 </li>
-                      <li class="text-600 font-medium"> 점 클릭 : [선수지식 상세보기] </li>
+                      <li class="text-red-700 font-bold"> 점 클릭 : [선수지식 상세보기] </li>
                   </OverlayPanel>
                 <div>
                     <div ref="cyElement" style="height: 400px; width: 100%;"></div>

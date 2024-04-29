@@ -15,7 +15,7 @@ public class ResultResponse {
     private int toConceptDepth;
     private double probabilityPercent;
     private String conceptName;
-    private String level;
+    private String level; // schoolLevel + gradeLevel
     private String chapter;
 
     // 디버깅 용 : System.out.println(resultResponse);
