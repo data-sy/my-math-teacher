@@ -56,7 +56,7 @@ public class ConceptController {
     }
 
     /**
-     * 깊이 0~6의 선수단위개념 목록 보기 (노드)
+     * 깊이 0~n의 선수단위개념 목록 보기 (노드)
      */
     @GetMapping("/nodes/{conceptId}")
     public Flux<ConceptResponse> getNodesByConceptId(@PathVariable int conceptId){
@@ -64,7 +64,7 @@ public class ConceptController {
     }
 
     /**
-     * 깊이 0~6의 선수단위개념 관계 보기 (엣지)
+     * 깊이 0~n의 선수단위개념 관계 보기 (엣지)
      */
     @GetMapping("/edges/{conceptId}")
     public List<EdgeResponse> getEdgesByConceptId(@PathVariable int conceptId){
