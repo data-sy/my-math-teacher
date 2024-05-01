@@ -34,10 +34,10 @@ const yetAnotherFunction = () => {
     // 또 다른 함수의 구현
 };
 
-const TitleService = {
+const title = {
     calculateGrade,
     updateDate,
     yetAnotherFunction,
 };
 
-export default TitleService;
+export default title;
