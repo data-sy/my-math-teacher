@@ -140,7 +140,7 @@ const changeNodeColor = (cy) => {
 };
 
 const dataToSend = history.state.dataToSend;
-const receivedData = ref('')
+const receivedData = ref('');
 const uniqueConceptIds = new Set();
 const knowledgeSpace = [];
 const clickedNodeId = ref('');

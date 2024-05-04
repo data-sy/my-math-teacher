@@ -11,7 +11,7 @@ public class ResultResponse {
 
     private Long probabilityId;
     private int testItemNumber;
-    private int conceptId;
+    private int conceptId; // 각자 자기 개념 번호
     private int toConceptDepth;
     private double probabilityPercent;
     private String conceptName;

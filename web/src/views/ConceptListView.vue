@@ -137,7 +137,7 @@ const goToNextPage = async () => {
 
 <template>
     <div class="grid p-fluid">
-        <div class="col-12 lg:col-6 xl:col-3">
+        <div class="col-12 md:col-6 xl:col-3">
             <div class="card">
                 <h5> School Level </h5>
                 <SelectButton v-model="selectButtonLevel" :options="selectButtonLevels" optionLabel="name" />
@@ -147,7 +147,7 @@ const goToNextPage = async () => {
                 <Listbox v-model="listboxLevel" :options="listboxLevels" optionLabel="name" />
             </div>
         </div>
-        <div class="col-12 lg:col-6 xl:col-3">
+        <div class="col-12 md:col-6 xl:col-3">
             <div class="card">
                 <h5> 대단원-중단원-소단원 </h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
