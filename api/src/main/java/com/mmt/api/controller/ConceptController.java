@@ -39,7 +39,6 @@ public class ConceptController {
 //    }
 
     /**
-     * deprecated 일 듯?!
      * 단위개념 상세 보기 (관계 필드 없을 때)
      */
     @GetMapping("/{conceptId}")
