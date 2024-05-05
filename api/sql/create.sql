@@ -93,7 +93,7 @@ CREATE TABLE tests_items (
 -- 사용자 테이블
 CREATE TABLE users (
 	user_id BIGINT auto_increment,
-	user_email VARCHAR(50),
+	user_email VARCHAR(50) UNIQUE,
 	user_password VARCHAR(200),
 	user_name VARCHAR(20),
 	user_phone VARCHAR(20),
