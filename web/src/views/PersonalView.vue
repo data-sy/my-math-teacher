@@ -6,7 +6,9 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
-import levelDic from '@/assets/data/level.json';
+import title from '@/composables/title.js';
+import { VMarkdownView } from 'vue3-markdown';
+import 'vue3-markdown/dist/style.css';
 
 const store = useStore();
 const router = useRouter();
@@ -23,7 +25,7 @@ const userDetail = ref({
     userName: '',
     userBirthdate: ''
 });
-
+const userGrade = ref('');
 // [출제하기] 버튼에 준비중 띄워둠
 const confirmPopup = useConfirm();
 const confirm4 = (event) => {
@@ -83,22 +85,7 @@ const testId = ref(null);
 const isImageExist = ref(false);
 const testName = ref('');
 watch(listboxTest, async (newValue) => {
-    if (newValue !== null) {
-        testId.value = newValue.testId;
-        testName.value = newValue.testName;
-        if (testId.value >= 491 && testId.value <= 495) {
-            isImageExist.value = true;
-        } else {
-            isImageExist.value = false;
-        }
-        try {
-            const endpoint = `/api/v1/tests/detail/${testId.value}`;
-            const response = await api.get(endpoint);
-            testDetail.value = response;
-        } catch (err) {
-            console.error('데이터 생성 중 에러 발생:', err);
-        }
-    }
+
 });
 // 날짜
 const formattedDate = ref('');
@@ -275,7 +262,7 @@ const yesClick = () => {
         </div>
         <div class="col-12 xl:col-6">
             <div class="card">
-                <h5>학습지 미리보기</h5>
+                <h5>맞춤 학습지 미리보기</h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div id="testImage" ref="pdfAreaRef">
                         <div v-if="isImageExist" class="grid mx-2 my-4">
@@ -288,7 +275,7 @@ const yesClick = () => {
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
-                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2"> {{ schoolLevel }} - {{ grade }} - {{ semester }} </span>
+                                            <!-- <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2"> {{ schoolLevel }} - {{ grade }} - {{ semester }} </span> -->
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
                                         </div>
                                         <div class="flex justify-content-between">
@@ -321,7 +308,7 @@ const yesClick = () => {
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
-                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2"> {{ schoolLevel }} - {{ grade }} - {{ semester }} </span>
+                                            <!-- <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2"> {{ schoolLevel }} - {{ grade }} - {{ semester }} </span> -->
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ formattedDate }}</span>
                                         </div>
                                         <div class="flex justify-content-between">

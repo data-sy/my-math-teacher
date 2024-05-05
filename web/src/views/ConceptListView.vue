@@ -85,6 +85,7 @@ watch(listboxConcept, (newValue) => {
     if (newValue !== null) {
         conceptDetail.value = newValue;
         conceptId.value = conceptDetail.value.conceptId;
+        // console.log(conceptId.value);
         conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
     }
 });

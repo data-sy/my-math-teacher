@@ -260,7 +260,7 @@ const yesClick = () => {
                 <h5>학습지 미리보기</h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div id="testImage" ref="pdfAreaRef">
-                        <div v-if="isImageExist" class="grid mx-2 my-4">
+                        <div v-if="isImageExist.value" class="grid mx-2 my-4">
                             <div class="test-title col-12" style="aspect-ratio: 5/1">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">

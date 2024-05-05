@@ -48,15 +48,6 @@ onMounted(async () => {
 // 학습지 목록
 const listboxTest = ref(null);
 const listboxTests = ref([]);
-const sampleTest = {
-    testId: 491,
-    testName: '샘플 학습지',
-    testDate: '2024/01/01',
-    testSchoolLevel: '고등',
-    testGradeLevel: '수학',
-    testSemester: '상',
-    record: false
-};
 onMounted(async () => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
     watch(
@@ -65,6 +56,7 @@ onMounted(async () => {
             isLoggedIn.value = newToken !== null;
         }
     );
+    // 로그인 했을 때는 user의 학습지
     if (isLoggedIn.value) {
         try {
             const endpoint = '/api/v1/tests/user';
@@ -73,10 +65,21 @@ onMounted(async () => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
+        // 로그인 안 했을 때는 샘플 학습지
     } else {
-        console.log('사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.');
-        // 샘플 학습지 제공
-        listboxTests.value.push(sampleTest);
+        console.log('사용자가 로그인하지 않았습니다. 샘플 학습지 목록을 제공합니다.');
+        try {
+            const endpoint = '/api/v1/tests/sample';
+            const response = await api.get(endpoint);
+            listboxTests.value = response.map((item) => {
+                return {
+                    ...item,
+                    testName: `샘플-${item.testName}`
+                };
+            });
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
     }
 });
 // 추가) 정오답에 따라 활성화 주고, 기록 이미 한 학습지는 분석결과 보러가기 or 재기록 버튼 (새 userTest로 다시 저장되도록)
@@ -92,7 +95,8 @@ const schoolLevel = ref('');
 const grade = ref(null);
 const semester = ref(null);
 const isRecord = ref(false);
-const sampleDetail = watch(listboxTest, async (newValue) => {
+watch(listboxTest, async (newValue) => {
+    isImageExist.value = false;
     if (newValue !== null) {
         testId.value = newValue.testId;
         testName.value = newValue.testName;
@@ -124,6 +128,7 @@ const sampleDetail = watch(listboxTest, async (newValue) => {
         }
     }
 });
+
 // 문항이미지 비율
 const computeAspectRatio = (num) => {
     // 6보다 작거나 2의 배수가 아닐 때는 기본값 5/4
@@ -178,7 +183,7 @@ const analysis = async () => {
                 'Content-Type': 'application/json'
             };
             const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`, {}, { headers });
-            console.log('응답 데이터:', response.data);
+            // console.log('응답 데이터:', response.data);
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
@@ -318,7 +323,7 @@ const goToResultPage = async () => {
                 <h5>학습지 미리보기</h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div id="testImage" ref="pdfAreaRef">
-                        <div v-if="isImageExist" class="grid mx-2 my-4">
+                        <div v-if="isImageExist.value" class="grid mx-2 my-4">
                             <div class="testItemBox col-12" style="aspect-ratio: 5/1">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">

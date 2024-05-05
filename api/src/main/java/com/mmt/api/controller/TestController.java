@@ -54,7 +54,7 @@ public class TestController {
         return userTestService.findRecordedTests(userService.getMyUserIdWithAuthorities());
     }
 
-//    /** deprecated
+//    /** deprecated (security 적용해서)
 //     * 유저의 학습지 목록
 //     */
 //    @GetMapping("/user/{userId}")
@@ -68,6 +68,24 @@ public class TestController {
     @GetMapping("/school-level/{schoolLevel}")
     public List<TestResponse> getTests(@PathVariable String schoolLevel){
         return testService.findTestsBySchoolLevel(schoolLevel);
+    }
+
+    /**
+     * 샘플 학습지 목록 보기
+     * 샘플 유저 user_id=3 의 학습지
+     */
+    @GetMapping("/sample")
+    public List<UserTestsResponse> getSampleTests(){
+        return userTestService.findTests(3L);
+    }
+
+    /**
+     * 샘플 '정오답 기록한' 학습지 목록 보기
+     * 샘플 유저 user_id=3 의 학습지
+     */
+    @GetMapping("/sample/is-record")
+    public List<UserTestsResponse> getSampleRecoredTests(){
+        return userTestService.findRecordedTests(3L);
     }
 
     /**

@@ -37,57 +37,55 @@ onMounted(async () => {
             isLoggedIn.value = newToken !== null;
         }
     );
-    if (isLoggedIn.value) {
-        try {
-            const endpoint = '/api/v1/tests/user/is-record';
-            const response = await api.get(endpoint);
-            listboxTests.value = response;
-        } catch (err) {
-            console.error('데이터 생성 중 에러 발생:', err);
-        }
-        // [기록하기] 화면에서 넘어왔을 때는 해당 학습지 선택
-        if (dataToSend) {
-            receivedData.value = dataToSend;
-        }
-        if (receivedData.value) {
-            userTestId.value = receivedData.value.userTestId;
-            if (userTestId.value !== null) {
-                try {
-                    const endpoint = `/api/v1/result/${userTestId.value}`;
-                    const response = await api.get(endpoint);
-                    resultList.value = response;
-                    resultList.value.forEach((item) => {
-                        const representativeItem = resultList.value.find((e) => e.testItemNumber === item.testItemNumber && e.toConceptDepth === 0);
-                        if (representativeItem) {
-                            item.representative = {
-                                testItemNumber: item.testItemNumber,
-                                conceptId: representativeItem.conceptId,
-                                conceptName: representativeItem.conceptName
-                            };
-                        }
-                    });
-                    sortedResultList.value = sortProbaGroupByTestItemId(resultList.value);
-                } catch (err) {
-                    console.error('데이터 생성 중 에러 발생:', err);
-                }
-            } else {
-                console.log('사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.');
+    // 로그인 했을 때는 유저의 목록, 아닐 때는 샘플 목록 가져오기
+    const endpoint = isLoggedIn.value ? '/api/v1/tests/user/is-record' : '/api/v1/tests/sample/is-record';
+    try {
+        console.log(endpoint);
+        const response = await api.get(endpoint);
+        listboxTests.value = response;
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    }
+    // [기록하기] 화면에서 넘어왔을 때는 해당 학습지 선택
+    if (dataToSend) {
+        receivedData.value = dataToSend;
+    }
+    if (receivedData.value) {
+        userTestId.value = receivedData.value.userTestId;
+        if (userTestId.value !== null) {
+            try {
+                const endpoint = `/api/v1/result/${userTestId.value}`;
+                const response = await api.get(endpoint);
+                resultList.value = response;
+                resultList.value.forEach((item) => {
+                    const representativeItem = resultList.value.find((e) => e.testItemNumber === item.testItemNumber && e.toConceptDepth === 0);
+                    if (representativeItem) {
+                        item.representative = {
+                            testItemNumber: item.testItemNumber,
+                            conceptId: representativeItem.conceptId,
+                            conceptName: representativeItem.conceptName
+                        };
+                    }
+                });
+                sortedResultList.value = sortProbaGroupByTestItemId(resultList.value);
+            } catch (err) {
+                console.error('데이터 생성 중 에러 발생:', err);
             }
+        } else {
+            console.log('사용자가 로그인하지 않았거나, 학습지를 선택하지 않았습니다.');
         }
-    } else {
-        console.log('사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.');
     }
 });
 // 리팩토링) 기록 페이지에서 넘어왔다면 학습지 목록에 가상의 클릭 이벤트 추가하기 (목록에 선택된 학습지 보라색으로 체크되도록)
 // 분석 결과
 watch(listboxTest, async (newValue) => {
+    isLoggedIn.value = localStorage.getItem('accessToken') !== null;
     clearCy();
     if (newValue !== null) {
         userTestId.value = newValue.userTestId;
-        // isLoggedIn도 사실 넣어야 하지만 listboxTest가 isLoggedIn가 있어야만 생성되는 아이니까 패스
+        const endpoint = isLoggedIn.value ? `/api/v1/result/${userTestId.value}` : `/api/v1/result/sample/${userTestId.value}`;
         if (userTestId.value !== null) {
             try {
-                const endpoint = `/api/v1/result/${userTestId.value}`;
                 const response = await api.get(endpoint);
                 resultList.value = response;
                 resultList.value.forEach((item) => {
@@ -432,13 +430,13 @@ const selectedNode2 = ref('');
 const toggle = ref(true); // true이면 왼쪽에, false이면 오른쪽에
 // 노드 클릭 시 해당 노드의 데이터 화면에 보여주기
 watch(clickedNodeId, async (newValue) => {
-    console.log(newValue);
+    // console.log(newValue);
     const selectedNodeId = parseInt(newValue);
     if (selectedNodeId !== null) {
         try {
             const endpoint = `/api/v1/concepts/${selectedNodeId}`;
             const response = await api.get(endpoint);
-            if (toggle.value){
+            if (toggle.value) {
                 selectedNode1.value = response;
                 toggle.value = false;
             } else {
@@ -449,10 +447,10 @@ watch(clickedNodeId, async (newValue) => {
             console.error('데이터 생성 중 에러 발생:', err);
         }
     }
-    if (selectedNode1.value!=='') {
+    if (selectedNode1.value !== '') {
         selectedNode1.value.conceptDescription = selectedNode1.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
     }
-    if (selectedNode2.value!=='') {
+    if (selectedNode2.value !== '') {
         selectedNode2.value.conceptDescription = selectedNode2.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
     }
     // 스크롤
@@ -561,7 +559,7 @@ const goToNextPage = async () => {
                                 <span>{{ slotProps.data.representative.conceptName }}</span>
                             </div>
                             <div>
-                                <Button @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 TREE 보기" class="p-button-outlined p-button-primary mr-2" />
+                                <Button @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 TREE 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
                             </div>
                         </div>
                     </template>

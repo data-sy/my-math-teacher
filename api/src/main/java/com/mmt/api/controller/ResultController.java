@@ -25,4 +25,10 @@ public class ResultController {
     @GetMapping("/{userTestId}")
     public List<ResultResponse> getResults(@PathVariable Long userTestId){ return probabilityService.findResults(userTestId);}
 
+    /**
+     * 샘플 분석 결과 보기
+     */
+    @GetMapping("/sample/{userTestId}")
+    public List<ResultResponse> getSampleResults(@PathVariable Long userTestId){ return probabilityService.findResults(userTestId);}
+
 }
