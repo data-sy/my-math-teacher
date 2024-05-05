@@ -1,16 +1,16 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
-import { VMarkdownView } from 'vue3-markdown'
-import 'vue3-markdown/dist/style.css'
+import { VMarkdownView } from 'vue3-markdown';
+import 'vue3-markdown/dist/style.css';
 
 cytoscape.use(klay);
 const cyElement = ref(null);
 let cy = null;
 
-const router = useRouter()
+const router = useRouter();
 
 // 크기 기본값
 const nodeSize = 7;
@@ -38,7 +38,7 @@ const setDimStyle = (target_cy, style) => {
     target_cy.edges().forEach((target) => {
         target.style(style);
     });
-}
+};
 const setFocus = (target_element, fromColor, toColor, edgeWidth, arrowScale) => {
     if (!target_element) {
         console.error('Invalid target element.');
@@ -59,8 +59,7 @@ const setFocus = (target_element, fromColor, toColor, edgeWidth, arrowScale) => 
         e.style('line-color', fromColor);
         e.style('target-arrow-color', fromColor);
         e.style('opacity', 0.5);
-    }
-    );
+    });
     target_element.predecessors().each((e) => {
         if (e.isEdge()) {
             e.style('width', edgeWidth);
@@ -77,9 +76,8 @@ const setFocus = (target_element, fromColor, toColor, edgeWidth, arrowScale) => 
         e.style('font-size', Math.max(parseFloat(e.style('font-size')), fontActiveSize));
         e.style('color', nodeColor);
         e.style('opacity', 1);
-    }
-    );
-}
+    });
+};
 const setResetFocus = (target_cy) => {
     target_cy.nodes().forEach((target) => {
         const originalColor = target.data('nodeMyColor');
@@ -97,46 +95,45 @@ const setResetFocus = (target_cy) => {
         target.style('arrow-scale', arrowScale);
         target.style('opacity', 1);
     });
-}
+};
 const getNodeColor = (gradeLevel) => {
-  switch (gradeLevel){
-    case '초1':
-    case '초2':
-      return 'yellow'; 
-    case '초3':
-    case '초4':
-      return 'springGreen';
-    case '초5':
-    case '초6':
-      return 'green'; 
-    case '중1':
-      return 'lightblue'; 
-    case '중2':
-      return 'dodgerblue'; 
-    case '중3':
-      return 'rgb(9, 106, 204)'; 
-    case '수학':
-      return 'lightpink';   
-    case '수1':
-    case '수2':
-      return 'hotpink'; 
-    case '미적':
-    case '확통':
-    case '기하':
-      return 'red'; 
-    default:
-      return 'gray'; 
-  }
+    switch (gradeLevel) {
+        case '초1':
+        case '초2':
+            return 'yellow';
+        case '초3':
+        case '초4':
+            return 'springGreen';
+        case '초5':
+        case '초6':
+            return 'green';
+        case '중1':
+            return 'lightblue';
+        case '중2':
+            return 'dodgerblue';
+        case '중3':
+            return 'rgb(9, 106, 204)';
+        case '수학':
+            return 'lightpink';
+        case '수1':
+        case '수2':
+            return 'hotpink';
+        case '미적':
+        case '확통':
+        case '기하':
+            return 'red';
+        default:
+            return 'gray';
+    }
 };
 // 노드 속성에 따라 색상 변경
 const changeNodeColor = (cy) => {
-  cy.nodes().forEach(node => {
-      const nodeData = node.data();
-      const nodeMyColor = getNodeColor(nodeData.conceptGradeLevel); 
-      node.data('nodeMyColor', nodeMyColor); // 노드의 초기 색상을 저장
-      node.style('background-color', nodeMyColor);
-    }
-  );
+    cy.nodes().forEach((node) => {
+        const nodeData = node.data();
+        const nodeMyColor = getNodeColor(nodeData.conceptGradeLevel);
+        node.data('nodeMyColor', nodeMyColor); // 노드의 초기 색상을 저장
+        node.style('background-color', nodeMyColor);
+    });
 };
 
 const dataToSend = history.state.dataToSend;
@@ -146,135 +143,133 @@ const knowledgeSpace = [];
 const clickedNodeId = ref('');
 const conceptDetail = ref(null);
 onMounted(() => {
-  if (dataToSend) {
-    receivedData.value = dataToSend
-  }
-  if (receivedData.value) {
-    // 해당 concept
-    conceptDetail.value = receivedData.value.nodes.find(node => node.conceptId === receivedData.value.conceptId);
-    conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n')
-                                                                        .replace(/\ne/g, '\\ne');
-    // nodes -> knowledgeSpace의 data
-    receivedData.value.nodes.forEach(node => {
-      uniqueConceptIds.add(node.conceptId);
-    });
-      // 중복이 제거된 conceptId를 가지고 knowledgeSpace에 데이터 추가
-    uniqueConceptIds.forEach(uniqueConceptId => {
-      const filteredNode = receivedData.value.nodes.find(node => node.conceptId === uniqueConceptId);
-      if (filteredNode) {
-        knowledgeSpace.push({
-          data: {
-            id: filteredNode.conceptId.toString(),
-            label: filteredNode.conceptName,
-            conceptGradeLevel: filteredNode.conceptGradeLevel
-          }
+    if (dataToSend) {
+        receivedData.value = dataToSend;
+    }
+    if (receivedData.value) {
+        // 해당 concept
+        conceptDetail.value = receivedData.value.nodes.find((node) => node.conceptId === receivedData.value.conceptId);
+        conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
+        // nodes -> knowledgeSpace의 data
+        receivedData.value.nodes.forEach((node) => {
+            uniqueConceptIds.add(node.conceptId);
         });
-      }
-    });
-    // edges -> knowledgeSpace의 data
-    receivedData.value.edges.forEach(edge => {
-      // edge의 source가 nodes의 conceptId에 있는지 확인 (나중에 미리 백단에서 걸러오는 방법으로 리팩토링)
-      const sourceExists = receivedData.value.nodes.some(node => {
-        return node.conceptId === parseInt(edge.data.source);
-      });
-      // target이 nodes 안에 있을 경우만 추가
-      if (sourceExists) {
-        knowledgeSpace.push(edge);
-      }
-    });
-  }
+        // 중복이 제거된 conceptId를 가지고 knowledgeSpace에 데이터 추가
+        uniqueConceptIds.forEach((uniqueConceptId) => {
+            const filteredNode = receivedData.value.nodes.find((node) => node.conceptId === uniqueConceptId);
+            if (filteredNode) {
+                knowledgeSpace.push({
+                    data: {
+                        id: filteredNode.conceptId.toString(),
+                        label: filteredNode.conceptName,
+                        conceptGradeLevel: filteredNode.conceptGradeLevel
+                    }
+                });
+            }
+        });
+        // edges -> knowledgeSpace의 data
+        receivedData.value.edges.forEach((edge) => {
+            // edge의 source가 nodes의 conceptId에 있는지 확인 (나중에 미리 백단에서 걸러오는 방법으로 리팩토링)
+            const sourceExists = receivedData.value.nodes.some((node) => {
+                return node.conceptId === parseInt(edge.data.source);
+            });
+            // target이 nodes 안에 있을 경우만 추가
+            if (sourceExists) {
+                knowledgeSpace.push(edge);
+            }
+        });
+    }
 
-  if (cyElement.value) {
-    cy = cytoscape({
-      container: cyElement.value,
-      elements: knowledgeSpace,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'background-color': nodeColor,
-            'width': nodeSize,
-            'height': nodeSize,
-            'font-size': fontSize,
-            'color': nodeColor,
-            'label': 'data(label)',
-            'text-margin-y': -2,
-            'text-wrap': 'wrap', // 텍스트 줄바꿈 설정
-            'text-max-width': '60px', // 텍스트 최대 가로 길이 설정
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': edgeWidth,
-            'curve-style': 'bezier',
-            'line-color': edgeColor, //#ccc
-            'target-arrow-color': edgeColor, //#ccc
-            'target-arrow-shape': 'triangle',
-            'arrow-scale': arrowScale
-          }
-        }
-      ],
-      layout: {
-        name: 'klay',
-        animate: false,
-        gravityRangeCompound: 1.5,
-        klay: {
-          spacing: 26, 
-        },
-        fit: true, //레이아웃을 컨테이너에 맞게 자동 조정
-        tile: true, // 타일형 레이아웃 (노드를 격자로 배치)
-        // nodeDimensionsIncludeLabels: true,
-        // avoidOverlap: true, // 겹치는 노드 및 레이블 방지
-        // avoidOverlapPadding: 10 // 겹치는 것을 방지하기 위한 여백
-      }
-    });
-    // 노드 속성에 따라 색상 변경
-    changeNodeColor(cy);
+    if (cyElement.value) {
+        cy = cytoscape({
+            container: cyElement.value,
+            elements: knowledgeSpace,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': nodeColor,
+                        width: nodeSize,
+                        height: nodeSize,
+                        'font-size': fontSize,
+                        color: nodeColor,
+                        label: 'data(label)',
+                        'text-margin-y': -2,
+                        'text-wrap': 'wrap', // 텍스트 줄바꿈 설정
+                        'text-max-width': '60px' // 텍스트 최대 가로 길이 설정
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        width: edgeWidth,
+                        'curve-style': 'bezier',
+                        'line-color': edgeColor, //#ccc
+                        'target-arrow-color': edgeColor, //#ccc
+                        'target-arrow-shape': 'triangle',
+                        'arrow-scale': arrowScale
+                    }
+                }
+            ],
+            layout: {
+                name: 'klay',
+                animate: false,
+                gravityRangeCompound: 1.5,
+                klay: {
+                    spacing: 26
+                },
+                fit: true, //레이아웃을 컨테이너에 맞게 자동 조정
+                tile: true // 타일형 레이아웃 (노드를 격자로 배치)
+                // nodeDimensionsIncludeLabels: true,
+                // avoidOverlap: true, // 겹치는 노드 및 레이블 방지
+                // avoidOverlapPadding: 10 // 겹치는 것을 방지하기 위한 여백
+            }
+        });
+        // 노드 속성에 따라 색상 변경
+        changeNodeColor(cy);
 
-    // 클릭한 id 추출 (상세보기에 뿌려주기 위해)
-    cy.on('tap', 'node', (event) => {
-        clickedNodeId.value = event.target.id();
-    });
+        // 클릭한 id 추출 (상세보기에 뿌려주기 위해)
+        cy.on('tap', 'node', (event) => {
+            clickedNodeId.value = event.target.id();
+        });
 
-    // 마우스 인/아웃 하이라이트
-    cy.on('tapstart mouseover', 'node', (e) => {
-      setDimStyle(cy, {
-        'background-color': dimColor,
-        'line-color': dimColor,
-        'source-arrow-color': dimColor,
-        'color': dimColor
-      });
-      setFocus(e.target, fromColor, toColor, edgeActiveWidth, arrowActiveScale);
-    });
-    cy.on('tapend mouseout', 'node', (e) => {
-      const node = e.target;
-      const originalColor = node.data('nodeMyColor');
-      setResetFocus(e.cy);
-    });
-  }
+        // 마우스 인/아웃 하이라이트
+        cy.on('tapstart mouseover', 'node', (e) => {
+            setDimStyle(cy, {
+                'background-color': dimColor,
+                'line-color': dimColor,
+                'source-arrow-color': dimColor,
+                color: dimColor
+            });
+            setFocus(e.target, fromColor, toColor, edgeActiveWidth, arrowActiveScale);
+        });
+        cy.on('tapend mouseout', 'node', (e) => {
+            const node = e.target;
+            const originalColor = node.data('nodeMyColor');
+            setResetFocus(e.cy);
+        });
+    }
 });
 
 // 컴포넌트 파기 시 Cytoscape 인스턴스 파기
 onBeforeUnmount(() => {
-  if (cy) {
-    cy.destroy();
-  }
+    if (cy) {
+        cy.destroy();
+    }
 });
 
-const selectedNode = ref('')
+const selectedNode = ref('');
 // 노드 클릭 시 해당 노드의 데이터 화면에 보여주기
 watch(clickedNodeId, (newValue) => {
-  const selectedNodeId = parseInt(newValue);
-  if (newValue && receivedData.value && receivedData.value.nodes) {
-    selectedNode.value = receivedData.value.nodes.find(node => node.conceptId === selectedNodeId);
-    selectedNode.value.conceptDescription = selectedNode.value.conceptDescription.replace(/\\n/g, '\n')
-                                                                        .replace(/\ne/g, '\\ne');
-  }
-  const selectedNodeElement = document.getElementById('scroll-node');
-  if (selectedNodeElement) {
-    selectedNodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+    const selectedNodeId = parseInt(newValue);
+    if (newValue && receivedData.value && receivedData.value.nodes) {
+        selectedNode.value = receivedData.value.nodes.find((node) => node.conceptId === selectedNodeId);
+        selectedNode.value.conceptDescription = selectedNode.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
+    }
+    const selectedNodeElement = document.getElementById('scroll-node');
+    if (selectedNodeElement) {
+        selectedNodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 });
 // ? 아이콘에 설명서 마우스오버 & 마우스아웃
 const op = ref(null);
@@ -287,100 +282,109 @@ const hideSpec = () => {
 
 // '이전' 버튼 (conceptlist로)
 const goBack = () => {
-  router.go(-1) // 또는 router.back()
-}
+    router.go(-1); // 또는 router.back()
+};
 // 홈으로
 const goToHome = () => {
-  try {
-    router.push({ path: '/' }); 
-  } catch (error) {
-    console.error('에러 발생:', error);
-  }
+    try {
+        router.push({ path: '/' });
+    } catch (error) {
+        console.error('에러 발생:', error);
+    }
 };
 </script>
 
 <template>
     <div class="grid p-fluid">
-      <div class="col-12">
+        <div class="col-12">
             <div class="card">
                 <div class="flex align-items-center mb-5">
-                  <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
-                  <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
+                    <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
+                    <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                 </div>
-                  <OverlayPanel ref="op" appendTo="body">
-                      <li class="text-600 font-medium mb-3"> 스크롤 : 화면 확대/축소 </li>
-                      <li class="text-600 font-medium mb-3"> 점 클릭 & 드래그 : 점 이동 </li>
-                      <li class="text-red-700 font-bold"> 점 클릭 : [선수지식 상세보기] </li>
-                  </OverlayPanel>
+                <OverlayPanel ref="op" appendTo="body">
+                    <li class="text-600 font-medium mb-3">스크롤 : 화면 확대/축소</li>
+                    <li class="text-600 font-medium mb-3">점 클릭 & 드래그 : 점 이동</li>
+                    <li class="text-red-700 font-bold">점 클릭 : [선수지식 상세보기]</li>
+                </OverlayPanel>
                 <div>
-                    <div ref="cyElement" style="height: 400px; width: 100%;"></div>
+                    <div ref="cyElement" style="height: 400px; width: 100%"></div>
                 </div>
-                <ul style="list-style-type: disc;">
-                    <li class="text-600 font-medium mb-3"> 초등학교 : 초1,2 <i class="pi pi-circle-fill" style="color: yellow; font-size: 1.5rem;"></i> 초3,4 <i class="pi pi-circle-fill" style="color: springgreen; font-size: 1.5rem;"></i> 초5,6 <i class="pi pi-circle-fill" style="color: green; font-size: 1.5rem;"></i> </li>
-                    <li class="text-600 font-medium mb-3"> 중학교 : 중1 <i class="pi pi-circle-fill" style="color: skyblue; font-size: 1.5rem;"></i> 중2 <i class="pi pi-circle-fill" style="color: dodgerblue; font-size: 1.5rem;"></i> 중3 <i class="pi pi-circle-fill" style="color: rgb(9, 106, 204); font-size: 1.5rem;"></i></li>
-                    <li class="text-600 font-medium"> 고등학교 : 수학(상/하) <i class="pi pi-circle-fill" style="color: lightpink; font-size: 1.5rem;"></i> 수&#8544;,수&#8545; <i class="pi pi-circle-fill" style="color: hotpink; font-size: 1.5rem;"></i> 미적,기하,확통 <i class="pi pi-circle-fill" style="color: red; font-size: 1.5rem;"></i> </li>
+                <ul style="list-style-type: disc">
+                    <li class="text-600 font-medium mb-3">
+                        초등학교 : 초1,2 <i class="pi pi-circle-fill" style="color: yellow; font-size: 1.5rem"></i> 초3,4 <i class="pi pi-circle-fill" style="color: springgreen; font-size: 1.5rem"></i> 초5,6
+                        <i class="pi pi-circle-fill" style="color: green; font-size: 1.5rem"></i>
+                    </li>
+                    <li class="text-600 font-medium mb-3">
+                        중학교 : 중1 <i class="pi pi-circle-fill" style="color: skyblue; font-size: 1.5rem"></i> 중2 <i class="pi pi-circle-fill" style="color: dodgerblue; font-size: 1.5rem"></i> 중3
+                        <i class="pi pi-circle-fill" style="color: rgb(9, 106, 204); font-size: 1.5rem"></i>
+                    </li>
+                    <li class="text-600 font-medium">
+                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" style="color: lightpink; font-size: 1.5rem"></i> 수&#8544;,수&#8545; <i class="pi pi-circle-fill" style="color: hotpink; font-size: 1.5rem"></i> 미적,기하,확통
+                        <i class="pi pi-circle-fill" style="color: red; font-size: 1.5rem"></i>
+                    </li>
                 </ul>
             </div>
-      </div>
-      <div class="col-12 lg:col-6">
-          <div class="card" id="scroll-node">
-              <h5> 선수지식 상세보기 </h5>
-              <div class="surface-section" v-if="selectedNode"> 
-                  <div>
-                    <VMarkdownView :content="selectedNode.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
-                  </div>
-                  <div class="text-500 mb-5"></div>
-                  <ul class="list-none p-0 m-0">
-                      <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptSchoolLevel }}-{{ selectedNode.conceptGradeLevel }}-{{ selectedNode.conceptSemester }}</div>
-                      </li>
-                      <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptChapterMain }}-{{ selectedNode.conceptChapterSub }}-{{ selectedNode.conceptChapterName }}</div>
-                      </li>
-                      <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptAchievementName }}</div>
-                      </li>
-                      <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                          <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                          <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
-                            <VMarkdownView :content="selectedNode.conceptDescription"></VMarkdownView>
-                          </div>
-                      </li>
-                  </ul>
-              </div>
-              <div class="surface-section" v-else>
-                  <div class="font-medium text-3xl text-900 mb-3 text-blue-500"> 개념을 선택해주세요 </div>
-                  <div class="text-500 mb-5">  </div>
-                  <ul class="list-none p-0 m-0">
-                      <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                      </li>
-                      <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                      </li>
-                      <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                      </li>
-                      <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                          <div class="text-500 w-6 md:w-3 font-medium">개념설명</div>
-                          <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                      </li>
-                  </ul>
-              </div>
-          </div>
-      </div>
-      <div class="col-12 lg:col-6">
-          <div class="card">
-                <h5> 개념 상세보기 </h5>
-                <div class="surface-section" v-if="conceptDetail"> 
+        </div>
+        <div class="col-12 lg:col-6">
+            <div class="card" id="scroll-node">
+                <h5>선수지식 상세보기</h5>
+                <div class="surface-section" v-if="selectedNode">
                     <div>
-                      <VMarkdownView :content="conceptDetail.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                        <VMarkdownView :content="selectedNode.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                    </div>
+                    <div class="text-500 mb-5"></div>
+                    <ul class="list-none p-0 m-0">
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptSchoolLevel }}-{{ selectedNode.conceptGradeLevel }}-{{ selectedNode.conceptSemester }}</div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptChapterMain }}-{{ selectedNode.conceptChapterSub }}-{{ selectedNode.conceptChapterName }}</div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode.conceptAchievementName }}</div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
+                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                                <VMarkdownView :content="selectedNode.conceptDescription"></VMarkdownView>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="surface-section" v-else>
+                    <div class="font-medium text-3xl text-900 mb-3 text-blue-500">개념을 선택해주세요</div>
+                    <div class="text-500 mb-5"></div>
+                    <ul class="list-none p-0 m-0">
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                        </li>
+                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                            <div class="text-500 w-6 md:w-3 font-medium">개념설명</div>
+                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 lg:col-6">
+            <div class="card">
+                <h5>개념 상세보기</h5>
+                <div class="surface-section" v-if="conceptDetail">
+                    <div>
+                        <VMarkdownView :content="conceptDetail.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
                     </div>
                     <div class="text-500 mb-5"></div>
                     <ul class="list-none p-0 m-0">
@@ -399,7 +403,7 @@ const goToHome = () => {
                         <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
                             <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
                             <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
-                              <VMarkdownView :content="conceptDetail.conceptDescription"></VMarkdownView>
+                                <VMarkdownView :content="conceptDetail.conceptDescription"></VMarkdownView>
                             </div>
                         </li>
                     </ul>
@@ -407,11 +411,11 @@ const goToHome = () => {
             </div>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2 mb-5">
-            <Button  @click="goBack" label="이전" class="mr-2 mb-2"></Button>
+            <Button @click="goBack" label="이전" class="mr-2 mb-2"></Button>
         </div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-6 xl:col-8"></div>
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <Button @click="goToHome" label="홈으로" icon="pi pi-home" class="mr-2 mb-2"></Button>
-        </div>     
+        </div>
     </div>
 </template>

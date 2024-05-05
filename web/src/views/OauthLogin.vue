@@ -7,7 +7,6 @@ const router = useRouter();
 const store = useStore();
 
 onMounted(() => {
-
     const url = window.location.href;
     const urlParams = new URLSearchParams(url.split('?')[1]);
     const token = urlParams.get('token');
@@ -22,19 +21,15 @@ onMounted(() => {
 
             store.commit('setAccessToken', accessToken);
             store.commit('setRefreshToken', refreshToken);
-            
-            router.push({ path: '/', query: {} });
 
+            router.push({ path: '/', query: {} });
         } else {
             console.error('Invalid token format.');
         }
     } else {
         console.error('Token not found in URL.');
     }
-
 });
 </script>
 
-<template>
-    
-</template>
+<template></template>

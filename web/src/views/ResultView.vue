@@ -551,7 +551,6 @@ const goToNextPage = async () => {
                         </template>
                     </Column>
                     <Column field="toConceptDepth" header="선수지식 깊이" style="min-width: 20px"></Column>
-                    <Column field="conceptId" header="개념ID" style="min-width: 200px"></Column>
                     <Column field="conceptName" header="개념" style="min-width: 200px"></Column>
                     <Column field="level" header="학교-학년-학기" style="min-width: 120px"></Column>
                     <Column field="chapter" header="단원" style="min-width: 300px"></Column>

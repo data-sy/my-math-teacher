@@ -7,8 +7,8 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import title from '@/composables/title';
 import axios from 'axios';
-import { VMarkdownView } from 'vue3-markdown'
-import 'vue3-markdown/dist/style.css'
+import { VMarkdownView } from 'vue3-markdown';
+import 'vue3-markdown/dist/style.css';
 
 const store = useStore();
 const router = useRouter();
@@ -24,46 +24,47 @@ const userDetail = ref({
     userBirthdate: ''
 });
 const userGrade = ref('');
-onMounted(async() => {
+onMounted(async () => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
-    watch(() => store.state.accessToken,
+    watch(
+        () => store.state.accessToken,
         (newToken) => {
             isLoggedIn.value = newToken !== null;
         }
-    )
+    );
     if (isLoggedIn.value) {
         try {
             const endpoint = '/api/v1/users';
             const response = await api.get(endpoint);
             userDetail.value = response;
             userGrade.value = title.calculateGrade(userDetail.value.userBirthdate);
-
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
     } else {
-        console.log("사용자가 로그인하지 않았습니다. 유저 정보를 건너뜁니다.");
+        console.log('사용자가 로그인하지 않았습니다. 유저 정보를 건너뜁니다.');
     }
 });
 // 학습지 목록
 const listboxTest = ref(null);
 const listboxTests = ref([]);
 const sampleTest = {
-    "testId" : 491,
-    "testName" : '샘플 학습지',
-    "testDate" : '2024/01/01',
-    "testSchoolLevel" : '고등',
-    "testGradeLevel" : '수학', 
-    "testSemester" : '상',
-    "record" : false,
+    testId: 491,
+    testName: '샘플 학습지',
+    testDate: '2024/01/01',
+    testSchoolLevel: '고등',
+    testGradeLevel: '수학',
+    testSemester: '상',
+    record: false
 };
-onMounted(async() => {
+onMounted(async () => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null;
-    watch(() => store.state.accessToken,
+    watch(
+        () => store.state.accessToken,
         (newToken) => {
             isLoggedIn.value = newToken !== null;
         }
-    )
+    );
     if (isLoggedIn.value) {
         try {
             const endpoint = '/api/v1/tests/user';
@@ -73,10 +74,9 @@ onMounted(async() => {
             console.error('데이터 생성 중 에러 발생:', err);
         }
     } else {
-        console.log("사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.");
+        console.log('사용자가 로그인하지 않았습니다. 학습지 목록을 건너뜁니다.');
         // 샘플 학습지 제공
         listboxTests.value.push(sampleTest);
-
     }
 });
 // 추가) 정오답에 따라 활성화 주고, 기록 이미 한 학습지는 분석결과 보러가기 or 재기록 버튼 (새 userTest로 다시 저장되도록)
@@ -86,15 +86,14 @@ const testDetail = ref([]);
 const testId = ref(null);
 const isImageExist = ref(false);
 const testName = ref('');
-const testDate = ref('')
+const testDate = ref('');
 const userTestId = ref(null);
-const schoolLevel = ref('')
+const schoolLevel = ref('');
 const grade = ref(null);
 const semester = ref(null);
 const isRecord = ref(false);
-const sampleDetail = 
-watch(listboxTest, async (newValue) => {
-    if (newValue !== null ) {
+const sampleDetail = watch(listboxTest, async (newValue) => {
+    if (newValue !== null) {
         testId.value = newValue.testId;
         testName.value = newValue.testName;
         testDate.value = newValue.testDate;
@@ -147,7 +146,7 @@ const renderItemAnswer = (text) => {
 };
 const isLatex = (answer) => {
     return !answer.includes('&#');
-}
+};
 // 정오답 DB에 저장
 const createRecord = async () => {
     if (isLoggedIn.value && userTestId.value !== null) {
@@ -162,7 +161,7 @@ const createRecord = async () => {
             console.error(`POST ${endpoint} failed:`, err);
         }
     } else {
-        console.log("사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.");
+        console.log('사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.');
     }
 };
 // AI 분석
@@ -170,13 +169,13 @@ const analysis = async () => {
     if (isLoggedIn.value && userTestId.value !== null) {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
-                console.error('액세스 토큰이 없습니다.');
-                return;
-            }
+            console.error('액세스 토큰이 없습니다.');
+            return;
+        }
         try {
             const headers = {
-                "Authorization": `Bearer ${accessToken}`,
-                "Content-Type": "application/json"
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
             };
             const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`, {}, { headers });
             console.log('응답 데이터:', response.data);
@@ -184,7 +183,7 @@ const analysis = async () => {
             console.error('데이터 생성 중 에러 발생:', err);
         }
     } else {
-        console.log("userTestId가 없습니다. AI 분석을 건너뜁니다.");   
+        console.log('userTestId가 없습니다. AI 분석을 건너뜁니다.');
     }
 };
 // 학습지를 누르지 않고 [기록하기]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
@@ -213,7 +212,7 @@ const confirm2 = (event) => {
         rejectLabel: ' ',
         accept: () => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 기록할 수 있습니다.', life: 3000 });
-        },
+        }
     });
 };
 // 이미 기록한 학습지에 대해서는, 이미 기록한 학습지라고 안내
@@ -226,7 +225,7 @@ const confirm3 = (event) => {
         rejectLabel: ' ',
         accept: () => {
             toast.add({ severity: 'info', summary: 'Confirmed', detail: '3. 분석 결과보기로 확인하세요.', life: 3000 });
-        },
+        }
     });
 };
 // '이전' 버튼 (홈으로)
@@ -257,10 +256,10 @@ const yesClick = async () => {
 const goToResultPage = async () => {
     const data = {
         userTestId: userTestId.value
-    }
+    };
     router.push({
         name: 'result',
-        state: {dataToSend: data}
+        state: { dataToSend: data }
     });
 };
 </script>
@@ -281,10 +280,11 @@ const goToResultPage = async () => {
                 <h5>정오답 기록하기</h5>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div v-if="!listboxTest"></div>
-                    <div v-else-if="listboxTest.record"> 
-                        <div class="mx-2 my-5 text-2xl  text-bold text-pink-500">
+                    <div v-else-if="listboxTest.record">
+                        <div class="mx-2 my-5 text-2xl text-bold text-pink-500">
                             <div>정오답이 이미 기록된 학습지입니다.</div>
-                            <div>AI 분석 결과가 궁금하면 
+                            <div>
+                                AI 분석 결과가 궁금하면
                                 <span @click="goToResultPage" class="text-blue-500 cursor-pointer"> [여기] </span>
                                 를 클릭해주세요.
                             </div>
@@ -316,77 +316,69 @@ const goToResultPage = async () => {
             <div class="card">
                 <!--'기록하기'에서는 정답 삭제-->
                 <h5>학습지 미리보기</h5>
-                <ScrollPanel :style="{ width: '100%', height: '35rem'}" :pt="{wrapper: {style: {'border-right': '10px solid var(--surface-ground)'}}, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80'}"> 
+                <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div id="testImage" ref="pdfAreaRef">
                         <div v-if="isImageExist" class="grid mx-2 my-4">
-                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">
-                                        <img :src="logoUrl" alt="logo"/>
+                                        <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
                                         <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
-                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
-                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
-                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2"> {{ schoolLevel }} - {{ grade }} - {{ semester }} </span>
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ testDate }}</span>
                                         </div>
                                         <div class="flex justify-content-between">
                                             <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
                                                 {{ testName }}
                                             </span>
-                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
-                                                {{ userGrade }} {{ userDetail.userName }}
-                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2"> {{ userGrade }} {{ userDetail.userName }} </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6" :style="computeAspectRatio(index+1)">
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6" :style="computeAspectRatio(index + 1)">
                                 <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
-                                <img :src="item.itemImagePath" alt="Item Image" class="fit-image"/>
+                                <img :src="item.itemImagePath" alt="Item Image" class="fit-image" />
                             </div>
                         </div>
                         <div v-else class="grid mx-2 my-4">
-                            <div class="testItemBox col-12" style="aspect-ratio: 5/1;">
+                            <div class="testItemBox col-12" style="aspect-ratio: 5/1">
                                 <div class="grid">
                                     <div class="col-12 mx-3 mt-3 logo">
-                                        <img :src="logoUrl" alt="logo"/>
+                                        <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
                                         <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
-                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2">
-                                                {{ schoolLevel }} - {{ grade }} - {{ semester }}
-                                            </span>
+                                            <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl font-medium text-900 mx-2"> {{ schoolLevel }} - {{ grade }} - {{ semester }} </span>
                                             <span class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl mx-2">{{ testDate }}</span>
                                         </div>
                                         <div class="flex justify-content-between">
                                             <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
                                                 {{ testName }}
                                             </span>
-                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2">
-                                                {{ userGrade }} {{ userDetail.userName }}
-                                            </span>
+                                            <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl text-900 font-medium mx-2"> {{ userGrade }} {{ userDetail.userName }} </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index+1)">
+                            <div v-for="(item, index) in testDetail" :key="index" class="testItemBox col-6 flex align-items-center justify-content-center" :style="computeAspectRatio(index + 1)">
                                 <div class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl overlay-text">{{ index + 1 }}</div>
-                                <div> 
+                                <div>
                                     <div class="flex align-items-center justify-content-center mb-2 mx-2">
                                         <VMarkdownView :content="item.conceptName" class="text-lg sm:text-2xl md:text-4xl lg:text-6xl xl:text-4xl text-800"></VMarkdownView>
                                     </div>
-                                    <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center"> 에 대한 문항입니다.</div>
+                                    <div class="text-sm sm:text-lg md:text-xl lg:text-2xl xl:text-xl flex align-items-center justify-content-center">에 대한 문항입니다.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                    <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
             </div>
         </div>
@@ -402,7 +394,7 @@ const goToResultPage = async () => {
             <Button v-else-if="isRecord" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-500 font-semibold px-3 mb-5"> 기록 성공 시, HOME으로 이동합니다.</div>
+                <div class="text-500 font-semibold px-3 mb-5">기록 성공 시, HOME으로 이동합니다.</div>
                 <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
                     <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }}</div>
                 </div>

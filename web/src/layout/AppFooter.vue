@@ -13,9 +13,8 @@ const logoUrl = computed(() => {
     <footer class="layout-footer grid foot-padding">
         <div class="col-12 sm:col-6 xl:col-6 ">
             <h4>Contact Us</h4>
+            <p>화면 멈춤 및 오류 발생 시 개발자에게 문의주세요.</p>
             <p>Email: contact.mmt.2024@gmail.com</p>
-            <!-- <p>Phone: 010-0000-0000</p> -->
-            <p></p>
         </div>
         <nav class="col-12 sm:col-6 xl:col-6 vertical-links">
             <h4>Social Links</h4>
@@ -23,7 +22,7 @@ const logoUrl = computed(() => {
                 Github <i class="pi pi-github"></i>
             </a>
             <a href="https://www.instagram.com/example" target="_blank">
-                Notion <i class="pi pi-link"></i>
+                Notion <i class="pi pi-link"></i> 
             </a>
             <!-- <a href="https://www.facebook.com/example" target="_blank">
                 Blog <i class="pi pi-link"></i>

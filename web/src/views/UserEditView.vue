@@ -1,5 +1,4 @@
 <script setup>
-
 // signup 페이지 그대로 복붙해둔 상태
 // 탈퇴버튼 만들어서 api 테스트 하려고
 
@@ -7,24 +6,22 @@ import { useLayout } from '@/layout/composables/layout';
 import { ref, computed } from 'vue';
 // import AppConfig from '@/layout/AppConfig.vue';
 import { useApi } from '@/composables/api.js';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 const api = useApi();
 const { layoutConfig } = useLayout();
 
 // 탈퇴 테스트
 const delUser = async () => {
-  try {
-    await api.del('/users');
-  } catch (err) {
-    console.error('데이터 생성 중 에러 발생:', err);
-  }
+    try {
+        await api.del('/users');
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    }
 };
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 // data는 회원가입 잘되는지 토큰 보는 거였으니 나중에 삭제
 // const data = ref(null);
@@ -50,11 +47,11 @@ const logoUrl = computed(() => {
 });
 // 홈으로
 const goToHome = () => {
-  try {
-    router.push({ path: '/' }); 
-  } catch (error) {
-    console.error('에러 발생:', error);
-  }
+    try {
+        router.push({ path: '/' });
+    } catch (error) {
+        console.error('에러 발생:', error);
+    }
 };
 
 // 회원가입 확인 창
@@ -68,26 +65,24 @@ const closeConfirmation = () => {
 const signup = async () => {
     // // 보내기 전에 데이터 형태 어떻게 되는지 확인
     // console.log(requestData.value);
-  try {
-    const response = await api.post('/api/v1/users', requestData.value);
-    data.value = response;
-    error.value = null;
-  } catch (err) {
-    console.error('데이터 생성 중 에러 발생:', err);
-    error.value = err;
-  }
+    try {
+        const response = await api.post('/api/v1/users', requestData.value);
+        data.value = response;
+        error.value = null;
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+        error.value = err;
+    }
 };
 
 const yesClick = () => {
     document.querySelector('form').submit();
     closeConfirmation(); // 첫 번째 이벤트 핸들러에서 실행할 동작
     // goToHome();
-//   download(); // 두 번째 이벤트 핸들러에서 실행할 동작
-  // create api 추가
-//   signup();
+    //   download(); // 두 번째 이벤트 핸들러에서 실행할 동작
+    // create api 추가
+    //   signup();
 };
-
-
 </script>
 
 <template>
@@ -108,7 +103,7 @@ const yesClick = () => {
                         <label for="name" class="block text-900 text-xl font-medium mb-2">Name</label>
                         <InputText id="name" type="text" placeholder="이름" class="w-full mb-5" style="padding: 1rem" v-model="name" />
                         <label for="phone" class="block text-900 text-xl font-medium mb-2">Phone</label>
-                        <InputText id="phone" type="text" placeholder="핸드폰 번호" class="w-full  mb-5" style="padding: 1rem" v-model="phone" />
+                        <InputText id="phone" type="text" placeholder="핸드폰 번호" class="w-full mb-5" style="padding: 1rem" v-model="phone" />
                         <label for="calender" class="block text-900 text-xl font-medium mb-2">BirthDate</label>
                         <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full mb-5" :inputStyle="{ padding: '1rem' }" v-model="calender">Calendar</Calendar>
                         <label for="comments" class="block text-900 text-xl font-medium mb-2">Comments</label>
