@@ -43,8 +43,8 @@ public class ConceptService {
         return conceptRepository.findNodesIdByConceptId(conceptId);
     }
 
-    public Flux<Integer> findNodesIdByConceptIdDepth3(int conceptId){
-        return conceptRepository.findNodesIdByConceptIdDepth3(conceptId);
+    public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
+        return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
     }
 
     public int findSkillIdByConceptId (int conceptId){
