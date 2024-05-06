@@ -77,6 +77,25 @@ const validateUserComments = () => {
     isUserCommentsValid.value = comments.value.length <= 200;
     userCommentsErrorMessage.value = isUserCommentsValid.value ? '' : '200자 이하로 가능합니다.';
 };
+// 비밀번호와 비밀번호 확인 일치하는지 확인
+const passwordConfirm = ref('');
+const passwordConfirmMessage = ref('');
+const isPasswordMatch = ref(false);
+const confirmPassword = () => {
+    if(password.value !== passwordConfirm.value && passwordConfirm.value!==''){
+        passwordConfirmMessage.value = '비밀번호가 일치하지 않습니다.';
+        isPasswordMatch.value = false;
+
+    }
+    else {
+        passwordConfirmMessage.value = '';
+        isPasswordMatch.value = true;
+    }
+}
+// 비밀번호 변경 시 비밀번호 확인창 초기화
+watch(password, () => {
+    passwordConfirm.value = '';
+});
 // 중복 확인
 const isNotDuplicate = ref(false); // false = 중복이거나, 중복확인을 하지 않았거나
 const checkDuplicateResult = ref('');
@@ -193,13 +212,20 @@ const yesClick = async () => {
                         <p class="mt-2">요구사항</p>
                         <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
                             <li>8에서 16자의 길이</li>
-                            <li>하나 이상의 대문자</li>
-                            <li>하나 이상의 소문자</li>
-                            <li>하나 이상의 숫자</li>
+                            <li>하나 이상의 <span class="text-lg font-bold">대문자</span></li>
+                            <li>하나 이상의 <span class="text-lg font-bold">소문자</span></li>
+                            <li>하나 이상의 <span class="text-lg font-bold">숫자</span></li>
                             <li>특수문자도 사용 가능합니다.</li>
                         </ul>
                     </template>
                 </Password>
+            </div>
+            <div class="mb-5">
+                <div class="flex flex-row mb-2">
+                    <label for="passwordConfirm" class="text-900 text-2xl font-medium">Password Confirm</label>
+                </div>
+                <Password id="passwordConfirm" placeholder="비밀번호 확인" :toggleMask="true" class="w-full" :class="{ 'p-invalid': password !== passwordConfirm }" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="passwordConfirm" @input="confirmPassword" :feedback="false" />
+                <div class="text-red-600 text-base text-font-medium mx-2">{{ passwordConfirmMessage }}</div>
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
@@ -234,7 +260,9 @@ const yesClick = async () => {
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <Button v-if="!isNotDuplicate" :disabled="!isNotDuplicate" label="[중복확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isEmailValid || !isPasswordValid" :disabled="!isEmailValid || !isPasswordValid" label="ID와 Password를 입력하세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+            <Button v-else-if="!isEmailValid" :disabled="!isEmailValid" label="[아이디]를 확인해 주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+            <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="회원가입" class="w-full p-3 text-xl mr-2 mb-2" />
             <Dialog header="회원가입 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
