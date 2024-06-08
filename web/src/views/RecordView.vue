@@ -65,7 +65,7 @@ onMounted(async () => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
-        // 로그인 안 했을 때는 샘플 학습지
+    // 로그인 안 했을 때는 샘플 학습지
     } else {
         console.log('사용자가 로그인하지 않았습니다. 샘플 학습지 목록을 제공합니다.');
         try {

@@ -54,6 +54,7 @@ onMounted(async () => {
             isLoggedIn.value = newToken !== null;
         }
     );
+    // 로그인 했을 때는 user의 학습지
     if (isLoggedIn.value) {
         try {
             const endpoint = '/api/v1/tests/user/is-record';

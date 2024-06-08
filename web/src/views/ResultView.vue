@@ -37,14 +37,33 @@ onMounted(async () => {
             isLoggedIn.value = newToken !== null;
         }
     );
-    // 로그인 했을 때는 유저의 목록, 아닐 때는 샘플 목록 가져오기
-    const endpoint = isLoggedIn.value ? '/api/v1/tests/user/is-record' : '/api/v1/tests/sample/is-record';
-    try {
-        console.log(endpoint);
-        const response = await api.get(endpoint);
-        listboxTests.value = response;
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+    // // 로그인 했을 때는 유저의 목록, 아닐 때는 샘플 목록 가져오기
+    // 이게 깔끔하긴 했지만.. 샘플 학습지에는 샘플이라는 이름을 달아주면 좋겠어서 그냥 원래대로 나눠서 적기
+    // const endpoint = isLoggedIn.value ? '/api/v1/tests/user/is-record' : '/api/v1/tests/sample/is-record';
+    // 로그인 했을 때는 user의 학습지
+    if (isLoggedIn.value) {
+        try {
+            const endpoint = '/api/v1/tests/user/is-record';
+            const response = await api.get(endpoint);
+            listboxTests.value = response;
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
+    // 로그인 안 했을 때는 샘플 학습지
+    } else {
+        console.log('사용자가 로그인하지 않았습니다. 샘플 학습지 목록을 제공합니다.');
+        try {
+            const endpoint = '/api/v1/tests/sample/is-record';
+            const response = await api.get(endpoint);
+            listboxTests.value = response.map((item) => {
+                return {
+                    ...item,
+                    testName: `샘플-${item.testName}`
+                };
+            });
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }       
     }
     // [기록하기] 화면에서 넘어왔을 때는 해당 학습지 선택
     if (dataToSend) {
