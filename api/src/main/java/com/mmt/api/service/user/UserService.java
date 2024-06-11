@@ -94,15 +94,40 @@ public class UserService {
     }
 
 
-    // 비밀번호 암호화를 적용하지 않아서 문자열 그대로 save 됨
-    // 암호화 시도했었는데 같은 문자열이어도 암호화 결과가 바뀌어버려.
-    // 이 부분은 더 공부해서 나중에 기능 사용하게 될 때 수정하자.
-//    public void update(UserDTO userDTO) {
-//        if(!usersRepository.existsByUserId(userDTO.getUserId())){
-//            throw new IllegalArgumentException();
-//        }
-//        usersRepository.save(userDTO.toEntity(userDTO));
-//    }
+    /**
+     * 회원 정보 수정
+     */
+    @Transactional
+    public boolean updateUser(UserDTO userDTO) {
+        try {
+            // 현재 로그인된 사용자의 이메일 가져오기
+            String loggedInUserEmail = SecurityUtil.getCurrentUserEmail()
+                    .orElseThrow(() -> new RuntimeException("현재 사용자의 이메일을 가져올 수 없습니다."));
+
+            // 기존 사용자 정보 가져오기
+            Users existingUser = usersRepository.findOneWithAuthoritiesByUserEmail(loggedInUserEmail)
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+            // 필요한 정보 업데이트
+            if (userDTO.getUserPassword() != null && !userDTO.getUserPassword().isEmpty()) existingUser.setUserPassword(passwordEncoder.encode(userDTO.getUserPassword()));
+            if (userDTO.getUserName() != null && !userDTO.getUserName().isEmpty()) existingUser.setUserName(userDTO.getUserName());
+            if (userDTO.getUserBirthdate() != null ) existingUser.setUserBirthdate(userDTO.getUserBirthdate());
+            if (userDTO.getUserComments() != null && !userDTO.getUserComments().isEmpty()) existingUser.setUserComments(userDTO.getUserComments());
+
+            // 하나라도 필드가 엠티가 아닌 경우에만 사용자 정보 저장
+            if (!userDTO.getUserPassword().isEmpty() ||
+                    !userDTO.getUserName().isEmpty() ||
+                    userDTO.getUserBirthdate() !=null ||
+                    !userDTO.getUserComments().isEmpty()) {
+                // 사용자 정보 저장
+                Users updatedUser = usersRepository.save(existingUser);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     @Transactional
     public void delete(Long userId) {

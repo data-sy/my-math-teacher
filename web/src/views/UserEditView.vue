@@ -138,8 +138,6 @@ watch(
     }
 );
 const validateCurrentPassword = async () => {
-    console.log(requestData2.value.userEmail);
-    console.log(requestData2.value.userPassword);
     try {
         const response = await api.post('/api/v1/auth/validation', requestData2.value);
         isCurrentPasswordValid.value = response;
@@ -163,10 +161,10 @@ const requestData3 = ref({
 // 회원 정보 수정
 const updateProfile = async () => {
     try {
-        const response = await api.post('/api/v1/auth/signup', requestData3.value);
-        router.push({ name: 'home' });
+        return await api.put('/api/v1/users', requestData3.value);
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
+        return false;
     }
 };
 // 홈으로
@@ -188,9 +186,9 @@ const closeConfirmation = () => {
 // yes 버튼 클릭 시
 const yesClick = async () => {
     closeConfirmation();
-    await updateProfile();
-    // 수정이 완료되었습니다. 홈으로 이동하시겠습니까? 문구 띄우기
-    // goToHome();
+    const success = await updateProfile();
+    // 리팩토링) 나중에 새 다이얼로그 띄우는 걸로 수정하자 (수정이 완료되었습니다. 홈으로 이동하시겠습니까?)
+    if (success) goToHome();
 };
 </script>
 
@@ -291,9 +289,9 @@ const yesClick = async () => {
             <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[새 비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[새 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
-            <Dialog header="수정할 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+            <Dialog header="수정 성공 시 홈 화면으로 이동합니다." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
-                    <div class="my-2" v-if="requestData3.userPassword !== ''"> Password : 비밀번호가 수정될 예정입니다. </div> 
+                    <div class="my-2" v-if="requestData3.userPassword !== ''"> Password : 비밀번호가 수정됩니다. </div> 
                     <div class="my-2" v-if="requestData3.userName !== ''">Name : {{ requestData3.userName }}</div>
                     <div class="my-2" v-if="requestData3.userBirthdate !== ''">BirthDate : {{ calendarShow }}</div>
                     <div class="my-2" v-if="requestData3.userComments !== ''">Comments : {{ requestData3.userComments }}</div>
