@@ -54,10 +54,21 @@ public class AuthController {
     /**
      * 아이디 중복 검사
      */
-    @GetMapping("/checkDuplicate")
+    @GetMapping("/duplication")
     public ResponseEntity<Boolean> checkDuplicate(@RequestParam String userEmail) {
         boolean isDuplicate = userService.isDuplicateUser(userEmail);
         return ResponseEntity.ok(isDuplicate);
+    }
+
+    /**
+     * 현재 비밀번호 확인 (개인정보 수정 시)
+     * Q. 필드가 같아서 LoginDTO 재활용 했는데, validateRequest DTO를 따로 만들어주는 게 좋을까? 내용이 같더라도?
+     */
+    @PostMapping("/validation")
+    public ResponseEntity<Boolean> validateUser(@RequestBody LoginDTO loginDTO) {
+        boolean isValid = authService.validateCurrentPassword(loginDTO.getUserEmail(), loginDTO.getUserPassword());
+        System.out.println(isValid);
+        return ResponseEntity.ok(isValid);
     }
 
 //    /**

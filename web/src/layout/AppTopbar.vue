@@ -172,7 +172,7 @@ const logout = async () => {
                         </a>
                     </div>
                 </div>
-                <div class="flex align-items-center justify-content-center mt-5 mb-5"> ( 참고 : 취소선은 아직 개발하지 않은 기능을 의미합니다.) </div>
+                <div class="flex align-items-center justify-content-center mt-5 mb-5"> ( 참고 : <span class="line-through-text">취소선</span>은 아직 개발하지 않은 기능을 의미합니다.) </div>
                 <!-- <div v-if="error" style="color: red">{{ error.message }}</div> -->
             </div>
         </Dialog>

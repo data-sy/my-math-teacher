@@ -8,6 +8,7 @@ import com.mmt.api.util.SecurityUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,6 +78,20 @@ public class AuthService {
         redisUtil.delete(userEmail);
         // access토큰 blackList에 올리기
         redisUtil.setBlackList(accessToken, "logout", tokenProvider.getExpiration(accessToken));
+    }
+
+    public boolean validateCurrentPassword(String email, String password) {
+        try {
+            // Authentication 객체 생성
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+            // 인증 시도
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            // 인증 성공
+            return authentication.isAuthenticated();
+        } catch (AuthenticationException e) {
+            // 인증 실패
+            return false;
+        }
     }
 
 }

@@ -102,7 +102,7 @@ const checkDuplicateResult = ref('');
 const checkDuplicate = async () => {
     if (isEmailValid.value) {
         try {
-            const endpoint = `/api/v1/auth/checkDuplicate?userEmail=${email.value}`;
+            const endpoint = `/api/v1/auth/duplication?userEmail=${email.value}`;
             const response = await api.get(endpoint);
             isNotDuplicate.value = !response;
             if (isNotDuplicate.value) {
@@ -177,16 +177,18 @@ const yesClick = async () => {
             <div class="text-center mb-7">
                 <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
                 <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
-                <div class="flex align-items-center justify-content-center mt-5">
-                    개인 프로젝트 입니다. <br />
-                    안전을 위해 사용빈도가 낮은 아이디, 비밀번호를 사용해주세요.
+                <div class="flex align-items-center justify-content-center">
+                    개인 프로젝트 입니다.
+                </div>
+                <div class="flex align-items-center justify-content-center mt-2">
+                    안전을 위해 '<span class="font-bold"> 사용빈도가 낮은 </span>' 비밀번호를 사용해 주세요.
                 </div>
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="email" class="text-900 text-2xl font-medium"
                         >ID
-                        <span class="text-red-600 text-base text-font-medium mx-2">{{ emailErrorMessage }}</span>
+                        <span class="text-red-600 text-base font-medium mx-2">{{ emailErrorMessage }}</span>
                     </label>
                 </div>
                 <div class="flex justify-content-between mb-2">
@@ -242,7 +244,7 @@ const yesClick = async () => {
                 <div class="flex flex-row mb-2">
                     <label for="calendar" class="block text-900 text-2xl font-medium mb-2"
                         >BirthDate
-                        <span class="text-600 text-base font-normal mx-2"> 연도를 클릭하여 해당 연도를 찾아보세요. </span>
+                        <span class="text-600 text-base font-normal mx-2"> <span class="text-red-600 font-bold">연도를 클릭</span>하여 해당 연도를 찾아보세요. </span>
                     </label>
                 </div>
                 <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full" :inputStyle="{ padding: '1rem' }" v-model="calendar">Calendar</Calendar>
