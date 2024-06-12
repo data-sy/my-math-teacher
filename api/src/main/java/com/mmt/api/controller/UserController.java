@@ -58,7 +58,6 @@ public class UserController {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String accessToken = authorizationHeader.substring(7);
             authService.logout(accessToken);
-            System.out.println("로그아웃 했다!!!!!!!!!!!!!!!!!!!");
         }
         userService.delete(userId);
         return ResponseEntity.ok().build();
