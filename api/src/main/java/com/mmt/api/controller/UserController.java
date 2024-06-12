@@ -1,7 +1,9 @@
 package com.mmt.api.controller;
 
 import com.mmt.api.dto.user.UserDTO;
+import com.mmt.api.service.user.AuthService;
 import com.mmt.api.service.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     /**
@@ -47,9 +51,17 @@ public class UserController {
      * 유저 탈퇴하기
      */
     @DeleteMapping("")
-    public void delete() {
+    public ResponseEntity<Void> delete(HttpServletRequest request) {
         Long userId = userService.getMyUserIdWithAuthorities();
+        // 로그아웃
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring(7);
+            authService.logout(accessToken);
+            System.out.println("로그아웃 했다!!!!!!!!!!!!!!!!!!!");
+        }
         userService.delete(userId);
+        return ResponseEntity.ok().build();
     }
 
 //    // 현재 Security Context에 따른 userId 가져오기 테스트

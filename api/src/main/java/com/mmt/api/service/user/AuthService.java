@@ -80,6 +80,9 @@ public class AuthService {
         redisUtil.setBlackList(accessToken, "logout", tokenProvider.getExpiration(accessToken));
     }
 
+    /**
+     * 현재 비밀번호 확인 (개인정보 수정 시)
+     */
     public boolean validateCurrentPassword(String email, String password) {
         try {
             // Authentication 객체 생성

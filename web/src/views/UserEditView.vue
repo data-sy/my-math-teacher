@@ -143,6 +143,7 @@ const validateCurrentPassword = async () => {
         isCurrentPasswordValid.value = response;
         if (isCurrentPasswordValid.value) {
             currentPasswordValidateMessage.value = '현재 비밀번호가 확인되었습니다.';
+            alert('alert테스트');
         } else {
             currentPasswordValidateMessage.value = '현재 비밀번호가 틀렸습니다. 다시 입력해 주세요.';
         }
@@ -167,6 +168,23 @@ const updateProfile = async () => {
         return false;
     }
 };
+// 회원 탈퇴 
+const deleteUser = async () => {
+    try {
+        await api.del('/api/v1/users');
+        // 탈퇴 성공, 로그아웃 진행
+        store.commit('setAccessToken', null);
+        store.commit('setRefreshToken', null);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        api.removeAccessToken();
+        openConfirmation3();
+    } catch (err) {
+        console.error('회원 탈퇴 중 에러 발생:', err);
+        alert('회원 탈퇴 중 오류가 발생했습니다.');
+    }
+};
+
 // 홈으로
 const goToHome = () => {
     try {
@@ -189,6 +207,32 @@ const yesClick = async () => {
     const success = await updateProfile();
     // 리팩토링) 나중에 새 다이얼로그 띄우는 걸로 수정하자 (수정이 완료되었습니다. 홈으로 이동하시겠습니까?)
     if (success) goToHome();
+};
+// 회원 탈퇴 확인 창
+const displayConfirmation2 = ref(false);
+const openConfirmation2 = () => {
+    displayConfirmation2.value = true;
+};
+const closeConfirmation2 = () => {
+    displayConfirmation2.value = false;
+};
+// yes 버튼 클릭 시
+const yesClick2 = async () => {
+    closeConfirmation2();
+    await deleteUser();
+};
+// 회원 탈퇴 후 홈 화면으로 이동
+const displayConfirmation3 = ref(false);
+const openConfirmation3 = () => {
+    displayConfirmation3.value = true;
+};
+const closeConfirmation3 = () => {
+    displayConfirmation3.value = false;
+};
+// yes 버튼 클릭 시
+const yesClick3 = async () => {
+    closeConfirmation3();
+    goToHome();
 };
 </script>
 
@@ -273,7 +317,7 @@ const yesClick = async () => {
                 </div>
                 <Calendar :showIcon="true" :placeholder="userDetail.userBirthdate" inputId="calendar" class="w-full" :inputStyle="{ padding: '1rem' }" v-model="calendar">Calendar</Calendar>
             </div>
-            <div class="mb-7">
+            <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="comments" class="block text-900 text-2xl font-medium mb-2"
                         >Comments
@@ -284,11 +328,13 @@ const yesClick = async () => {
             </div>
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="!isCurrentPasswordValid" :disabled="!isCurrentPasswordValid" label="[현재 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="password==''" @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
-            <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[새 비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[새 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
+            <div class="mb-7">
+                <Button v-if="!isCurrentPasswordValid" :disabled="!isCurrentPasswordValid" label="[현재 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+                <Button v-else-if="password==''" @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
+                <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[새 비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+                <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[새 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+                <Button v-else @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
+            </div>
             <Dialog header="수정 성공 시 홈 화면으로 이동합니다." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
                     <div class="my-2" v-if="requestData3.userPassword !== ''"> Password : 비밀번호가 수정됩니다. </div> 
@@ -300,6 +346,32 @@ const yesClick = async () => {
                 <template #footer>
                     <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
                     <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                </template>
+            </Dialog>
+            <div class="mb-2">
+                <span @click="openConfirmation2" >탈퇴 하시겠습니까?</span>
+            </div>
+            <Dialog header="탈퇴 시 모든 데이터가 삭제됩니다." v-model:visible="displayConfirmation2" :style="{ width: '350px' }" :modal="true">
+                <div class="text-lg mx-3 mb-5">
+                    <div class="my-2"> 탈퇴 시 삭제된 데이터는 <span class="text-red-600 font-bold">복구 불가</span>합니다. </div>
+                    <div class="my-2"> "YES" 버튼을 누르면 돌이킬 수 없습니다. </div>
+                    <!-- 나중에 추가할 기능 -->
+                    <!-- <div> 다음 단어를 따라 치면 탈퇴 버튼이 활성화됩니다. </div> -->
+                </div>
+                <div class="text-900 text-xl font-medium mx-3">탈퇴 하시겠습니까?</div>
+                <template #footer>
+                    <Button label="No" icon="pi pi-times" @click="closeConfirmation2" class="p-button-text" />
+                    <Button label="Yes" icon="pi pi-check" @click="yesClick2" class="p-button-text" autofocus />
+                </template>
+            </Dialog>
+            <Dialog header="탈퇴가 완료되었습니다." v-model:visible="displayConfirmation3" :style="{ width: '350px' }" :modal="true">
+                <div class="text-lg mx-3 mb-5">
+                </div>
+                <div class="text-900 text-xl font-medium mx-3 flex justify-content-center">
+                    <div class="justify-content-center">홈 화면으로 이동합니다.</div>
+                </div>
+                <template #footer>
+                    <Button label="OK" icon="pi pi-check" @click="yesClick3" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>
