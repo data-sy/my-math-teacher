@@ -44,7 +44,7 @@
             <router-link to="/personal">
                 <div class="card">
                     <div class="text-900 font-medium text-2xl">
-                        &#9315; 맞춤 학습
+                        &#9315; 맞춤 학습지 출제
                         <i v-tooltip="'&#9314; 에 따른 학습지 출제\n - 나에게 딱 맞는 문제 '" class="pi pi-question-circle text-xl mx-2"></i>
                     </div>
                 </div>

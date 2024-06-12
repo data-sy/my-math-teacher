@@ -1,14 +1,28 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
+import { useLayout } from '@/layout/composables/layout';
 import { useApi } from '@/composables/api.js';
 import { useStore } from 'vuex';
+
+const { layoutConfig, onMenuToggle } = useLayout();
 
 const store = useStore();
 const api = useApi();
 const router = useRouter();
 const loginDialog = ref(false);
 const submitted = ref(false);
+
+const outsideClickListener = ref(null);
+const topbarMenuActive = ref(false);
+
+onMounted(() => {
+    bindOutsideClickListener();
+});
+
+onBeforeUnmount(() => {
+    unbindOutsideClickListener();
+});
 
 const logoUrl = computed(() => {
     return 'images/logo/logo-mmt4.png';
@@ -22,6 +36,30 @@ const oauth2naverlogoUrl = computed(() => {
 const oauth2kakaologoUrl = computed(() => {
     return 'images/oauth2/kakao-logo.png';
 });
+const bindOutsideClickListener = () => {
+    if (!outsideClickListener.value) {
+        outsideClickListener.value = (event) => {
+            if (isOutsideClicked(event)) {
+                topbarMenuActive.value = false;
+            }
+        };
+        document.addEventListener('click', outsideClickListener.value);
+    }
+};
+const unbindOutsideClickListener = () => {
+    if (outsideClickListener.value) {
+        document.removeEventListener('click', outsideClickListener);
+        outsideClickListener.value = null;
+    }
+};
+const isOutsideClicked = (event) => {
+    if (!topbarMenuActive.value) return;
+
+    const sidebarEl = document.querySelector('.layout-topbar-menu');
+    const topbarEl = document.querySelector('.layout-topbar-menu-button');
+
+    return !(sidebarEl.isSameNode(event.target) || sidebarEl.contains(event.target) || topbarEl.isSameNode(event.target) || topbarEl.contains(event.target));
+};
 
 const email = ref('');
 const password = ref('');
@@ -80,6 +118,9 @@ const onUserClick = () => {
     submitted.value = false;
     loginDialog.value = true;
 };
+const onUserEditClick = () => {
+    router.push({ name: 'user-edit' });
+};
 const checked = ref(false);
 const goToSignup = () => {
     loginDialog.value = false;
@@ -108,20 +149,26 @@ const logout = async () => {
             <span>My Math Teacher</span>
         </router-link>
 
-        <button class="p-link layout-menu-button layout-topbar-button"></button>
-
-        <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-menu-button layout-topbar-button"> 로그<br/>아웃 </span>
-        <button v-else @click="onUserClick()" class="p-link layout-topbar-menu-button layout-topbar-button">
-            <i class="pi pi-user" style="font-size: 1.5rem"></i>
+        <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
+            <i class="pi pi-bars"></i>
         </button>
-        <div class="layout-topbar-menu">
-            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button" > 로그<br/>아웃 </span>
+
+        <!--반응형 작은 화면-->
+        <div class="layout-topbar-menu-button">
+            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그<br/>아웃 </span>
             <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
-                <i class="pi pi-user"></i>
-                <span>User</span>
+                <i class="pi pi-user" style="font-size: 1.5rem"></i>
+            </button>
+        </div>
+        <!--반응형 큰 화면-->
+        <div class="layout-topbar-menu">
+            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그<br/>아웃 </span>
+            <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
+                <i class="pi pi-user" style="font-size: 1.5rem"></i>
             </button>
         </div>
 
+        <!-- user 아이콘 클릭 시 로그인 or 회원가입 창 -->
         <Dialog v-model:visible="loginDialog" :style="{ width: '500px' }" :modal="true" class="p-fluid">
             <div class="w-full surface-card px-6 sm:px-8">
                 <div class="text-center mb-5">
