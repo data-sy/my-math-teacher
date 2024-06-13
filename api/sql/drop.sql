@@ -3,7 +3,10 @@ create database mmt;
 -- 테이블 비우기
 TRUNCATE TABLE answers;
 
+-- 로컬 MySQL
 use mmt;
+-- AWS RDS 사용 : 데이터베이스 이름
+use mmtrds;
 
 show tables;
 
