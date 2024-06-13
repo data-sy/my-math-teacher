@@ -57,5 +57,5 @@ jobs:
         script: |
           docker rm -f mmt-neo4j
           docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/mmt-neo4j:1.0.0
-          docker-compose up -d mmt-neo4j
+          docker compose up -d mmt-neo4j
           docker system prune -f
