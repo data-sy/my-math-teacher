@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { useApi } from '@/composables/api.js';
-import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import { useConfirm } from 'primevue/useconfirm';
+import { useApi } from '@/composables/api.js';
 
 const store = useStore();
 const router = useRouter();
@@ -19,6 +20,7 @@ const name = ref('');
 const phone = ref('');
 const calendar = ref('');
 const calendarShow = ref('');
+const comments = ref('');
 
 const isLoggedIn = ref(false);
 const userDetail = ref({
@@ -71,7 +73,6 @@ const formatDate = (date) => {
     const day = date.getDate().toString().padStart(2, '0');
     return `${year}년 ${month}월 ${day}일`;
 };
-const comments = ref('');
 // const requestData = ref({
 //     userEmail: email,
 //     userPassword: password,
@@ -143,7 +144,6 @@ const validateCurrentPassword = async () => {
         isCurrentPasswordValid.value = response;
         if (isCurrentPasswordValid.value) {
             currentPasswordValidateMessage.value = '현재 비밀번호가 확인되었습니다.';
-            alert('alert테스트');
         } else {
             currentPasswordValidateMessage.value = '현재 비밀번호가 틀렸습니다. 다시 입력해 주세요.';
         }
@@ -234,11 +234,28 @@ const yesClick3 = async () => {
     closeConfirmation3();
     goToHome();
 };
+// 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
+const confirmPopup = useConfirm();
+const confirm = (event) => {
+    confirmPopup.require({
+        target: event.target,
+        message: '로그인을 먼저 해주세요.',
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Ok',
+        rejectLabel: ' ',
+        // accept: () => {
+        //     toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 기록할 수 있습니다.', life: 3000 });
+        // }
+    });
+};
 </script>
 
 <template>
-    <div class="flex align-items-center justify-content-center mb-7">
-        <div class="surface-card py-6 px-7 sm:px-8 shadow-2 border-round">
+    <div class="grid p-fluid flex align-items-center justify-content-center">
+        <div class="col-12 text-center mb-3">
+            <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
+        </div>
+        <div class="surface-card py-6 px-7 sm:px-8 shadow-2 border-round mb-7">
             <!-- <div class="text-center mb-7 cursor-pointer" @click="goToHome"> 홈으로 가는 클릭 이벤트 없앰 (나중에 (페이지가 아니라) 컨펌창으로 만들 때 추가하기) -->
             <div class="text-center mb-7">
                 <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
@@ -254,7 +271,7 @@ const yesClick3 = async () => {
                 <div class="flex flex-row mb-2">
                     <label for="email" class="text-900 text-2xl font-medium"
                         >ID 
-                    <span class="text-600 text-base font-normal mx-1"> (수정 불가) </span>
+                    <span class="text-600 text-base font-normal mx-1"> ( ID는 수정할 수 없습니다. ) </span>
                     </label>
                 </div>
                 <div class="flex justify-content-between mb-2">
@@ -266,8 +283,9 @@ const yesClick3 = async () => {
                     <label for="passwordConfirm" class="text-900 text-2xl font-medium">정보 수정을 위해 현재 비밀번호를 확인합니다.</label>
                 </div>
                 <div class="flex justify-content-between mb-2">
-                    <Password id="currentPassword" placeholder="현재 비밀번호 확인" :toggleMask="true" class="w-17rem" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="currentPassword" :feedback="false" />
-                    <Button v-if="!isCurrentPasswordValid" @click="validateCurrentPassword" label="현재 비밀번호 확인"></Button>
+                    <Password id="currentPassword" placeholder="현재 비밀번호 확인" :toggleMask="true" class="w-15rem" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="currentPassword" :feedback="false" />
+                    <Button v-if="!isLoggedIn" @click="confirm($event)" label="현재 비밀번호 확인" class="w-11rem"></Button>
+                    <Button v-else-if="!isCurrentPasswordValid" @click="validateCurrentPassword" label="현재 비밀번호 확인"></Button>
                     <Button v-else disabled="true" label="확인 완료"></Button>
                 </div>
                 <div class="text-red-600 text-base text-font-medium mx-2">{{ currentPasswordValidateMessage }}</div>
@@ -349,7 +367,8 @@ const yesClick3 = async () => {
                 </template>
             </Dialog>
             <div class="mb-2">
-                <span @click="openConfirmation2" >탈퇴 하시겠습니까?</span>
+                <span v-if="!isLoggedIn" @click="confirm($event)" >탈퇴 하시겠습니까?</span>
+                <span v-else @click="openConfirmation2" >탈퇴 하시겠습니까?</span>
             </div>
             <Dialog header="탈퇴 시 모든 데이터가 삭제됩니다." v-model:visible="displayConfirmation2" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">

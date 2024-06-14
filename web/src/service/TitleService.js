@@ -16,6 +16,7 @@ const calculateGrade = (birthdate) => {
         return '';
     }
 };
+
 const padZero = (num) => (num < 10 ? `0${num}` : num.toString());
 const getDayOfWeek = (dayIndex) => {
   const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
@@ -30,14 +31,9 @@ const updateDate = () => {
   return `${year}/${month}/${day}(${dayOfWeek})`;
 };
 
-const yetAnotherFunction = () => {
-    // 또 다른 함수의 구현
-};
-
 const title = {
     calculateGrade,
     updateDate,
-    yetAnotherFunction,
 };
 
 export default title;

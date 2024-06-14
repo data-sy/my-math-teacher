@@ -1,12 +1,12 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useApi } from '@/composables/api.js';
+import levelDic from '@/assets/data/level.json';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
-import levelDic from '@/assets/data/level.json';
 
 const router = useRouter();
 const api = useApi();
@@ -80,7 +80,6 @@ watch(selectedTreeValue, async (newValue) => {
 // 개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
-const testtest = ref(null);
 watch(listboxConcept, (newValue) => {
     if (newValue !== null) {
         conceptDetail.value = newValue;

@@ -29,11 +29,16 @@ public class AnswerConverter {
         return answer;
     }
 
-    public static List<Integer> convertToIntegerList(AnswerCode answerCode){
-        List<Integer> integerList = new ArrayList<>();
-        integerList.add(answerCode.getSkillId());
-        integerList.add(answerCode.getAnswerCode());
-        return integerList;
+    public static int[] convertToIntArray(AnswerCode answerCode) {
+        return new int[]{answerCode.getSkillId(), answerCode.getAnswerCode()};
     }
+
+    // deprecated : 플라스크 서버 때 사용
+//    public static List<Integer> convertToIntegerList(AnswerCode answerCode){
+//        List<Integer> integerList = new ArrayList<>();
+//        integerList.add(answerCode.getSkillId());
+//        integerList.add(answerCode.getAnswerCode());
+//        return integerList;
+//    }
 
 }

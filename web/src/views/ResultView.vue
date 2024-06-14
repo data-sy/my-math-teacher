@@ -1,21 +1,21 @@
 <script setup>
 import { onMounted, ref, watch, onBeforeUnmount } from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useApi } from '@/composables/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useApi } from '@/composables/api.js';
 import cytoscape from 'cytoscape';
 import klay from 'cytoscape-klay';
-import { useStore } from 'vuex';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
 
 const store = useStore();
-const dataToSend = history.state.dataToSend;
-const receivedData = ref('');
-
 const router = useRouter();
 const api = useApi();
+
+const dataToSend = history.state.dataToSend;
+const receivedData = ref('');
 
 cytoscape.use(klay);
 const cyElement = ref(null);

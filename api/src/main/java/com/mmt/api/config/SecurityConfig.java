@@ -77,7 +77,7 @@ public class SecurityConfig {
                                 // 인증 없이 접근 가능
                                 .requestMatchers("/", "/favicon.ico", "/api/v1/hello/**").permitAll()
                                 .requestMatchers("api/v1/auth/**", "/api/v1/chapters/**", "/api/v1/concepts/**", "/api/v1/tests/school-level/**", "/api/v1/tests/sample/**","/api/v1/tests/detail/**", "/api/v1/result/sample/**").permitAll()
-                                .requestMatchers("/login.html", "/oauth2/**").permitAll()
+                                .requestMatchers("/login.html", "/oauth2/**", "/login/**").permitAll()
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))
                                 .anyRequest().authenticated()

@@ -2,7 +2,7 @@ package com.mmt.api.service;
 
 import com.mmt.api.domain.AnswerCode;
 import com.mmt.api.domain.Probability;
-import com.mmt.api.dto.AI.AIInputResponse;
+import com.mmt.api.dto.AI.InputInstance;
 import com.mmt.api.dto.answer.AnswerConverter;
 import com.mmt.api.dto.answer.AnswerCreateRequest;
 import com.mmt.api.repository.answer.AnswerRepository;
@@ -26,26 +26,47 @@ public class AnswerService {
         answerRepository.save(AnswerConverter.convertToAnswer(request));
     }
 
-    public AIInputResponse findAIInput(Long userTestId){
-        AIInputResponse aiInputResponse = new AIInputResponse(userTestId);
-        List<List<Integer>> answerCodeResponseList = new ArrayList<>();
+    public List<InputInstance> findAIInput(Long userTestId){
+        List<InputInstance> inputInstanceList = new ArrayList<>();
+        InputInstance inputInstance = new InputInstance();
+        List<int[]> inputList = new ArrayList<>();
         // 조건에 맞는 user_test_id들 찾기
         List<Long> utIdList = userTestService.findBefore(userTestId);
-        // user_test_id별 정오답 기록을 answerCodeList에 넣기 (데이터 500배 증폭 -> 100배로 수정)
+        // user_test_id별 정오답 기록을 answerCodeList에 넣기 (데이터 10배 증폭 (ai input size(3)를 안정적으로 넘기고 문항 수 적은 것을 보완))
         utIdList.forEach(utId -> {
             List<AnswerCode> answerCodeList = answerRepository.findAnswerCode(utId);
             answerCodeList.forEach(answerCode -> {
-                IntStream.range(0, 100)
-                        .mapToObj(i -> AnswerConverter.convertToIntegerList(answerCode))
-                        .forEach(answerCodeResponseList::add);
+                IntStream.range(0, 10)
+                        .mapToObj(i -> AnswerConverter.convertToIntArray(answerCode))
+                        .forEach(inputList::add);
             });
         });
-        aiInputResponse.setAnswerCodeResponseList(answerCodeResponseList);
-        return aiInputResponse;
+        inputInstance.setInput(inputList);
+        inputInstanceList.add(inputInstance);
+        return inputInstanceList;
     }
 
     public List<Probability> findIds(Long userTestId){
         return answerRepository.findIds(userTestId);
     }
+
+    // deprecated : 플라스크 서버 때 사용했던
+//    public AIInputResponse findAIInput(Long userTestId){
+//        AIInputResponse aiInputResponse = new AIInputResponse(userTestId);
+//        List<List<Integer>> answerCodeResponseList = new ArrayList<>();
+//        // 조건에 맞는 user_test_id들 찾기
+//        List<Long> utIdList = userTestService.findBefore(userTestId);
+//        // user_test_id별 정오답 기록을 answerCodeList에 넣기 (데이터 500배 증폭 -> 100배로 수정)
+//        utIdList.forEach(utId -> {
+//            List<AnswerCode> answerCodeList = answerRepository.findAnswerCode(utId);
+//            answerCodeList.forEach(answerCode -> {
+//                IntStream.range(0, 100)
+//                        .mapToObj(i -> AnswerConverter.convertToIntegerList(answerCode))
+//                        .forEach(answerCodeResponseList::add);
+//            });
+//        });
+//        aiInputResponse.setAnswerCodeResponseList(answerCodeResponseList);
+//        return aiInputResponse;
+//    }
 
 }

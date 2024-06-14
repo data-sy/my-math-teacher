@@ -3,6 +3,9 @@ import { ref } from 'vue';
 
 import AppMenuItem from './AppMenuItem.vue';
 
+// // 다이얼로그 표시 상태
+// const isLoginDialogVisible = ref(false);
+
 const model = ref([
     {
         label: 'Home',
@@ -28,7 +31,8 @@ const model = ref([
     {
         label: '마이 페이지',
         items: [
-            { label: '회원 정보 수정', icon: 'pi pi-fw pi-user-edit', to: '/user-edit', badge: 'NEW' },
+            // { label: '로그인/회원가입', icon: 'pi pi-fw pi-user', command: () => { isLoginDialogVisible.value = true }},
+            { label: '회원 정보 수정', icon: 'pi pi-fw pi-user-edit', to: '/user-edit', badge: 'NEW' }
         ]
     }
 ]);
@@ -41,6 +45,8 @@ const model = ref([
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
     </ul>
+
+
 </template>
 
 <style lang="scss" scoped></style>

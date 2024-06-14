@@ -6,11 +6,11 @@ import klay from 'cytoscape-klay';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
 
+const router = useRouter();
+
 cytoscape.use(klay);
 const cyElement = ref(null);
 let cy = null;
-
-const router = useRouter();
 
 // 크기 기본값
 const nodeSize = 7;

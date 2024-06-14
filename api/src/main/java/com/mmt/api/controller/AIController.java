@@ -1,7 +1,7 @@
 package com.mmt.api.controller;
 
-import com.mmt.api.dto.AI.AIInputResponse;
-import com.mmt.api.dto.AI.AIOutputRequest;
+import com.mmt.api.dto.AI.AIServingResponse;
+import com.mmt.api.dto.answer.AnswerCreateRequest;
 import com.mmt.api.service.AnswerService;
 import com.mmt.api.service.ProbabilityService;
 import org.springframework.web.bind.annotation.*;
@@ -19,19 +19,45 @@ public class AIController {
     }
 
     /**
-     * AI input 데이터 플라스크에 제공
+     *  AI 분석
      */
-    @GetMapping("/{userTestId}")
-    public AIInputResponse getAIInput(@PathVariable Long userTestId){
-        return answerService.findAIInput(userTestId);
+    @PostMapping("")
+    public void create(@RequestBody AnswerCreateRequest request){
+        probabilityService.createAndPredict(request);
     }
 
     /**
-     * AI output 데이터 DB에 저장
+     * 텐서플로우_서빙 서버 테스트
      */
-    @PostMapping("")
-    public void create(@RequestBody AIOutputRequest request){
-        probabilityService.create(request.getUserTestId(), request.getProbabilityList());
+    @GetMapping("/serving-test")
+    public AIServingResponse getPrediction(){
+//        return probabilityService.getPredictionTest();
+        return probabilityService.getPrediction(3L);
     }
+
+//    /**
+//     * 인풋 모양 테스트
+//     */
+//    @GetMapping("/input-detail")
+//    public List<InputInstance> getInputDetail(){
+//        return answerService.findAIInput(3L);
+//    }
+
+    // deprecated : 플라스크 서버 때 사용했던
+//    /**
+//     * AI input 데이터 플라스크에 제공
+//     */
+//    @GetMapping("/{userTestId}")
+//    public AIInputResponse getAIInput(@PathVariable Long userTestId){
+//        return answerService.findAIInput(userTestId);
+//    }
+//
+//    /**
+//     * AI output 데이터 DB에 저장
+//     */
+//    @PostMapping("")
+//    public void create(@RequestBody AIOutputRequest request){
+//        probabilityService.create(request.getUserTestId(), request.getProbabilityList());
+//    }
 
 }
