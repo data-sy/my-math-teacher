@@ -23,4 +23,3 @@ docker exec -it mmt-neo4j cypher-shell -u 이름 -p 비번 -f /var/lib/neo4j/imp
 # MATCH (n) RETURN n;
 # # 나가기
 # :exit
-
