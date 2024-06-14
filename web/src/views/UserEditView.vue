@@ -144,7 +144,6 @@ const validateCurrentPassword = async () => {
         isCurrentPasswordValid.value = response;
         if (isCurrentPasswordValid.value) {
             currentPasswordValidateMessage.value = '현재 비밀번호가 확인되었습니다.';
-            alert('alert테스트');
         } else {
             currentPasswordValidateMessage.value = '현재 비밀번호가 틀렸습니다. 다시 입력해 주세요.';
         }
