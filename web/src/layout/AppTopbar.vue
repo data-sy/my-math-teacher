@@ -1,15 +1,14 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useLayout } from '@/layout/composables/layout';
 import { useApi } from '@/composables/api.js';
-import { useStore } from 'vuex';
-
-const { layoutConfig, onMenuToggle } = useLayout();
 
 const store = useStore();
-const api = useApi();
 const router = useRouter();
+const { layoutConfig, onMenuToggle } = useLayout();
+const api = useApi();
 const loginDialog = ref(false);
 const submitted = ref(false);
 
@@ -48,7 +47,7 @@ const bindOutsideClickListener = () => {
 };
 const unbindOutsideClickListener = () => {
     if (outsideClickListener.value) {
-        document.removeEventListener('click', outsideClickListener);
+        document.removeEventListener('click', outsideClickListener.value);
         outsideClickListener.value = null;
     }
 };
@@ -117,9 +116,6 @@ const login = async () => {
 const onUserClick = () => {
     submitted.value = false;
     loginDialog.value = true;
-};
-const onUserEditClick = () => {
-    router.push({ name: 'user-edit' });
 };
 const checked = ref(false);
 const goToSignup = () => {

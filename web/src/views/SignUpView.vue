@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useApi } from '@/composables/api.js';
-import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import { useApi } from '@/composables/api.js';
 
 const store = useStore();
 const router = useRouter();
@@ -13,8 +13,6 @@ const logoUrl = computed(() => {
 });
 
 // input 데이터
-const value = ref('');
-const errorMessage = ref('');
 const email = ref('');
 const password = ref('');
 const name = ref('');

@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
-import title from '@/composables/title';
-import axios from 'axios';
+import TitleService from '@/service/TitleService';
+// import axios from 'axios';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
 
@@ -37,7 +37,7 @@ onMounted(async () => {
             const endpoint = '/api/v1/users';
             const response = await api.get(endpoint);
             userDetail.value = response;
-            userGrade.value = title.calculateGrade(userDetail.value.userBirthdate);
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
@@ -162,8 +162,48 @@ const renderItemAnswer = (text) => {
 const isLatex = (answer) => {
     return !answer.includes('&#');
 };
-// 정오답 DB에 저장
-const createRecord = async () => {
+// deprecated
+// // 정오답 DB에 저장
+// const createRecord = async () => {
+//     if (isLoggedIn.value && userTestId.value !== null) {
+//         const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
+//         const requestData = ref({
+//             userTestId: userTestId,
+//             answerCodeCreateRequestList: answerCodeCreateRequestList
+//         });
+//         try {
+//             await api.post('/api/v1/record', requestData.value);
+//         } catch (err) {
+//             console.error(`POST ${endpoint} failed:`, err);
+//         }
+//     } else {
+//         console.log('사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.');
+//     }
+// };
+// // AI 분석
+// const analysis = async () => {
+//     if (isLoggedIn.value && userTestId.value !== null) {
+//         const accessToken = localStorage.getItem('accessToken');
+//         if (!accessToken) {
+//             console.error('액세스 토큰이 없습니다.');
+//             return;
+//         }
+//         try {
+//             const headers = {
+//                 Authorization: `Bearer ${accessToken}`,
+//                 'Content-Type': 'application/json'
+//             };
+//             const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`, {}, { headers });
+//             // console.log('응답 데이터:', response.data);
+//         } catch (err) {
+//             console.error('데이터 생성 중 에러 발생:', err);
+//         }
+//     } else {
+//         console.log('userTestId가 없습니다. AI 분석을 건너뜁니다.');
+//     }
+// };
+// AI 분석
+const predict = async () => {
     if (isLoggedIn.value && userTestId.value !== null) {
         const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
         const requestData = ref({
@@ -171,34 +211,12 @@ const createRecord = async () => {
             answerCodeCreateRequestList: answerCodeCreateRequestList
         });
         try {
-            await api.post('/api/v1/record', requestData.value);
+            await api.post('api/v1/ai', requestData.value);
         } catch (err) {
             console.error(`POST ${endpoint} failed:`, err);
         }
     } else {
-        console.log('사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.');
-    }
-};
-// AI 분석
-const analysis = async () => {
-    if (isLoggedIn.value && userTestId.value !== null) {
-        const accessToken = localStorage.getItem('accessToken');
-        if (!accessToken) {
-            console.error('액세스 토큰이 없습니다.');
-            return;
-        }
-        try {
-            const headers = {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            };
-            const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`, {}, { headers });
-            // console.log('응답 데이터:', response.data);
-        } catch (err) {
-            console.error('데이터 생성 중 에러 발생:', err);
-        }
-    } else {
-        console.log('userTestId가 없습니다. AI 분석을 건너뜁니다.');
+        console.log("사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.");
     }
 };
 // 학습지를 누르지 않고 [기록하기]버튼을 누르면, 학습지 목록에서 학습지를 먼저 골라달라고 안내
@@ -263,8 +281,9 @@ const closeConfirmation = () => {
 // yes 버튼 클릭 시
 const yesClick = async () => {
     closeConfirmation();
-    await createRecord();
-    await analysis();
+    // await createRecord();
+    // await analysis();
+    await predict();
     goToResultPage();
 };
 // [여기] 클릭 시 : userTestId 가지고 result로 이동

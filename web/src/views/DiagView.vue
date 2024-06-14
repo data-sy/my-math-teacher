@@ -6,7 +6,7 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
-import title from '@/composables/title.js';
+import TitleService from '@/service/TitleService';
 import levelDic from '@/assets/data/level.json';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
@@ -40,7 +40,7 @@ onMounted(async () => {
             const endpoint = '/api/v1/users';
             const response = await api.get(endpoint);
             userDetail.value = response;
-            userGrade.value = title.calculateGrade(userDetail.value.userBirthdate);
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
@@ -127,7 +127,7 @@ watch(listboxTest, async (newValue) => {
 // 날짜
 const formattedDate = ref('');
 const updateDate = () => {
-    formattedDate.value = title.updateDate();
+    formattedDate.value = TitleService.updateDate();
 };
 onMounted(() => {
     updateDate();

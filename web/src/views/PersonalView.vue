@@ -6,7 +6,7 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
-import title from '@/composables/title.js';
+import TitleService from '@/service/TitleService';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
 
@@ -86,12 +86,14 @@ const testId = ref(null);
 const isImageExist = ref(false);
 const testName = ref('');
 watch(listboxTest, async (newValue) => {
-
+/////////////////////////////////////////////////////////////////////////////////
+// 구현해야 할 부분
+/////////////////////////////////////////////////////////////////////////////////
 });
 // 날짜
 const formattedDate = ref('');
 const updateDate = () => {
-    formattedDate.value = title.updateDate();
+    formattedDate.value = TitleService.updateDate();
 };
 onMounted(() => {
     updateDate();
