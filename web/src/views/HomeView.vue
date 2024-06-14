@@ -1,7 +1,38 @@
-<script setup></script>
+<script setup>
+import { ref } from 'vue';
+import { useApi } from '@/composables/api.js';
+
+const api = useApi();
+
+const getTestValue = ref(null);
+const postTestValue = ref(null);
+const getTest = async () => {
+    try {
+        const endpoint = '/api/v1/hello';
+        const response = await api.get(endpoint);
+        getTestValue.value = response;
+    } catch (err) {
+        console.error('getTest 에러 발생:', err);
+    }
+};
+const postTest = async () => {
+    try {
+        const endpoint = '/api/v1/hello';
+        const response = await api.post(endpoint);
+        postTestValue.value = response;
+    } catch (err) {
+        console.error('postTest 에러 발생:', err);
+    }
+};
+
+</script>
 
 <template>
     <div class="grid p-fluid">
+        <button @click="getTest"> get 요청 버튼 </button>
+        <div> {{ getTestValue }}</div>
+        <button @click="postTest"> post 요청 버튼 </button>
+        <div> {{ postTestValue }}</div>
         <div class="col-12">
             <router-link to="/conceptlist">
                 <div class="card">
@@ -49,6 +80,6 @@
                     </div>
                 </div>
             </router-link>
-        </div>
+        </div>        
     </div>
 </template>

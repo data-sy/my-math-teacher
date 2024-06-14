@@ -13,6 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        System.out.println("환경변수로 주소 잘 들어갔는지 확인 : " + allowedOrigins);
         registry.addMapping("/**")
 //                .allowedOrigins("/*") // 외부에서 들어오는 모든 url 허용
                 .allowedOrigins("allowedOrigins")
