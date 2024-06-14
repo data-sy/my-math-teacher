@@ -66,3 +66,5 @@ jwt:
   # 1시간 / 2시간
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 7200
+allowed:
+  origins: http://${EC2_IP}
