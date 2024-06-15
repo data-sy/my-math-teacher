@@ -9,3 +9,4 @@ docker push mmt2024/mmt-ai:1.0.0
 
 # 로그 확인 및 http://localhost 접속
 docker logs -f mmt-ai
+
