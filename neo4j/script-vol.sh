@@ -37,4 +37,3 @@ docker exec -it mmt-neo4j cypher-shell -u 이름 -p 비번 -f /var/lib/neo4j/imp
 # MATCH (n {concept_id: 4015}), (m)
 # WHERE m.chapter_name = n.chapter_name
 # RETURN (m);
-
