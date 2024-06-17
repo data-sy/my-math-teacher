@@ -4,6 +4,7 @@
 
 // const api = useApi();
 
+// get, post api 테스트
 // const getTestValue = ref(null);
 // const postTestValue = ref(null);
 // const getTest = async () => {

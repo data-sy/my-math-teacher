@@ -1,0 +1,53 @@
+name: Front CI CD to S3
+
+on:
+  push:
+    branches:
+      - main  # 배포를 트리거할 브랜치
+      - cicd
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Node.js 버전
+
+      - name: Install dependencies
+        working-directory: web
+        run: npm install
+
+      - name: Build project
+        working-directory: web
+        run: npm run build  # Vue 프로젝트 빌드 명령어
+
+      - name: List files for debugging
+        working-directory: web
+        run: |
+          echo "Listing files in web:"
+          ls -al
+          echo "Listing files in web/dist:"
+          ls -al dist
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2  # 원하는 AWS 리전
+
+      - name: Sync S3 bucket
+        working-directory: web
+        run: |
+          aws s3 sync dist/ s3://mmt-bk/ --delete
