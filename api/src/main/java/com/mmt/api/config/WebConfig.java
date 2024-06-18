@@ -8,14 +8,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${allowed.origins}")
-    private String allowedOrigins;
+    @Value("${allowed.origins1}")
+    private String allowedOrigins1;
+    @Value("${allowed.origins2}")
+    private String allowedOrigins2;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
 //                .allowedOrigins("/*") // 외부에서 들어오는 모든 url 허용
-                .allowedOrigins(allowedOrigins)
+                .allowedOrigins(allowedOrigins1, allowedOrigins2)
 //                .allowedOrigins("http://localhost:8080", "http://localhost:5173", "http://localhost:8000")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

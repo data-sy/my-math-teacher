@@ -68,4 +68,5 @@ jwt:
   refresh-token-validity-in-seconds: 7200
 allowed:
   # origins: http://${EC2_IP}
-  origins: https://${EC2_DOMAIN_NAME}
+  origins1: https://${EC2_DOMAIN_NAME1}
+  origins2: https://${EC2_DOMAIN_NAME2}
