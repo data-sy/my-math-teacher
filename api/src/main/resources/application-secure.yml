@@ -38,7 +38,7 @@ spring:
               - name
               - email
               # - mobile
-            redirect-uri: https://www.my-math-teacher.com/login/oauth2/code/code/naver
+            redirect-uri: https://www.my-math-teacher.com/login/oauth2/code/naver
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
