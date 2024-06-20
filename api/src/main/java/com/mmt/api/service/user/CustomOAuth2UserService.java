@@ -47,11 +47,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
         AuthProvider authProvider = AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(authProvider, oAuth2User.getAttributes());
-        // log.debug("인포에 있는 데이터들 authProvider : {}", authProvider);
-        // log.debug("인포에 있는 데이터들 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
-        // log.debug("인포에 있는 데이터들 getName : {}", oAuth2UserInfo.getName());
-        // log.debug("인포에 있는 데이터들 getEmail : {}", oAuth2UserInfo.getEmail());
-        // log.debug("인포에 있는 데이터들 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
+        log.debug("registrationId : {}", registrationId);
+        log.debug("인포에 있는 데이터들 authProvider : {}", authProvider);
+        log.debug("인포에 있는 데이터들 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
+        log.debug("인포에 있는 데이터들 getName : {}", oAuth2UserInfo.getName());
+        log.debug("인포에 있는 데이터들 getEmail : {}", oAuth2UserInfo.getEmail());
+        log.debug("인포에 있는 데이터들 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
 
         if (!StringUtils.hasText(oAuth2UserInfo.getEmail())) {
             throw new RuntimeException("Email not found from OAuth2 provider");
