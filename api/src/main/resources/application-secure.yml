@@ -28,7 +28,7 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            redirect-uri: https://www.my-math-teacher.com/login/oauth2/code/google
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: e${NAVER_CLIENT_SECRET}
