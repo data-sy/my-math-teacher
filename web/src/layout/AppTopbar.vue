@@ -201,17 +201,17 @@ const logout = async () => {
                 </div>
                 <div class="flex justify-content-center gap-7 mb-7">
                     <div class="icon-container">
-                        <a href="https://www.my-math-teacher.com/oauth2/authorization/google">
+                        <a href="/oauth2/authorization/google">
                             <img :src="oauth2googlelogoUrl" alt="Google" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container">
-                        <a href="https://www.my-math-teacher.com/oauth2/authorization/naver">
+                        <a href="http://www.my-math-teacher.com/oauth2/authorization/naver">
                             <img :src="oauth2naverlogoUrl" alt="Naver" class="icon" />
                         </a>
                     </div>
                     <div class="icon-container kakao">
-                        <a href="https://www.my-math-teacher.com/oauth2/authorization/kakao">
+                        <a href="http://localhost:8080/oauth2/authorization/kakao">
                             <img :src="oauth2kakaologoUrl" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
                         </a>
                     </div>
