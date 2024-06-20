@@ -78,11 +78,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private Users registerUser(AuthProvider authProvider, OAuth2UserInfo oAuth2UserInfo) {
         // OAuth회원 회원가입
         // 리팩토링 : UserService의 signup메서드와 유사하므로 나중에 둘 합쳐도 될 듯
-        // log.debug("회원가입 authProvider : {}", authProvider);
-        // log.debug("회원가입 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
-        // log.debug("회원가입 getName : {}", oAuth2UserInfo.getName());
-        // log.debug("회원가입 getEmail : {}", oAuth2UserInfo.getEmail());
-        // log.debug("회원가입 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
+         log.debug("회원가입 authProvider : {}", authProvider);
+         log.debug("회원가입 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
+         log.debug("회원가입 getName : {}", oAuth2UserInfo.getName());
+         log.debug("회원가입 getEmail : {}", oAuth2UserInfo.getEmail());
+         log.debug("회원가입 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
 
 //        // naver는 010-1234-5678 형태이고, kakao는 없음
 //        Optional<String> mobileAttribute = Optional.ofNullable(oAuth2UserInfo.getAttributes().get("mobile"))
