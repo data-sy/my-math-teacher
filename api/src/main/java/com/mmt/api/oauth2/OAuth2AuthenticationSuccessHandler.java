@@ -36,9 +36,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-
+        
+        // 백엔드에서
 //        String targetUrl = "http://localhost:8080/api/v1/login";
-        String targetUrl = "http://localhost:5173/login";
+        // 프론트 추가 후
+        // String targetUrl = "http://localhost:5173/login";
+        // EC2 배포 후
+        String targetUrl = "https://www.my-math-teacher.com/login";
 
         //JWT 생성
         JwtToken token = tokenProvider.generateToken(authentication);

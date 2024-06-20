@@ -37,7 +37,7 @@ spring:
             scope:
               - name
               - email
-              - mobile
+              # - mobile
             redirect-uri: http://localhost:8080/login/oauth2/code/naver
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
