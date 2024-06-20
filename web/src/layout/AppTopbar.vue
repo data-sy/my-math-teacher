@@ -174,31 +174,32 @@ const logout = async () => {
                 <form v-on:submit.prevent="login">
                     <div>
                         <InputText id="email" v-model="email" type="text" placeholder="아이디" class="w-full mb-3" style="padding: 1rem" />
-                        <Password id="password" v-model="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-3" inputClass="w-full" :inputStyle="{ padding: '1rem' }" :feedback="false"></Password>
-                        <div class="flex align-items-center justify-content-between mb-4 gap-5">
+                        <Password id="password" v-model="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-4" inputClass="w-full" :inputStyle="{ padding: '1rem' }" :feedback="false"></Password>
+                        <!-- <div class="flex align-items-center justify-content-between mb-4 gap-5">
                             <div class="flex align-items-center">
                                 <Checkbox v-model="checked" id="rememberme" binary class="mr-2"></Checkbox>
                                 <label for="rememberme" class="line-through-text">Remember me</label>
                             </div>
                             <a class="font-medium no-underline ml-2 text-right cursor-pointer line-through-text" style="color: var(--primary-color)">Forgot password?</a>
-                        </div>
+                        </div> -->
                         <p v-html="loginErrorMessage" class="text-red-600 text-base text-font-medium"></p>
-                        <Button type="submit" label="로그인" class="w-full p-2.5 text-lg border-round-2xl"></Button>
+                        <Button type="submit" label="로그인" class="w-full p-2.5 p-button-raised text-lg border-round-2xl"></Button>
                     </div>
                 </form>
-                <div class="flex align-items-center justify-content-center mt-5 mb-5">
-                    <div class="flex align-items-center ml-3 mr-4">
+                <div class="flex align-items-center justify-content-center mt-3 mb-5">
+                    <Button @click="goToSignup()" label="회원가입" class="w-full p-2.5 p-button-raised p-button-secondary text-lg border-round-2xl"></Button>
+                    <!-- <div class="flex align-items-center ml-3 mr-4">
                         <a @click="goToSignup()" class="text-600 font-medium cursor-pointer"> 회원가입 </a>
-                    </div>
-                    <div class="vertical-line"></div>
-                    <a class="text-600 font-medium cursor-pointer ml-4 line-through-text"> 아이디 비밀번호 찾기 </a>
+                    </div> -->
+                    <!-- <div class="vertical-line"></div>
+                    <a class="text-600 font-medium cursor-pointer ml-4 line-through-text"> 아이디 비밀번호 찾기 </a> -->
                 </div>
                 <div class="divider-container mt-4 mb-4">
                     <div class="left-divider"></div>
                     <span class="divider-text"> 간편로그인 </span>
                     <div class="right-divider"></div>
                 </div>
-                <div class="flex justify-content-center gap-7">
+                <div class="flex justify-content-center gap-7 mb-7">
                     <div class="icon-container">
                         <a href="http://localhost:8080/oauth2/authorization/google">
                             <img :src="oauth2googlelogoUrl" alt="Google" class="icon" />
@@ -215,7 +216,7 @@ const logout = async () => {
                         </a>
                     </div>
                 </div>
-                <div class="flex align-items-center justify-content-center mt-5 mb-5"> ( 참고 : <span class="line-through-text">취소선</span>은 아직 개발하지 않은 기능을 의미합니다.) </div>
+                <!-- <div class="flex align-items-center justify-content-center mt-5 mb-5"> ( 참고 : <span class="line-through-text">취소선</span>은 아직 개발하지 않은 기능을 의미합니다.) </div> -->
                 <!-- <div v-if="error" style="color: red">{{ error.message }}</div> -->
             </div>
         </Dialog>
