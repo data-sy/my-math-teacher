@@ -34,7 +34,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");
+        // log.info("CustomOAuth2UserService.loadUser() 실행 - OAuth2 로그인 요청 진입");
         OAuth2UserService oAuth2UserService = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
@@ -47,11 +47,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
         AuthProvider authProvider = AuthProvider.valueOf(oAuth2UserRequest.getClientRegistration().getRegistrationId().toUpperCase());
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(authProvider, oAuth2User.getAttributes());
-        log.debug("인포에 있는 데이터들 authProvider : {}", authProvider);
-        log.debug("인포에 있는 데이터들 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
-        log.debug("인포에 있는 데이터들 getName : {}", oAuth2UserInfo.getName());
-        log.debug("인포에 있는 데이터들 getEmail : {}", oAuth2UserInfo.getEmail());
-        log.debug("인포에 있는 데이터들 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
+        // log.debug("인포에 있는 데이터들 authProvider : {}", authProvider);
+        // log.debug("인포에 있는 데이터들 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
+        // log.debug("인포에 있는 데이터들 getName : {}", oAuth2UserInfo.getName());
+        // log.debug("인포에 있는 데이터들 getEmail : {}", oAuth2UserInfo.getEmail());
+        // log.debug("인포에 있는 데이터들 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
 
         if (!StringUtils.hasText(oAuth2UserInfo.getEmail())) {
             throw new RuntimeException("Email not found from OAuth2 provider");
@@ -78,17 +78,17 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private Users registerUser(AuthProvider authProvider, OAuth2UserInfo oAuth2UserInfo) {
         // OAuth회원 회원가입
         // 리팩토링 : UserService의 signup메서드와 유사하므로 나중에 둘 합쳐도 될 듯
-        log.debug("회원가입 authProvider : {}", authProvider);
-        log.debug("회원가입 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
-        log.debug("회원가입 getName : {}", oAuth2UserInfo.getName());
-        log.debug("회원가입 getEmail : {}", oAuth2UserInfo.getEmail());
-        log.debug("회원가입 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
+        // log.debug("회원가입 authProvider : {}", authProvider);
+        // log.debug("회원가입 getOAuth2Id : {}", oAuth2UserInfo.getOAuth2Id());
+        // log.debug("회원가입 getName : {}", oAuth2UserInfo.getName());
+        // log.debug("회원가입 getEmail : {}", oAuth2UserInfo.getEmail());
+        // log.debug("회원가입 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
 
-        // naver는 010-1234-5678 형태이고, kakao는 없음
-        Optional<String> mobileAttribute = Optional.ofNullable(oAuth2UserInfo.getAttributes().get("mobile"))
-                .map(Object::toString)
-                .map(str -> str.replaceAll("[^0-9]", ""));
-        String userPhone = mobileAttribute.orElse(null);
+//        // naver는 010-1234-5678 형태이고, kakao는 없음
+//        Optional<String> mobileAttribute = Optional.ofNullable(oAuth2UserInfo.getAttributes().get("mobile"))
+//                .map(Object::toString)
+//                .map(str -> str.replaceAll("[^0-9]", ""));
+//        String userPhone = mobileAttribute.orElse(null);
 
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
@@ -101,7 +101,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .userName(oAuth2UserInfo.getName())
                 .oauth2Id(oAuth2UserInfo.getOAuth2Id())
                 .authProvider(authProvider)
-                .userPhone(userPhone)
+//                .userPhone(userPhone)
                 .userAuthoritySet(Collections.singleton(userAuthority))
                 .activated(true)
                 .build();
