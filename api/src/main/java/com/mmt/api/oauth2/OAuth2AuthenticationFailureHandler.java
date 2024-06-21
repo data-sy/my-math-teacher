@@ -24,7 +24,11 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
         if (authenticationException instanceof OAuth2AuthenticationException) {
             OAuth2Error error = ((OAuth2AuthenticationException) authenticationException).getError();
-            log.error("OAuth2 error: {}", error.toString());
+            log.error("OAuth2 error occurred during authentication:", authenticationException);
+            log.error("OAuth2 error details - Error code: {}, Error description: {}, Error URI: {}",
+                    error.getErrorCode(), error.getDescription(), error.getUri());
+        } else {
+            log.error("Authentication error occurred:", authenticationException);
         }
 
         targetUrl = UriComponentsBuilder.fromUriString(targetUrl)
