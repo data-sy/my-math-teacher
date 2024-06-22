@@ -85,11 +85,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
          log.debug("회원가입 getEmail : {}", oAuth2UserInfo.getEmail());
          log.debug("회원가입 getAttributes : {}", oAuth2UserInfo.getAttributes().toString());
 
-        // naver는 010-1234-5678 형태이고, kakao는 없음
-        Optional<String> mobileAttribute = Optional.ofNullable(oAuth2UserInfo.getAttributes().get("mobile"))
-                .map(Object::toString)
-                .map(str -> str.replaceAll("[^0-9]", ""));
-        String userPhone = mobileAttribute.orElse(null);
+//        // naver는 010-1234-5678 형태이고, kakao는 없음
+//        Optional<String> mobileAttribute = Optional.ofNullable(oAuth2UserInfo.getAttributes().get("mobile"))
+//                .map(Object::toString)
+//                .map(str -> str.replaceAll("[^0-9]", ""));
+//        String userPhone = mobileAttribute.orElse(null);
 
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
