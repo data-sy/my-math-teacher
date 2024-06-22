@@ -38,6 +38,7 @@ spring:
             scope:
               - name
               - email
+              - mobile
             redirect-uri: https://www.my-math-teacher.com/login/oauth2/code/naver
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
