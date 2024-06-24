@@ -89,6 +89,7 @@ public class SecurityConfig {
                                         userInfoEndpointConfig
                                                 .userService(customOAuth2UserService))
 //                                .anonymous() ??
+//                                .tokenEndpoint(tokenEndpointConfig -> tokenEndpointConfig.accessTokenResponseClient())
                                 .successHandler(oAuth2AuthenticationSuccessHandler)
                                 .failureHandler(oAuth2AuthenticationFailureHandler)
                 );
