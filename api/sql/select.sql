@@ -134,3 +134,7 @@ select * from items where item_id in (select item_id from tests_items where test
 select * from answers;
 
 select * from probabilities p join answers a on p.answer_id = a.answer_id where user_test_id = 8;
+
+-- MySQL 버전 정보 확인
+SELECT VERSION();
+
