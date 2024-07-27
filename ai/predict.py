@@ -1,6 +1,9 @@
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 
+# # TensorFlow 버전 출력
+# print("TensorFlow version:", tf.__version__)
+
 def predict(input_data):
   model_path = 'savedmodel/'
 
