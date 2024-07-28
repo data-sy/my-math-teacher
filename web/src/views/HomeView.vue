@@ -65,7 +65,7 @@
             <router-link to="/result">
                 <div class="card">
                     <div class="text-900 font-medium text-2xl">
-                        &#9314; AI분석 결과보기
+                        &#9314; AI 분석 결과보기
                         <i v-tooltip="'&#9313; 의 채점 결과를 분석\n - 어떤 개념이 부족한지\n - 필요한 선수지식 확인 '" class="pi pi-question-circle text-xl mx-2"></i>
                     </div>
                 </div>

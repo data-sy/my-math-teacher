@@ -21,7 +21,7 @@ const logoUrl = computed(() => {
             <a href="https://github.com/data-sy/my-math-teacher" target="_blank">
                 Github <i class="pi pi-github"></i>
             </a>
-            <a href="https://splashy-shear-9ec.notion.site/My-Math-Teacher-7aa6419fd6414449bd301738eee25d2d?pvs=4" target="_blank">
+            <a href="https://splashy-shear-9ec.notion.site/My-Math-Teacher-11b347c3618e4a84a25908c97ae19b1d?pvs=4" target="_blank">
                 Notion <i class="pi pi-link"></i> 
             </a>
             <!-- <a href="https://www.facebook.com/example" target="_blank">
