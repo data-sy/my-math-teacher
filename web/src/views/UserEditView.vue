@@ -263,9 +263,9 @@ const confirm = (event) => {
                 <div class="flex align-items-center justify-content-center mt-2">
                     회원 정보 수정이 가능한 마이페이지 입니다.
                 </div>
-                <div class="flex align-items-center justify-content-center mt-2">
+                <!-- <div class="flex align-items-center justify-content-center mt-2">
                     안전을 위해 '<span class="font-bold"> 사용빈도가 낮은 </span>' 비밀번호를 사용해 주세요.
-                </div>
+                </div> -->
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">

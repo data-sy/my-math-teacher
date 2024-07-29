@@ -175,12 +175,12 @@ const yesClick = async () => {
             <div class="text-center mb-7">
                 <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
                 <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
-                <div class="flex align-items-center justify-content-center">
+                <!-- <div class="flex align-items-center justify-content-center">
                     개인 프로젝트 입니다.
                 </div>
                 <div class="flex align-items-center justify-content-center mt-2">
                     안전을 위해 '<span class="font-bold"> 사용빈도가 낮은 </span>' 비밀번호를 사용해 주세요.
-                </div>
+                </div> -->
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
