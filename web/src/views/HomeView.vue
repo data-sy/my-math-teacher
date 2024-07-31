@@ -63,10 +63,13 @@
         </div>
         <div class="col-12 md:col-6 xl:col-6">
             <router-link to="/result">
-                <div class="card">
-                    <div class="text-900 font-medium text-2xl">
+                <div class="card border-2 border-red-300">
+                    <div class="flex align-items-center">
+                        <span class="text-900 font-medium text-2xl">
                         &#9314; AI 분석 결과보기
                         <i v-tooltip="'&#9313; 의 채점 결과를 분석\n - 어떤 개념이 부족한지\n - 필요한 선수지식 확인 '" class="pi pi-question-circle text-xl mx-2"></i>
+                        </span>
+                        <span class="mx-3">(클릭해서 샘플을 확인하세요.)</span>
                     </div>
                 </div>
             </router-link>
