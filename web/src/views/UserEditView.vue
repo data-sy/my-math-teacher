@@ -252,9 +252,9 @@ const confirm = (event) => {
 
 <template>
     <div class="grid p-fluid flex align-items-center justify-content-center">
-        <div class="col-12 text-center mb-3">
+        <!-- <div class="col-12 text-center mb-3">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
-        </div>
+        </div> -->
         <div class="surface-card py-6 px-7 sm:px-8 shadow-2 border-round mb-7">
             <!-- <div class="text-center mb-7 cursor-pointer" @click="goToHome"> 홈으로 가는 클릭 이벤트 없앰 (나중에 (페이지가 아니라) 컨펌창으로 만들 때 추가하기) -->
             <div class="text-center mb-7">

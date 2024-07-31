@@ -300,9 +300,9 @@ const goToResultPage = async () => {
 
 <template>
     <div class="grid p-fluid">
-        <div class="col-12 text-center">
+        <!-- <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
-        </div>
+        </div> -->
         <div class="col-12 sm:col-6 xl:col-3">
             <div class="card">
                 <h5>다운로드한 학습지 목록</h5>
