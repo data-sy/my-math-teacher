@@ -1,0 +1,160 @@
+# opti-0 (pre)
+MATCH (n {chapter_id: 500}) RETURN (n);
+## K6 300명 부하테스트 결과
+     ✗ is status 200
+      ↳  98% — ✓ 138281 / ✗ 1515
+     ✗ response time < 500ms
+      ↳  98% — ✓ 138112 / ✗ 1684
+
+     checks.........................: 98.85% ✓ 276393     ✗ 3199
+     data_received..................: 1.6 GB 4.9 MB/s
+     data_sent......................: 17 MB  51 kB/s
+     http_req_blocked...............: avg=14.62µs  min=0s     med=1.45µs  max=21.89ms p(90)=2.66µs   p(95)=3.41µs
+     http_req_connecting............: avg=12.1µs   min=0s     med=0s      max=21.73ms p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=526.19ms min=0s     med=29.67ms max=1m0s    p(90)=82.36ms  p(95)=92.02ms
+       { expected_response:true }...: avg=81.11ms  min=1.28ms med=29.32ms max=1m0s    p(90)=80.92ms  p(95)=89.1ms
+     http_req_failed................: 1.08%  ✓ 1515       ✗ 138281
+     http_req_receiving.............: avg=63.97µs  min=0s     med=46.12µs max=53.13ms p(90)=106.25µs p(95)=141.88µs
+     http_req_sending...............: avg=7.91µs   min=0s     med=6.37µs  max=5.21ms  p(90)=11.54µs  p(95)=15.01µs
+     http_req_tls_handshaking.......: avg=0s       min=0s     med=0s      max=0s      p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=526.12ms min=0s     med=29.61ms max=1m0s    p(90)=82.29ms  p(95)=91.95ms
+     http_reqs......................: 139796 425.246207/s
+     iteration_duration.............: avg=528.21ms min=1.33ms med=29.74ms max=1m0s    p(90)=82.44ms  p(95)=92.13ms
+     iterations.....................: 139796 425.246207/s
+     vus............................: 1      min=1        max=300
+     vus_max........................: 300    min=300      max=300
+
+## K6 500명 부하테스트 결과
+     ✗ is status 200
+      ↳  95% — ✓ 40657 / ✗ 2114
+     ✗ response time < 500ms
+      ↳  94% — ✓ 40610 / ✗ 2161
+
+     checks.........................: 95.00% ✓ 81267      ✗ 4275
+     data_received..................: 475 MB 1.4 MB/s
+     data_sent......................: 5.2 MB 16 kB/s
+     http_req_blocked...............: avg=95.68µs min=0s     med=1.66µs  max=16.48ms p(90)=4.12µs   p(95)=26.02µs
+     http_req_connecting............: avg=89.46µs min=0s     med=0s      max=16.45ms p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=2.83s   min=0s     med=67.75ms max=1m0s    p(90)=131.58ms p(95)=550.65ms
+       { expected_response:true }...: avg=77.41ms min=1.69ms med=66.81ms max=29.83s  p(90)=104.16ms p(95)=133.71ms
+     http_req_failed................: 4.94%  ✓ 2114       ✗ 40657
+     http_req_receiving.............: avg=81.97µs min=0s     med=48.58µs max=31.33ms p(90)=128.87µs p(95)=177.24µs
+     http_req_sending...............: avg=11.38µs min=0s     med=7.04µs  max=3.17ms  p(90)=16.91µs  p(95)=26.95µs
+     http_req_tls_handshaking.......: avg=0s      min=0s     med=0s      max=0s      p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=2.83s   min=0s     med=67.66ms max=1m0s    p(90)=131.51ms p(95)=550.46ms
+     http_reqs......................: 42771  129.606079/s
+     iteration_duration.............: avg=2.84s   min=1.72ms med=67.85ms max=1m0s    p(90)=131.84ms p(95)=559.57ms
+     iterations.....................: 42771  129.606079/s
+     vus............................: 1      min=1        max=500
+     vus_max........................: 500    min=500      max=500
+
+# opti-1 : 노드 종류? 명시하기
+MATCH (n:concept {chapter_id: $chapterId}) RETURN (n);
+이건 neo4j 쿼리 속도만 측정
+
+
+
+# opti-2 : ㅇㅇㅇ을 위한 with 절 추가
+MATCH (n:concept {chapter_id: 500}) WITH n RETURN n;
+## K6 300명 부하테스트 결과
+     ✗ is status 200
+      ↳  99% — ✓ 452295 / ✗ 1227
+     ✗ response time < 500ms
+      ↳  99% — ✓ 452645 / ✗ 877
+
+     checks.........................: 99.76% ✓ 904940      ✗ 2104
+     data_received..................: 5.3 GB 16 MB/s
+     data_sent......................: 54 MB  166 kB/s
+     http_req_blocked...............: avg=2.03ms   min=0s     med=1.33µs  max=19.75s  p(90)=2.33µs  p(95)=2.95µs
+     http_req_connecting............: avg=2.02ms   min=0s     med=0s      max=19.75s  p(90)=0s      p(95)=0s
+     http_req_duration..............: avg=126.45ms min=0s     med=52.14ms max=59.99s  p(90)=80.41ms p(95)=91.89ms
+       { expected_response:true }...: avg=65.93ms  min=1.19ms med=52.13ms max=59.99s  p(90)=80.27ms p(95)=91.02ms
+     http_req_failed................: 0.27%  ✓ 1227        ✗ 452295
+     http_req_receiving.............: avg=64.05µs  min=0s     med=44.7µs  max=24.43ms p(90)=99.83µs p(95)=133.25µs
+     http_req_sending...............: avg=6.81µs   min=0s     med=5.95µs  max=2.39ms  p(90)=10µs    p(95)=12.66µs
+     http_req_tls_handshaking.......: avg=0s       min=0s     med=0s      max=0s      p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=126.38ms min=0s     med=52.07ms max=59.99s  p(90)=80.34ms p(95)=91.82ms
+     http_reqs......................: 453522 1383.344965/s
+     iteration_duration.............: avg=163.41ms min=1.24ms med=52.28ms max=1m0s    p(90)=80.63ms p(95)=92.75ms
+     iterations.....................: 453522 1383.344965/s
+     vus............................: 1      min=1         max=300
+     vus_max........................: 300    min=300       max=300
+## K6 500명 부하테스트 결과
+ ✗ is status 200
+      ↳  95% — ✓ 40452 / ✗ 2108
+     ✗ response time < 500ms
+      ↳  95% — ✓ 40449 / ✗ 2111
+
+     checks.........................: 95.04% ✓ 80901      ✗ 4219
+     data_received..................: 473 MB 1.4 MB/s
+     data_sent......................: 5.1 MB 16 kB/s
+     http_req_blocked...............: avg=104.51µs min=0s     med=1.87µs  max=16.55ms p(90)=4.08µs   p(95)=22.46µs
+     http_req_connecting............: avg=97.61µs  min=0s     med=0s      max=16.5ms  p(90)=0s       p(95)=0s
+     http_req_duration..............: avg=2.83s    min=0s     med=67.9ms  max=1m0s    p(90)=115.17ms p(95)=253.69ms
+       { expected_response:true }...: avg=72.27ms  min=1.69ms med=66.62ms max=29.93s  p(90)=92.87ms  p(95)=117.97ms
+     http_req_failed................: 4.95%  ✓ 2108       ✗ 40452
+     http_req_receiving.............: avg=85.04µs  min=0s     med=59.54µs max=16.08ms p(90)=134.75µs p(95)=171.37µs
+     http_req_sending...............: avg=11.96µs  min=0s     med=8µs     max=1.41ms  p(90)=16.7µs   p(95)=25.04µs
+     http_req_tls_handshaking.......: avg=0s       min=0s     med=0s      max=0s      p(90)=0s       p(95)=0s
+     http_req_waiting...............: avg=2.83s    min=0s     med=67.82ms max=1m0s    p(90)=114.99ms p(95)=253.66ms
+     http_reqs......................: 42560  128.969192/s
+     iteration_duration.............: avg=2.84s    min=1.74ms med=68ms    max=1m0s    p(90)=115.4ms  p(95)=257.01ms
+     iterations.....................: 42560  128.969192/s
+     vus............................: 1      min=1        max=500
+     vus_max........................: 500    min=500      max=500
+
+# opti-3 : chapter_id를 index로
+MATCH (n:concept {chapter_id: 500}) WITH n RETURN n;
+## K6 300명 부하테스트 결과
+     ✗ is status 200
+      ↳  99% — ✓ 183571 / ✗ 1492
+     ✗ response time < 500ms
+      ↳  99% — ✓ 183381 / ✗ 1682
+
+     checks.........................: 99.14% ✓ 366952     ✗ 3174
+     data_received..................: 2.1 GB 7.1 MB/s
+     data_sent......................: 22 MB  74 kB/s
+     http_req_blocked...............: avg=8.03µs   min=333ns    med=666ns   max=18.43ms p(90)=1.5µs   p(95)=2.2µs
+     http_req_connecting............: avg=6.6µs    min=0s       med=0s      max=18.27ms p(90)=0s      p(95)=0s
+     http_req_duration..............: avg=396.33ms min=961µs    med=22.49ms max=1m0s    p(90)=60.31ms p(95)=69.77ms
+       { expected_response:true }...: avg=68.02ms  min=961µs    med=22.28ms max=59.98s  p(90)=59.28ms p(95)=66.88ms
+     http_req_failed................: 0.80%  ✓ 1492       ✗ 183571
+     http_req_receiving.............: avg=48.46µs  min=0s       med=28.58µs max=30.76ms p(90)=73µs    p(95)=110.25µs
+     http_req_sending...............: avg=4.34µs   min=1.66µs   med=3.08µs  max=1.4ms   p(90)=7.41µs  p(95)=10.41µs
+     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s      max=0s      p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=396.28ms min=906µs    med=22.44ms max=1m0s    p(90)=60.27ms p(95)=69.72ms
+     http_reqs......................: 185063 616.862893/s
+     iteration_duration.............: avg=396.39ms min=999.83µs med=22.54ms max=1m0s    p(90)=60.36ms p(95)=69.81ms
+     iterations.....................: 185063 616.862893/s
+     vus............................: 1      min=1        max=300
+     vus_max........................: 300    min=300      max=300
+
+## K6 500명 부하테스트 결과
+     ✗ is status 200
+      ↳  97% — ✓ 86884 / ✗ 2122
+     ✗ response time < 500ms
+      ↳  97% — ✓ 86897 / ✗ 2109
+
+     checks.........................: 97.62% ✓ 173781     ✗ 4231
+     data_received..................: 1.0 GB 3.1 MB/s
+     data_sent......................: 11 MB  32 kB/s
+     http_req_blocked...............: avg=40.83µs min=0s     med=625ns   max=22.08ms p(90)=1.45µs  p(95)=2.95µs
+     http_req_connecting............: avg=37.92µs min=0s     med=0s      max=21.93ms p(90)=0s      p(95)=0s
+     http_req_duration..............: avg=1.36s   min=0s     med=34.63ms max=1m0s    p(90)=63.78ms p(95)=102.5ms
+       { expected_response:true }...: avg=37.76ms min=1.2ms  med=33.31ms max=29.88s  p(90)=61.48ms p(95)=77.67ms
+     http_req_failed................: 2.38%  ✓ 2122       ✗ 86884
+     http_req_receiving.............: avg=41.38µs min=0s     med=27.75µs max=30.2ms  p(90)=70.79µs p(95)=109.5µs
+     http_req_sending...............: avg=5.28µs  min=0s     med=3.08µs  max=644.5µs p(90)=8.08µs  p(95)=11.7µs
+     http_req_tls_handshaking.......: avg=0s      min=0s     med=0s      max=0s      p(90)=0s      p(95)=0s
+     http_req_waiting...............: avg=1.36s   min=0s     med=34.59ms max=1m0s    p(90)=63.74ms p(95)=102.45ms
+     http_reqs......................: 89006  269.701347/s
+     iteration_duration.............: avg=1.37s   min=1.28ms med=34.64ms max=1m0s    p(90)=63.82ms p(95)=102.83ms
+     iterations.....................: 89006  269.701347/s
+     vus............................: 1      min=1        max=500
+     vus_max........................: 500    min=500      max=500
+
+## Neo4j에서의 PROFILE 결과 비교
+Cypher version: , planner: COST, runtime: PIPELINED. 3518 total db hits in 62 ms.
+Cypher version: , planner: COST, runtime: PIPELINED. 5149 total db hits in 28 ms.
+Cypher version: , planner: COST, runtime: PIPELINED. 5149 total db hits in 15 ms.
+Cypher version: , planner: COST, runtime: PIPELINED. 273 total db hits in 11 ms
