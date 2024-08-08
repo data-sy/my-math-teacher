@@ -1,13 +1,19 @@
 // 모든 노드 보기
 MATCH (n) RETURN (n);
+MATCH (n{concept_id: 4979}) RETURN (n);
 
 // 모든 노드와 관계 삭제
 MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r;
 MATCH (a:concept) OPTIONAL MATCH (a)-[r]-() DELETE a, r;
+// 특정 관계 삭제
+MATCH ()-[r:관계 이름]-() DELETE r
 
 // 경로 길이 1~6 인 노드와 관계
 MATCH path = (start_node)-[*1..6]->(n {concept_id: 4979})
 RETURN nodes(path), relationships(path);
+// 위 쿼리의 경로 개수
+MATCH path = (start_node)-[*1..6]->(n {concept_id: 4979})
+RETURN COUNT(path) AS path_count;
 
 // 경로 길이 1~6 인 노드
 MATCH path = (start_node)-[*1..6]->(n {concept_id: 4979})
@@ -30,7 +36,6 @@ RETURN [id IN node.concept_id] AS concept_ids
 // path 없이도 id 나오는 것 가능 (여러 경로 있는 id 빼고 중복제거 됨) 하지만 id는 경로가 중요해서 이 쿼리는 쓸 일이 없네
 //MATCH (n)-[*1..3]->(m {concept_id: 4979})
 //RETURN [id IN n.concept_id]
-
 
 
 // node를 key:value = concept_id:skill_id 로 추출
