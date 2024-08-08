@@ -3,8 +3,8 @@ import { check } from 'k6';
 
 export let options = {
     stages: [
-        { duration: '1m', target: 500 }, // 1분 동안 사용자 200명까지 증가
-        { duration: '3m', target: 500 }, // 3분 동안 200명의 사용자 유지
+        { duration: '1m', target: 300 }, // 1분 동안 사용자 n명까지 증가
+        { duration: '3m', target: 300 }, // 3분 동안 n명의 사용자 유지
         { duration: '1m', target: 0 },   // 1분 동안 사용자 0명으로 감소
     ],
 };
