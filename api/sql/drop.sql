@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS knowledge_space;
 DROP TABLE IF EXISTS concepts_sections;
 DROP TABLE IF EXISTS sections;
 DROP TABLE IF EXISTS concepts;
-DROP TABLE IF EXISTS chapters;	
+DROP TABLE IF EXISTS chapters;
 
 -- insert 순서
 -- 소단원 insert_chapters.sql -> 단위개념 insert_concepts_latex.sql -> 섹션과 단위개념_섹션 insert_concepts_sections.sql

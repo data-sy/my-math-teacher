@@ -138,3 +138,339 @@ select * from probabilities p join answers a on p.answer_id = a.answer_id where 
 -- MySQL 버전 정보 확인
 SELECT VERSION();
 
+-- 성능 테스트
+-- Neo4j의 Cypher와 비교
+-- 경로 길이 1~6 인 노드와 관계
+-- MATCH path = (start_node)-[*1..6]->(n {concept_id: 4979})
+-- RETURN nodes(path), relationships(path);
+SELECT
+    c1.concept_id AS level1,
+    c2.concept_id AS level2,
+    c3.concept_id AS level3,
+    c4.concept_id AS level4,
+    c5.concept_id AS level5,
+    c6.concept_id AS level6,
+    c7.concept_id AS level7
+FROM
+    concepts c1
+LEFT JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+LEFT JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+LEFT JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+LEFT JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+LEFT JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+LEFT JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+LEFT JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+LEFT JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+LEFT JOIN knowledge_space k5 ON c5.concept_id = k5.from_concept_id
+LEFT JOIN concepts c6 ON k5.to_concept_id = c6.concept_id
+LEFT JOIN knowledge_space k6 ON c6.concept_id = k6.from_concept_id
+LEFT JOIN concepts c7 ON k6.to_concept_id = c7.concept_id
+WHERE
+    c1.concept_id = 4979;
+-- 개수를 세서 같은 값을 반환하는지 확인 : 36개 OK!
+SELECT
+    (SELECT COUNT(*)
+     FROM concepts c1
+     JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+     WHERE c1.concept_id = 4979) +
+    (SELECT COUNT(*)
+     FROM concepts c1
+     JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+     JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+     JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+     WHERE c1.concept_id = 4979) +
+    (SELECT COUNT(*)
+     FROM concepts c1
+     JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+     JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+     JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+     JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+     JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+     WHERE c1.concept_id = 4979) +
+    (SELECT COUNT(*)
+     FROM concepts c1
+     JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+     JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+     JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+     JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+     JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+     JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+     JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+     WHERE c1.concept_id = 4979) +
+    (SELECT COUNT(*)
+     FROM concepts c1
+     JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+     JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+     JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+     JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+     JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+     JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+     JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+     JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+     JOIN knowledge_space k5 ON c5.concept_id = k5.from_concept_id
+     WHERE c1.concept_id = 4979) +
+    (SELECT COUNT(*)
+     FROM concepts c1
+     JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+     JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+     JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+     JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+     JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+     JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+     JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+     JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+     JOIN knowledge_space k5 ON c5.concept_id = k5.from_concept_id
+     JOIN concepts c6 ON k5.to_concept_id = c6.concept_id
+     JOIN knowledge_space k6 ON c6.concept_id = k6.from_concept_id
+     WHERE c1.concept_id = 4979) AS total_path_count;
+
+-- 경로 0~5 사이의 노드
+-- MATCH (n)-[*0..5]->(m {concept_id: 4979}) 
+-- RETURN (n)
+SELECT DISTINCT c1.*
+FROM concepts c1
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c2.*
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c3.*
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c4.*
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+INNER JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+INNER JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c5.*
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+INNER JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+INNER JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+INNER JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+INNER JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c6.*
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+INNER JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+INNER JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+INNER JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+INNER JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+INNER JOIN knowledge_space k5 ON c5.concept_id = k5.from_concept_id
+INNER JOIN concepts c6 ON k5.to_concept_id = c6.concept_id
+WHERE c1.concept_id = 4979;
+
+-- 재귀 CTE
+WITH RECURSIVE path AS (
+    -- 초기 상태, 시작 노드를 선택
+    SELECT 
+        c1.concept_id,
+        c1.concept_name,
+        c1.concept_description,
+        c1.concept_chapter_id,
+        c1.concept_achievement_id,
+        c1.concept_achievement_name,
+        c1.skill_id,
+        0 AS depth
+    FROM 
+        concepts c1
+    WHERE 
+        c1.concept_id = 4979
+    
+    UNION ALL
+    
+    -- 재귀 상태, 각 단계를 따라가면서 노드를 선택
+    SELECT 
+        c2.concept_id,
+        c2.concept_name,
+        c2.concept_description,
+        c2.concept_chapter_id,
+        c2.concept_achievement_id,
+        c2.concept_achievement_name,
+        c2.skill_id,
+        p.depth + 1
+    FROM 
+        path p
+    JOIN 
+        knowledge_space ks ON p.concept_id = ks.from_concept_id
+    JOIN 
+        concepts c2 ON ks.to_concept_id = c2.concept_id
+    WHERE 
+        p.depth < 5
+)
+SELECT DISTINCT 
+    concept_id,
+    concept_name,
+    concept_description,
+    concept_chapter_id,
+    concept_achievement_id,
+    concept_achievement_name,
+    skill_id
+FROM 
+    path;
+
+-- 경로 0~6 사이의 엣지
+-- MATCH path = (start_node)-[*0..6]->(n {concept_id: 4979})
+-- WITH nodes(path) AS connected_nodes
+-- UNWIND connected_nodes AS node 
+-- RETURN [id IN node.concept_id] AS concept_ids
+SELECT DISTINCT c1.concept_id
+FROM concepts c1
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c2.concept_id
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c3.concept_id
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c4.concept_id
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+INNER JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+INNER JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c5.concept_id
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+INNER JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+INNER JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+INNER JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+INNER JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT c6.concept_id
+FROM concepts c1
+INNER JOIN knowledge_space k1 ON c1.concept_id = k1.from_concept_id
+INNER JOIN concepts c2 ON k1.to_concept_id = c2.concept_id
+INNER JOIN knowledge_space k2 ON c2.concept_id = k2.from_concept_id
+INNER JOIN concepts c3 ON k2.to_concept_id = c3.concept_id
+INNER JOIN knowledge_space k3 ON c3.concept_id = k3.from_concept_id
+INNER JOIN concepts c4 ON k3.to_concept_id = c4.concept_id
+INNER JOIN knowledge_space k4 ON c4.concept_id = k4.from_concept_id
+INNER JOIN concepts c5 ON k4.to_concept_id = c5.concept_id
+INNER JOIN knowledge_space k5 ON c5.concept_id = k5.from_concept_id
+INNER JOIN concepts c6 ON k5.to_concept_id = c6.concept_id
+WHERE c1.concept_id = 4979;
+
+-- knowledge_space 자체로 select ====> 이거임!
+SELECT DISTINCT ks.knowledge_space_id, ks.to_concept_id, ks.from_concept_id
+FROM knowledge_space ks
+INNER JOIN concepts c1 ON ks.from_concept_id = c1.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT ks1.knowledge_space_id, ks1.to_concept_id, ks1.from_concept_id
+FROM knowledge_space ks1
+INNER JOIN knowledge_space ks2 ON ks1.from_concept_id = ks2.to_concept_id
+INNER JOIN concepts c1 ON ks2.from_concept_id = c1.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT ks1.knowledge_space_id, ks1.to_concept_id, ks1.from_concept_id
+FROM knowledge_space ks1
+INNER JOIN knowledge_space ks2 ON ks1.from_concept_id = ks2.to_concept_id
+INNER JOIN knowledge_space ks3 ON ks2.from_concept_id = ks3.to_concept_id
+INNER JOIN concepts c1 ON ks3.from_concept_id = c1.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT ks1.knowledge_space_id, ks1.to_concept_id, ks1.from_concept_id
+FROM knowledge_space ks1
+INNER JOIN knowledge_space ks2 ON ks1.from_concept_id = ks2.to_concept_id
+INNER JOIN knowledge_space ks3 ON ks2.from_concept_id = ks3.to_concept_id
+INNER JOIN knowledge_space ks4 ON ks3.from_concept_id = ks4.to_concept_id
+INNER JOIN concepts c1 ON ks4.from_concept_id = c1.concept_id
+WHERE c1.concept_id = 4979
+UNION
+SELECT DISTINCT ks1.knowledge_space_id, ks1.to_concept_id, ks1.from_concept_id
+FROM knowledge_space ks1
+INNER JOIN knowledge_space ks2 ON ks1.from_concept_id = ks2.to_concept_id
+INNER JOIN knowledge_space ks3 ON ks2.from_concept_id = ks3.to_concept_id
+INNER JOIN knowledge_space ks4 ON ks3.from_concept_id = ks4.to_concept_id
+INNER JOIN knowledge_space ks5 ON ks4.from_concept_id = ks5.to_concept_id
+INNER JOIN concepts c1 ON ks5.from_concept_id = c1.concept_id
+WHERE c1.concept_id = 4979;
+
+-- 재귀 CTE
+WITH RECURSIVE edge_path AS (
+    -- 초기 상태, 시작 노드로부터 직접 연결된 관계를 선택
+    SELECT
+        ks.knowledge_space_id,
+        ks.from_concept_id,
+        ks.to_concept_id,
+        1 AS depth
+    FROM
+        knowledge_space ks
+    WHERE
+        ks.from_concept_id = 4979
+    
+    UNION ALL
+    
+    -- 재귀 상태, 각 단계를 따라가면서 관계를 선택
+    SELECT
+        ks.knowledge_space_id,
+        ks.from_concept_id,
+        ks.to_concept_id,
+        ep.depth + 1
+    FROM
+        knowledge_space ks
+    JOIN
+        edge_path ep ON ks.from_concept_id = ep.to_concept_id
+    WHERE
+        ep.depth < 5
+)
+SELECT DISTINCT
+    knowledge_space_id,
+    from_concept_id,
+    to_concept_id
+FROM
+    edge_path;
+
+SELECT COUNT(DISTINCT chapter_id) AS cardinality FROM chapters;
+
+
+SELECT p.probability_id, p.concept_id, p.to_concept_depth, p.probability_percent, 
+c.concept_name, 
+ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name,
+ti.test_item_number
+FROM chapters ch 
+JOIN concepts c ON c.concept_chapter_id = ch.chapter_id
+JOIN probabilities p ON p.concept_id = c.concept_id 
+JOIN answers a ON a.answer_id = p.answer_id 
+JOIN tests_items ti ON ti.item_id = a.item_id
+WHERE a.user_test_id = ?
+
