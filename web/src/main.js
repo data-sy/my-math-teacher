@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
+import VueGtag from "vue-gtag"; // 구글 애널리스틱
 import router from './router';
 import store from './store'
 import AuthService from '@/service/AuthService';
@@ -113,6 +114,13 @@ app.use(PrimeVue, { ripple: true });
 app.use(ToastService);
 app.use(DialogService);
 app.use(ConfirmationService);
+app.use(VueGtag, {
+  config: {id: "G-SELPGNP1WK"},
+  params: {
+    anonymize_ip: true, // 사용자 IP 주소 익명화 (GDPR 등 개인정보 보호를 위한 설정)
+    send_page_view: false, // SPA에서 페이지 로드 시 자동 페이지뷰 전송 비활성화
+  },
+}, router); // Vue Router와 연동하여 페이지 전환 시 페이지뷰 자동 추적
 
 app.directive('tooltip', Tooltip);
 app.directive('badge', BadgeDirective);
