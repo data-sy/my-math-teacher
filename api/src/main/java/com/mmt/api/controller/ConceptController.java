@@ -69,10 +69,10 @@ public class ConceptController {
         return knowledgeSpaceService.findEdgesByConceptId(conceptId);
     }
 
-    // (테스트용) 깊이 1~6의 선수단위개념 id만 추출 & 그대로 리스펀스
+    // (테스트용) 깊이 1~5의 선수단위개념 id만 추출 & 그대로 리스펀스
     @GetMapping("/ids/{conceptId}")
     public Flux<Integer> getNodesIdByConceptId(@PathVariable int conceptId){
-        return conceptService.findNodesIdByConceptId(conceptId);
+        return conceptService.findNodesIdByConceptIdDepth5(conceptId);
     }
 
 //    /**
