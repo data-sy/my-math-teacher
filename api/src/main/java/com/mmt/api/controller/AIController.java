@@ -7,7 +7,8 @@ import com.mmt.api.service.ProbabilityService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/ai")
+@RequestMapping("/api/v1/weakness-diagnosis")
+// ai 말고 weakness-diagnosis(취약점-진단)으로 수정
 public class AIController {
 
     private final AnswerService answerService;
