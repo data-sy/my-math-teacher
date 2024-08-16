@@ -62,7 +62,7 @@ public class ProbabilityService {
             // 선수지식들 찾기
             int conceptId = probability.getConceptId();
             // 여기서는 path 살린 쿼리문 사용해야 함 - path 역추적해서 깊이 찾을거니까
-            Flux<Integer> conceptIdFlux = conceptService.findNodesIdByConceptId(2, conceptId);
+            Flux<Integer> conceptIdFlux = conceptService.findNodesIdByConceptIdDepth2(conceptId);
             List<Integer> conceptIdList = conceptIdFlux.collectList().block();
             // key는 선수단위개념id, value는 depth (bfs로 path 최단길이 찾기)
             Map<Integer, Integer> depthDic = LogicUtil.bfs(conceptId, conceptIdList);

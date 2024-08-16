@@ -39,10 +39,13 @@ public class ConceptService {
     }
 
     @Transactional(readOnly = true)
-    public Flux<Integer> findNodesIdByConceptId(int depth, int conceptId){
-        return conceptRepository.findNodesIdByConceptId(depth, conceptId);
+    public Flux<Integer> findNodesIdByConceptId(int conceptId){
+        return conceptRepository.findNodesIdByConceptId(conceptId);
     }
-
+    @Transactional(readOnly = true)
+    public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
+        return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
+    }
     public int findSkillIdByConceptId (int conceptId){
         return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }

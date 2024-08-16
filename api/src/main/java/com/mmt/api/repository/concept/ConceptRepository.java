@@ -18,9 +18,13 @@ public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Inte
     @Query("MATCH (n)-[*0..5]->(m {concept_id: $conceptId}) RETURN (n)")
     Flux<Concept> findNodesByConceptId(@Param("conceptId") int conceptId);
 
-    @Query("MATCH path = (start_node)-[*0..$depth]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
+    @Query("MATCH path = (start_node)-[*0..5]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
             "UNWIND connected_nodes AS node RETURN [id IN node.concept_id] AS concept_ids")
-    Flux<Integer> findNodesIdByConceptId(@Param("$depth") int depth, @Param("conceptId") int conceptId);
+    Flux<Integer> findNodesIdByConceptId(@Param("conceptId") int conceptId);
+
+    @Query("MATCH path = (start_node)-[*0..2]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
+            "UNWIND connected_nodes AS node RETURN [id IN node.concept_id] AS concept_ids")
+    Flux<Integer> findNodesIdByConceptIdDepth2(@Param("conceptId") int conceptId);
 
 //    @Query("MATCH (n{chapter_id: $chapterId}) RETURN (n)")
     @Query("MATCH (n:concept {chapter_id: $chapterId}) WITH n RETURN n")
