@@ -89,7 +89,7 @@ public class ProbabilityService {
 
     // 입력값을 findAIInput으로
     public AIServingResponse getPrediction(Long userTestId) {
-        String serverUrl = "http://13.124.61.161:8501/v1/models/my_model:predict";
+        String serverUrl = "http://43.202.192.220:8501/v1/models/my_model:predict";
 
         List<InputInstance> instances = answerService.findAIInput(userTestId);
 
