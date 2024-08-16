@@ -39,19 +39,15 @@ public class ConceptService {
     }
 
     @Transactional(readOnly = true)
-    public Flux<Integer> findNodesIdByConceptId(int conceptId){
-        return conceptRepository.findNodesIdByConceptId(conceptId);
-    }
-
-    public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
-        return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
+    public Flux<Integer> findNodesIdByConceptId(int depth, int conceptId){
+        return conceptRepository.findNodesIdByConceptId(depth, conceptId);
     }
 
     public int findSkillIdByConceptId (int conceptId){
         return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }
 
-//    // 이건 RDB 사용 (나중에 Neo4j 사용한 거 만들어서 둘의 성능 비교해보기)
+//    // 이건 RDB 사용 (나중에 Neo4j 사용한 거랑 성능 비교해보기)
 //    public List<ChapterIdConceptResponse> findAllByChapterId(int chapterId){
 //        return ConceptConverter.convertListToConceptResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
 //    }

@@ -22,7 +22,7 @@ public class KnowledgeSpaceService {
     }
 
     public List<EdgeResponse> findEdgesByConceptId(int conceptId){
-        Flux<Integer> conceptIdFlux = conceptRepository.findNodesIdByConceptId(conceptId);
+        Flux<Integer> conceptIdFlux = conceptRepository.findNodesIdByConceptId(5, conceptId);
         List<Integer> conceptIdList = conceptIdFlux.distinct().collectList().block();
         if (conceptIdList.isEmpty()){ // 선수단위개념이 없는 최초의 단위개념
             return new ArrayList<>();
