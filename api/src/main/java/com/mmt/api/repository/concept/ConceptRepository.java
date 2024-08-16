@@ -16,12 +16,17 @@ public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Inte
     Flux<Concept> findToConceptsByConceptId(@Param("conceptId") int conceptId);
 
     @Query("MATCH (n)-[*0..5]->(m {concept_id: $conceptId}) RETURN (n)")
-    Flux<Concept> findNodesByConceptId(@Param("conceptId") int conceptId);
+    Flux<Concept> findNodesByConceptIdDepth5(@Param("conceptId") int conceptId);
+
+    // 초등은 depth 3까지만
+    @Query("MATCH (n)-[*0..3]->(m {concept_id: $conceptId}) RETURN (n)")
+    Flux<Concept> findNodesByConceptIdDepth3(@Param("conceptId") int conceptId);
 
     @Query("MATCH path = (start_node)-[*0..5]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
             "UNWIND connected_nodes AS node RETURN [id IN node.concept_id] AS concept_ids")
     Flux<Integer> findNodesIdByConceptId(@Param("conceptId") int conceptId);
 
+    // [*0..$depth] 불가. 여기에는 리터럴만 가능하대. 그래서 메서드 분리해서 사용 중
     @Query("MATCH path = (start_node)-[*0..2]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
             "UNWIND connected_nodes AS node RETURN [id IN node.concept_id] AS concept_ids")
     Flux<Integer> findNodesIdByConceptIdDepth2(@Param("conceptId") int conceptId);

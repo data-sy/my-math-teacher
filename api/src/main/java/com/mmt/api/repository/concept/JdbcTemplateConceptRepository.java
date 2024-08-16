@@ -30,6 +30,11 @@ public class JdbcTemplateConceptRepository {
         return jdbcTemplate.query(sql, conceptRowMapper(), chapterId);
     }
 
+    public String findSchoolLevelByConceptId(int conceptId){
+        String sql = "SELECT ch.school_level FROM chapters ch JOIN concepts c ON ch.chapter_id = c.concept_chapter_id WHERE c.concept_id = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, conceptId);
+    }
+
     private RowMapper<Concept> conceptRowMapper() {
         return (rs, rowNum) -> {
             Concept concept = new Concept();

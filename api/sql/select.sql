@@ -472,5 +472,8 @@ JOIN concepts c ON c.concept_chapter_id = ch.chapter_id
 JOIN probabilities p ON p.concept_id = c.concept_id 
 JOIN answers a ON a.answer_id = p.answer_id 
 JOIN tests_items ti ON ti.item_id = a.item_id
-WHERE a.user_test_id = ?
+WHERE a.user_test_id = ?;
+
+
+SELECT ch.school_level FROM chapters ch JOIN concepts c ON ch.chapter_id = c.concept_chapter_id WHERE c.concept_id = 10;
 
