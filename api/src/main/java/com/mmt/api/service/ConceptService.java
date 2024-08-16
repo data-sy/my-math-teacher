@@ -38,7 +38,7 @@ public class ConceptService {
         // 해당 컨셉 아이디가 속한 학교급 찾기
         String schoolLevel = jdbcTemplateConceptRepository.findSchoolLevelByConceptId(conceptId);
         // 학교급에 따라 다른 메서드 사용
-        if (schoolLevel=="초등") return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByConceptIdDepth3(conceptId));
+        if (schoolLevel.equals("초등")) return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByConceptIdDepth3(conceptId));
         else return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByConceptIdDepth5(conceptId));
     }
 
