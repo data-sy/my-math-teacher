@@ -6,6 +6,7 @@ from flask_cors import CORS
 
 from predict import predict
 
+# deprecated : Flask -> TensorflowServing
 app = Flask(__name__)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:8080"]}})
