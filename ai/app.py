@@ -77,6 +77,7 @@ def corstestvuespring(user_test_id):
         return 'Failed to fetch data from Spring', 500
 
 # 최종
+# deprecated
 @app.route('/ai/v1/ai/<int:user_test_id>', methods=['POST'])
 def ai(user_test_id):
     # 토큰

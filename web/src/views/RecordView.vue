@@ -211,7 +211,7 @@ const predict = async () => {
             answerCodeCreateRequestList: answerCodeCreateRequestList
         });
         try {
-            await api.post('api/v1/ai', requestData.value);
+            await api.post('api/v1/weakness-diagnosis', requestData.value);
         } catch (err) {
             console.error(`POST ${endpoint} failed:`, err);
         }
