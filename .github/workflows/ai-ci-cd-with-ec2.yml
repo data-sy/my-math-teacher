@@ -55,7 +55,7 @@ jobs:
         password: ${{ secrets.EC2_PASSWORD }}
         port: ${{ secrets.EC2_PORT }}
         script: |
-          docker rm -f mmt-ai
+          docker rm -f ec2-user-mmt-ai-1
           docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/mmt-ai:serving
           docker-compose up -d mmt-ai
           docker system prune -f
