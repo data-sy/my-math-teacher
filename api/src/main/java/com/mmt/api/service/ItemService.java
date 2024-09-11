@@ -63,14 +63,20 @@ public class ItemService {
          * ITEMS TABLE에서 concept_id에 맞는 item 쿼리 (조건 : 각각 1개만 랜덤으로 추출)
          */
         // 1. for문 돌려서 각각의 결과물 받아서 add
-        for (int conceptId : conceptIdList) {
-            personalItemsResponseList.add(PersonalItemConverter.convertToPersonalItemsResponse(itemRepository.findByConceptId(conceptId)));
+            // 결과물에 순서대로 testItemNumber 붙여주기 (다른 방법으로 하면 list를 컨버터 하는데서 번호 넘버링 해줄 수 있을 듯)
+        for (int i = 0; i < conceptIdList.size(); i++) {
+            int conceptId = conceptIdList.get(i);
+            PersonalItemsResponse item = PersonalItemConverter.convertToPersonalItemsResponse(itemRepository.findByConceptId(conceptId));
+            item.setTestItemNumber(i + 1);
+            personalItemsResponseList.add(item);
         }
+
         // 2. DB 단에서 ROW_NUMBER() 방식 사용해서 한 쿼리로 처리
 
         // 3.
 
         // 4.
+
 
         return personalItemsResponseList;
     }
