@@ -32,10 +32,12 @@ public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Inte
     Flux<Integer> findNodesIdByConceptIdDepth2(@Param("conceptId") int conceptId);
 
     // 초등 지식에 대해서
+    // 확률 결과 save할 때
     @Query("MATCH path = (start_node)-[*0..3]->(n {concept_id: $conceptId}) WITH nodes(path) AS connected_nodes\n" +
             "UNWIND connected_nodes AS node RETURN [id IN node.concept_id] AS concept_ids")
     Flux<Integer> findNodesIdByConceptIdDepth3(@Param("conceptId") int conceptId);
 
+    // 쿼리 성능 개선
 //    @Query("MATCH (n{chapter_id: $chapterId}) RETURN (n)")
     @Query("MATCH (n:concept {chapter_id: $chapterId}) WITH n RETURN n")
     Flux<Concept> findNodesByChapterId(@Param("chapterId") int chapterId);
@@ -47,4 +49,5 @@ public interface ConceptRepository extends ReactiveNeo4jRepository<Concept, Inte
     // 연결 테스트를 위한 간단한 쿼리
     @Query("RETURN 1")
     Flux<Integer> testConnection();
+
 }

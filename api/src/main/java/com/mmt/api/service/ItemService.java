@@ -3,7 +3,6 @@ package com.mmt.api.service;
 import com.mmt.api.domain.Answer;
 import com.mmt.api.domain.Probability;
 import com.mmt.api.dto.item.PersonalItemConverter;
-import com.mmt.api.dto.item.PersonalItemsRequest;
 import com.mmt.api.dto.item.PersonalItemsResponse;
 import com.mmt.api.repository.answer.AnswerRepository;
 import com.mmt.api.repository.item.ItemRepository;
@@ -28,14 +27,14 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    public List<PersonalItemsResponse> findPersonalItems(PersonalItemsRequest request) {
+    public List<PersonalItemsResponse> findPersonalItems(Long userTestId) {
 
         List<PersonalItemsResponse> personalItemsResponseList = new ArrayList<>();
 
         /**
          * ANSWERS TABLE에서 user_test_id에 따른 answer_id 쿼리 (조건 : 정오답 여부 0)
          */
-        List<Answer> answerList = answerRepository.findAnswersByUserTestId(request.getUserTestId());
+        List<Answer> answerList = answerRepository.findAnswersByUserTestId(userTestId);
 
         // 리팩토링) 정오답 여부 0인 결과가 없을 때, 어떻게 처리할 것인가
             // 우선은 쿼리 결과 리스트가 isEmpty라면 빈 List<PersonalItemsResponse> 리턴하도록 처리해 둠

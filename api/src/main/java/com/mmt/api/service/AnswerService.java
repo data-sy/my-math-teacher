@@ -2,7 +2,7 @@ package com.mmt.api.service;
 
 import com.mmt.api.domain.AnswerCode;
 import com.mmt.api.domain.Probability;
-import com.mmt.api.dto.AI.InputInstance;
+import com.mmt.api.dto.ai.InputInstance;
 import com.mmt.api.dto.answer.AnswerConverter;
 import com.mmt.api.dto.answer.AnswerCreateRequest;
 import com.mmt.api.repository.answer.AnswerRepository;

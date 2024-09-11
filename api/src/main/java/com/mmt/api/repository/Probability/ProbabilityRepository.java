@@ -1,6 +1,5 @@
 package com.mmt.api.repository.probability;
 
-import com.mmt.api.domain.Answer;
 import com.mmt.api.domain.Probability;
 import com.mmt.api.domain.Result;
 

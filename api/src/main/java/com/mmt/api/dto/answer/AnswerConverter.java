@@ -1,6 +1,6 @@
 package com.mmt.api.dto.answer;
 
-import com.mmt.api.domain.Answer;
+import com.mmt.api.domain.AnswerSave;
 import com.mmt.api.domain.AnswerCode;
 
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ public class AnswerConverter {
         return answerCodeList;
     }
 
-    public static Answer convertToAnswer(AnswerCreateRequest request) {
-        Answer answer = new Answer();
-        answer.setUserTestId(request.getUserTestId());
-        answer.setAnswerCodeList(convertListToAnswerCodeList(request.getAnswerCodeCreateRequestList()));
-        return answer;
+    public static AnswerSave convertToAnswer(AnswerCreateRequest request) {
+        AnswerSave answerSave = new AnswerSave();
+        answerSave.setUserTestId(request.getUserTestId());
+        answerSave.setAnswerCodeList(convertListToAnswerCodeList(request.getAnswerCodeCreateRequestList()));
+        return answerSave;
     }
 
     public static int[] convertToIntArray(AnswerCode answerCode) {

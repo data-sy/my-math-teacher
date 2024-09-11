@@ -10,6 +10,7 @@ public class PersonalItemsResponse {
     private Long itemId;
     private String itemAnswer;
     private String itemImagePath;
+    private int testItemNumber;
     private String conceptName;
     private String schoolLevel;
     private String gradeLevel;

@@ -1,6 +1,7 @@
 package com.mmt.api.repository.answer;
 
 import com.mmt.api.domain.Answer;
+import com.mmt.api.domain.AnswerSave;
 import com.mmt.api.domain.AnswerCode;
 import com.mmt.api.domain.Probability;
 import org.springframework.context.annotation.Primary;
@@ -24,9 +25,9 @@ public class JdbcTemplateAnswerRepository implements AnswerRepository {
     }
 
     @Override
-    public void save(Answer answer) {
-        Long userTestId = answer.getUserTestId();
-        List<AnswerCode> answerCodeList = answer.getAnswerCodeList();
+    public void save(AnswerSave answerSave) {
+        Long userTestId = answerSave.getUserTestId();
+        List<AnswerCode> answerCodeList = answerSave.getAnswerCodeList();
         String sql =  "INSERT INTO answers (user_test_id, item_id, answer_code) VALUES (?, ?, ?)";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -56,6 +57,12 @@ public class JdbcTemplateAnswerRepository implements AnswerRepository {
         return jdbcTemplate.query(sql, idsRowMapper(), userTestId);
     }
 
+    @Override
+    public List<Answer> findAnswersByUserTestId(Long userTestId) {
+        String sql = "SELECT answer_id FROM answers WHERE user_test_id = ? AND answer_code = 0";
+        return jdbcTemplate.query(sql, answerRowMapper(), userTestId);
+    }
+
     private RowMapper<AnswerCode> answerCodeRowMapper() {
         return (rs, rowNum) -> {
             AnswerCode answerCode = new AnswerCode();
@@ -72,6 +79,13 @@ public class JdbcTemplateAnswerRepository implements AnswerRepository {
             probability.setConceptId(rs.getInt("concept_id"));
             probability.setSkillId(rs.getInt("skill_id"));
             return probability;
+        };
+    }
+    private RowMapper<Answer> answerRowMapper() {
+        return (rs, rowNum) -> {
+            Answer answer = new Answer();
+            answer.setAnswerId(rs.getLong("answer_id"));
+            return answer;
         };
     }
 
