@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
@@ -17,9 +19,11 @@ import java.util.List;
 public class JdbcTemplateProbabilityRepository implements ProbabilityRepository{
 
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public JdbcTemplateProbabilityRepository(JdbcTemplate jdbcTemplate) {
+    public JdbcTemplateProbabilityRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
 
@@ -42,14 +46,21 @@ public class JdbcTemplateProbabilityRepository implements ProbabilityRepository{
         });
     }
 
-    //
     @Override
     public List<Result> findResults(Long userTestId) {
         String sql ="SELECT p.probability_id, ti.test_item_number, p.concept_id, p.to_concept_depth, p.probability_percent, c.concept_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name\n" +
                 "FROM chapters ch JOIN concepts c ON c.concept_chapter_id = ch.chapter_id\n" +
                 "JOIN probabilities p ON p.concept_id = c.concept_id JOIN answers a ON a.answer_id = p.answer_id JOIN tests_items ti ON ti.item_id = a.item_id\n" +
-                "WHERE a.user_test_id = ?";
+                "WHERE a.user_test_id = ? AND p.to_concept_depth < 3";
         return jdbcTemplate.query(sql, resultRowMapper(), userTestId);
+    }
+
+    @Override
+    public List<Probability> findProbability(List<Long> answerIdList) {
+        String sql = "SELECT answer_id, concept_id, to_concept_depth, probability_percent FROM probabilities WHERE answer_id IN (:answerIdList)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("answerIdList", answerIdList);
+        return namedParameterJdbcTemplate.query(sql, parameters, probabilityRowMapper());
     }
 
     private RowMapper<Result> resultRowMapper() {
@@ -68,6 +79,17 @@ public class JdbcTemplateProbabilityRepository implements ProbabilityRepository{
             result.setChapterSub(rs.getString("chapter_sub"));
             result.setChapterName(rs.getString("chapter_name"));
             return result;
+        };
+    }
+
+    private RowMapper<Probability> probabilityRowMapper() {
+        return (rs, rowNum) -> {
+            Probability probability = new Probability();
+            probability.setAnswerId(rs.getLong("answer_id"));
+            probability.setConceptId(rs.getInt("concept_id"));
+            probability.setToConceptDepth(rs.getInt("to_concept_depth"));
+            probability.setProbabilityPercent(rs.getDouble("probability_percent"));
+            return probability;
         };
     }
 
