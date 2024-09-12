@@ -1,6 +1,6 @@
 package com.mmt.api.controller;
 
-import com.mmt.api.dto.AI.AIServingResponse;
+import com.mmt.api.dto.ai.AIServingResponse;
 import com.mmt.api.dto.answer.AnswerCreateRequest;
 import com.mmt.api.service.AnswerService;
 import com.mmt.api.service.ProbabilityService;

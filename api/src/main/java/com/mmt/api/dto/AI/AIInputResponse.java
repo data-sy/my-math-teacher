@@ -1,4 +1,4 @@
-package com.mmt.api.dto.AI;
+package com.mmt.api.dto.ai;
 
 import lombok.Getter;
 import lombok.Setter;
