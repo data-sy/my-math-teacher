@@ -43,7 +43,6 @@ public class UserController {
      */
     @PutMapping("")
     public boolean updateUser(@RequestBody UserDTO userDTO) {
-        System.out.println(userDTO.getUserEmail());
         return userService.updateUser(userDTO);
     }
 

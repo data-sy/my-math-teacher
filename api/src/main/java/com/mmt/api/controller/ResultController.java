@@ -27,6 +27,7 @@ public class ResultController {
 
     /**
      * 샘플 분석 결과 보기
+     * 분리해서 만든 이유 : security filter
      */
     @GetMapping("/sample/{userTestId}")
     public List<ResultResponse> getSampleResults(@PathVariable Long userTestId){ return probabilityService.findResults(userTestId);}
