@@ -1,12 +1,15 @@
+-- 데이터베이스
 show databases;
 create database mmt;
+SELECT DATABASE(); -- 현재 사용중인 데이터베이스 확인
+
 -- 테이블 비우기
 TRUNCATE TABLE answers;
 
 -- 로컬 MySQL
-use mmt;
+USE mmt;
 -- AWS RDS 사용 : 데이터베이스 이름
-use mmtrds;
+USE mmtrds;
 
 show tables;
 

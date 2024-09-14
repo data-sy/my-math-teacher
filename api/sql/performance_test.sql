@@ -6,7 +6,7 @@ UPDATE performance_schema.setup_consumers SET ENABLED = 'YES' WHERE NAME = 'even
 -- 첫 번째 쿼리 실행
 SELECT *
 FROM items
-WHERE concept_id = 123
+WHERE concept_id = 4979
 ORDER BY RAND()
 LIMIT 1;
 
@@ -16,7 +16,7 @@ FROM items
 WHERE item_id = (
     SELECT item_id
     FROM items
-    WHERE concept_id = 123
+    WHERE concept_id = 4979
     ORDER BY RAND()
     LIMIT 1
 );
@@ -28,8 +28,7 @@ JOIN (
     SELECT CEIL(RAND() * (
         SELECT MAX(item_id)
         FROM items
-        WHERE concept_id = 123
-    )) AS random_id
+        WHERE concept_id = 4979
 ) AS t2
 ON t1.item_id = t2.random_id
 WHERE t1.concept_id = 123
