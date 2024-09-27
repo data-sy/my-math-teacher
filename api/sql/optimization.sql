@@ -176,7 +176,7 @@ SELECT COUNT(*) FROM answers GROUP BY item_id;
 SELECT COUNT(*) FROM answers GROUP BY answer_code;
 
 -- 더미4 : 확률
--- 시나리오) 20만개의 문항 당 10개의 개념 저장 (이 중에 절반이 정오답 0일 거라서..계산 미스이군 나중에 셋팅 다시 하자)
+-- 시나리오) 20만개의 문항 당 10개의 개념 저장 (절반이 정답, 절반이 오답)
 INSERT INTO probabilities (answer_id, concept_id, to_concept_depth, probability_percent)
 WITH RECURSIVE cte (n) AS
 (
@@ -198,64 +198,114 @@ SELECT COUNT(*) FROM probabilities GROUP BY to_concept_depth;
 
 
 -- <<<<<<<<<<<<<<<<<<<< 케이스 분류 Style Guide >>>>>>>>>>>>>>>>>>>> --
--- < 대분류 > : 개선할 API
-  -- 중분류 : 비즈니스 로직 구현 방법
-    -- 소분류 : 개선할 쿼리에 대한 로직 구현 방법 
-	  -- case : 테스트 케이스
-		-- 0 : 최초 쿼리
-  -- 넘버링은 '중분류-소분류-case'
-
+-- 1. [ 대분류 ] : 개선할 API
+  -- 1) { 중분류 } : 비즈니스 로직 구현 방법
+    -- (1) ( 소분류 ) : 개선할 쿼리에 대한 로직 구현 방법 
+	  -- ① case : 테스트 케이스 ( ⓪은 최초 쿼리 )
+-- ⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ 
 
 -- <<<<<<<<<<<<<<<<<<<< 성능 테스트 1 >>>>>>>>>>>>>>>>>>>> --
--- < 대분류 : 맞춤 API 성능 개선 > --
-  -- 중분류1 : 필요한 쿼리가 모두 분리된 상황  ∴ C 쿼리에 대한 개선
+-- 1. [ 맞춤 API 성능 개선 ]
+  -- 1) { 필요한 쿼리가 모두 분리된 상황 }  ∴ C 쿼리에 대한 개선
 		-- A : u_t_id 에 따른 answer_id
 		-- B : answer_id에 따른 concept_id
 		-- C : concept_id에 따른 문항 (문항, 개념, 단원 테이블 JOIN)
-    -- 소분류1 : for문 돌려서 각각의 결과물을 리스트에 add하는 방법
-      -- case 0 : 인덱스 X, 조인을 사용한 기본 쿼리, FROM 절이 items
-      -- Q : where 조건문에서 concept_id 사용하니까 from 절을 concepts 로 하는 게 더 빠를까?
+    -- (1) ( for문 돌려서 각각의 결과물을 리스트에 add하는 방법 )
+      -- ⓪	case 0
 
 SELECT concept_id from concepts where concept_raw_id = 1009; -- 943
-SELECT COUNT(*) FROM items WHERE concept_id=943; -- 584
+SELECT COUNT(*) FROM items WHERE concept_id=943; -- 636
 
--- case 1-1-0
+-- 1.1)(1)⓪
 EXPLAIN SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
 FROM items i
 JOIN concepts c ON i.concept_id = c.concept_id 
 JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id 
-WHERE c.concept_id = 943
+WHERE c.concept_id = 1009
 ORDER BY RAND() LIMIT 1;
 -- '1','SIMPLE','c',NULL,'const','PRIMARY,concept_chapter_id','PRIMARY','4','const','1','100.00','Using temporary; Using filesort'
 -- '1','SIMPLE','ch',NULL,'const','PRIMARY','PRIMARY','4','const','1','100.00',NULL
--- '1','SIMPLE','i',NULL,'ref','concept_id','concept_id','5','const','584','100.00',NULL
+-- '1','SIMPLE','i',NULL,'ref','concept_id','concept_id','5','const','591','100.00',NULL
 
 EXPLAIN ANALYZE SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
 FROM items i
 JOIN concepts c ON i.concept_id = c.concept_id 
 JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id 
-WHERE c.concept_id = 423
+WHERE c.concept_id = 1009
 ORDER BY RAND() LIMIT 1;
--- -> Limit: 1 row(s)  (actual time=13.1..2.1 rows=1 loops=1)
---     -> Sort: rand(), limit input to 1 row(s) per chunk  (actual time=13.1..13.1 rows=1 loops=1)
---         -> Stream results  (cost=311 rows=668) (actual time=1.25..13 rows=668 loops=1)
---             -> Index lookup on i using concept_id (concept_id=100)  (cost=311 rows=668) (actual time=1.24..12.7 rows=668 loops=1)
+-- -> Limit: 1 row(s)  (actual time=8.44..8.44 rows=1 loops=1)
+--     -> Sort: rand(), limit input to 1 row(s) per chunk  (actual time=8.44..8.44 rows=1 loops=1)
+--         -> Stream results  (cost=1117 rows=1147) (actual time=0.675..8.09 rows=1147 loops=1)
+--             -> Index lookup on i using idx_concept_id (concept_id=1009)  (cost=1117 rows=1147) (actual time=0.664..7.21 rows=1147 loops=1)
 
-CREATE INDEX idx_concept_id ON items(concept_id);
-DROP INDEX idx_concept_id ON items; -- 외래키라서 드랍 안 돼. 그냥 새로 insert 하자
 
-  -- 중분류2 : 필요한 쿼리를 한 번에 보내기  ∴ A+B+C=D 쿼리
-		-- A : u_t_id 에 따른 answer_id
-		-- B : answer_id에 따른 concept_id
-		-- C : concept_id에 따른 문항 (문항, 개념, 단원 테이블 JOIN)
-
-SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
+-- 1.1)(1)① : 모든 데이터를 가져와서 자바에서 랜덤 추출
+EXPLAIN SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
 FROM items i
 JOIN concepts c ON i.concept_id = c.concept_id 
-JOIN probabilities p ON p.concept_id = c.concept_id
-JOIN answers a ON a.answer_id = p.answer_id
-JOIN users_tests ut ON ut.user_test_id=a.user_test_id
 JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id 
-WHERE ut.user_test_id = 3
-ORDER BY RAND() LIMIT 1;
+WHERE c.concept_id = 1009;
+-- '1','SIMPLE','c',NULL,'const','PRIMARY,concept_chapter_id','PRIMARY','4','const','1','100.00',NULL
+-- '1','SIMPLE','ch',NULL,'const','PRIMARY','PRIMARY','4','const','1','100.00',NULL
+-- '1','SIMPLE','i',NULL,'ref','concept_id','concept_id','5','const','591','100.00',NULL
 
+EXPLAIN ANALYZE SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
+FROM items i
+JOIN concepts c ON i.concept_id = c.concept_id 
+JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id 
+WHERE c.concept_id = 1009;
+-- -> Index lookup on i using concept_id (concept_id=1009)  (cost=598 rows=591) (actual time=0.347..2.71 rows=591 loops=1)
+
+
+-- 1.1)(1)② : 자바에서 랜덤 추출할 번호를 미리 뽑아오기
+-- 쿼리1 : c_id에 따른 i_id 목록 -> 자바에서 랜덤 추출 -> i_i에 따른 리스펀스들
+SELECT i.item_id
+FROM items i
+JOIN concepts c ON i.concept_id = c.concept_id 
+WHERE c.concept_id = 1009; -- 634316
+EXPLAIN ANALYZE SELECT i.item_id
+FROM items i
+JOIN concepts c ON i.concept_id = c.concept_id 
+WHERE c.concept_id = 1009;
+-- -> Covering index lookup on i using concept_id (concept_id=1009)  (cost=61 rows=591) (actual time=0.102..0.282 rows=591 loops=1)
+EXPLAIN ANALYZE SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
+FROM items i
+JOIN concepts c ON i.concept_id = c.concept_id 
+JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id 
+WHERE i.item_id = 634316;
+-- -> Rows fetched before execution  (cost=0..0 rows=1) (actual time=292e-6..334e-6 rows=1 loops=1)
+
+-- 1.1)(1)③ : 랜덤 추출 부분을 DB 인라인 뷰로 해결
+EXPLAIN SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
+FROM (
+    SELECT i.item_id
+    FROM items i
+    WHERE i.concept_id = 1009
+    ORDER BY RAND() LIMIT 1
+) AS random_item
+JOIN items i ON i.item_id = random_item.item_id
+JOIN concepts c ON i.concept_id = c.concept_id 
+JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id;
+-- '1','PRIMARY','<derived2>',NULL,'system',NULL,NULL,NULL,NULL,'1','100.00',NULL
+-- '1','PRIMARY','i',NULL,'const','PRIMARY,concept_id','PRIMARY','8','const','1','100.00',NULL
+-- '1','PRIMARY','c',NULL,'const','PRIMARY,concept_chapter_id','PRIMARY','4','const','1','100.00',NULL
+-- '1','PRIMARY','ch',NULL,'const','PRIMARY','PRIMARY','4','const','1','100.00',NULL
+-- '2','DERIVED','i',NULL,'ref','concept_id','concept_id','5','const','591','100.00','Using index; Using temporary; Using filesort'
+
+EXPLAIN ANALYZE SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
+FROM (
+    SELECT i.item_id
+    FROM items i
+    WHERE i.concept_id = 1009
+    ORDER BY RAND() LIMIT 1
+) AS random_item
+JOIN items i ON i.item_id = random_item.item_id
+JOIN concepts c ON i.concept_id = c.concept_id 
+JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id;
+-- -> Rows fetched before execution  (cost=0..0 rows=1) (actual time=84e-6..126e-6 rows=1 loops=1)
+
+
+  -- 2) { 필요한 쿼리를 한 번에 보내기 }  ∴ A+B+C=D 쿼리
+-- 		-- A : u_t_id 에 따른 answer_id
+-- 		-- B : answer_id에 따른 concept_id
+-- 		-- C : concept_id에 따른 문항 (문항, 개념, 단원 테이블 JOIN)
