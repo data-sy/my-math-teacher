@@ -79,7 +79,7 @@ public class SecurityConfig {
                                 .requestMatchers("/login.html", "/oauth2/**", "/login/**").permitAll()
                                 .requestMatchers("api/v1/auth/**", "/api/v1/chapters/**", "/api/v1/concepts/**", "/api/v1/tests/school-level/**", "/api/v1/tests/detail/**").permitAll()
                                 .requestMatchers("api/v1/weakness-diagnosis/serving-test", "/api/v1/tests/sample/**", "/api/v1/result/sample/**").permitAll()
-                                .requestMatchers("api/v1/items/**").permitAll() // API 테스트 중이라 잠시 열어둠
+                                .requestMatchers("api/v1/items/**", "api/v1/perf-test/*").permitAll() // API 테스트 중이라 잠시 열어둠
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))
                                 .anyRequest().authenticated()
