@@ -278,9 +278,9 @@ WHERE i.item_id = 634316;
 -- 1.1)(1)③ : 랜덤 추출 부분을 DB 인라인 뷰로 해결
 EXPLAIN SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
 FROM (
-    SELECT i.item_id
-    FROM items i
-    WHERE i.concept_id = 1009
+    SELECT item_id
+    FROM items
+    WHERE concept_id = 1009
     ORDER BY RAND() LIMIT 1
 ) AS random_item
 JOIN items i ON i.item_id = random_item.item_id
@@ -294,9 +294,9 @@ JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id;
 
 EXPLAIN ANALYZE SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester 
 FROM (
-    SELECT i.item_id
-    FROM items i
-    WHERE i.concept_id = 1009
+    SELECT item_id
+    FROM items 
+    WHERE concept_id = 1009
     ORDER BY RAND() LIMIT 1
 ) AS random_item
 JOIN items i ON i.item_id = random_item.item_id
@@ -309,3 +309,4 @@ JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id;
 -- 		-- A : u_t_id 에 따른 answer_id
 -- 		-- B : answer_id에 따른 concept_id
 -- 		-- C : concept_id에 따른 문항 (문항, 개념, 단원 테이블 JOIN)
+
