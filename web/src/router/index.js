@@ -57,9 +57,9 @@ const router = createRouter({
                     component: () => import('@/views/ConceptTreeView.vue')
                 },
                 {
-                    path: '/conceptlist',
-                    name: 'conceptlist',
-                    component: () => import('@/views/ConceptListView.vue')
+                    path: '/concept',
+                    name: 'concept',
+                    component: () => import('@/views/ConceptView.vue')
                 },
                 {
                     path: '/login',

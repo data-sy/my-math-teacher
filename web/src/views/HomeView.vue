@@ -34,7 +34,7 @@
         <button @click="postTest"> post 요청 버튼 </button>
         <div> {{ postTestValue }}</div> -->
         <div class="col-12">
-            <router-link to="/conceptlist">
+            <router-link to="/concept">
                 <div class="card">
                     <div class="flex justify-content-center text-900 font-medium text-4xl mb-2">선수 지식 알아보기</div>
                     <!-- <div class="flex justify-content-center text-red-500 text-lg font-bold">(회원가입 없이 사용 가능)</div> -->
