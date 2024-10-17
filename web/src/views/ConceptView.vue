@@ -491,6 +491,7 @@ const clearCy = () => {
             <div class="card" id="scroll-tree">
                 <div class="flex align-items-center mb-5">
                     <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
+                    <div class="mx-3"> 점을 클릭해보세요. 개념 상세보기를 할 수 있습니다.</div>
                     <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                 </div>
                 <OverlayPanel ref="op" appendTo="body">
