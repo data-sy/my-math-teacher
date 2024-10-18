@@ -52,11 +52,6 @@ const router = createRouter({
                     component: () => import('@/views/DiagView.vue')
                 },
                 {
-                    path: '/concepttree',
-                    name: 'concepttree',
-                    component: () => import('@/views/ConceptTreeView.vue')
-                },
-                {
                     path: '/concept',
                     name: 'concept',
                     component: () => import('@/views/ConceptView.vue')

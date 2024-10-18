@@ -14,7 +14,7 @@ const model = ref([
     {
         label: '선수 지식',
         items: [
-            { label: '선수지식 알아보기', icon: 'pi pi-fw pi-sitemap', to: '/conceptlist' },
+            { label: '선수지식 알아보기', icon: 'pi pi-fw pi-sitemap', to: '/concept' },
         ]
     },
     {
