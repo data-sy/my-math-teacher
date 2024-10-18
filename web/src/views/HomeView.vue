@@ -25,6 +25,10 @@
 //         console.error('postTest 에러 발생:', err);
 //     }
 // };
+import { computed } from 'vue';
+const conceptImageUrl = computed(() => {
+    return 'images/conceptTreeForHomeView.png';
+});
 </script>
 
 <template>
@@ -38,6 +42,9 @@
                 <div class="card">
                     <div class="flex justify-content-center text-900 font-medium text-4xl mb-2">선수 지식 알아보기</div>
                     <!-- <div class="flex justify-content-center text-red-500 text-lg font-bold">(회원가입 없이 사용 가능)</div> -->
+                    <div class="flex justify-content-center">
+                        <img :src="conceptImageUrl" alt="conceptImage" style="width: 50rem; height: 30rem" />
+                    </div>
                 </div>
             </router-link>
         </div>
