@@ -191,20 +191,6 @@ const confirm = (event) => {
         }
     });
 };
-// 로그인 하지 않고 [다운로드] 버튼을 누르면, 회원가입이나 로그인을 먼저 해달라고 안내
-const confirmPopup2 = useConfirm();
-const confirm2 = (event) => {
-    confirmPopup2.require({
-        target: event.target,
-        message: '로그인 혹은 회원가입을 해주세요.',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Ok',
-        rejectLabel: ' ',
-        accept: () => {
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 학습지를 다운로드할 수 있습니다.', life: 3000 });
-        }
-    });
-};
 // '이전' 버튼 (홈으로)
 const goToHome = () => {
     try {
@@ -221,12 +207,23 @@ const openConfirmation = () => {
 const closeConfirmation = () => {
     displayConfirmation.value = false;
 };
-// yes 버튼 클릭 시
+// (로그인 한 상태에서) yes 버튼 클릭 시
 const yesClick = () => {
     closeConfirmation();
     generatePdf();
     createDiagTest();
     goToHome();
+};
+// 로그인 없이 yes 버튼 클릭 시
+const downloadTest = () => {
+    closeConfirmation();
+    generatePdf();
+    goToHome();
+};
+// 로그인 없이 yes 버튼 클릭 시
+const openLogin = () => {
+    closeConfirmation();
+
 };
 </script>
 
@@ -346,17 +343,39 @@ const yesClick = () => {
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2">
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
-            <Button v-else-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인을 해주세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
-            <Button v-else @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
-            <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }} &quot; 학습지</div>
-                <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
-                </template>
-            </Dialog>
+            <template v-if="testId == null">
+                <Button ref="popup" @click="confirm($event)" label="학습지를 선택하세요." icon="pi pi-download" class="mr-2 mb-2"></Button>
+            </template>
+            <template v-else-if="!isLoggedIn">
+                <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
+                <Dialog v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+                    <div class="text-red-600 font-bold mb-6"> 로그인 없이도 다운로드는 가능합니다. <br/> 단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다. </div>
+                    <div class="text-600 text-lg font-bold mb-2"> 다음 학습지를 다운로드 하시겠습니까?</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <template #footer>
+                        <div> 
+                            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                            <Button label="Yes" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
+                        </div>
+                        <div class="mt-3">
+                            <Button label="회원가입 및 로그인" class="p-button-link" @click="openLogin" autofocus />
+                        </div>
+                    </template>
+                </Dialog>
+            </template>
+            <template v-else>
+                <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
+                <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                        <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    </template>
+                </Dialog>
+            </template>
+
         </div>
     </div>
 </template>
