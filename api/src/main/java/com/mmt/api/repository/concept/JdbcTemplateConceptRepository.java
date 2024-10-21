@@ -26,7 +26,7 @@ public class JdbcTemplateConceptRepository {
     }
 
     public List<Concept> findAllByChapterId(int chapterId){
-        String sql = "SELECT concept_id, concept_name, concept_description, concept_achievement_name FROM concepts WHERE concept_chapter_id = ?";
+        String sql = "SELECT concept_id, concept_name FROM concepts WHERE concept_chapter_id = ?";
         return jdbcTemplate.query(sql, conceptRowMapper(), chapterId);
     }
 
@@ -40,9 +40,6 @@ public class JdbcTemplateConceptRepository {
             Concept concept = new Concept();
             concept.setConceptId(rs.getInt("concept_id"));
             concept.setName(rs.getString("concept_name"));
-            concept.setDesc(rs.getString("concept_description"));
-            concept.setAchievementName(rs.getString("concept_achievement_name"));
-//            concept.setSection(rs.getString("section_name"));
             return concept;
         };
     }

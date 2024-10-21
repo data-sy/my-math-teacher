@@ -49,17 +49,15 @@ public class ConceptConverter {
         });
     }
 
-    public static ChapterIdConceptResponse convertToConceptResponse(Concept concept) {
-        ChapterIdConceptResponse conceptResponse = new ChapterIdConceptResponse();
+    public static ConceptNameResponse convertToConceptResponse(Concept concept) {
+        ConceptNameResponse conceptResponse = new ConceptNameResponse();
         conceptResponse.setConceptId(concept.getConceptId());
         conceptResponse.setConceptName(concept.getName());
-        conceptResponse.setConceptDescription(concept.getDesc());
-        conceptResponse.setConceptAchievementName(concept.getAchievementName());
         return conceptResponse;
     }
 
-    public static List<ChapterIdConceptResponse> convertListToConceptResponseList(List<Concept> conceptList) {
-        List<ChapterIdConceptResponse> responseList = new ArrayList<>();
+    public static List<ConceptNameResponse> convertListToConceptResponseList(List<Concept> conceptList) {
+        List<ConceptNameResponse> responseList = new ArrayList<>();
         for (Concept concept : conceptList) {
             responseList.add(convertToConceptResponse(concept));
         }

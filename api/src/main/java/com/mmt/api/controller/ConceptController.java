@@ -1,5 +1,6 @@
 package com.mmt.api.controller;
 
+import com.mmt.api.dto.concept.ConceptNameResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.dto.network.EdgeResponse;
 import com.mmt.api.service.ConceptService;
@@ -21,21 +22,21 @@ public class ConceptController {
         this.knowledgeSpaceService = knowledgeSpaceService;
     }
 
-    /**
-     * chapter_id에 따른 단위개념 목록 보기 (Neo4J 사용)
-     */
-    @GetMapping("")
-    public Flux<ConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
-        return conceptService.findNodesByChapterId(chapterId);
-    }
-
 //    /**
-//     * chapter_id에 따른 단위개념 목록 보기 (RDB 사용) => response데이터가 수정되면서 RDB로는 chapters 테이블 조인해서 사용해야 하기 때문에 deprecated
+//     * chapter_id에 따른 단위개념 목록 보기 (Neo4J 사용)
 //     */
 //    @GetMapping("")
-//    public List<ChapterIdConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
-//        return conceptService.findAllByChapterId(chapterId);
+//    public Flux<ConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
+//        return conceptService.findNodesByChapterId(chapterId);
 //    }
+
+    /**
+     * chapter_id에 따른 단위개념 목록 보기 (RDB 사용)
+     */
+    @GetMapping("")
+    public List<ConceptNameResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
+        return conceptService.findConceptNameByChapterId(chapterId);
+    }
 
     /**
      * 단위개념 상세 보기 (관계 필드 없을 때)
