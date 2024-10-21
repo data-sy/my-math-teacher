@@ -1,7 +1,9 @@
 package com.mmt.api.service;
 
 
+import com.mmt.api.dto.concept.ChapterIdConceptResponse;
 import com.mmt.api.dto.concept.ConceptConverter;
+import com.mmt.api.dto.concept.ConceptNameResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
 import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 public class ConceptService {
@@ -23,10 +27,16 @@ public class ConceptService {
         this.knowledgeSpaceRepository = knowledgeSpaceRepository;
         this.jdbcTemplateConceptRepository = jdbcTemplateConceptRepository;
     }
+//    @Transactional(readOnly = true)
+//    public Mono<ConceptResponse> findOne(int conceptId){
+//        return ConceptConverter.convertToMonoConceptResponse(conceptRepository.findOneByConceptId(conceptId));
+//    }
+
     @Transactional(readOnly = true)
-    public Mono<ConceptResponse> findOne(int conceptId){
-        return ConceptConverter.convertToMonoConceptResponse(conceptRepository.findOneByConceptId(conceptId));
+    public ConceptResponse findOne(int conceptId){
+        return ConceptConverter.convertToConceptResponse(jdbcTemplateConceptRepository.findOneByConceptId(conceptId));
     }
+
 
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findToConcepts(int conceptId){
@@ -58,10 +68,10 @@ public class ConceptService {
         return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }
 
-//    // 이건 RDB 사용 (나중에 Neo4j 사용한 거랑 성능 비교해보기)
-//    public List<ChapterIdConceptResponse> findAllByChapterId(int chapterId){
-//        return ConceptConverter.convertListToConceptResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
-//    }
+    // 이건 RDB 사용 (나중에 Neo4j 사용한 거랑 성능 비교해보기)
+    public List<ConceptNameResponse> findConceptNameByChapterId(int chapterId){
+        return ConceptConverter.convertListToConceptNameResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
+    }
     // Neo4j 사용
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findNodesByChapterId(int chapterId){

@@ -49,20 +49,33 @@ public class ConceptConverter {
         });
     }
 
-    public static ChapterIdConceptResponse convertToConceptResponse(Concept concept) {
-        ChapterIdConceptResponse conceptResponse = new ChapterIdConceptResponse();
+    public static ConceptNameResponse convertToConceptNameResponse(Concept concept) {
+        ConceptNameResponse conceptResponse = new ConceptNameResponse();
         conceptResponse.setConceptId(concept.getConceptId());
         conceptResponse.setConceptName(concept.getName());
-        conceptResponse.setConceptDescription(concept.getDesc());
-        conceptResponse.setConceptAchievementName(concept.getAchievementName());
         return conceptResponse;
     }
 
-    public static List<ChapterIdConceptResponse> convertListToConceptResponseList(List<Concept> conceptList) {
-        List<ChapterIdConceptResponse> responseList = new ArrayList<>();
+    public static List<ConceptNameResponse> convertListToConceptNameResponseList(List<Concept> conceptList) {
+        List<ConceptNameResponse> responseList = new ArrayList<>();
         for (Concept concept : conceptList) {
-            responseList.add(convertToConceptResponse(concept));
+            responseList.add(convertToConceptNameResponse(concept));
         }
         return responseList;
+    }
+
+    public static ConceptResponse convertToConceptResponse(Concept concept){
+        ConceptResponse conceptResponse = new ConceptResponse();
+        conceptResponse.setConceptId(concept.getConceptId());
+        conceptResponse.setConceptName(concept.getName());
+        conceptResponse.setConceptDescription(concept.getDesc());
+        conceptResponse.setConceptSchoolLevel(concept.getSchoolLevel());
+        conceptResponse.setConceptGradeLevel(concept.getGradeLevel());
+        conceptResponse.setConceptSemester(concept.getSemester());
+        conceptResponse.setConceptChapterMain(concept.getChapterMain());
+        conceptResponse.setConceptChapterSub(concept.getChapterSub());
+        conceptResponse.setConceptChapterName(concept.getChapterName());
+        conceptResponse.setConceptAchievementName(concept.getAchievementName());
+        return conceptResponse;
     }
 }

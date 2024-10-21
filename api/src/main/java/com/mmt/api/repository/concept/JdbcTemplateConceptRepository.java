@@ -26,8 +26,8 @@ public class JdbcTemplateConceptRepository {
     }
 
     public List<Concept> findAllByChapterId(int chapterId){
-        String sql = "SELECT concept_id, concept_name, concept_description, concept_achievement_name FROM concepts WHERE concept_chapter_id = ?";
-        return jdbcTemplate.query(sql, conceptRowMapper(), chapterId);
+        String sql = "SELECT concept_id, concept_name FROM concepts WHERE concept_chapter_id = ?";
+        return jdbcTemplate.query(sql, conceptNameRowMapper(), chapterId);
     }
 
     public String findSchoolLevelByConceptId(int conceptId){
@@ -35,6 +35,20 @@ public class JdbcTemplateConceptRepository {
         return jdbcTemplate.queryForObject(sql, String.class, conceptId);
     }
 
+    public Concept findOneByConceptId(int conceptId) {
+        String sql = "SELECT c.concept_id, c.concept_name, c.concept_description, c.concept_achievement_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name \n" +
+                "FROM concepts c JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id WHERE c.concept_id = ?";
+        return jdbcTemplate.queryForObject(sql, conceptRowMapper(), conceptId);
+    }
+
+    private RowMapper<Concept> conceptNameRowMapper() {
+        return (rs, rowNum) -> {
+            Concept concept = new Concept();
+            concept.setConceptId(rs.getInt("concept_id"));
+            concept.setName(rs.getString("concept_name"));
+            return concept;
+        };
+    }
     private RowMapper<Concept> conceptRowMapper() {
         return (rs, rowNum) -> {
             Concept concept = new Concept();
@@ -42,7 +56,12 @@ public class JdbcTemplateConceptRepository {
             concept.setName(rs.getString("concept_name"));
             concept.setDesc(rs.getString("concept_description"));
             concept.setAchievementName(rs.getString("concept_achievement_name"));
-//            concept.setSection(rs.getString("section_name"));
+            concept.setSchoolLevel(rs.getString("school_level"));
+            concept.setGradeLevel(rs.getString("grade_level"));
+            concept.setSemester(rs.getString("semester"));
+            concept.setChapterMain(rs.getString("chapter_main"));
+            concept.setChapterSub(rs.getString("chapter_sub"));
+            concept.setChapterName(rs.getString("chapter_name"));
             return concept;
         };
     }
