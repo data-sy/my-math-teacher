@@ -38,11 +38,19 @@ public class ConceptController {
         return conceptService.findConceptNameByChapterId(chapterId);
     }
 
+//    /**
+//     * 단위개념 상세 보기 (관계 필드 없을 때) (Neo4J 사용)
+//     */
+//    @GetMapping("/{conceptId}")
+//    public Mono<ConceptResponse> getConcept(@PathVariable int conceptId){
+//        return conceptService.findOne(conceptId);
+//    }
+
     /**
-     * 단위개념 상세 보기 (관계 필드 없을 때)
+     * 단위개념 상세 보기 (관계 필드 없을 때) (RDB 사용)
      */
     @GetMapping("/{conceptId}")
-    public Mono<ConceptResponse> getConcept(@PathVariable int conceptId){
+    public ConceptResponse getConcept(@PathVariable int conceptId){
         return conceptService.findOne(conceptId);
     }
 

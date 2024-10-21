@@ -49,18 +49,33 @@ public class ConceptConverter {
         });
     }
 
-    public static ConceptNameResponse convertToConceptResponse(Concept concept) {
+    public static ConceptNameResponse convertToConceptNameResponse(Concept concept) {
         ConceptNameResponse conceptResponse = new ConceptNameResponse();
         conceptResponse.setConceptId(concept.getConceptId());
         conceptResponse.setConceptName(concept.getName());
         return conceptResponse;
     }
 
-    public static List<ConceptNameResponse> convertListToConceptResponseList(List<Concept> conceptList) {
+    public static List<ConceptNameResponse> convertListToConceptNameResponseList(List<Concept> conceptList) {
         List<ConceptNameResponse> responseList = new ArrayList<>();
         for (Concept concept : conceptList) {
-            responseList.add(convertToConceptResponse(concept));
+            responseList.add(convertToConceptNameResponse(concept));
         }
         return responseList;
+    }
+
+    public static ConceptResponse convertToConceptResponse(Concept concept){
+        ConceptResponse conceptResponse = new ConceptResponse();
+        conceptResponse.setConceptId(concept.getConceptId());
+        conceptResponse.setConceptName(concept.getName());
+        conceptResponse.setConceptDescription(concept.getDesc());
+        conceptResponse.setConceptSchoolLevel(concept.getSchoolLevel());
+        conceptResponse.setConceptGradeLevel(concept.getGradeLevel());
+        conceptResponse.setConceptSemester(concept.getSemester());
+        conceptResponse.setConceptChapterMain(concept.getChapterMain());
+        conceptResponse.setConceptChapterSub(concept.getChapterSub());
+        conceptResponse.setConceptChapterName(concept.getChapterName());
+        conceptResponse.setConceptAchievementName(concept.getAchievementName());
+        return conceptResponse;
     }
 }
