@@ -31,7 +31,7 @@ public class ConceptController {
 //    }
 
     /**
-     * chapter_id에 따른 단위개념 목록 보기 (RDB 사용)
+     * chapter_id에 따른 단위개념 목록 보기 (MySQL 사용)
      */
     @GetMapping("")
     public List<ConceptNameResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
@@ -47,7 +47,7 @@ public class ConceptController {
 //    }
 
     /**
-     * 단위개념 상세 보기 (관계 필드 없을 때) (RDB 사용)
+     * 단위개념 상세 보기 (관계 필드 없을 때) (MySQL 사용)
      */
     @GetMapping("/{conceptId}")
     public ConceptResponse getConcept(@PathVariable int conceptId){
