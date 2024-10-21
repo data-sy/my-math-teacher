@@ -82,12 +82,19 @@ watch(selectedTreeValue, async (newValue) => {
 // 개념 상세보기
 const conceptId = ref(null);
 const conceptDetail = ref(null);
-watch(listboxConcept, (newValue) => {
+watch(listboxConcept, async (newValue) => {
     if (newValue !== null) {
-        conceptDetail.value = newValue;
-        conceptId.value = conceptDetail.value.conceptId;
+        conceptId.value = newValue.conceptId;
         // console.log(conceptId.value);
-        conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
+        // conceptId에 따른 conceptDetail
+        try {
+            const endpoint = `/api/v1/concepts/${conceptId.value}`;
+            const response = await api.get(endpoint);
+            response.conceptDescription = response.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne')
+            conceptDetail.value = response;
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
     }
 });
 
