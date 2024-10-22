@@ -496,5 +496,9 @@ JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id
 WHERE c.concept_id = 1009
 ORDER BY RAND() 
 LIMIT 1;
+
 SELECT i.item_id, i.item_answer, i.item_image_path, c.concept_name, ch.school_level, ch.grade_level, ch.semester FROM items i 
 JOIN concepts c ON i.concept_id = c.concept_id JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id WHERE c.concept_id = 1009 ORDER BY RAND() LIMIT 1;
+
+SELECT c.concept_id, c.concept_name, c.concept_description, c.concept_achievement_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name
+FROM concepts c JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id WHERE c.concept_id = 1009;
