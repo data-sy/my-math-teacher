@@ -27,7 +27,7 @@
 // };
 import { computed } from 'vue';
 const conceptImageUrl = computed(() => {
-    return 'images/conceptTreeForHomeView.png';
+    return 'images/concept-for-home.png';
 });
 </script>
 
