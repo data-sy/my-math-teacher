@@ -21,7 +21,7 @@ public class UserController {
     }
 
     /**
-     * 유저 상세보기 (자기 자신의 정보)
+     * 상세보기 (자기 자신의 정보)
      */
     @GetMapping("")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
@@ -39,7 +39,7 @@ public class UserController {
     }
 
     /**
-     * 유저 수정하기
+     * 수정하기
      */
     @PutMapping("")
     public boolean updateUser(@RequestBody UserDTO userDTO) {
@@ -47,7 +47,7 @@ public class UserController {
     }
 
     /**
-     * 유저 탈퇴하기
+     * 탈퇴하기
      */
     @DeleteMapping("")
     public ResponseEntity<Void> delete(HttpServletRequest request) {
@@ -61,11 +61,5 @@ public class UserController {
         userService.delete(userId);
         return ResponseEntity.ok().build();
     }
-
-//    // 현재 Security Context에 따른 userId 가져오기 테스트
-//    @GetMapping("/id")
-//    public ResponseEntity<Long> getMyUserId() {
-//        return ResponseEntity.ok(userService.getMyUserIdWithAuthorities());
-//    }
 
 }

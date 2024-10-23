@@ -111,12 +111,14 @@ public class UserService {
             // 필요한 정보 업데이트
             if (userDTO.getUserPassword() != null && !userDTO.getUserPassword().isEmpty()) existingUser.setUserPassword(passwordEncoder.encode(userDTO.getUserPassword()));
             if (userDTO.getUserName() != null && !userDTO.getUserName().isEmpty()) existingUser.setUserName(userDTO.getUserName());
+            if (userDTO.getUserPhone() != null && !userDTO.getUserPhone().isEmpty()) existingUser.setUserPhone(userDTO.getUserPhone());
             if (userDTO.getUserBirthdate() != null ) existingUser.setUserBirthdate(userDTO.getUserBirthdate());
             if (userDTO.getUserComments() != null && !userDTO.getUserComments().isEmpty()) existingUser.setUserComments(userDTO.getUserComments());
 
             // 하나라도 필드가 엠티가 아닌 경우에만 사용자 정보 저장
             if (!userDTO.getUserPassword().isEmpty() ||
                     !userDTO.getUserName().isEmpty() ||
+                    userDTO.getUserPhone() !=null ||
                     userDTO.getUserBirthdate() !=null ||
                     !userDTO.getUserComments().isEmpty()) {
                 // 사용자 정보 저장
