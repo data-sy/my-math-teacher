@@ -21,12 +21,6 @@ public class JdbcTemplateTestRepository implements TestRepository {
     }
 
     @Override
-    public List<Test> findAll(){
-        String sql = "SELECT * FROM tests";
-        return jdbcTemplate.query(sql, testRowMapper());
-    }
-
-    @Override
     public List<Test> findTestsBySchoolLevel(String schoolLevel) {
         String sql = "SELECT * FROM tests WHERE test_school_level = ?";
         return jdbcTemplate.query(sql, testRowMapper(), schoolLevel);

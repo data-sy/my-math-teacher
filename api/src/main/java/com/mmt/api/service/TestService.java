@@ -16,10 +16,6 @@ public class TestService {
         this.testRepository = testRepository;
     }
 
-    public List<TestResponse> findTests(){
-        return TestConverter.convertListToTestResponseList(testRepository.findAll());
-    }
-
     public List<TestResponse> findTestsBySchoolLevel(String schoolLevel){
         return TestConverter.convertListToTestResponseList(testRepository.findTestsBySchoolLevel(schoolLevel));
     }

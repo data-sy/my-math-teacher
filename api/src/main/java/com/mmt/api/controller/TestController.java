@@ -29,20 +29,10 @@ public class TestController {
     }
 
     /**
-     * 전체 학습지 목록 보기
-     */
-    @GetMapping("")
-    public List<TestResponse> getTests(){
-        return testService.findTests();
-    }
-
-    /**
      * 유저의 학습지 목록
      */
     @GetMapping("/user")
     public List<UserTestsResponse> getUserTests(){
-//        // security 적용 전까지는 테스트 id 사용
-//        Long userId = 3L;
         return userTestService.findTests(userService.getMyUserIdWithAuthorities());
     }
 
@@ -54,38 +44,12 @@ public class TestController {
         return userTestService.findRecordedTests(userService.getMyUserIdWithAuthorities());
     }
 
-//    /** deprecated (security 적용해서)
-//     * 유저의 학습지 목록
-//     */
-//    @GetMapping("/user/{userId}")
-//    public List<UserTestsResponse> getUserTests(@PathVariable Long userId){
-//        return userTestService.findTests(userId);
-//    }
-
     /**
      * '학교군(schoolLevel)'에 따른 학습지 목록 보기
      */
     @GetMapping("/school-level/{schoolLevel}")
     public List<TestResponse> getTests(@PathVariable String schoolLevel){
         return testService.findTestsBySchoolLevel(schoolLevel);
-    }
-
-    /**
-     * 샘플 학습지 목록 보기
-     * 샘플 유저 user_id=3 의 학습지
-     */
-    @GetMapping("/sample")
-    public List<UserTestsResponse> getSampleTests(){
-        return userTestService.findTests(3L);
-    }
-
-    /**
-     * 샘플 '정오답 기록한' 학습지 목록 보기
-     * 샘플 유저 user_id=3 의 학습지
-     */
-    @GetMapping("/sample/is-record")
-    public List<UserTestsResponse> getSampleRecoredTests(){
-        return userTestService.findRecordedTests(3L);
     }
 
     /**
@@ -108,4 +72,23 @@ public class TestController {
     /**
      * 맞춤학습지 다운로드
      */
+
+    /**
+     * 샘플 학습지 목록 보기
+     * 샘플 유저 user_id=3 의 학습지
+     */
+    @GetMapping("/sample")
+    public List<UserTestsResponse> getSampleTests(){
+        return userTestService.findTests(3L);
+    }
+
+    /**
+     * 샘플 '정오답 기록한' 학습지 목록 보기
+     * 샘플 유저 user_id=3 의 학습지
+     */
+    @GetMapping("/sample/is-record")
+    public List<UserTestsResponse> getSampleRecoredTests(){
+        return userTestService.findRecordedTests(3L);
+    }
+
 }
