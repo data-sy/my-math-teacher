@@ -7,7 +7,6 @@ import com.mmt.api.service.ConceptService;
 import com.mmt.api.service.KnowledgeSpaceService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -22,14 +21,6 @@ public class ConceptController {
         this.knowledgeSpaceService = knowledgeSpaceService;
     }
 
-//    /**
-//     * chapter_id에 따른 단위개념 목록 보기 (Neo4J 사용)
-//     */
-//    @GetMapping("")
-//    public Flux<ConceptResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
-//        return conceptService.findNodesByChapterId(chapterId);
-//    }
-
     /**
      * chapter_id에 따른 단위개념 목록 보기 (MySQL 사용)
      */
@@ -37,14 +28,6 @@ public class ConceptController {
     public List<ConceptNameResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
         return conceptService.findConceptNameByChapterId(chapterId);
     }
-
-//    /**
-//     * 단위개념 상세 보기 (관계 필드 없을 때) (Neo4J 사용)
-//     */
-//    @GetMapping("/{conceptId}")
-//    public Mono<ConceptResponse> getConcept(@PathVariable int conceptId){
-//        return conceptService.findOne(conceptId);
-//    }
 
     /**
      * 단위개념 상세 보기 (관계 필드 없을 때) (MySQL 사용)
@@ -77,27 +60,5 @@ public class ConceptController {
     public List<EdgeResponse> getEdgesByConceptId(@PathVariable int conceptId){
         return knowledgeSpaceService.findEdgesByConceptId(conceptId);
     }
-
-    // (테스트용) 깊이 1~5의 선수단위개념 id만 추출 & 그대로 리스펀스
-    @GetMapping("/ids/{conceptId}")
-    public Flux<Integer> getNodesIdByConceptId(@PathVariable int conceptId){
-        return conceptService.findNodesIdByConceptIdDepth5(conceptId);
-    }
-
-//    /**
-//     * 리팩토링 : nodes와 edges를 한꺼번에 보내기 (WebFlux 공부 필요)
-//     */
-//    public NetworkResponse getNetworkByConceptId(@PathVariable int conceptId){
-//        return conceptService.findNetworkByConceptId(conceptId);
-
-//    /**
-//     * deprecated
-//     * 깊이 1~6의 선수단위개념 관계 보기 (엣지)
-//     * 필요한 conceptId 목록을 request로 받아서 사용했음
-//     */
-//    @GetMapping("/edges")
-//    public List<EdgeResponse> getEdgesByConceptId(@RequestBody EdgeRequest request){
-//        return knowledgeSpaceService.findEdgesByConceptId(request.getConceptIdList());
-//    }
 
 }

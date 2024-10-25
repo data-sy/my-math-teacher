@@ -27,16 +27,11 @@ public class ConceptService {
         this.knowledgeSpaceRepository = knowledgeSpaceRepository;
         this.jdbcTemplateConceptRepository = jdbcTemplateConceptRepository;
     }
-//    @Transactional(readOnly = true)
-//    public Mono<ConceptResponse> findOne(int conceptId){
-//        return ConceptConverter.convertToMonoConceptResponse(conceptRepository.findOneByConceptId(conceptId));
-//    }
 
     @Transactional(readOnly = true)
     public ConceptResponse findOne(int conceptId){
         return ConceptConverter.convertToConceptResponse(jdbcTemplateConceptRepository.findOneByConceptId(conceptId));
     }
-
 
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findToConcepts(int conceptId){
@@ -64,18 +59,13 @@ public class ConceptService {
     public Flux<Integer> findNodesIdByConceptIdDepth5(int conceptId){
         return conceptRepository.findNodesIdByConceptIdDepth5(conceptId);
     }
+
     public int findSkillIdByConceptId (int conceptId){
         return jdbcTemplateConceptRepository.findSkillIdByConceptId(conceptId);
     }
 
-    // 이건 RDB 사용 (나중에 Neo4j 사용한 거랑 성능 비교해보기)
     public List<ConceptNameResponse> findConceptNameByChapterId(int chapterId){
         return ConceptConverter.convertListToConceptNameResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
-    }
-    // Neo4j 사용
-    @Transactional(readOnly = true)
-    public Flux<ConceptResponse> findNodesByChapterId(int chapterId){
-        return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByChapterId(chapterId));
     }
 
 //    /**
