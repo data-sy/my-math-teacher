@@ -41,9 +41,4 @@ public class KnowledgeSpaceService {
         }
     }
 
-//    // deprecated
-//    public List<EdgeResponse> findEdgesByConceptId(List<Integer> conceptIdList){
-//        return NetworkConverter.convertToEdgeResponseList(knowledgeSpaceRepository.findEdgesByConceptId(conceptIdList));
-//    }
-
 }
