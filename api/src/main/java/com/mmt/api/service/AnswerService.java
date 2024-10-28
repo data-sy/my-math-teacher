@@ -50,23 +50,4 @@ public class AnswerService {
         return answerRepository.findIds(userTestId);
     }
 
-    // deprecated : 플라스크 서버 때 사용했던
-//    public AIInputResponse findAIInput(Long userTestId){
-//        AIInputResponse aiInputResponse = new AIInputResponse(userTestId);
-//        List<List<Integer>> answerCodeResponseList = new ArrayList<>();
-//        // 조건에 맞는 user_test_id들 찾기
-//        List<Long> utIdList = userTestService.findBefore(userTestId);
-//        // user_test_id별 정오답 기록을 answerCodeList에 넣기 (데이터 500배 증폭 -> 100배로 수정)
-//        utIdList.forEach(utId -> {
-//            List<AnswerCode> answerCodeList = answerRepository.findAnswerCode(utId);
-//            answerCodeList.forEach(answerCode -> {
-//                IntStream.range(0, 100)
-//                        .mapToObj(i -> AnswerConverter.convertToIntegerList(answerCode))
-//                        .forEach(answerCodeResponseList::add);
-//            });
-//        });
-//        aiInputResponse.setAnswerCodeResponseList(answerCodeResponseList);
-//        return aiInputResponse;
-//    }
-
 }

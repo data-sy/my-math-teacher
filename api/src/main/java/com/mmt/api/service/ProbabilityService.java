@@ -121,48 +121,4 @@ public class ProbabilityService {
         }
     }
 
-    //    // 요청, 응답 모두 DTO로 => ok
-//    public AIServingResponse getPredictionTest() {
-//        String serverUrl = "http://13.124.61.161:8501/v1/models/my_model:predict";
-//
-//        // DTO를 사용한 입력 데이터 설정
-//        InputInstance inputInstance = new InputInstance();
-//        inputInstance.setInput(Arrays.asList(
-//                new int[]{1171, 1}, new int[]{467, 1}, new int[]{1703, 1}, new int[]{1817, 1},
-//                new int[]{1698, 1}, new int[]{623, 0}, new int[]{1182, 0}, new int[]{1614, 0},
-//                new int[]{396, 0}, new int[]{1681, 0}, new int[]{1564, 1}, new int[]{461, 1},
-//                new int[]{782, 1}, new int[]{593, 1}, new int[]{1582, 1}, new int[]{774, 0},
-//                new int[]{1660, 0}, new int[]{1583, 0}, new int[]{790, 0}, new int[]{1531, 0}
-//        ));
-//        List<InputInstance> instances = new ArrayList<>();
-//        instances.add(inputInstance);
-//
-//        AIServingRequest aiServingRequest = new AIServingRequest();
-//        aiServingRequest.setSignatureName("serving_default");
-//        aiServingRequest.setInstances(instances);
-//
-//        // 헤더 설정
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//        // 요청 엔티티 생성
-//        HttpEntity<AIServingRequest> requestEntity = new HttpEntity<>(aiServingRequest, headers);
-//
-//        // 예측 요청
-//        try {
-//            ResponseEntity<AIServingResponse> response = restTemplate.postForEntity(serverUrl, requestEntity, AIServingResponse.class);
-//            if (response.getStatusCode().is2xxSuccessful()) {
-//                return response.getBody();
-//            } else {
-//                throw new RuntimeException("예측 요청 실패. 상태 코드: " + response.getStatusCode());
-//            }
-//        } catch (HttpClientErrorException e) {
-//            System.out.println("예측 요청 실패. 클라이언트 에러: " + e.getRawStatusCode() + ", 응답: " + e.getResponseBodyAsString());
-//            return null;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
 }
