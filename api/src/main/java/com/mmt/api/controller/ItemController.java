@@ -27,6 +27,4 @@ public class ItemController {
         return itemService.findPersonalItems(userTestId);
     }
 
-    // 아이템 하나 바꾸는 건 아이템 컨트롤러로 추가
-
 }
