@@ -162,46 +162,6 @@ const renderItemAnswer = (text) => {
 const isLatex = (answer) => {
     return !answer.includes('&#');
 };
-// deprecated
-// // 정오답 DB에 저장
-// const createRecord = async () => {
-//     if (isLoggedIn.value && userTestId.value !== null) {
-//         const answerCodeCreateRequestList = testDetail.value.map(({ itemId, answerCode }) => ({ itemId, answerCode: answerCode ? 1 : 0 }));
-//         const requestData = ref({
-//             userTestId: userTestId,
-//             answerCodeCreateRequestList: answerCodeCreateRequestList
-//         });
-//         try {
-//             await api.post('/api/v1/record', requestData.value);
-//         } catch (err) {
-//             console.error(`POST ${endpoint} failed:`, err);
-//         }
-//     } else {
-//         console.log('사용자가 로그인하지 않았거나, userTestId가 없습니다. 기록을 건너뜁니다.');
-//     }
-// };
-// // AI 분석
-// const analysis = async () => {
-//     if (isLoggedIn.value && userTestId.value !== null) {
-//         const accessToken = localStorage.getItem('accessToken');
-//         if (!accessToken) {
-//             console.error('액세스 토큰이 없습니다.');
-//             return;
-//         }
-//         try {
-//             const headers = {
-//                 Authorization: `Bearer ${accessToken}`,
-//                 'Content-Type': 'application/json'
-//             };
-//             const response = await axios.post(`http://localhost:8000/ai/v1/ai/${userTestId.value}`, {}, { headers });
-//             // console.log('응답 데이터:', response.data);
-//         } catch (err) {
-//             console.error('데이터 생성 중 에러 발생:', err);
-//         }
-//     } else {
-//         console.log('userTestId가 없습니다. AI 분석을 건너뜁니다.');
-//     }
-// };
 // AI 분석
 const predict = async () => {
     if (isLoggedIn.value && userTestId.value !== null) {

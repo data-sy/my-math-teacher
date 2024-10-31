@@ -73,7 +73,7 @@ onMounted(async () => {
         userTestId.value = receivedData.value.userTestId;
         if (userTestId.value !== null) {
             try {
-                const endpoint = `/api/v1/result/${userTestId.value}`;
+                const endpoint = `/api/v1/weakness-diagnosis/result/${userTestId.value}`;
                 const response = await api.get(endpoint);
                 resultList.value = response;
                 resultList.value.forEach((item) => {
@@ -102,7 +102,7 @@ watch(listboxTest, async (newValue) => {
     clearCy();
     if (newValue !== null) {
         userTestId.value = newValue.userTestId;
-        const endpoint = isLoggedIn.value ? `/api/v1/result/${userTestId.value}` : `/api/v1/result/sample/${userTestId.value}`;
+        const endpoint = isLoggedIn.value ? `/api/v1/weakness-diagnosis/result/${userTestId.value}` : `/api/v1/weakness-diagnosis/result/sample/${userTestId.value}`;
         if (userTestId.value !== null) {
             try {
                 const response = await api.get(endpoint);
