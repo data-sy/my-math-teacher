@@ -220,9 +220,31 @@ const downloadTest = () => {
     generatePdf();
     goToHome();
 };
-// 로그인 없이 yes 버튼 클릭 시
+
+// 로그인 없이 '회원가입 및 로그인' 클릭 시
+const oauth2googlelogoUrl = computed(() => {
+    return 'images/oauth2/google-logo.png';
+});
+const oauth2naverlogoUrl = computed(() => {
+    return 'images/oauth2/naver-logo.png';
+});
+const oauth2kakaologoUrl = computed(() => {
+    return 'images/oauth2/kakao-logo.png';
+});
+const loginDialog = ref(false);
+const closeDialog = () => {
+    loginDialog.value = false;
+};
+const onUserClick = () => {
+    loginDialog.value = true;
+};
+const goToSignup = () => {
+    loginDialog.value = false;
+    router.push({ name: 'signup' });
+};
 const openLogin = () => {
     closeConfirmation();
+    onUserClick();
 
 };
 </script>
@@ -377,10 +399,52 @@ const openLogin = () => {
             </template>
 
         </div>
+        <!-- user 아이콘 클릭 시 로그인 or 회원가입 창 -->
+        <Dialog v-model:visible="loginDialog" :style="{ width: '500px' }" :modal="true" class="p-fluid">
+            <div class="w-full surface-card px-6 sm:px-8">
+                <div class="text-center mb-5">
+                    <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
+                    <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
+                </div>
+                <form v-on:submit.prevent="login">
+                    <div>
+                        <InputText id="email" v-model="email" type="text" placeholder="아이디" class="w-full mb-3" style="padding: 1rem" />
+                        <Password id="password" v-model="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-4" inputClass="w-full" :inputStyle="{ padding: '1rem' }" :feedback="false"></Password>
+                        <p v-html="loginErrorMessage" class="text-red-600 text-base text-font-medium"></p>
+                        <Button type="submit" label="로그인" class="w-full p-2.5 p-button-raised text-lg border-round-2xl"></Button>
+                    </div>
+                </form>
+                <div class="flex align-items-center justify-content-center mt-3 mb-5">
+                    <Button @click="goToSignup()" label="회원가입" class="w-full p-2.5 p-button-raised p-button-success text-lg border-round-2xl"></Button>
+                </div>
+                <div class="divider-container mt-4 mb-4">
+                    <div class="left-divider"></div>
+                    <span class="divider-text"> 간편로그인 </span>
+                    <div class="right-divider"></div>
+                </div>
+                <div class="flex justify-content-center gap-7 mb-7">
+                    <div class="icon-container">
+                        <a href="/oauth2/authorization/google">
+                            <img :src="oauth2googlelogoUrl" alt="Google" class="icon" />
+                        </a>
+                    </div>
+                    <div class="icon-container">
+                        <a href="/oauth2/authorization/naver">
+                            <img :src="oauth2naverlogoUrl" alt="Naver" class="icon" />
+                        </a>
+                    </div>
+                    <div class="icon-container kakao">
+                        <a href="/oauth2/authorization/kakao">
+                            <img :src="oauth2kakaologoUrl" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </Dialog>
     </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .testItemBox {
     position: relative;
     /* border: 1px solid black; */
@@ -410,5 +474,36 @@ const openLogin = () => {
     height: auto;
     max-width: 5%;
     margin-right: 0.5rem;
+}
+.divider-container {
+    display: flex;
+    align-items: center;
+}
+.left-divider,
+.right-divider {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #999; /* 실선의 색상을 원하는 색으로 변경 */
+}
+.divider-text {
+    padding: 0 10px; /* 텍스트와 실선 사이의 간격 조정 */
+}
+.icon-container {
+    width: 4rem; /* 아이콘 컨테이너의 너비 설정 */
+    height: auto; /* 아이콘 컨테이너의 높이 설정 */
+    border-radius: 50%; /* 원형 아이콘을 위한 테두리 반지름 설정 */
+    // background-color: #f0f0f0; /* 아이콘 컨테이너의 배경색 설정 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.icon {
+    width: 100%; /* 이미지의 크기를 부모 요소에 맞게 조절 */
+    height: auto; /* 이미지의 높이를 자동으로 설정 */
+    border-radius: 50%; /* 이미지를 원형으로 설정 */
+    /* 다른 스타일 속성들 */
+}
+.kakao {
+    background-color: #fee500; /* Google 로고 배경색 */
 }
 </style>
