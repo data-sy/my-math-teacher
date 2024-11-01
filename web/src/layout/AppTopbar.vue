@@ -187,7 +187,7 @@ const logout = async () => {
                     </div>
                 </form>
                 <div class="flex align-items-center justify-content-center mt-3 mb-5">
-                    <Button @click="goToSignup()" label="회원가입" class="w-full p-2.5 p-button-raised p-button-secondary text-lg border-round-2xl"></Button>
+                    <Button @click="goToSignup()" label="회원가입" class="w-full p-2.5 p-button-raised p-button-success text-lg border-round-2xl"></Button>
                     <!-- <div class="flex align-items-center ml-3 mr-4">
                         <a @click="goToSignup()" class="text-600 font-medium cursor-pointer"> 회원가입 </a>
                     </div> -->
