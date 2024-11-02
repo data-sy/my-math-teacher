@@ -93,8 +93,23 @@ const userTestId = ref(null);
 watch(listboxTest, async (newValue) => {
     if(newValue !== null) {
         userTestId.value = newValue.userTestId;
+        // 우선 조건 없이 바로 출제 - 조건 생기면 이 부분 삭제
+        try {
+            const endpoint = `/api/v1/items/personal?userTestId=${userTestId.value}`;
+            const response = await api.get(endpoint);
+            testDetail.value = response.map((item) => {
+                return {
+                    ...item,
+                    itemImagePath: "/images/items/empty001.jpg"
+                };
+            });
+        } catch (err) {
+            console.error('데이터 생성 중 에러 발생:', err);
+        }
     }
 });
+
+
 // 맞춤 학습지 조건
 const isDeveloping = true; // 조건 사용 X 인 동안 "개발 중" 표시하기
 const inputNumberValue = ref(10);
@@ -309,6 +324,10 @@ const yesClick = () => {
                                 </div>
                             </div>
                         </div>
+                        <!-- 준비 중이라 disable -->
+                        <div class="mt-5">
+                            <Button label="출제하기" class="mr-2 mb-5" :disabled="true"></Button>
+                        </div>
                     </div>
                     <!-- 덮는 회색 박스 -->
                     <div class="blocking-overlay" v-if="isDeveloping">
@@ -318,11 +337,11 @@ const yesClick = () => {
                 <div class="mt-5">
                     <!-- 이 전에 준비중이었을 때 -->
                     <!-- <Button @click="confirm4($event)" label="출제하기" class="mr-2 mb-5"></Button> -->
-                    <!-- 현재 : 조건 없이 근간 학습지로만 출제 -->
-                    <div class="mt-5">                
+                    <!-- 조건 없이 근간 학습지로만 출제 -->
+                    <!-- <div class="mt-5">                
                         <Button v-if="userTestId == null" @click="confirm5($event)" label="출제하기" class="mr-2 mb-5 p-button-outlined"></Button>
                         <Button v-else @click="getPersonalItems" label="출제하기" class="mr-2 mb-5"></Button>
-                    </div>
+                    </div> -->
                     <!-- 나중에 조건 추가되면 여기로 다시 돌아와. isLoggedIn, testId 에 따라 조건문 줘야 해-->
                     <!-- <Button @click="" label="출제하기" class="mr-2 mb-5"></Button> -->
                 </div>
