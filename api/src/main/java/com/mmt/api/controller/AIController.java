@@ -31,14 +31,14 @@ public class AIController {
     /**
      * user_test_id에 따른 분석 결과 보기
      */
-    @GetMapping("/result/{userTestId}")
-    public List<ResultResponse> getResults(@PathVariable Long userTestId){ return probabilityService.findResults(userTestId);}
+    @GetMapping("/{userTestId}")
+    public List<ResultResponse> getAIAnalysisResult(@PathVariable Long userTestId){ return probabilityService.findResults(userTestId);}
 
     /**
      * 샘플 분석 결과 보기
      * 분리해서 만든 이유 : security filter
      */
-    @GetMapping("/result/sample/{userTestId}")
+    @GetMapping("/sample/{userTestId}")
     public List<ResultResponse> getSampleResults(@PathVariable Long userTestId){ return probabilityService.findResults(userTestId);}
 
 }

@@ -48,7 +48,7 @@ public class TestController {
      * '학교군(schoolLevel)'에 따른 학습지 목록 보기
      */
     @GetMapping("/school-level/{schoolLevel}")
-    public List<TestResponse> getTests(@PathVariable String schoolLevel){
+    public List<TestResponse> getTestsBySchoolLevel(@PathVariable String schoolLevel){
         return testService.findTestsBySchoolLevel(schoolLevel);
     }
 
@@ -61,7 +61,7 @@ public class TestController {
     }
 
     /**
-     * 진단학습지 다운로드
+     * 진단학습지 생성
      */
     @PostMapping("/{testId}")
     public void create(@PathVariable Long testId) {
@@ -70,7 +70,7 @@ public class TestController {
     }
 
     /**
-     * 맞춤학습지 다운로드
+     * 맞춤학습지 생성
      */
 
     /**

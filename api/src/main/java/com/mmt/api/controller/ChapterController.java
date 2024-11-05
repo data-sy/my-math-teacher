@@ -23,7 +23,7 @@ public class ChapterController {
      * '학년군&학기(gradeLevel&semester)'에 따른 소단원 목록 보기
      */
     @GetMapping("")
-    public List<ChapterResponse> getChapters(@RequestParam("grade") String gradeLevel, @RequestParam("semester") String semester){
+    public List<ChapterResponse> getChaptersByGradeLevelAndSemester(@RequestParam("grade") String gradeLevel, @RequestParam("semester") String semester){
         return chapterService.findChapters(gradeLevel, semester);
     }
 

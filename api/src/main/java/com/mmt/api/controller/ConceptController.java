@@ -22,7 +22,7 @@ public class ConceptController {
     }
 
     /**
-     * chapter_id에 따른 단위개념 목록 보기 (MySQL 사용)
+     * 단원에 따른 개념 목록 조회 (MySQL 사용)
      */
     @GetMapping("")
     public List<ConceptNameResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
@@ -30,7 +30,7 @@ public class ConceptController {
     }
 
     /**
-     * 단위개념 상세 보기 (관계 필드 없을 때) (MySQL 사용)
+     * 개념 상세보기 (관계 필드 없을 때) (MySQL 사용)
      */
     @GetMapping("/{conceptId}")
     public ConceptResponse getConcept(@PathVariable int conceptId){
@@ -38,7 +38,7 @@ public class ConceptController {
     }
 
     /**
-     * 깊이 1의 선수단위개념 목록 보기
+     * 깊이 1의 선수개념 목록 조회
      */
     @GetMapping("/prerequisite/{conceptId}")
     public Flux<ConceptResponse> getToConcepts(@PathVariable int conceptId){
@@ -46,7 +46,7 @@ public class ConceptController {
     }
 
     /**
-     * 깊이 0~n의 선수단위개념 목록 보기 (노드)
+     * 깊이 0~n의 선수단위개념 목록 조회 (노드)
      */
     @GetMapping("/nodes/{conceptId}")
     public Flux<ConceptResponse> getNodesByConceptId(@PathVariable int conceptId){
@@ -54,7 +54,7 @@ public class ConceptController {
     }
 
     /**
-     * 깊이 0~n의 선수단위개념 관계 보기 (엣지)
+     * 깊이 0~n의 선수단위개념 관계 목록 조회 (엣지)
      */
     @GetMapping("/edges/{conceptId}")
     public List<EdgeResponse> getEdgesByConceptId(@PathVariable int conceptId){
