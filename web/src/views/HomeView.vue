@@ -43,7 +43,7 @@ const conceptImageUrl = computed(() => {
                     <div class="flex justify-content-center text-900 font-medium text-4xl mb-2">선수 지식 알아보기</div>
                     <!-- <div class="flex justify-content-center text-red-500 text-lg font-bold">(회원가입 없이 사용 가능)</div> -->
                     <div class="flex justify-content-center">
-                        <img :src="conceptImageUrl" alt="conceptImage" style="width: 50rem; height: 30rem" />
+                        <img :src="conceptImageUrl" alt="conceptImage"  class="responsive-img" />
                     </div>
                 </div>
             </router-link>
@@ -93,3 +93,10 @@ const conceptImageUrl = computed(() => {
         </div>        
     </div>
 </template>
+
+<style scoped>
+.responsive-img {
+    max-width: 100%;  /* 부모 요소 크기를 넘지 않도록 설정 */
+    height: auto;     /* 비율 유지 */
+}
+</style>
