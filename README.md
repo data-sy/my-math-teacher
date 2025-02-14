@@ -11,8 +11,7 @@
 2. [서비스 소개](#Intro)
 3. [아키텍처 및 기술 스택](#Arch)
 4. [시스템 설계 및 구현 상세](#Design)
-5. [시작 및 배포](#Start)
-6. [레퍼런스](#Ref)
+5. [레퍼런스](#Ref)
 
 <br/>
 <!-- ABOUT THE PROJECT -->
@@ -20,13 +19,10 @@
 <a name="Overview"> </a>
 
 ## 💻 프로젝트 개요
-기간 : 2023.11.22 ~  <br/>
+기간 : (v1) 2023.12 ~ 2024.07 (8개월), (v2) 2025.02 ~ (진행 중) <br/>
 개발 인원 : 1인 개발 <br/>
 서비스 링크 : https://www.my-math-teacher.com  <br/>
-이슈 트래커 링크 <br/>
-블로그 시리즈 링크 <br/>
 
-<br/>
 <!-- Introduction -->
 
 <a name="Intro"> </a>
@@ -66,11 +62,9 @@ MMT는  **수학 지식 간 선/후 관계를 그래프로 확인**하고 **수�
 ## ⚒️ 아키텍처 및 기술 스택
 
 ### 아키텍처
-![](https://velog.velcdn.com/images/data_sy/post/8f3d34ad-f419-4f20-996a-ce063c7bf471/image.jpg)
-
+![](https://velog.velcdn.com/images/data_sy/post/e6e5b39d-411a-4bb9-8041-da41086c461b/image.jpg)
 
 ### 기술 스택
-버전 추가
 
 | 분류 | 기술 |
 |---|---|
@@ -94,7 +88,11 @@ MMT는  **수학 지식 간 선/후 관계를 그래프로 확인**하고 **수�
 
 
 ### API 명세서
-[POSTMAN API 명세서](https://documenter.getpostman.com/view/28842793/2s9YC1XEmW)
+- [POSTMAN API 명세서](https://documenter.getpostman.com/view/28842793/2sAY4rE4aP)
+
+![](https://velog.velcdn.com/images/data_sy/post/9e861682-8f5c-49db-b3d8-c9a11efb4e60/image.png)
+![](https://velog.velcdn.com/images/data_sy/post/fa0f8015-57d3-4ce4-a3b5-9d0115aaa31a/image.png)
+![](https://velog.velcdn.com/images/data_sy/post/02d2fc93-0e93-4834-9b12-f7df784ac662/image.png)
 
 <br/>
 <!-- References -->
