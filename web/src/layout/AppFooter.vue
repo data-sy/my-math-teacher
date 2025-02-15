@@ -35,7 +35,12 @@ const logoUrl = computed(() => {
 </template>
 <style lang="scss" scoped>
     .foot-padding {
-        padding-left: 5rem; /* 또는 원하는 값으로 설정 */
+        padding-left: 5rem;
+    }
+    @media (max-width: 576px) { /* 모바일에서는 왼쪽 여백 줄이기 */
+        .foot-padding {
+            padding-left: 3rem; 
+        }
     }
     .vertical-links a {
         display: block;
