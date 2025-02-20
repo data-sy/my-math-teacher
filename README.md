@@ -84,8 +84,7 @@ MMT는  **수학 지식 간 선/후 관계를 그래프로 확인**하고 **수�
 ## 📜 시스템 설계 및 구현 상세
 
 ### ERD
-![](https://velog.velcdn.com/images/data_sy/post/94b3edf8-29ed-46e6-ad93-a4abe363a4e0/image.png)
-
+![](https://velog.velcdn.com/images/data_sy/post/539ab1a0-4dcd-4a83-b393-6486655e08ab/image.jpg)
 
 ### API 명세서
 - [POSTMAN API 명세서](https://documenter.getpostman.com/view/28842793/2sAY4rE4aP)
