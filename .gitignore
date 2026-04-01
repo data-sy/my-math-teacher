@@ -1,0 +1,15 @@
+# IDE
+.idea/
+.claude/
+
+# Jupyter
+**/.ipynb_checkpoints/
+
+# Docker
+docker-compose.yml
+
+# Auth / Secrets
+api/src/main/resources/application-securelocal.yml
+
+# Test scripts
+ai/oauth2_test.py
