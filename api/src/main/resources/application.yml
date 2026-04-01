@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: secure
+    include: securelocal
   jpa:
     hibernate:
       ddl-auto: none
