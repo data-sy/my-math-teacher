@@ -23,7 +23,7 @@ Neo4j → MySQL CTE 마이그레이션(M2) 전의 **성능 기준선을 실측**
 
 1. **수치는 실측**: 이 spec의 모든 성능 수치는 실측해서 기록한다. 원본 문서의 추측값(`~5ms` 등)은 **기준선으로 사용 금지**
 2. **측정 환경 기록**: JVM 옵션, 컨테이너 스펙, 테스트 데이터 규모를 모든 측정에 기록
-3. **반복 측정**: 각 쿼리는 최소 **warm-up 3회 + 측정 10회**로 평균·p95·p99 산출
+3. **반복 측정**: 각 쿼리는 최소 **warm-up 3회 + 측정 100회**로 평균·p95·p99 산출 (표본 10회는 p99가 사실상 최대값과 같아 통계적 의미가 없음 → 100회 필수)
 4. **커밋 분리**: 벤치마크 코드와 측정 결과 기록은 별도 커밋
 
 ---
@@ -79,7 +79,7 @@ class GraphQueryPerformanceTest {
     private ConceptService conceptService;
 
     private static final int WARMUP_RUNS = 3;
-    private static final int MEASURED_RUNS = 10;
+    private static final int MEASURED_RUNS = 100;  // p99 산출을 위해 100회 필수
 
     @Test
     void benchmarkDepth3GraphTraversal() {
@@ -129,15 +129,15 @@ class RepositoryBenchmarkTest {
 
         for (int i = 0; i < 3; i++) probabilityRepository.findResults(userTestId);
 
-        long[] nanos = new long[10];
-        for (int i = 0; i < 10; i++) {
+        long[] nanos = new long[100];
+        for (int i = 0; i < 100; i++) {
             long start = System.nanoTime();
             probabilityRepository.findResults(userTestId);
             nanos[i] = System.nanoTime() - start;
         }
 
         Arrays.sort(nanos);
-        long avgMs = Arrays.stream(nanos).sum() / 10 / 1_000_000;
+        long avgMs = Arrays.stream(nanos).sum() / 100 / 1_000_000;
         System.out.printf("[Benchmark] findResults: avg=%dms%n", avgMs);
     }
 }

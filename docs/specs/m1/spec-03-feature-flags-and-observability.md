@@ -53,28 +53,14 @@ mmt:
     slow-query-threshold-ms: 100
 ```
 
-### (2) `application-test.yml` 신규 생성
+### (2) `application-test.yml` 확장 (Spec 01 뼈대 위에 추가)
 
-위치: `api/src/main/resources/application-test.yml`
+Spec 01 Task 1.1 (3)에서 이미 `application-test.yml` 뼈대가 생성되어 `hibernate.generate_statistics`·SQL·Cypher 로깅은 포함되어 있다. 이 Task에서는 **기존 파일에 `mmt.benchmark.baseline` 영역만 추가**한다.
+
+위치: `api/src/main/resources/application-test.yml` (수정)
 
 ```yaml
-# 테스트 전용 프로파일. securelocal과 독립적이며 인클루드 관계 없음.
-# 활성화: @ActiveProfiles("test") 또는 -Dspring.profiles.active=test
-
-spring:
-  jpa:
-    properties:
-      hibernate:
-        generate_statistics: true   # Spec 01 Task 1.4의 N+1 테스트가 이 설정에 의존
-        format_sql: true
-    show-sql: false  # 로그는 logging.level로 제어
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE  # Hibernate 6.x (Spring Boot 3.x)
-    # Hibernate 5.x라면: org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.data.neo4j.cypher: DEBUG
+# 아래 블록을 기존 application-test.yml 하단에 이어붙임
 
 mmt:
   benchmark:
@@ -83,6 +69,8 @@ mmt:
       # 예: find-results-ms: 42
       # 예: depth3-traversal-ms: 18
 ```
+
+(공통 `mmt.migration.*`, `mmt.observability.*`는 (1)에서 `application.yml`에 추가된다. test 프로파일은 그 기본값을 상속하므로 여기서 중복 선언 불필요.)
 
 ### (3) 활성화 확인
 
@@ -109,7 +97,7 @@ class FeatureFlagIntegrationTest {
 
 **산출물:**
 - [ ] `application.yml`에 `mmt.migration.*`, `mmt.observability.*` 추가
-- [ ] `application-test.yml` 신규 생성
+- [ ] `application-test.yml`에 `mmt.benchmark.baseline` 영역 추가 (뼈대는 Spec 01 Task 1.1 (3)에서 생성됨)
 - [ ] `FeatureFlagIntegrationTest` 신규 작성
 
 **검증:**
@@ -314,15 +302,32 @@ cd api && ./gradlew test --tests "*N1Test"
 
 **작업 내용:**
 
-### (1) AOP 의존성 추가
+### (1) AOP 의존성 및 MeterRegistry Bean 구성
+
+build.gradle에 AOP + Micrometer Core 의존성 추가:
 
 ```gradle
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
-    // Micrometer는 Spring Boot Actuator에 포함됨. 이미 있다면 스킵
     implementation 'io.micrometer:micrometer-core'
 }
 ```
+
+Actuator를 도입하지 않으므로 `MeterRegistry`는 자동 등록되지 않는다. 현재 용도(Aspect 내 Timer)에 맞춰 `SimpleMeterRegistry`를 수동 Bean으로 등록한다:
+
+```java
+// api/src/main/java/com/mmt/api/config/ObservabilityConfig.java (실제 패키지 구조에 맞춰)
+@Configuration
+public class ObservabilityConfig {
+
+    @Bean
+    public MeterRegistry meterRegistry() {
+        return new SimpleMeterRegistry();
+    }
+}
+```
+
+추후 Prometheus·Grafana 연동이 로드맵으로 진입하면 `spring-boot-starter-actuator`로 승급하고 이 Bean은 제거한다.
 
 ### (2) Aspect 클래스 작성
 
@@ -396,7 +401,8 @@ class QueryTimingAspectTest {
 ```
 
 **산출물:**
-- [ ] `spring-boot-starter-aop` 의존성 추가
+- [ ] `spring-boot-starter-aop` + `io.micrometer:micrometer-core` 의존성 추가
+- [ ] `ObservabilityConfig` (`SimpleMeterRegistry` Bean 수동 등록)
 - [ ] `QueryTimingAspect` 클래스
 - [ ] `QueryTimingAspectTest`
 

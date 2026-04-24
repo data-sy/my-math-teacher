@@ -90,7 +90,33 @@ public class TestcontainersConfig {
 - Neo4j 이미지 태그는 docker-compose.yml의 프로덕션 버전과 일치시킬 것 (확인 후 교체)
 - `.withReuse(true)`로 테스트 간 컨테이너 재사용하여 속도 확보 (로컬 한정)
 
-### (3) CI 워크플로우에 테스트 단계 추가
+### (3) `application-test.yml` 뼈대 생성
+
+Task 1.4의 N+1 테스트가 Hibernate `Statistics` API에 의존하므로, 해당 설정을 이 spec에서 뼈대 형태로 먼저 생성한다. 피처 플래그·관측성·벤치마크 baseline은 Spec 03 Task 3.1에서 확장된다.
+
+위치: `api/src/main/resources/application-test.yml`
+
+```yaml
+# 테스트 전용 프로파일 뼈대. securelocal과 독립적이며 인클루드 관계 없음.
+# 활성화: @ActiveProfiles("test") 또는 -Dspring.profiles.active=test
+# 이 파일은 Spec 03 Task 3.1에서 mmt.* 설정과 benchmark baseline이 추가되어 확장됨.
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true   # Task 1.4의 N+1 테스트가 이 설정에 의존
+        format_sql: true
+    show-sql: false  # 로그는 logging.level로 제어
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE  # Hibernate 6.x (Spring Boot 3.x)
+    org.springframework.data.neo4j.cypher: DEBUG
+```
+
+### (4) CI 워크플로우에 테스트 단계 추가
 
 `.github/workflows/api-ci-cd-with-ec2.yml`에 기존 Docker build 이전에 테스트 단계 삽입:
 
@@ -127,6 +153,7 @@ jobs:
 **산출물:**
 - [ ] `api/build.gradle` 업데이트 (Testcontainers BOM + MySQL + Neo4j + JUnit Jupiter)
 - [ ] `api/src/test/java/com/mmt/api/config/TestcontainersConfig.java` 신규 (패키지는 실제 구조에 맞춰)
+- [ ] `api/src/main/resources/application-test.yml` 뼈대 생성 (Spec 03에서 확장)
 - [ ] `.github/workflows/api-ci-cd-with-ec2.yml`에 test 잡 추가
 
 **검증:**
