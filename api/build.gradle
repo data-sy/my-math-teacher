@@ -11,6 +11,10 @@ java {
 	sourceCompatibility = '17'
 }
 
+// Spring Boot 3.1.6 BOM 이 testcontainers 1.18.3 으로 고정하는 것을 override.
+// Docker Desktop 29+ 호환을 위해 1.20.6 사용.
+ext['testcontainers.version'] = '1.20.6'
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -47,6 +51,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.projectlombok:lombok:1.18.26'
+
+	testImplementation 'org.testcontainers:testcontainers'
+	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'org.testcontainers:neo4j'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'io.projectreactor:reactor-test'
 }
 
 tasks.named('bootBuildImage') {
@@ -55,4 +66,9 @@ tasks.named('bootBuildImage') {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// Docker Engine 29+ rejects API versions <= 1.43 with HTTP 400.
+	// docker-java bundled in Testcontainers 1.20.6 defaults lower, so pin
+	// it to 1.45 via both env var and system property to cover both read paths.
+	environment 'DOCKER_API_VERSION', '1.45'
+	systemProperty 'api.version', '1.45'
 }

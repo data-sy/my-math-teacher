@@ -1,0 +1,19 @@
+# 테스트 전용 프로파일 뼈대. securelocal과 독립적이며 인클루드 관계 없음.
+# 활성화: @ActiveProfiles("test") 또는 -Dspring.profiles.active=test
+# 이 파일은 Spec 03 Task 3.1에서 mmt.* 설정과 benchmark baseline이 추가되어 확장됨.
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop   # 테스트 JVM 기동마다 엔티티 기반 스키마 자동 생성
+    properties:
+      hibernate:
+        generate_statistics: true   # Task 1.4의 N+1 테스트가 이 설정에 의존
+        format_sql: true
+    show-sql: false  # 로그는 logging.level로 제어
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE  # Hibernate 6.x (Spring Boot 3.x)
+    org.springframework.data.neo4j.cypher: DEBUG
