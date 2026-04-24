@@ -53,28 +53,14 @@ mmt:
     slow-query-threshold-ms: 100
 ```
 
-### (2) `application-test.yml` 신규 생성
+### (2) `application-test.yml` 확장 (Spec 01 뼈대 위에 추가)
 
-위치: `api/src/main/resources/application-test.yml`
+Spec 01 Task 1.1 (3)에서 이미 `application-test.yml` 뼈대가 생성되어 `hibernate.generate_statistics`·SQL·Cypher 로깅은 포함되어 있다. 이 Task에서는 **기존 파일에 `mmt.benchmark.baseline` 영역만 추가**한다.
+
+위치: `api/src/main/resources/application-test.yml` (수정)
 
 ```yaml
-# 테스트 전용 프로파일. securelocal과 독립적이며 인클루드 관계 없음.
-# 활성화: @ActiveProfiles("test") 또는 -Dspring.profiles.active=test
-
-spring:
-  jpa:
-    properties:
-      hibernate:
-        generate_statistics: true   # Spec 01 Task 1.4의 N+1 테스트가 이 설정에 의존
-        format_sql: true
-    show-sql: false  # 로그는 logging.level로 제어
-
-logging:
-  level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE  # Hibernate 6.x (Spring Boot 3.x)
-    # Hibernate 5.x라면: org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.data.neo4j.cypher: DEBUG
+# 아래 블록을 기존 application-test.yml 하단에 이어붙임
 
 mmt:
   benchmark:
@@ -83,6 +69,8 @@ mmt:
       # 예: find-results-ms: 42
       # 예: depth3-traversal-ms: 18
 ```
+
+(공통 `mmt.migration.*`, `mmt.observability.*`는 (1)에서 `application.yml`에 추가된다. test 프로파일은 그 기본값을 상속하므로 여기서 중복 선언 불필요.)
 
 ### (3) 활성화 확인
 
@@ -109,7 +97,7 @@ class FeatureFlagIntegrationTest {
 
 **산출물:**
 - [ ] `application.yml`에 `mmt.migration.*`, `mmt.observability.*` 추가
-- [ ] `application-test.yml` 신규 생성
+- [ ] `application-test.yml`에 `mmt.benchmark.baseline` 영역 추가 (뼈대는 Spec 01 Task 1.1 (3)에서 생성됨)
 - [ ] `FeatureFlagIntegrationTest` 신규 작성
 
 **검증:**
