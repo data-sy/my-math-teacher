@@ -37,6 +37,11 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// M1 Spec 03 Task 3.4: 리포지토리 쿼리 시간 측정용 AOP + Micrometer.
+	// Actuator 미도입 상태이므로 MeterRegistry 는 ObservabilityConfig 에서 수동 등록.
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'io.micrometer:micrometer-core'
+
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	compileOnly 'org.projectlombok:lombok'
