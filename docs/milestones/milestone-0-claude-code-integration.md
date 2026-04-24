@@ -83,6 +83,6 @@ mmt/
 
 ## 이후 마일스톤과의 관계
 
-- **Milestone 1 (테스트 인프라)** — 이 마일스톤에서 만든 `api/CLAUDE.md`의 테스트 컨벤션 위에서 Testcontainers·성능 기준선 작업이 진행됨. Analyze-Before-Change 패턴이 build.gradle 수정 시 적용됨.
+- **Milestone 1 (테스트 인프라)** — 이 마일스톤에서 만든 `api/CLAUDE.md`의 테스트 컨벤션 위에서 Testcontainers·성능 기준선 작업이 진행됨. Analyze-Before-Change 패턴이 의존성·빌드 설정 변경(`build.gradle` 등)에도 적용되는지는 Milestone 1에서 명시적으로 정의.
 - **Milestone 2 (Neo4j → MySQL 마이그레이션)** — 피처 플래그 구조와 마이그레이션 규칙이 루트 CLAUDE.md에 선언되어 있어야 함. 슬래시 커맨드 `/analyze-before-change`가 그래프 쿼리 리팩토링의 진입점.
 - **Epic: JdbcTemplate → JPA 전환** — `api/CLAUDE.md`의 영속성 레이어 컨벤션이 전환 기준이 됨.

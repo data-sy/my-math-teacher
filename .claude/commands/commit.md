@@ -4,8 +4,12 @@ description: Analyze current changes and create a commit with a conventional mes
 
 Analyze all current changes using `git status` and `git diff` (including untracked files).
 
+> **Note:** This command stages everything with `git add -A`. If you want to commit only pre-staged changes (safer when sensitive or unrelated files might be present), use `/commit-staged` instead.
+
 **1. Staging:**
-- Stage all changes: `git add -A`
+- First inspect untracked files with `git status --short` and verify none contain credentials, local config, or unrelated work.
+- If any sensitive/unrelated file is present, STOP and ask the user — do NOT fall back to `git add -A`.
+- Otherwise stage all changes: `git add -A`
 
 **2. Analysis:**
 - Review staged changes: `git diff --cached --stat` and `git diff --cached`

@@ -50,7 +50,7 @@
 - 기존 JdbcTemplate 코드 수정 시:
   - 단순 수정은 현행 유지 (불필요한 전환 금지)
   - 구조적 변경이 필요하면 JPA 전환을 함께 제안하되 반드시 ADR 작성 (`docs/adr/`)
-- 현재 JPA·JdbcTemplate 병행 예시: `repository/concept/`에 `ConceptRepository`(JPA)와 `JdbcTemplateConceptRepository` 공존
+- 현재 `repository/concept/`에는 `ConceptRepository`(Spring Data Neo4j Reactive, 그래프 탐색용)와 `JdbcTemplateConceptRepository`(MySQL `concepts`/`chapters` 조회용)가 공존 — JPA 리포지토리는 아직 이 패키지에 없으며, JPA 전환은 Epic: JdbcTemplate → JPA 전환의 대상
 - 배치 삽입은 `BatchPreparedStatementSetter` 또는 JPA `batch_size` 설정 사용
 - Neo4j 쿼리는 Milestone 2에서 MySQL로 단계적 이전 예정 — 신규 그래프 쿼리 추가 전 로드맵 확인
 
@@ -72,7 +72,7 @@
 
 ## ADR 참조
 
-아키텍처·영속성·마이그레이션 관련 의사결정은 `docs/adr/`에 기록한다 (현재 비어있음; 템플릿은 추후 Milestone 0 Spec 03에서 정비).
+아키텍처·영속성·마이그레이션 관련 의사결정은 `docs/adr/`에 기록한다. 템플릿: `docs/adr/_template.md`. 새 ADR은 `/write-adr` 슬래시 커맨드로 생성.
 
 ## 보안
 
