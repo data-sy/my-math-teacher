@@ -17,3 +17,13 @@ logging:
         data:
           neo4j: DEBUG
         security: DEBUG
+
+# M1 Spec 03 Task 3.1: 피처 플래그 및 관측성 설정 (공통 기본값).
+# 모든 프로파일이 상속. 프로파일별 오버라이드는 application-<profile>.yml 에서.
+mmt:
+  migration:
+    use-mysql-cte-for-graph: false   # M2 에서 true 로 전환
+    use-jpa-for-tests: false         # JPA 전환 Epic 에서 사용
+    use-jpa-for-concepts: false      # JPA 전환 Epic 에서 사용
+  observability:
+    slow-query-threshold-ms: 100

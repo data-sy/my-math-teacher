@@ -17,3 +17,12 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE  # Hibernate 6.x (Spring Boot 3.x)
     org.springframework.data.neo4j.cypher: DEBUG
+
+# M1 Spec 03 Task 3.1: Spec 02 Task 2.2 실측 기준선 주입.
+# 현재는 참조용 (회귀 테스트는 각 테스트 클래스의 BASELINE_* 상수 하드코딩 사용).
+# 후속 작업에서 @Value("${mmt.benchmark.baseline.*}") 로 주입 전환 예정.
+mmt:
+  benchmark:
+    baseline:
+      find-results-ms: 3         # RepositoryBenchmarkTest 실측 avg 1.495ms → ceiling 버퍼 3ms
+      depth3-traversal-ms: 6     # GraphQueryPerformanceTest 실측 avg 5.392ms → ceiling 버퍼 6ms
