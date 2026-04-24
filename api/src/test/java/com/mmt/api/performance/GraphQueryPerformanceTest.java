@@ -1,5 +1,6 @@
 package com.mmt.api.performance;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mmt.api.config.TestcontainersConfig;
 import com.mmt.api.domain.Concept;
 import com.mmt.api.repository.concept.ConceptRepository;
@@ -13,9 +14,21 @@ import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
 import org.springframework.context.annotation.Import;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.IntConsumer;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * M1 Spec 02 Task 2.1: Neo4j 그래프 쿼리 성능 기준선 측정.
@@ -46,6 +59,12 @@ class GraphQueryPerformanceTest {
 
     private static final int WARMUP_RUNS = 3;
     private static final int MEASURED_RUNS = 100;  // p99 산출을 위해 100 회 필수
+
+    // Task 2.2 회귀 감지 기준선 (ms) — 2026-04-24 측정 실측 avg 기반.
+    // 허용 배수 1.5 는 단일 JVM 내 GC/warmup 변동성 흡수 목적.
+    // 기준선 갱신 시 docs/benchmark/milestone-1-baseline.md 와 동기화.
+    private static final long BASELINE_DEPTH3_AVG_MS = 6L;   // 실측 5.392ms
+    private static final double ALLOWED_REGRESSION = 1.5;
 
     @Autowired
     private ConceptRepository conceptRepository;
@@ -165,5 +184,77 @@ class GraphQueryPerformanceTest {
             nanos[i] = System.nanoTime() - start;
         }
         BenchmarkStats.report(label + " (conceptId=" + conceptId + ")", nanos);
+    }
+
+    // Task 2.2: M2 마이그레이션 후 결과 동치성 비교용 JSON 스냅샷.
+    // shared/benchmark/ 에 날짜 기반 파일명으로 저장. 해시 기준으로 MySQL CTE 결과 대조 가능.
+    @Test
+    void exportNeo4jResultsSnapshot() throws Exception {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        for (Integer conceptId : topConceptIds) {
+            for (int depth : List.of(2, 3, 5)) {
+                List<Integer> results = callByDepth(conceptId, depth);
+                Collections.sort(results);
+
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("count", results.size());
+                entry.put("concept_ids", results);
+                entry.put("sha256", sha256(results.toString()));
+
+                String key = "conceptId=" + conceptId + ",depth=" + depth;
+                snapshot.put(key, entry);
+            }
+        }
+        snapshot.put("generated_at", Instant.now().toString());
+        snapshot.put("git_commit", System.getenv().getOrDefault("GIT_COMMIT", "unknown"));
+        snapshot.put("representative_id", representativeId);
+
+        Path outDir = Paths.get("../shared/benchmark").toAbsolutePath().normalize();
+        Files.createDirectories(outDir);
+        Path outFile = outDir.resolve(
+            "neo4j-snapshot-" + LocalDate.now().toString().replace("-", "") + ".json");
+        String json = new ObjectMapper().writerWithDefaultPrettyPrinter()
+            .writeValueAsString(snapshot);
+        Files.writeString(outFile, json);
+        System.out.printf("[Snapshot] wrote %s (%d bytes, %d entries)%n",
+            outFile, json.length(), topConceptIds.size() * 3);
+    }
+
+    private List<Integer> callByDepth(int conceptId, int depth) {
+        return switch (depth) {
+            case 2 -> conceptRepository.findNodesIdByConceptIdDepth2(conceptId).collectList().block();
+            case 3 -> conceptRepository.findNodesIdByConceptIdDepth3(conceptId).collectList().block();
+            case 5 -> conceptRepository.findNodesIdByConceptIdDepth5(conceptId).collectList().block();
+            default -> throw new IllegalArgumentException("unsupported depth=" + depth);
+        };
+    }
+
+    private static String sha256(String input) throws Exception {
+        byte[] hash = MessageDigest.getInstance("SHA-256").digest(input.getBytes());
+        StringBuilder sb = new StringBuilder(hash.length * 2);
+        for (byte b : hash) sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
+
+    // Task 2.2: 회귀 감지 테스트 — warmup 20 + 측정 30 회의 p50 (median) 이 ceiling 미만이어야 함.
+    // median 을 쓰는 이유: isolated 실행 시 cold JVM 의 첫 몇 회가 크게 튀어 avg 가 오염됨.
+    // warmup 20 은 Reactor + Neo4j driver 파이프라인 JIT 컴파일이 수렴할 때까지 필요.
+    @Test
+    void shouldNotRegressDepth3GraphTraversal() {
+        for (int i = 0; i < 20; i++) {
+            conceptRepository.findNodesIdByConceptIdDepth3(representativeId).collectList().block();
+        }
+        long[] nanos = new long[30];
+        for (int i = 0; i < nanos.length; i++) {
+            long start = System.nanoTime();
+            conceptRepository.findNodesIdByConceptIdDepth3(representativeId).collectList().block();
+            nanos[i] = System.nanoTime() - start;
+        }
+        Arrays.sort(nanos);
+        long medianMs = nanos[nanos.length / 2] / 1_000_000;
+        long ceilingMs = (long) (BASELINE_DEPTH3_AVG_MS * ALLOWED_REGRESSION);
+        System.out.printf("[Regression] depth3 median=%dms baseline=%dms ceiling=%dms%n",
+            medianMs, BASELINE_DEPTH3_AVG_MS, ceilingMs);
+        assertThat(medianMs).isLessThan(ceilingMs);
     }
 }

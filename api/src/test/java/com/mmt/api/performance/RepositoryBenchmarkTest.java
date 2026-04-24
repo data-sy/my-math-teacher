@@ -18,7 +18,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * M1 Spec 02 Task 2.1: MySQL 리포지토리 성능 기준선 측정.
@@ -54,6 +57,12 @@ class RepositoryBenchmarkTest {
     private static final long FIND_RESULTS_USER_TEST_ID = 1L;
     private static final long FIND_RESULTS_ANSWER_ID = 1L;
     private static final long BATCH_INSERT_ANSWER_ID = 2L;
+
+    // Task 2.2 회귀 감지 기준선 (ms) — 2026-04-24 측정 실측 avg 기반.
+    // 실측 avg 1.495ms 이지만 integer 반올림 · JIT 재컴파일 변동을 고려해 기준선 3ms.
+    // 허용 배수 1.5 → ceiling 4ms. ~2.5x 실측 이상의 퇴행만 감지한다.
+    private static final long BASELINE_FIND_RESULTS_AVG_MS = 3L;
+    private static final double ALLOWED_REGRESSION = 1.5;
 
     @Autowired
     private ProbabilityRepository probabilityRepository;
@@ -226,5 +235,26 @@ class RepositoryBenchmarkTest {
             nanos[i] = System.nanoTime() - start;
         }
         BenchmarkStats.report("batchInsert100Probabilities", nanos);
+    }
+
+    // Task 2.2: 회귀 감지 테스트 — warmup 20 + 측정 30 회의 p50 (median) 이 ceiling 미만이어야 함.
+    // 참고: GraphQueryPerformanceTest#shouldNotRegressDepth3GraphTraversal 과 동일한 방법론.
+    @Test
+    void shouldNotRegressFindResultsPerformance() {
+        for (int i = 0; i < 20; i++) {
+            probabilityRepository.findResults(FIND_RESULTS_USER_TEST_ID);
+        }
+        long[] nanos = new long[30];
+        for (int i = 0; i < nanos.length; i++) {
+            long start = System.nanoTime();
+            probabilityRepository.findResults(FIND_RESULTS_USER_TEST_ID);
+            nanos[i] = System.nanoTime() - start;
+        }
+        Arrays.sort(nanos);
+        long medianMs = nanos[nanos.length / 2] / 1_000_000;
+        long ceilingMs = (long) (BASELINE_FIND_RESULTS_AVG_MS * ALLOWED_REGRESSION);
+        System.out.printf("[Regression] findResults median=%dms baseline=%dms ceiling=%dms%n",
+            medianMs, BASELINE_FIND_RESULTS_AVG_MS, ceilingMs);
+        assertThat(medianMs).isLessThan(ceilingMs);
     }
 }
