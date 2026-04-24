@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew test*)",
+      "Bash(./gradlew build)",
+      "Bash(./gradlew compileJava*)",
+      "Bash(cd api && ./gradlew*)",
+      "Bash(npm run dev*)",
+      "Bash(npm run build*)",
+      "Bash(npm run lint*)",
+      "Bash(cd web && npm*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git status)",
+      "Bash(git check-ignore*)",
+      "Bash(docker compose ps)",
+      "Bash(docker compose logs*)"
+    ],
+    "deny": [
+      "Bash(./gradlew clean)",
+      "Bash(rm -rf*)",
+      "Bash(git push --force*)",
+      "Bash(docker compose down -v*)"
+    ]
+  }
+}
