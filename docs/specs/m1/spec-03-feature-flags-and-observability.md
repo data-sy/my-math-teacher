@@ -302,15 +302,32 @@ cd api && ./gradlew test --tests "*N1Test"
 
 **작업 내용:**
 
-### (1) AOP 의존성 추가
+### (1) AOP 의존성 및 MeterRegistry Bean 구성
+
+build.gradle에 AOP + Micrometer Core 의존성 추가:
 
 ```gradle
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
-    // Micrometer는 Spring Boot Actuator에 포함됨. 이미 있다면 스킵
     implementation 'io.micrometer:micrometer-core'
 }
 ```
+
+Actuator를 도입하지 않으므로 `MeterRegistry`는 자동 등록되지 않는다. 현재 용도(Aspect 내 Timer)에 맞춰 `SimpleMeterRegistry`를 수동 Bean으로 등록한다:
+
+```java
+// api/src/main/java/com/mmt/api/config/ObservabilityConfig.java (실제 패키지 구조에 맞춰)
+@Configuration
+public class ObservabilityConfig {
+
+    @Bean
+    public MeterRegistry meterRegistry() {
+        return new SimpleMeterRegistry();
+    }
+}
+```
+
+추후 Prometheus·Grafana 연동이 로드맵으로 진입하면 `spring-boot-starter-actuator`로 승급하고 이 Bean은 제거한다.
 
 ### (2) Aspect 클래스 작성
 
@@ -384,7 +401,8 @@ class QueryTimingAspectTest {
 ```
 
 **산출물:**
-- [ ] `spring-boot-starter-aop` 의존성 추가
+- [ ] `spring-boot-starter-aop` + `io.micrometer:micrometer-core` 의존성 추가
+- [ ] `ObservabilityConfig` (`SimpleMeterRegistry` Bean 수동 등록)
 - [ ] `QueryTimingAspect` 클래스
 - [ ] `QueryTimingAspectTest`
 
