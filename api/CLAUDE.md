@@ -44,6 +44,15 @@
   - **item** — 문제
   - **test / userTest** — 진단 테스트, 응시 이력, 답안
 
+## 주요 도메인 객체 및 유틸 (M1에서 확인됨)
+
+- `ConceptRepository`: Neo4j Reactive (`ReactiveNeo4jRepository<Concept, Integer>`)
+- `ConceptService` 생성자 주입 4종: `ConceptRepository` + `KnowledgeSpaceRepository` + `JdbcTemplateConceptRepository` + `Optional<MysqlConceptRepository>` (피처 플래그 `mmt.migration.use-mysql-cte-for-graph=true` 시에만 bean 등록되는 스텁)
+- `ConceptService` 그래프 메서드: `findNodesByConceptId`, `findNodesIdByConceptIdDepth2`, `findNodesIdByConceptIdDepth3`, `findNodesIdByConceptIdDepth5`, `findToConcepts`
+- `LogicUtil.bfs(int start, List<Integer> integerList)`: `Map<Integer, Integer>` 반환 (시작 노드로부터 거리 맵)
+- `ProbabilityService`의 `.block()` 호출 위치: `createAndPredict` 류 메서드 (`ProbabilityService.java:66` 근방)
+- Neo4j 컨테이너 이미지: `mymathteacher/mmt-neo4j:1.0.0` (커스텀 빌드, 기반 Neo4j 버전은 별도 확인 필요)
+
 ## 영속성 레이어 규칙
 
 - **신규 리포지토리는 JPA 사용** (JdbcTemplate 금지)
@@ -63,12 +72,32 @@
 - N+1 쿼리 가능성이 있는 변경은 `QueryCountAssertions`로 검증
 - 테스트 없이 리포지토리 로직을 변경하지 말 것 — 최소 단위 테스트 동반
 
+## 테스트 인프라 (M1 산출물)
+
+- 테스트 프로파일: `application-test.yml` (`@ActiveProfiles("test")` 또는 `-Dspring.profiles.active=test`로 활성화). `securelocal` 프로파일과 독립적이며 인클루드 관계 없음
+- Testcontainers 설정: `src/test/java/.../config/TestcontainersConfig.java` (MySQL 8.0 + Neo4j)
+- N+1 쿼리 감지: Hibernate `Statistics` API 직접 사용. 별도 유틸 없음
+- 성능 기준선 보고서: `docs/benchmark/milestone-1-baseline.md`
+- 그래프 결과 스냅샷: `shared/benchmark/neo4j-snapshot-*.json` (sha256 해시 포함, M2 동치성 검증용)
+- 쿼리 시간 측정: `QueryTimingAspect` (Micrometer Timer 기반)
+- N+1 회귀 테스트 위치: `src/test/java/.../*N1Test.java`
+
 ## 마이그레이션 규칙
 
 - 스키마 변경·쿼리 구조 변경은 **Analyze-Before-Change 필수** (`/analyze-before-change`)
 - 가능하면 피처 플래그로 구버전·신버전 병행 가능한 구조 우선
 - 롤백 시나리오가 없는 마이그레이션은 금지
 - 프로덕션 반영 전 `application-securelocal.yml`로 로컬 검증 — 자격증명 파일은 절대 커밋 금지
+
+## 피처 플래그 컨벤션 (M1에서 확정)
+
+신규 피처 플래그는 `mmt.<영역>.<설정>` 2단계 구조를 따른다:
+
+- `mmt.migration.*` — 마이그레이션 관련 (예: `use-mysql-cte-for-graph`, `use-jpa-for-tests`)
+- `mmt.observability.*` — 관측성 설정 (예: `slow-query-threshold-ms`)
+- `mmt.benchmark.baseline.*` — 벤치마크 기준선 값 (실측 후 주입)
+
+새 영역 추가 시 ADR로 기록한 뒤 본 섹션에 영역명 추가.
 
 ## ADR 참조
 
