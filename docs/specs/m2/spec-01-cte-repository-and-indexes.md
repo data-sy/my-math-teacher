@@ -21,20 +21,21 @@
 
 ### ConceptService ↔ ConceptRepository ↔ CTE 매핑 표
 
-ConceptService(5개 그래프 메서드)와 ConceptRepository(6개 Cypher 그래프 메서드)의 매핑, 그리고 본 spec에서 도입할 CTE 메서드의 매핑:
+ConceptService(5개 그래프 메서드)와 ConceptRepository(6개 Cypher 그래프 메서드)의 매핑. 본 spec(spec-01)은 **ID 반환 메서드 한정**이고, 객체 반환은 spec-02에서 ADR 0006의 JOIN 패턴으로 처리:
 
-| ConceptService (5) | ConceptRepository (6) | 깊이 | 반환 타입 | CTE 호출 형태 |
+| ConceptService (5) | ConceptRepository (6) | 깊이 | 반환 타입 | 처리 spec |
 |---|---|---|---|---|
-| `findNodesByConceptId` (초등) | `findNodesByConceptIdDepth3` | 3 | `Flux<Concept>` | `findPrerequisiteConcepts(?, 3)` (객체 반환, RowMapper) |
-| `findNodesByConceptId` (그 외) | `findNodesByConceptIdDepth5` | 5 | `Flux<Concept>` | `findPrerequisiteConcepts(?, 5)` (객체 반환, RowMapper) |
-| `findNodesIdByConceptIdDepth2` | `findNodesIdByConceptIdDepth2` | 2 | `Flux<Integer>` | `findPrerequisiteConceptIds(?, 2)` |
-| `findNodesIdByConceptIdDepth3` | `findNodesIdByConceptIdDepth3` | 3 | `Flux<Integer>` | `findPrerequisiteConceptIds(?, 3)` |
-| `findNodesIdByConceptIdDepth5` | `findNodesIdByConceptIdDepth5` | 5 | `Flux<Integer>` | `findPrerequisiteConceptIds(?, 5)` |
-| `findToConcepts` | `findToConceptsByConceptId` | 1 | `Flux<Concept>` | `findPrerequisiteConcepts(?, 1)` (ADR 0003에 따라 깊이 1 == 직접 선수) |
+| `findNodesByConceptId` (초등) | `findNodesByConceptIdDepth3` | 3 | `Flux<Concept>` | spec-02 (ADR 0006) |
+| `findNodesByConceptId` (그 외) | `findNodesByConceptIdDepth5` | 5 | `Flux<Concept>` | spec-02 (ADR 0006) |
+| `findNodesIdByConceptIdDepth2` | `findNodesIdByConceptIdDepth2` | 2 | `Flux<Integer>` | **spec-01** — `findPrerequisiteConceptIds(?, 2)` |
+| `findNodesIdByConceptIdDepth3` | `findNodesIdByConceptIdDepth3` | 3 | `Flux<Integer>` | **spec-01** — `findPrerequisiteConceptIds(?, 3)` |
+| `findNodesIdByConceptIdDepth5` | `findNodesIdByConceptIdDepth5` | 5 | `Flux<Integer>` | **spec-01** — `findPrerequisiteConceptIds(?, 5)` |
+| `findToConcepts` | `findToConceptsByConceptId` | 1 | `Flux<Concept>` | spec-02 (ADR 0006, ADR 0003에 따라 깊이 1 == 직접 선수) |
 
-본 spec은 위 매핑에 따라 **두 CTE 메서드**를 신규 도입한다:
-- `findPrerequisiteConceptIds(int conceptId, int maxDepth)` — `List<Integer>` 반환 (ID만)
-- `findPrerequisiteConcepts(int conceptId, int maxDepth)` — `List<Concept>` 반환 (객체 전체, `RowMapper<Concept>` 사용)
+본 spec은 위 매핑 중 **ID 반환 3 row**에 대응하는 단일 CTE 메서드를 도입한다:
+- `findPrerequisiteConceptIds(int conceptId, int maxDepth)` — `List<Integer>` 반환
+
+객체 반환 메서드(`findPrerequisiteConcepts`) + `RowMapper<Concept>` 매핑은 spec-02에서 ADR 0006의 `concepts JOIN chapters` 패턴으로 처리.
 
 ---
 
@@ -90,17 +91,15 @@ SELECT DISTINCT concept_id FROM prerequisite_path
 
 ### 메서드 시그니처
 
-`MysqlConceptRepository`(M1 도입)에 다음 두 메서드를 신규 추가한다:
+`MysqlConceptRepository`(M1 도입)는 이미 다음 메서드를 인터페이스에 정의해두었다:
 
 ```java
-// ID만 반환 (findNodesIdByConceptIdDepth* 대체)
 public List<Integer> findPrerequisiteConceptIds(int conceptId, int maxDepth);
-
-// 객체 전체 반환 (findNodesByConceptIdDepth*, findToConceptsByConceptId 대체)
-public List<Concept> findPrerequisiteConcepts(int conceptId, int maxDepth);
 ```
 
-명명 패턴 결정: 기존 `find{무엇}By{기준}` 컨벤션을 변형하되 "선수(prerequisite)" 도메인 의미를 명시. M1 시범 코드(`ConceptService.java:73-80`)가 이미 `findPrerequisiteConceptIds(int, int)` 사용 중이므로 그 시그니처를 그대로 보존하고, 객체 반환용으로 `findPrerequisiteConcepts`를 페어 도입한다.
+본 spec은 이 메서드의 **실제 CTE 구현**을 작성한다. 현재 `MysqlConceptRepositoryStub`이 `UnsupportedOperationException`을 던지는 형태로 등록되어 있으니 이를 신규 구현 클래스로 대체한다.
+
+객체 반환 메서드(`findPrerequisiteConcepts`)는 spec-02에서 ADR 0006의 `concepts JOIN chapters` 패턴으로 추가한다.
 
 ---
 
@@ -157,49 +156,26 @@ SET SESSION cte_max_recursion_depth = 10;
 테스트 위치: `api/src/test/java/com/mmt/api/repository/concept/MysqlConceptRepositoryCteTest.java`
 사용 인프라: M1의 Testcontainers MySQL + `application-test.yml` (ADR 0002 §2)
 
-테스트 케이스 (두 메서드 모두):
+테스트 케이스 (`findPrerequisiteConceptIds` 한정):
 
 - 단일 conceptId, depth 0 → 자기 자신 1개만 반환
 - depth 1 → 직접 선수 개념만 (자기 자신 포함)
 - depth N → N 단계 이내 모든 선수 개념
 - 존재하지 않는 conceptId → 빈 리스트
 - 깊이 매개변수가 음수 → IllegalArgumentException 또는 빈 리스트 (정책 결정 필요)
-- `findPrerequisiteConcepts`(객체 반환) — `RowMapper<Concept>` 매핑 결과가 `concept_id`/`concept_name`/`concept_chapter_id` 등 모든 필드를 채우는지 확인
+- 다중 경로(같은 conceptId가 여러 깊이로 도달 가능) → DISTINCT로 중복 제거됨
 
 [검증 필요] 데이터에 순환 참조 존재 여부. 존재한다면 CTE는 `cte_max_recursion_depth`에 도달할 때까지 무한히 노드를 누적하므로 정확성 검증 케이스 추가 필수.
 
+객체 반환 메서드(`findPrerequisiteConcepts`)의 단위 테스트는 spec-02에서 추가.
+
 ---
 
-## Task 1.6 — Concept 엔티티의 MySQL 호환 매핑
+## Task 1.6 — (이전: Concept 엔티티 매핑) — spec-02로 이전됨
 
-`Concept.java:9`는 `@Node("concept")` Neo4j 어노테이션을 사용한다. `findPrerequisiteConcepts`가 `List<Concept>`를 반환하려면 MySQL의 `concepts` 테이블 row를 `Concept` 객체로 매핑할 수 있어야 한다.
+본 task는 객체 반환 메서드(`findPrerequisiteConcepts`)를 위한 `RowMapper<Concept>` 도입을 다뤘으나, 본 spec은 ID 반환 한정이므로 **spec-02로 이전**한다.
 
-### 결정 사항 (본 spec 진행 시)
-
-두 옵션 중 채택:
-
-- **(A) 기존 `Concept` 클래스에 RowMapper 한정 매핑만 추가** — `@Node` 어노테이션은 그대로 두고, `MysqlConceptRepository` 내부에 `private RowMapper<Concept> conceptRowMapper()`만 정의. Neo4j 컨테이너 폐기(spec-03 Task 5.3) 시 `@Node` 제거하면 자연 정리.
-- **(B) MySQL 전용 도메인을 별도 클래스로 신규 도입** — `Concept`은 Neo4j 전용으로 두고 `ConceptRow` 같은 별도 클래스 신설. 변환 boilerplate 추가 부담.
-
-권장: (A). M2 기간(Neo4j와 CTE 공존)에 도메인 클래스를 두 개 운영하는 부담을 피하고, `@Node`는 spec-03 Task 5.3에서 일괄 제거.
-
-### RowMapper 위치
-
-`MysqlConceptRepository` 내부 private 메서드로 정의 (외부 노출 불필요).
-
-```java
-private RowMapper<Concept> conceptRowMapper() {
-    return (rs, rowNum) -> {
-        Concept c = new Concept();
-        c.setConceptId(rs.getInt("concept_id"));
-        c.setConceptName(rs.getString("concept_name"));
-        // ... concepts 테이블의 모든 컬럼 매핑
-        return c;
-    };
-}
-```
-
-[검증 필요] `concepts` 테이블 컬럼 전체 목록과 `Concept` 클래스의 setter 가용성 — 본 task 시작 시 `api/sql/create.sql`의 `concepts` DDL과 `Concept.java` 필드를 1:1 비교.
+매핑 정책은 ADR 0006(`concepts JOIN chapters` 패턴, conceptSection 매핑 생략, `Concept` 어노테이션은 spec-03 Task 5.3에서 일괄 정리)으로 확정. spec-02 Task 3.1에서 ConceptResponse 변환 분기와 함께 도입.
 
 ---
 
@@ -213,11 +189,11 @@ private RowMapper<Concept> conceptRowMapper() {
 
 ## 완료 기준
 
-- [ ] CTE 통합 메서드 2개 도입: `findPrerequisiteConceptIds(int, int)` + `findPrerequisiteConcepts(int, int)` (편의 메서드 미도입 결정 — Task 1.2)
-- [ ] `RowMapper<Concept>` 매핑 도입 (Task 1.6)
+- [ ] CTE 통합 메서드 1개 도입: `findPrerequisiteConceptIds(int, int)` — Stub을 실제 구현으로 대체 (편의 메서드 미도입 — Task 1.2)
 - [ ] 인덱스 3종 적용 (또는 기존재 시 검증 결과를 PR 설명에 명시)
 - [ ] `cte_max_recursion_depth` 설정 적용 위치 결정 및 반영
-- [ ] 단위 테스트 모두 통과 (Testcontainers 기반, ID/객체 반환 모두 커버)
+- [ ] 단위 테스트 모두 통과 (Testcontainers 기반, ID 반환 메서드 한정)
+- [ ] 기존 `ConceptServiceFeatureFlagTest` 갱신 (Stub의 `UnsupportedOperationException` 검증을 실제 구현 동작 검증으로)
 - [ ] `EXPLAIN` 결과 PR 설명에 첨부
 - [ ] PR 설명에 ADR 0002 §3(Hibernate Statistics는 JPA 한정 — 본 spec은 JdbcTemplate이므로 비대상) 명시
 - [ ] PR 설명에 ADR 0003(방향성 결정) 인용
@@ -227,6 +203,8 @@ private RowMapper<Concept> conceptRowMapper() {
 
 ## 비범위 (다른 spec에서 처리)
 
+- 객체 반환 그래프 메서드(`findNodesByConceptId`, `findToConcepts` 등) → spec-02 (ADR 0006의 `concepts JOIN chapters` 매핑 패턴 적용)
+- `RowMapper<Concept>` 도입 → spec-02
 - ConceptService 통합 → spec-02
 - 캐싱 적용 → spec-02
 - 피처 플래그 분기 → spec-02
