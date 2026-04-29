@@ -56,7 +56,7 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 ## 현재 활성 작업
 
 - [Roadmap](docs/roadmap.md)
-- 현재 진행 중: @docs/milestones/milestone-0-claude-code-integration.md
+- 현재 진행 중: M2 — Neo4j → MySQL CTE 마이그레이션 (마일스톤 문서 작성 예정)
 
 ## 금지 사항
 
