@@ -1,6 +1,12 @@
 spring:
   profiles:
     include: securelocal
+  datasource:
+    hikari:
+      # M2 Spec 01 Task 1.4: 재귀 CTE 의 무한 루프 안전망.
+      # 마이그레이션 의도상 최대 깊이는 5 이지만 데이터 이상 시 빠르게 차단되도록 10 으로 고정.
+      # 모든 커넥션이 SET SESSION 으로 동일 값을 적용받아 운영 측 영향 없음.
+      connection-init-sql: SET SESSION cte_max_recursion_depth = 10
   jpa:
     hibernate:
       ddl-auto: none
