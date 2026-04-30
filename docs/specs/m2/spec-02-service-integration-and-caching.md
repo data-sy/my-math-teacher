@@ -76,7 +76,9 @@ public class ConceptService {
 
     private final RedisUtil redisUtil;
     private final Optional<MysqlConceptRepository> mysqlConceptRepository;
-    private static final long TTL_24H = Duration.ofHours(24).toSeconds();
+    // RedisUtil.set(key, o, duration) 의 duration 은 MILLISECONDS 단위 (TimeUnit.MILLISECONDS).
+    // toSeconds() 사용 시 86.4초만 캐싱되어 의도(24h)와 불일치.
+    private static final long TTL_24H = Duration.ofHours(24).toMillis();
 
     @Value("${mmt.migration.use-mysql-cte-for-graph:false}")
     private boolean useMysqlCte;
