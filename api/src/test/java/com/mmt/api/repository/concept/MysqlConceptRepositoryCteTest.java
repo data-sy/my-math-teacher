@@ -13,6 +13,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -94,5 +97,70 @@ class MysqlConceptRepositoryCteTest {
         assertThatThrownBy(() -> repository.findPrerequisiteConceptIds(10, -1))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("maxDepth");
+    }
+
+    /**
+     * 인덱스 등록 + 재귀 CTE 의 옵티마이저 인식 회귀 보호.
+     *
+     * 작은 단위 테스트 시드에서는 옵티마이저가 인덱스를 실제로 선택하지 않을 수 있다 (full
+     * scan 이 더 싸다고 판단). 따라서 EXPLAIN 의 {@code key} 컬럼이 NULL 일 수 있으나,
+     * {@code possible_keys} 에는 의도한 인덱스가 잡혀야 한다. production 통계 하의 실제
+     * 선택은 spec-03 Task 4.2 부하 테스트에서 다시 확인.
+     *
+     * 결과 dump 는 stdout 으로 출력 — PR 본문 첨부용.
+     */
+    @Test
+    void cteRecursiveQueryUsesExpectedIndexes() {
+        // 1) SHOW INDEX 로 정의 확인
+        List<Map<String, Object>> indexes = jdbcTemplate.queryForList(
+            "SHOW INDEX FROM knowledge_space");
+        Set<String> keyNames = indexes.stream()
+            .map(row -> (String) row.get("Key_name"))
+            .collect(Collectors.toSet());
+        assertThat(keyNames).contains(
+            "idx_knowledge_space_from",
+            "idx_knowledge_space_to",
+            "idx_knowledge_space_composite");
+
+        System.out.println("=== SHOW INDEX FROM knowledge_space ===");
+        indexes.forEach(row ->
+            System.out.println("  " + row.get("Key_name") + " on " + row.get("Column_name")
+                + " (seq=" + row.get("Seq_in_index") + ")"));
+
+        // 2) EXPLAIN possible_keys 에 의도한 인덱스가 잡혀야 함
+        List<Map<String, Object>> explain = jdbcTemplate.queryForList("""
+            EXPLAIN
+            WITH RECURSIVE prerequisite_path AS (
+                SELECT concept_id, 0 AS depth
+                FROM concepts WHERE concept_id = 10
+
+                UNION ALL
+
+                SELECT c.concept_id, pp.depth + 1
+                FROM prerequisite_path pp
+                JOIN knowledge_space ks ON pp.concept_id = ks.to_concept_id
+                JOIN concepts         c ON ks.from_concept_id = c.concept_id
+                WHERE pp.depth < 5
+            )
+            SELECT DISTINCT concept_id FROM prerequisite_path
+            """);
+
+        boolean possibleKeysHasKnowledgeSpaceIndex = explain.stream()
+            .map(row -> (String) row.get("possible_keys"))
+            .filter(pk -> pk != null)
+            .anyMatch(pk -> pk.contains("idx_knowledge_space"));
+        assertThat(possibleKeysHasKnowledgeSpaceIndex)
+            .as("EXPLAIN possible_keys should reference idx_knowledge_space_*")
+            .isTrue();
+
+        System.out.println("=== EXPLAIN WITH RECURSIVE (start=10, maxDepth=5) ===");
+        explain.forEach(row ->
+            System.out.println("  id=" + row.get("id")
+                + " select_type=" + row.get("select_type")
+                + " table=" + row.get("table")
+                + " type=" + row.get("type")
+                + " possible_keys=" + row.get("possible_keys")
+                + " key=" + row.get("key")
+                + " rows=" + row.get("rows")));
     }
 }
