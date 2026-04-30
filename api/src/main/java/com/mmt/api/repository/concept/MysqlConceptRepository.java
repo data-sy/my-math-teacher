@@ -1,5 +1,7 @@
 package com.mmt.api.repository.concept;
 
+import com.mmt.api.domain.Concept;
+
 import java.util.List;
 
 /**
@@ -7,12 +9,10 @@ import java.util.List;
  *
  * - M1 Spec 03 Task 3.2: 인터페이스 + 임시 Stub 도입 (분기 토글 검증용)
  * - M2 Spec 01 Task 1.1: {@link MysqlConceptRepositoryCteImpl} 이 실제 구현 제공
+ * - M2 Spec 02: 객체 반환 메서드 {@link #findPrerequisiteConcepts} 추가 (ADR 0006)
  *
  * 구현체는 {@code mmt.migration.use-mysql-cte-for-graph=true} 일 때만 bean 으로 등록되어
  * Neo4j 경로와 분기로 공존한다.
- *
- * 객체 반환 메서드 (예: {@code findPrerequisiteConcepts}) 는 Spec 02 에서
- * ADR 0006 의 {@code concepts JOIN chapters} 패턴으로 추가 예정.
  */
 public interface MysqlConceptRepository {
 
@@ -25,4 +25,15 @@ public interface MysqlConceptRepository {
      * @return concept_id 목록 (시작 노드 포함, 중복 제거됨)
      */
     List<Integer> findPrerequisiteConceptIds(int conceptId, int maxDepth);
+
+    /**
+     * 시작 노드의 직접 + 재귀 선수 개념을 {@link Concept} 객체 형태로 반환.
+     * ADR 0006 의 {@code concepts JOIN chapters} 패턴으로 12 개 필드를 매핑하며,
+     * {@code conceptSection} 은 매핑 생략 (프론트 미사용 + 단일 조회 경로와 일관).
+     *
+     * @param conceptId 시작 노드의 concept_id
+     * @param maxDepth  최대 깊이 (0 → 자기 자신만, N → N 단계 이내 모든 선수)
+     * @return Concept 목록 (시작 노드 포함, 중복 제거됨)
+     */
+    List<Concept> findPrerequisiteConcepts(int conceptId, int maxDepth);
 }

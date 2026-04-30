@@ -1,7 +1,9 @@
 package com.mmt.api.repository.concept;
 
+import com.mmt.api.domain.Concept;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -44,6 +46,32 @@ public class MysqlConceptRepositoryCteImpl implements MysqlConceptRepository {
         SELECT DISTINCT concept_id FROM prerequisite_path
         """;
 
+    /**
+     * ADR 0006: concepts JOIN chapters 12 필드 매핑. conceptSection 은 매핑 생략.
+     * 다중 경로 중복 제거를 위해 외부 SELECT 의 FROM 절에서 (SELECT DISTINCT concept_id ...) subquery 로 평탄화.
+     */
+    private static final String SQL_FIND_PREREQUISITE_CONCEPTS = """
+        WITH RECURSIVE prerequisite_path AS (
+            SELECT concept_id, 0 AS depth
+            FROM concepts WHERE concept_id = ?
+
+            UNION ALL
+
+            SELECT c.concept_id, pp.depth + 1
+            FROM prerequisite_path pp
+            JOIN knowledge_space ks ON pp.concept_id = ks.to_concept_id
+            JOIN concepts         c ON ks.from_concept_id = c.concept_id
+            WHERE pp.depth < ?
+        )
+        SELECT c.concept_id, c.concept_name, c.concept_description,
+               c.concept_chapter_id, c.concept_achievement_id, c.concept_achievement_name,
+               ch.school_level, ch.grade_level, ch.semester,
+               ch.chapter_main, ch.chapter_sub, ch.chapter_name
+        FROM (SELECT DISTINCT concept_id FROM prerequisite_path) pp
+        JOIN concepts c  ON pp.concept_id = c.concept_id
+        JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id
+        """;
+
     private final JdbcTemplate jdbcTemplate;
 
     public MysqlConceptRepositoryCteImpl(JdbcTemplate jdbcTemplate) {
@@ -52,11 +80,41 @@ public class MysqlConceptRepositoryCteImpl implements MysqlConceptRepository {
 
     @Override
     public List<Integer> findPrerequisiteConceptIds(int conceptId, int maxDepth) {
+        validateMaxDepth(maxDepth);
+        return jdbcTemplate.queryForList(
+            SQL_FIND_PREREQUISITE_IDS, Integer.class, conceptId, maxDepth);
+    }
+
+    @Override
+    public List<Concept> findPrerequisiteConcepts(int conceptId, int maxDepth) {
+        validateMaxDepth(maxDepth);
+        return jdbcTemplate.query(
+            SQL_FIND_PREREQUISITE_CONCEPTS, conceptRowMapper(), conceptId, maxDepth);
+    }
+
+    private static void validateMaxDepth(int maxDepth) {
         if (maxDepth < 0) {
             throw new IllegalArgumentException(
                 "maxDepth must be >= 0 (got " + maxDepth + ")");
         }
-        return jdbcTemplate.queryForList(
-            SQL_FIND_PREREQUISITE_IDS, Integer.class, conceptId, maxDepth);
+    }
+
+    private RowMapper<Concept> conceptRowMapper() {
+        return (rs, rowNum) -> {
+            Concept c = new Concept();
+            c.setConceptId(rs.getInt("concept_id"));
+            c.setName(rs.getString("concept_name"));
+            c.setDesc(rs.getString("concept_description"));
+            c.setChapterId(rs.getInt("concept_chapter_id"));
+            c.setAchievementId(rs.getInt("concept_achievement_id"));
+            c.setAchievementName(rs.getString("concept_achievement_name"));
+            c.setSchoolLevel(rs.getString("school_level"));
+            c.setGradeLevel(rs.getString("grade_level"));
+            c.setSemester(rs.getString("semester"));
+            c.setChapterMain(rs.getString("chapter_main"));
+            c.setChapterSub(rs.getString("chapter_sub"));
+            c.setChapterName(rs.getString("chapter_name"));
+            return c;
+        };
     }
 }

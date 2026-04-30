@@ -1,6 +1,7 @@
 package com.mmt.api.repository.concept;
 
 import com.mmt.api.config.TestcontainersConfig;
+import com.mmt.api.domain.Concept;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +96,66 @@ class MysqlConceptRepositoryCteTest {
     @Test
     void negativeMaxDepthThrowsIllegalArgumentException() {
         assertThatThrownBy(() -> repository.findPrerequisiteConceptIds(10, -1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxDepth");
+    }
+
+    // ─── findPrerequisiteConcepts (객체 반환, ADR 0006: concepts JOIN chapters) ───
+
+    @Test
+    void findPrerequisiteConceptsDepth0ReturnsOnlyStartNodeWithChapterFields() {
+        List<Concept> result = repository.findPrerequisiteConcepts(10, 0);
+
+        assertThat(result).hasSize(1);
+        Concept c = result.get(0);
+        assertThat(c.getConceptId()).isEqualTo(10);
+        assertThat(c.getName()).isEqualTo("start node");
+        assertThat(c.getDesc()).isEqualTo("desc 10");
+        assertThat(c.getChapterId()).isEqualTo(1);
+        assertThat(c.getAchievementId()).isEqualTo(1);
+        assertThat(c.getAchievementName()).isEqualTo("achievement 1");
+        assertThat(c.getSchoolLevel()).isEqualTo("초등");
+        assertThat(c.getGradeLevel()).isEqualTo("초1");
+        assertThat(c.getSemester()).isEqualTo("1학기");
+        assertThat(c.getChapterName()).isEqualTo("cte-test-chapter");
+        assertThat(c.getChapterMain()).isEqualTo("");
+        assertThat(c.getChapterSub()).isEqualTo("9까지의 수");
+        // ADR 0006: section 매핑 생략 → null
+        assertThat(c.getSection()).isNull();
+    }
+
+    @Test
+    void findPrerequisiteConceptsDepth5ReturnsAllReachable() {
+        List<Concept> result = repository.findPrerequisiteConcepts(10, 5);
+        assertThat(result).extracting(Concept::getConceptId)
+            .containsExactlyInAnyOrder(10, 1, 2, 3, 4, 5, 6);
+    }
+
+    @Test
+    void findPrerequisiteConceptsDeduplicatesMultiplePaths() {
+        // depth 2 의 노드 3 은 두 경로로 도달 — 외부 SELECT 의 DISTINCT subquery 가 1 row 로 평탄화
+        List<Concept> result = repository.findPrerequisiteConcepts(10, 2);
+        assertThat(result).extracting(Concept::getConceptId)
+            .containsExactlyInAnyOrder(10, 1, 2, 3);
+        assertThat(result).hasSize(4);
+    }
+
+    @Test
+    void findPrerequisiteConceptsIsolatedNodeReturnsOnlySelf() {
+        List<Concept> result = repository.findPrerequisiteConcepts(7, 5);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getConceptId()).isEqualTo(7);
+    }
+
+    @Test
+    void findPrerequisiteConceptsNonExistentReturnsEmpty() {
+        List<Concept> result = repository.findPrerequisiteConcepts(999, 5);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findPrerequisiteConceptsNegativeMaxDepthThrows() {
+        assertThatThrownBy(() -> repository.findPrerequisiteConcepts(10, -1))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("maxDepth");
     }
