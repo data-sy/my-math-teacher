@@ -54,6 +54,11 @@ CREATE TABLE knowledge_space (
 	to_concept_id INT,
 	from_concept_id INT,
 	PRIMARY KEY (knowledge_space_id),
+	-- M2 Spec 01 Task 1.3: 재귀 CTE 의 양방향 JOIN (ks.to / ks.from) 을 위한 인덱스.
+	-- MySQL 은 FK 에 자동 인덱스를 만들지만, 명시적으로 박아 EXPLAIN 안정성 확보.
+	KEY idx_knowledge_space_from (from_concept_id),
+	KEY idx_knowledge_space_to   (to_concept_id),
+	KEY idx_knowledge_space_composite (from_concept_id, to_concept_id),
 	FOREIGN KEY (to_concept_id) REFERENCES concepts (concept_id),
 	FOREIGN KEY (from_concept_id) REFERENCES concepts (concept_id)
 );
