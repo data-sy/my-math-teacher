@@ -254,7 +254,7 @@ SET SESSION cte_max_recursion_depth = 10;
 
 테스트는 M1에서 확보한 결과 스냅샷(`shared/benchmark/`)과 정확성 검증을 spec-03에서 수행한다. 본 spec의 단위 테스트는 격리된 작은 데이터셋을 사용한다.
 
-[검증 필요] M1에서 사용한 테스트 시드 데이터의 위치 및 형태. 동일 시드를 재활용할지, 본 spec 전용 시드를 작성할지 결정.
+테스트 시드: 운영 시드(`api/sql/insert_chapters.sql`, `insert_concepts_escape.sql`, `insert_knowledge_space.sql`)를 격리된 테스트 스키마(`api/src/test/resources/sql/cte_snapshot_test_schema.sql` — Task 1.5 산출물)와 함께 재활용. M2 spec-03 회귀 테스트와 시드 출처를 일치시켜 결과 동등성을 보장.
 
 ---
 

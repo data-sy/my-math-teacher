@@ -35,8 +35,11 @@ public List<Integer> findPrerequisiteCached(int conceptId, int maxDepth) {
 ```
 
 규약:
-- 키 prefix `graph:prerequisites:` (메서드별 추가 prefix로 분리: `graph:nodes-by-concept:`, `graph:to-concepts:`)
-- TTL 24시간 (`TTL_24H` 상수)
+- 키 prefix (반환 형태별 분리):
+  - `graph:prerequisites:ids:<conceptId>:<depth>` — ID 반환 (`findPrerequisiteConceptIds`)
+  - `graph:prerequisites:objs:<conceptId>:<depth>` — 객체 반환 (`findPrerequisiteConcepts`)
+  - `graph:to-concepts:<conceptId>` — 직접 선수 (`findToConcepts`, depth=1 전용)
+- TTL 24시간 (`Duration.ofHours(24).toMillis()` — `RedisUtil.set`은 MILLISECONDS 단위)
 - 무효화: 운영자 수동 endpoint에서 prefix 기반 일괄 삭제 또는 TTL 자연 만료
 
 ## Consequences

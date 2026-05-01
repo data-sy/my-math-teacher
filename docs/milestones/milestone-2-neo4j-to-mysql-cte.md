@@ -48,7 +48,9 @@ Neo4j 그래프 데이터베이스를 제거하고 MySQL Recursive CTE로 대체
 - Neo4j 결과 스냅샷 (sha256 해시 포함): `shared/benchmark/`
 - 피처 플래그: `mmt.migration.use-mysql-cte-for-graph` (ADR 0002 §1 네임스페이스 준수)
 - ConceptService.findNodesIdByConceptIdDepth3 분기 시범 적용
-- QueryTimingAspect (Hibernate Statistics + SimpleMeterRegistry)
+- QueryTimingAspect (Micrometer Timer + AOP) — 리포지토리 쿼리 시간 측정·슬로우 쿼리 WARN
+- Hibernate Statistics 기반 N+1 검증 인프라 (JPA 한정, ADR 0002 §3)
+- SimpleMeterRegistry 수동 등록 (ADR 0002 §4)
 
 ---
 
@@ -107,7 +109,7 @@ Neo4j 그래프 데이터베이스를 제거하고 MySQL Recursive CTE로 대체
 ## 완료 기준
 
 - [ ] `ConceptRepository`의 그래프 메서드 6개를 모두 CTE로 대체 (매핑 표는 spec-01 사전 조건 참조)
-- [ ] ConceptService 그래프 메서드 5개 모두 피처 플래그 분기 적용 (spec-02)
+- [ ] ConceptService 그래프 메서드 5개 + KnowledgeSpaceService 호출 2지점 모두 피처 플래그 분기 적용 (spec-02 — KnowledgeSpaceService는 ConceptService 경유 리팩토링 후 분기 흡수해도 동등)
 - [ ] 캐시 히트율 >90% 확인 (spec-03)
 - [ ] CTE 결과와 M1 Neo4j 스냅샷 정확성 100% 일치
 - [ ] 모든 CTE 쿼리가 성능 허용 기준 충족

@@ -43,7 +43,7 @@ M2 비범위 (M3 후행):
 - 사고 대응 시 측정 데이터 수집이 ad-hoc (로그 grep·수동 측정)
 
 ### Neutral
-- M3는 본 ADR 시점에 일정·우선순위 미확정 — roadmap의 Later 섹션에 등재 권장
+- 후속 운영 관측성 마일스톤은 본 ADR 시점에 일정·우선순위 미확정 — roadmap의 Later 섹션 "모니터링·알림 체계 구축" 항목으로 이미 등재됨 (`docs/roadmap.md:34`)
 
 ## Alternatives Considered
 
@@ -54,5 +54,5 @@ M2 비범위 (M3 후행):
 
 - 선행 ADR: ADR 0002 §4 (M1 MeterRegistry 결정 — `SimpleMeterRegistry` 수동 등록, Actuator 미도입)
 - 적용 spec: `docs/specs/m2/spec-03-validation-and-rollout.md` Task 4.2
-- 후속 마일스톤 후보: M3 (운영 관측성 도입) — roadmap의 Later 섹션에 등재 예정
+- 후속 마일스톤 후보: 운영 관측성 도입 — roadmap의 Later 섹션 "모니터링·알림 체계 구축" 항목으로 등재됨 (`docs/roadmap.md:34`). M2 종료 후 마일스톤 번호 부여 시점에 별도 ADR로 이관
 - 관련 자료: `api/src/main/java/com/mmt/api/observability/` (현재 가용 인프라)
