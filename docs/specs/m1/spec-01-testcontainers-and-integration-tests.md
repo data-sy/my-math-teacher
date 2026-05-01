@@ -2,7 +2,6 @@
 
 **상위 마일스톤:** [Milestone 1](../../milestones/milestone-1-test-infrastructure.md)
 **브랜치:** `chore/setup-test-infrastructure`
-**예상 Claude Code 세션:** 2회 (90~120분)
 **선행 조건:** Milestone 0 완료, ADR `0001-test-coverage-before-migration.md` Accepted
 
 ---

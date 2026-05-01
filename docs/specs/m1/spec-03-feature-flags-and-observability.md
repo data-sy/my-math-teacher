@@ -2,7 +2,6 @@
 
 **상위 마일스톤:** [Milestone 1](../../milestones/milestone-1-test-infrastructure.md)
 **브랜치:** `chore/setup-test-infrastructure`
-**예상 Claude Code 세션:** 1회 (60분)
 **선행 Spec:** [spec-02-performance-baseline.md](spec-02-performance-baseline.md) 완료 필수
 
 ---
