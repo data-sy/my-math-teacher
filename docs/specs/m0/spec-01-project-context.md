@@ -2,7 +2,6 @@
 
 **상위 마일스톤:** [Milestone 0](../../milestones/milestone-0-claude-code-integration.md)
 **브랜치:** `chore/setup-claude-code-integration`
-**예상 Claude Code 세션:** 1회 (45~60분)
 
 ---
 

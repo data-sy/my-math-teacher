@@ -1,7 +1,6 @@
 # Milestone 1: 테스트 인프라 및 기준선 구축
 
 **브랜치:** `chore/setup-test-infrastructure`
-**예상 소요:** 3일
 **의존성:** Milestone 0 완료 (CLAUDE.md 계층·슬래시 커맨드·가드레일)
 **위험 수준:** 낮음
 **관련 ADR:** [ADR 0001: 마이그레이션 전 테스트 커버리지 선행 구축](../adr/0001-test-coverage-before-migration.md)
