@@ -39,7 +39,7 @@ M2 비범위 (M3 후행):
 - ADR 0002 §4의 일관성 유지 (Actuator 미도입 정책)
 
 ### Negative
-- M2 운영 1개월 관찰 기간(spec-03 완료 기준)에 production 메트릭 dashboard가 없으므로, 회귀·이상 감지가 로그 기반으로만 이루어짐 → 즉각적 alerting 부재
+- M2 운영 관찰 기간(spec-03 완료 기준)에 production 메트릭 dashboard가 없으므로, 회귀·이상 감지가 로그 기반으로만 이루어짐 → 즉각적 alerting 부재
 - 사고 대응 시 측정 데이터 수집이 ad-hoc (로그 grep·수동 측정)
 
 ### Neutral

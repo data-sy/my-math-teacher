@@ -1,8 +1,6 @@
 # Spec 01: CTE 리포지토리 + 인덱스
 
 **상위 마일스톤:** Milestone 2 (Neo4j → MySQL CTE 마이그레이션)
-**대상 Phase:** Phase 1
-**예상 소요:** 2일
 **선행 spec:** —
 
 ---

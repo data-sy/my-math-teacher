@@ -1,8 +1,6 @@
 # Spec 02: 서비스 통합 + 캐싱 + 리액티브 정리
 
 **상위 마일스톤:** Milestone 2 (Neo4j → MySQL CTE 마이그레이션)
-**대상 Phase:** Phase 2 + Phase 3
-**예상 소요:** 3일
 **선행 spec:** spec-01
 
 ---

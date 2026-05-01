@@ -66,7 +66,7 @@ JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id;
 - 단일 조회 경로와 그래프 경로의 conceptSection 매핑 정책이 일관됨 (둘 다 미매핑)
 - `concepts_sections`/`sections` 다대다 JOIN, 평탄화 정책(LIMIT 1 vs GROUP_CONCAT) 결정이 모두 불필요해져 spec-02 작업 부담 축소
 - 별도 MySQL 도메인 클래스(옵션 D) 신설 회피 — `Concept` 단일 도메인 유지로 변환 boilerplate 0
-- M2 scope 재정의 발동 안 됨 — 8일 일정 그대로 진행 가능
+- M2 scope 재정의 발동 안 됨 — spec 범위 그대로 진행 가능
 
 ### Negative
 - `Concept` 도메인의 일부 필드(MySQL `concepts`/`chapters`에 부재한 항목)가 그래프 경로에서도 null로 채워짐 — 프론트 미사용이므로 영향 0이지만 의미상 "노드는 항상 동일 형태"라는 가정이 약해짐. spec-03 Task 5.3에서 Neo4j 어노테이션 제거 시 도메인 정리 함께 진행
