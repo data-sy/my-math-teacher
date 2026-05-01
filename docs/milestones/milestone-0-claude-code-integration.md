@@ -1,7 +1,6 @@
 # Milestone 0: Claude Code 통합 환경 구축
 
 **브랜치:** `chore/setup-claude-code-integration`
-**예상 소요:** 1.5~2일
 **의존성:** 없음
 **위험 수준:** 매우 낮음
 
