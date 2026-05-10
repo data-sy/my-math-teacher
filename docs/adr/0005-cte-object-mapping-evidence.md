@@ -109,26 +109,30 @@ CREATE TABLE chapters (
 
 컬럼 순서: `(chapter_id, chapter_name, school_level, grade_level, semester, chapter_main, chapter_sub)`
 
+학교급별 sample (chapter_main 의미가 학교급에 따라 다름을 보이기 위해 다양화):
+
 ```sql
-INSERT INTO chapters VALUES (1,  '몇일까요 (1)',                 '초등', '초1', '1학기', '', '9까지의 수');
-INSERT INTO chapters VALUES (3,  '몇일까요 (2)',                 '초등', '초1', '1학기', '', '9까지의 수');
-INSERT INTO chapters VALUES (9,  '여러 가지 모양을 찾아볼까요',     '초등', '초1', '1학기', '', '여러 가지 모양');
-INSERT INTO chapters VALUES (11, '모으기와 가르기를 해 볼까요 (1)', '초등', '초1', '1학기', '', '덧셈과 뺄셈');
-INSERT INTO chapters VALUES (14, '더하기는 어떻게 나타낼까요',     '초등', '초1', '1학기', '', '덧셈과 뺄셈');
+-- 초등: chapter_main 빈 문자열
+INSERT INTO chapters VALUES (1,   '몇일까요 (1)',                 '초등', '초1', '1학기', '',       '9까지의 수');
+INSERT INTO chapters VALUES (14,  '더하기는 어떻게 나타낼까요',    '초등', '초1', '1학기', '',       '덧셈과 뺄셈');
+
+-- 고등: chapter_main 의미값 보유 (상위 분류명)
+INSERT INTO chapters VALUES (539, '다항식의 덧셈과 뺄셈',          '고등', '수학', '상',   '다항식',   '다항식의 연산');
+INSERT INTO chapters VALUES (680, '위치관계',                      '고등', '기하', '전체', '공간도형', '공간도형');
 ```
 
 ### 4-3. 컬럼 의미 (시드 분석 결과)
 
 | 컬럼 | 의미 | 운영 시드 관찰 |
 |---|---|---|
-| `chapter_name` | 차시별 학습 활동/소제목 (질문 형태가 흔함) | "몇일까요 (1)", "더하기는 어떻게 나타낼까요" |
-| `school_level` | 학교급 | "초등", "중등", "고등" 추정 |
-| `grade_level` | 학년 | "초1", "초2"... |
-| `semester` | 학기 | "1학기", "2학기" |
-| `chapter_main` | (의미 미상 — 운영 시드에서 빈 문자열) | `''` (전부 빈 값) |
-| `chapter_sub` | 큰 단원명 | "9까지의 수", "여러 가지 모양", "덧셈과 뺄셈" |
+| `chapter_name` | 차시별 학습 활동/소제목 (질문 형태가 흔함) | "몇일까요 (1)", "더하기는 어떻게 나타낼까요", "다항식의 덧셈과 뺄셈" |
+| `school_level` | 학교급 | "초등", "중등", "고등" |
+| `grade_level` | 학년/과목 | 초등은 "초1", "초2"... / 고등은 "수학", "기하" 등 과목명 |
+| `semester` | 학기/구분 | 초등은 "1학기", "2학기" / 고등은 "상", "하", "전체" 등 |
+| `chapter_main` | **학교급별로 의미가 다름** — 상위 분류명. **초등은 빈 문자열**, **중·고등은 의미값 보유** (예: "다항식", "공간도형", "도형의 닮음") | 초등: `''` / 고등: "다항식", "공간도형" 등 |
+| `chapter_sub` | 큰 단원명 (chapter_main의 하위 그룹) | "9까지의 수", "덧셈과 뺄셈", "다항식의 연산", "공간도형" |
 
-**중요 관찰**: 운영 시드에서 `chapter_main`은 모두 빈 문자열로 채워져 있다. spec-02 RowMapper로 가져오면 빈 문자열로 응답되며 프론트(`ResultView.vue:640`)에 그대로 표시될 수 있다 — `{conceptChapterMain}-{conceptChapterSub}-{conceptChapterName}` 포맷에서 첫 부분이 비어 표시됨. 이는 현재 Neo4j 경로도 동일한 결과(`Concept.chapterMain`이 빈 문자열로 매핑됨)이므로 회귀 아님. 본 ADR 결정에는 영향 없음.
+**중요 관찰**: `chapter_main`은 학교급별로 채워지는 방식이 다르다. 초등 rows는 모두 빈 문자열이고, 중·고등 rows는 상위 분류명(예: "다항식", "공간도형")이 들어있다. spec-02 RowMapper로 가져오면 그대로 응답되어 프론트(`ResultView.vue:640`)에 표시됨 — `{conceptChapterMain}-{conceptChapterSub}-{conceptChapterName}` 포맷에서 초등은 첫 부분이 비고("`-9까지의 수-몇일까요 (1)`"), 고등은 모두 채워짐("`다항식-다항식의 연산-다항식의 덧셈과 뺄셈`"). 이는 현재 Neo4j 경로도 동일한 결과(`Concept.chapterMain`이 동일하게 매핑됨)이므로 회귀 아님. 본 ADR 결정에는 영향 없음.
 
 ## 5. sections / concepts_sections 테이블 (conceptSection 잠재 출처)
 

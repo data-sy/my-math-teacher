@@ -33,7 +33,7 @@ Neo4j 그래프 데이터베이스를 제거하고 MySQL Recursive CTE로 대체
 **단일 유즈케이스:** 맞춤형 학습 경로를 위한 선수 개념 그래프 탐색
 
 ```
-전체 리포지토리 클래스 22개 (도메인 11개; 대부분 JPA + JdbcTemplate 페어) 중
+전체 리포지토리 클래스 23개 (도메인 11개 — `repository/` 하위 10개 + `performanceTest/` 1개; 대부분 JPA + JdbcTemplate 페어) 중
 └── Neo4j (Reactive): 1개 — ConceptRepository (그래프 탐색 Cypher 쿼리)
 ```
 
@@ -48,7 +48,7 @@ Neo4j 그래프 데이터베이스를 제거하고 MySQL Recursive CTE로 대체
 - Neo4j 결과 스냅샷 (sha256 해시 포함): `shared/benchmark/`
 - 피처 플래그: `mmt.migration.use-mysql-cte-for-graph` (ADR 0002 §1 네임스페이스 준수)
 - ConceptService.findNodesIdByConceptIdDepth3 분기 시범 적용
-- QueryTimingAspect (Hibernate Statistics + SimpleMeterRegistry)
+- QueryTimingAspect (Micrometer + SimpleMeterRegistry)
 
 ---
 

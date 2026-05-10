@@ -254,7 +254,17 @@ SET SESSION cte_max_recursion_depth = 10;
 
 테스트는 M1에서 확보한 결과 스냅샷(`shared/benchmark/`)과 정확성 검증을 spec-03에서 수행한다. 본 spec의 단위 테스트는 격리된 작은 데이터셋을 사용한다.
 
-[검증 필요] M1에서 사용한 테스트 시드 데이터의 위치 및 형태. 동일 시드를 재활용할지, 본 spec 전용 시드를 작성할지 결정.
+### M1 시드 데이터 위치 및 형태 (audit 발견)
+
+M1의 시드 적재 방식은 **MySQL CTE 단위 테스트에 직접 재활용 불가**:
+- M1 테스트 시드는 `api/src/test/java/.../performance/GraphQueryPerformanceTest.java:85, 99`에서 LOAD CSV (Cypher)로 `concepts.csv` + `knowledge_space.csv` 적재 — **Neo4j 전용 형태**
+- TestcontainersConfig가 CSV 파일을 마운트하는 방식 (`TestcontainersConfig.java:25` 근방 주석 참조)
+- CTE 회귀 테스트(spec-03 Task 4.1)는 별도로 `@Sql(scripts={"file:../api/sql/insert_chapters.sql", "file:../api/sql/insert_concepts_escape.sql", "file:../api/sql/insert_knowledge_space.sql"})` 패턴 채택 (reset 직전 작업에서 확정된 정책)
+
+본 spec(spec-01) Task 1.5 단위 테스트도 동일 정책 채택 권장:
+- 스키마: `api/sql/create.sql`의 `chapters` + `concepts` + `knowledge_space` 부분만 추출하여 신규 `cte_test_schema.sql` (또는 spec-03 Task 4.1과 공유) 작성
+- 데이터: 격리된 소규모 시드 작성 (또는 prod insert_*.sql 재활용 — 단위 테스트라 소규모가 적절)
+- 적용: `@JdbcTest + @Import(TestcontainersConfig.class) + @Sql(scripts={...})`
 
 ---
 
