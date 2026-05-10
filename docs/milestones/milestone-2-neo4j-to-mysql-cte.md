@@ -1,6 +1,10 @@
 # Milestone 2: Neo4j → MySQL CTE 마이그레이션
 
-**브랜치:** `feat/migrate-neo4j-to-mysql-cte`
+**브랜치 정책:** spec 단위로 분할
+- `feat/m2-spec-01-cte-repository` — Phase 1 (CTE 메서드 + 인덱스)
+- `feat/m2-spec-02-service-integration-and-caching` — Phase 2+3 (서비스 통합·캐싱)
+- `feat/m2-spec-03-validation-and-rollout` — Phase 4+5 (검증·출시·폐기)
+
 **예상 소요:** 8일 (구현) + 운영 관찰 기간 (기본 1개월)
 **의존성:** Milestone 1 (테스트 인프라 및 기준선 구축) 완료
 **위험 수준:** 중간
