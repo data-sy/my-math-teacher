@@ -69,6 +69,58 @@ public class JdbcTemplateConceptRepository {
             conceptId, maxDepth);
     }
 
+    public List<Concept> findPrerequisiteConcepts(int conceptId, int maxDepth) {
+        if (maxDepth < 0) {
+            throw new IllegalArgumentException("maxDepth must be non-negative, got: " + maxDepth);
+        }
+        // ADR 0005: concepts JOIN chapters 패턴. conceptSection 매핑 생략(프론트 미바인딩).
+        // 외부 SELECT 의 (SELECT DISTINCT concept_id FROM prerequisite_path) 로
+        // 다중 경로 중복을 평탄화하지 않으면 동일 conceptId 가 여러 번 등장한다.
+        String sql = """
+            WITH RECURSIVE prerequisite_path AS (
+                SELECT concept_id, 0 AS depth
+                FROM concepts WHERE concept_id = ?
+
+                UNION ALL
+
+                SELECT c.concept_id, pp.depth + 1
+                FROM prerequisite_path pp
+                JOIN knowledge_space ks ON pp.concept_id = ks.from_concept_id
+                JOIN concepts c           ON ks.to_concept_id = c.concept_id
+                WHERE pp.depth < ?
+            )
+            SELECT c.concept_id, c.concept_name, c.concept_description,
+                   c.concept_chapter_id, c.concept_achievement_id, c.concept_achievement_name,
+                   ch.school_level, ch.grade_level, ch.semester,
+                   ch.chapter_main, ch.chapter_sub, ch.chapter_name
+            FROM (SELECT DISTINCT concept_id FROM prerequisite_path) pp
+            JOIN concepts c  ON pp.concept_id = c.concept_id
+            JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id
+            """;
+        return jdbcTemplate.query(sql, conceptWithChapterRowMapper(), conceptId, maxDepth);
+    }
+
+    // ADR 0005: 그래프 객체 반환 경로 전용 RowMapper. concepts JOIN chapters 의
+    // 12 컬럼을 매핑하며 conceptSection 은 미설정(프론트 미바인딩 — null 유지).
+    private RowMapper<Concept> conceptWithChapterRowMapper() {
+        return (rs, rowNum) -> {
+            Concept concept = new Concept();
+            concept.setConceptId(rs.getInt("concept_id"));
+            concept.setName(rs.getString("concept_name"));
+            concept.setDesc(rs.getString("concept_description"));
+            concept.setChapterId(rs.getInt("concept_chapter_id"));
+            concept.setAchievementId(rs.getInt("concept_achievement_id"));
+            concept.setAchievementName(rs.getString("concept_achievement_name"));
+            concept.setSchoolLevel(rs.getString("school_level"));
+            concept.setGradeLevel(rs.getString("grade_level"));
+            concept.setSemester(rs.getString("semester"));
+            concept.setChapterMain(rs.getString("chapter_main"));
+            concept.setChapterSub(rs.getString("chapter_sub"));
+            concept.setChapterName(rs.getString("chapter_name"));
+            return concept;
+        };
+    }
+
     private RowMapper<Concept> conceptNameRowMapper() {
         return (rs, rowNum) -> {
             Concept concept = new Concept();
