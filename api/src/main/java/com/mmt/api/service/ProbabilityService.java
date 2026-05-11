@@ -9,7 +9,6 @@ import com.mmt.api.dto.result.ResultConverter;
 import com.mmt.api.dto.result.ResultResponse;
 import com.mmt.api.repository.probability.ProbabilityRepository;
 import com.mmt.api.repository.concept.ConceptRepository;
-import com.mmt.api.util.LogicUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,13 +57,10 @@ public class ProbabilityService {
         List<Probability> depth0 = answerService.findIds(userTestId);
         List<Probability> depthN = new ArrayList<>();
         for (Probability probability : depth0){
-            // 선수지식들 찾기
+            // spec-02 Task 3.4: ConceptService 가 CTE 의 MIN(depth) 또는 Neo4j+bfs
+            // 를 분기 처리해 id → 최단 거리 Map 을 반환. LogicUtil.bfs 직접 호출 제거.
             int conceptId = probability.getConceptId();
-            // 여기서는 path 살린 쿼리문 사용해야 함 - path 역추적해서 깊이 찾을거니까
-            Flux<Integer> conceptIdFlux = conceptService.findNodesIdByConceptIdDepth3(conceptId);
-            List<Integer> conceptIdList = conceptIdFlux.collectList().block();
-            // key는 선수단위개념id, value는 depth (bfs로 path 최단길이 찾기)
-            Map<Integer, Integer> depthDic = LogicUtil.bfs(conceptId, conceptIdList);
+            Map<Integer, Integer> depthDic = conceptService.findPrerequisitesAsDepthMap(conceptId, 3);
             for (Map.Entry<Integer, Integer> entry : depthDic.entrySet()) {
                 Probability prerequisite = new Probability();
                 prerequisite.setAnswerId(probability.getAnswerId());

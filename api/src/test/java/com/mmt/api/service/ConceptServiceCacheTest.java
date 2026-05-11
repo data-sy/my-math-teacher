@@ -148,6 +148,38 @@ class ConceptServiceCacheTest {
             verify(redisUtil).set(eq(key), any(), anyLong());
             verify(jdbcTemplateConceptRepository).findPrerequisiteConcepts(11, 5);
         }
+
+        @Test
+        void findPrerequisitesAsDepthMap_cacheMiss_storesUnderDepthmapPrefix() {
+            String key = "graph:prerequisites:depthmap:5:3";
+            when(redisUtil.get(key)).thenReturn(null);
+            when(jdbcTemplateConceptRepository.findPrerequisitesWithDepth(5, 3))
+                .thenReturn(List.of(
+                    new ConceptDepth(5, 0),
+                    new ConceptDepth(3, 1),
+                    new ConceptDepth(2, 2)));
+
+            java.util.Map<Integer, Integer> result =
+                service.findPrerequisitesAsDepthMap(5, 3);
+
+            assertThat(result).containsExactlyInAnyOrderEntriesOf(
+                java.util.Map.of(5, 0, 3, 1, 2, 2));
+            verify(redisUtil).set(eq(key), eq(java.util.Map.of(5, 0, 3, 1, 2, 2)), anyLong());
+        }
+
+        @Test
+        void findPrerequisitesAsDepthMap_cacheHit_skipsRepo() {
+            String key = "graph:prerequisites:depthmap:5:3";
+            when(redisUtil.get(key)).thenReturn(java.util.Map.of(5, 0, 3, 1));
+
+            java.util.Map<Integer, Integer> result =
+                service.findPrerequisitesAsDepthMap(5, 3);
+
+            assertThat(result).containsExactlyInAnyOrderEntriesOf(
+                java.util.Map.of(5, 0, 3, 1));
+            verify(jdbcTemplateConceptRepository, never())
+                .findPrerequisitesWithDepth(anyInt(), anyInt());
+        }
     }
 
     @Nested

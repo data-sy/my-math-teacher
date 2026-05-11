@@ -10,6 +10,7 @@ import com.mmt.api.repository.concept.ConceptDepth;
 import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
+import com.mmt.api.util.LogicUtil;
 import com.mmt.api.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Service
 public class ConceptService {
@@ -56,6 +59,15 @@ public class ConceptService {
         List<T> cached = (List<T>) redisUtil.get(key);
         if (cached != null) return cached;
         List<T> result = compute.get();
+        redisUtil.set(key, result, TTL_24H);
+        return result;
+    }
+
+    private <K, V> Map<K, V> cachedOrComputeMap(String key, Supplier<Map<K, V>> compute) {
+        @SuppressWarnings("unchecked")
+        Map<K, V> cached = (Map<K, V>) redisUtil.get(key);
+        if (cached != null) return cached;
+        Map<K, V> result = compute.get();
         redisUtil.set(key, result, TTL_24H);
         return result;
     }
@@ -123,6 +135,34 @@ public class ConceptService {
         return cachedOrCompute(key, () ->
             jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, depth)
                 .stream().map(ConceptDepth::conceptId).toList());
+    }
+
+    /**
+     * conceptId 에서 maxDepth 단계까지의 선수 개념을 id → 최단 거리 형태의
+     * Map 으로 반환. spec-01 A3: ProbabilityService 가 LogicUtil.bfs 의 path
+     * 시퀀스 의존을 우회하기 위해 CTE 결과의 MIN(depth) 를 직접 사용한다.
+     *
+     * 플래그 OFF (Neo4j) 경로는 기존 LogicUtil.bfs 동작을 보존하며, Neo4j
+     * 폐기(spec-03 Task 5.3) 시 LogicUtil 과 함께 일괄 삭제.
+     */
+    @Transactional(readOnly = true)
+    public Map<Integer, Integer> findPrerequisitesAsDepthMap(int conceptId, int maxDepth) {
+        if (useMysqlCte) {
+            String key = "graph:prerequisites:depthmap:" + conceptId + ":" + maxDepth;
+            return cachedOrComputeMap(key, () -> jdbcTemplateConceptRepository
+                .findPrerequisitesWithDepth(conceptId, maxDepth)
+                .stream()
+                .collect(Collectors.toMap(ConceptDepth::conceptId, ConceptDepth::depth)));
+        }
+        Flux<Integer> idsFlux = switch (maxDepth) {
+            case 2 -> conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
+            case 3 -> conceptRepository.findNodesIdByConceptIdDepth3(conceptId);
+            case 5 -> conceptRepository.findNodesIdByConceptIdDepth5(conceptId);
+            default -> throw new IllegalArgumentException(
+                "Neo4j 경로는 depth 2/3/5 만 지원. got: " + maxDepth);
+        };
+        List<Integer> ids = idsFlux.collectList().block();
+        return LogicUtil.bfs(conceptId, ids);
     }
 
     public int findSkillIdByConceptId (int conceptId){
