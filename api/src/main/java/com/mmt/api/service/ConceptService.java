@@ -1,6 +1,7 @@
 package com.mmt.api.service;
 
 
+import com.mmt.api.domain.Concept;
 import com.mmt.api.dto.concept.ChapterIdConceptResponse;
 import com.mmt.api.dto.concept.ConceptConverter;
 import com.mmt.api.dto.concept.ConceptNameResponse;
@@ -44,20 +45,37 @@ public class ConceptService {
 
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findToConcepts(int conceptId){
+        if (useMysqlCte) {
+            return Flux.fromIterable(
+                ConceptConverter.convertListToConceptResponseList(
+                    jdbcTemplateConceptRepository.findPrerequisiteConcepts(conceptId, 1)));
+        }
         return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findToConceptsByConceptId(conceptId));
     }
 
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findNodesByConceptId(int conceptId){
-        // 해당 컨셉 아이디가 속한 학교급 찾기
+        // 해당 컨셉 아이디가 속한 학교급 찾기 → 깊이 결정 (초등=3, 그 외=5)
         String schoolLevel = jdbcTemplateConceptRepository.findSchoolLevelByConceptId(conceptId);
-        // 학교급에 따라 다른 메서드 사용
-        if (schoolLevel.equals("초등")) return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByConceptIdDepth3(conceptId));
-        else return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findNodesByConceptIdDepth5(conceptId));
+        int depth = schoolLevel.equals("초등") ? 3 : 5;
+        if (useMysqlCte) {
+            return Flux.fromIterable(
+                ConceptConverter.convertListToConceptResponseList(
+                    jdbcTemplateConceptRepository.findPrerequisiteConcepts(conceptId, depth)));
+        }
+        Flux<Concept> neo4j = (depth == 3)
+            ? conceptRepository.findNodesByConceptIdDepth3(conceptId)
+            : conceptRepository.findNodesByConceptIdDepth5(conceptId);
+        return ConceptConverter.convertToFluxConceptResponse(neo4j);
     }
 
     @Transactional(readOnly = true)
     public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
+        if (useMysqlCte) {
+            return Flux.fromIterable(
+                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, 2)
+                    .stream().map(ConceptDepth::conceptId).toList());
+        }
         return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
     }
     @Transactional(readOnly = true)
@@ -71,6 +89,11 @@ public class ConceptService {
     }
     @Transactional(readOnly = true)
     public Flux<Integer> findNodesIdByConceptIdDepth5(int conceptId){
+        if (useMysqlCte) {
+            return Flux.fromIterable(
+                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, 5)
+                    .stream().map(ConceptDepth::conceptId).toList());
+        }
         return conceptRepository.findNodesIdByConceptIdDepth5(conceptId);
     }
 
