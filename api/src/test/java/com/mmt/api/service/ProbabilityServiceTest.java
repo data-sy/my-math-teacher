@@ -10,15 +10,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
-import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -53,7 +52,8 @@ class ProbabilityServiceTest {
         probabilityService.create(userTestId, new double[]{0.1, 0.2, 0.3});
 
         // depth0 이 비어 있으면 for 루프 자체가 돌지 않아 conceptService 호출 없음.
-        verify(conceptService, never()).findNodesIdByConceptIdDepth3(anyInt());
+        // spec-02 Task 3.4: 호출 대상은 findNodesIdByConceptIdDepth3 → findPrerequisitesAsDepthMap
+        verify(conceptService, never()).findPrerequisitesAsDepthMap(anyInt(), anyInt());
         // 빈 리스트로라도 save 는 호출됨 (service 계약).
         ArgumentCaptor<List<Probability>> captor = ArgumentCaptor.forClass(List.class);
         verify(probabilityRepository).save(captor.capture());
@@ -61,7 +61,9 @@ class ProbabilityServiceTest {
     }
 
     @Test
-    void createDoesNotHangOnBlockAndBuildsExpectedProbabilities() {
+    void createBuildsExpectedProbabilitiesFromDepthMap() {
+        // spec-02 Task 3.4 후: ProbabilityService 는 conceptService.findPrerequisitesAsDepthMap
+        // 의 Map 결과를 그대로 사용 (LogicUtil.bfs 외부 호출 제거 → .block() 도 자연 해소).
         long userTestId = 7L;
 
         Probability answer = new Probability();
@@ -69,13 +71,10 @@ class ProbabilityServiceTest {
         answer.setConceptId(5);
         when(answerService.findIds(userTestId)).thenReturn(List.of(answer));
 
-        // Flux.collectList().block() 경로 검증: blocking 이 타임아웃 안에 완료되어야 함.
-        // 입력 리스트 [99, 2, 3, 5] (size=4, 루프 i=1..2)
-        // i=1: current=2, next=3 → 엣지 2-3
-        // i=2: current=3, next=5 (start==5) → 엣지 3-5
-        // BFS from 5: {5:0, 3:1, 2:2}
-        when(conceptService.findNodesIdByConceptIdDepth3(5))
-            .thenReturn(Flux.just(99, 2, 3, 5));
+        // 시나리오: conceptId=5 의 선수 depth map = {5:0, 3:1, 2:2}.
+        // 마이그레이션 전엔 Flux 결과 + LogicUtil.bfs 로 도출했으나 이제 직접 mock.
+        when(conceptService.findPrerequisitesAsDepthMap(5, 3))
+            .thenReturn(Map.of(5, 0, 3, 1, 2, 2));
 
         when(conceptService.findSkillIdByConceptId(5)).thenReturn(1);
         when(conceptService.findSkillIdByConceptId(3)).thenReturn(2);

@@ -1,6 +1,8 @@
 package com.mmt.api.service;
 
 import com.mmt.api.config.TestcontainersConfig;
+import com.mmt.api.util.RedisUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,18 @@ class ConceptServiceFeatureFlagTest {
 
         @Autowired
         private ConceptService service;
+
+        @Autowired
+        private RedisUtil redisUtil;
+
+        @BeforeEach
+        void cleanGraphCache() {
+            // RedisUtil.set 이 호출마다 setValueSerializer 로 valueSerializer 를 바꾸는
+            // 구조적 결함으로, 다른 테스트가 String 을 set 한 직후 본 테스트가 List
+            // 를 get 하면 ClassCastException 발생. graph:* prefix 의 잔존 캐시를
+            // 미리 비워 격리. (RedisUtil 자체 수정은 본 spec 범위 밖)
+            redisUtil.deleteByPrefix("graph:");
+        }
 
         @Test
         void usesMysqlCtePath() {

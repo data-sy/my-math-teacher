@@ -67,6 +67,36 @@ class RedisUtilTest {
     }
 
     @Test
+    @DisplayName("같은 prefix 의 키들을 일괄 삭제할 수 있다.")
+    void deleteByPrefixTest() {
+        // spec-02 Task 2.2: 운영자 수동 무효화 경로 검증.
+        // 테스트 전용 prefix 로 격리(실 운영 키 `graph:*` 와 충돌 회피).
+        String prefix = "m2-spec02-test:";
+        redisUtil.set(prefix + "ids:1:3",       "v1", MILLISECONDS);
+        redisUtil.set(prefix + "to-concepts:5", "v2", MILLISECONDS);
+        redisUtil.set(prefix + "objs:7:5",      "v3", MILLISECONDS);
+        redisUtil.set("m2-spec02-other:99",     "v4", MILLISECONDS);
+
+        long deleted = redisUtil.deleteByPrefix(prefix);
+
+        assertThat(deleted).isEqualTo(3);
+        assertThat(redisUtil.get(prefix + "ids:1:3")).isNull();
+        assertThat(redisUtil.get(prefix + "to-concepts:5")).isNull();
+        assertThat(redisUtil.get(prefix + "objs:7:5")).isNull();
+        assertThat(redisUtil.get("m2-spec02-other:99")).isEqualTo("v4");
+
+        redisUtil.delete("m2-spec02-other:99");
+    }
+
+    @Test
+    @DisplayName("일치하는 키가 없으면 deleteByPrefix 는 0 을 반환한다.")
+    void deleteByPrefixNoMatchTest() {
+        long deleted = redisUtil.deleteByPrefix("m2-spec02-test-nomatch-" + System.nanoTime() + ":");
+
+        assertThat(deleted).isEqualTo(0);
+    }
+
+    @Test
     @DisplayName("Redis에 저장된 데이터는 만료시간이 지나면 삭제된다.")
     void expiredTest() throws Exception {
         redisUtil.set(KEY, VALUE, MILLISECONDS);

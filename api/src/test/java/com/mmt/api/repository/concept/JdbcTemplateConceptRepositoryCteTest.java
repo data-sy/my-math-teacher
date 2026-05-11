@@ -1,6 +1,7 @@
 package com.mmt.api.repository.concept;
 
 import com.mmt.api.config.TestcontainersConfig;
+import com.mmt.api.domain.Concept;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -101,5 +102,69 @@ class JdbcTemplateConceptRepositoryCteTest {
             new ConceptDepth(600, 0),
             new ConceptDepth(601, 1)
         );
+    }
+
+    // ── 객체 반환 CTE 단위 테스트 (spec-02 Task 3.1a, ADR 0005) ──────────────
+
+    @Test
+    void findPrerequisiteConcepts_returnsChainWithMappedColumns() {
+        // 300 → 310 → 320 → 330 체인. depth 3 호출은 자기 자신 포함 4개 객체 반환.
+        List<Concept> result = repository.findPrerequisiteConcepts(300, 3);
+
+        assertThat(result).hasSize(4);
+        assertThat(result).extracting(Concept::getConceptId)
+            .containsExactlyInAnyOrder(300, 310, 320, 330);
+
+        // 매핑 컬럼 검증 — concept 300 의 row 로 12 컬럼 확인.
+        Concept c300 = result.stream()
+            .filter(c -> c.getConceptId() == 300).findFirst().orElseThrow();
+        assertThat(c300.getName()).isEqualTo("개념 300");
+        assertThat(c300.getDesc()).isEqualTo("설명 300");
+        assertThat(c300.getChapterId()).isEqualTo(1);
+        assertThat(c300.getAchievementId()).isEqualTo(1300);
+        assertThat(c300.getAchievementName()).isEqualTo("성취기준-300");
+        assertThat(c300.getSchoolLevel()).isEqualTo("초등");
+        assertThat(c300.getGradeLevel()).isEqualTo("1");
+        assertThat(c300.getSemester()).isEqualTo("1");
+        assertThat(c300.getChapterMain()).isEqualTo("수와 연산");
+        assertThat(c300.getChapterSub()).isEqualTo("자연수");
+        assertThat(c300.getChapterName()).isEqualTo("테스트 단원");
+        // ADR 0005: section 매핑 생략 → null.
+        assertThat(c300.getSection()).isNull();
+    }
+
+    @Test
+    void findPrerequisiteConcepts_multiPathDeduplicates() {
+        // 400 → {410, 420}, 410 → 430, 420 → 430. 430 은 두 경로로 depth 2 도달하지만
+        // 외부 (SELECT DISTINCT concept_id FROM prerequisite_path) 로 1행만 반환되어야 함.
+        List<Concept> result = repository.findPrerequisiteConcepts(400, 2);
+
+        assertThat(result).hasSize(4);
+        assertThat(result).extracting(Concept::getConceptId)
+            .containsExactlyInAnyOrder(400, 410, 420, 430);
+    }
+
+    @Test
+    void findPrerequisiteConcepts_isolatedNodeReturnsSelfOnly() {
+        // 100: 고립 노드. depth 5 호출에도 자기 자신 1개만 반환.
+        List<Concept> result = repository.findPrerequisiteConcepts(100, 5);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getConceptId()).isEqualTo(100);
+        assertThat(result.get(0).getName()).isEqualTo("고립 개념");
+    }
+
+    @Test
+    void findPrerequisiteConcepts_emptyWhenConceptIdNotExists() {
+        List<Concept> result = repository.findPrerequisiteConcepts(999, 3);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findPrerequisiteConcepts_throwsIllegalArgumentWhenNegativeMaxDepth() {
+        assertThatThrownBy(() -> repository.findPrerequisiteConcepts(300, -1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("maxDepth");
     }
 }
