@@ -10,13 +10,16 @@ import com.mmt.api.repository.concept.ConceptDepth;
 import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
+import com.mmt.api.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Service
 public class ConceptService {
@@ -24,6 +27,11 @@ public class ConceptService {
     private final ConceptRepository conceptRepository;
     private final KnowledgeSpaceRepository knowledgeSpaceRepository;
     private final JdbcTemplateConceptRepository jdbcTemplateConceptRepository;
+    private final RedisUtil redisUtil;
+
+    // RedisUtil.set(key, o, duration) 의 duration 은 MILLISECONDS 단위.
+    // toSeconds() 사용 시 86.4 초만 캐싱되어 의도(24h)와 불일치하므로 .toMillis() 필수.
+    private static final long TTL_24H = Duration.ofHours(24).toMillis();
 
     @Value("${mmt.migration.use-mysql-cte-for-graph:false}")
     private boolean useMysqlCte;
@@ -31,11 +39,25 @@ public class ConceptService {
     public ConceptService(
         ConceptRepository conceptRepository,
         KnowledgeSpaceRepository knowledgeSpaceRepository,
-        JdbcTemplateConceptRepository jdbcTemplateConceptRepository
+        JdbcTemplateConceptRepository jdbcTemplateConceptRepository,
+        RedisUtil redisUtil
     ) {
         this.conceptRepository = conceptRepository;
         this.knowledgeSpaceRepository = knowledgeSpaceRepository;
         this.jdbcTemplateConceptRepository = jdbcTemplateConceptRepository;
+        this.redisUtil = redisUtil;
+    }
+
+    // ADR 0003: RedisUtil 직접 호출 캐시 패턴. CTE 분기 경로에서만 사용.
+    // Neo4j 경로는 자체 그래프 인덱스가 있고 결과 재사용 시 의미 차이로 잘못
+    // 캐시 매칭될 위험이 있어 캐시 미적용.
+    private <T> List<T> cachedOrCompute(String key, Supplier<List<T>> compute) {
+        @SuppressWarnings("unchecked")
+        List<T> cached = (List<T>) redisUtil.get(key);
+        if (cached != null) return cached;
+        List<T> result = compute.get();
+        redisUtil.set(key, result, TTL_24H);
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -46,9 +68,11 @@ public class ConceptService {
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findToConcepts(int conceptId){
         if (useMysqlCte) {
-            return Flux.fromIterable(
+            String key = "graph:to-concepts:" + conceptId;
+            List<ConceptResponse> result = cachedOrCompute(key, () ->
                 ConceptConverter.convertListToConceptResponseList(
                     jdbcTemplateConceptRepository.findPrerequisiteConcepts(conceptId, 1)));
+            return Flux.fromIterable(result);
         }
         return ConceptConverter.convertToFluxConceptResponse(conceptRepository.findToConceptsByConceptId(conceptId));
     }
@@ -59,9 +83,11 @@ public class ConceptService {
         String schoolLevel = jdbcTemplateConceptRepository.findSchoolLevelByConceptId(conceptId);
         int depth = schoolLevel.equals("초등") ? 3 : 5;
         if (useMysqlCte) {
-            return Flux.fromIterable(
+            String key = "graph:prerequisites:objs:" + conceptId + ":" + depth;
+            List<ConceptResponse> result = cachedOrCompute(key, () ->
                 ConceptConverter.convertListToConceptResponseList(
                     jdbcTemplateConceptRepository.findPrerequisiteConcepts(conceptId, depth)));
+            return Flux.fromIterable(result);
         }
         Flux<Concept> neo4j = (depth == 3)
             ? conceptRepository.findNodesByConceptIdDepth3(conceptId)
@@ -72,29 +98,31 @@ public class ConceptService {
     @Transactional(readOnly = true)
     public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
         if (useMysqlCte) {
-            return Flux.fromIterable(
-                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, 2)
-                    .stream().map(ConceptDepth::conceptId).toList());
+            return Flux.fromIterable(cachedPrerequisiteIds(conceptId, 2));
         }
         return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
     }
     @Transactional(readOnly = true)
     public Flux<Integer> findNodesIdByConceptIdDepth3(int conceptId){
         if (useMysqlCte) {
-            return Flux.fromIterable(
-                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, 3)
-                    .stream().map(ConceptDepth::conceptId).toList());
+            return Flux.fromIterable(cachedPrerequisiteIds(conceptId, 3));
         }
         return conceptRepository.findNodesIdByConceptIdDepth3(conceptId);
     }
     @Transactional(readOnly = true)
     public Flux<Integer> findNodesIdByConceptIdDepth5(int conceptId){
         if (useMysqlCte) {
-            return Flux.fromIterable(
-                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, 5)
-                    .stream().map(ConceptDepth::conceptId).toList());
+            return Flux.fromIterable(cachedPrerequisiteIds(conceptId, 5));
         }
         return conceptRepository.findNodesIdByConceptIdDepth5(conceptId);
+    }
+
+    // ID 반환 그래프 메서드 3종이 공유하는 캐시 wrap. depth 만 다름.
+    private List<Integer> cachedPrerequisiteIds(int conceptId, int depth) {
+        String key = "graph:prerequisites:ids:" + conceptId + ":" + depth;
+        return cachedOrCompute(key, () ->
+            jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, depth)
+                .stream().map(ConceptDepth::conceptId).toList());
     }
 
     public int findSkillIdByConceptId (int conceptId){
