@@ -41,6 +41,34 @@ public class JdbcTemplateConceptRepository {
         return jdbcTemplate.queryForObject(sql, conceptRowMapper(), conceptId);
     }
 
+    public List<ConceptDepth> findPrerequisitesWithDepth(int conceptId, int maxDepth) {
+        if (maxDepth < 0) {
+            throw new IllegalArgumentException("maxDepth must be non-negative, got: " + maxDepth);
+        }
+        String sql = """
+            WITH RECURSIVE prerequisite_path AS (
+                SELECT concept_id, 0 AS depth
+                FROM concepts WHERE concept_id = ?
+
+                UNION ALL
+
+                SELECT c.concept_id, pp.depth + 1
+                FROM prerequisite_path pp
+                JOIN knowledge_space ks ON pp.concept_id = ks.from_concept_id
+                JOIN concepts c           ON ks.to_concept_id = c.concept_id
+                WHERE pp.depth < ?
+            )
+            SELECT concept_id, MIN(depth) AS depth
+            FROM prerequisite_path
+            GROUP BY concept_id
+            """;
+        // MIN(depth): 다중 경로로 같은 노드에 도달 시 최단 거리 채택.
+        return jdbcTemplate.query(
+            sql,
+            (rs, rowNum) -> new ConceptDepth(rs.getInt("concept_id"), rs.getInt("depth")),
+            conceptId, maxDepth);
+    }
+
     private RowMapper<Concept> conceptNameRowMapper() {
         return (rs, rowNum) -> {
             Concept concept = new Concept();
