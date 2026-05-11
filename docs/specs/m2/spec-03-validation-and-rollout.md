@@ -48,7 +48,8 @@ void cteUniqueNodeSetMatchesNeo4jSnapshot() {
 
     Set<Integer> expected = Set.copyOf(snapshot.conceptIds);
     Set<Integer> actual   = Set.copyOf(
-        mysqlConceptRepository.get().findPrerequisiteConceptIds(6646, 5));
+        jdbcTemplateConceptRepository.findPrerequisitesWithDepth(6646, 5)
+            .stream().map(ConceptDepth::conceptId).toList());
 
     assertThat(actual).isEqualTo(expected);
 
@@ -187,13 +188,13 @@ ADR 0004에 따라 production 메트릭 dashboard·alerting은 비범위. 본 ta
 
 ### 코드 / 설정 정리
 
-- [ ] 피처 플래그 분기 코드 단순화 (CTE 직접 호출, `if (useMysqlCte && mysqlConceptRepository.isPresent())` 분기 제거)
+- [ ] 피처 플래그 분기 코드 단순화 (CTE 직접 호출만 남기고 `if (useMysqlCte) { ... } return conceptRepository.<neo4j>(...)` 의 if 블록·else 모두 제거). spec-01에서 이미 `Optional<MysqlConceptRepository>` 가드는 사라진 상태이므로 단순한 if 블록 제거만 남음.
 - [ ] `.block()` 잔존 호출 제거 (spec-02 Task 3.2 후속) — 위치: `ProbabilityService.java:66`, `KnowledgeSpaceService.java:36`
 - [ ] ✓ 삭제 대상 클래스: **`ConceptRepository`** (`api/src/main/java/com/mmt/api/repository/concept/ConceptRepository.java`, `extends ReactiveNeo4jRepository<Concept, Integer>`)
 - [ ] Neo4j 도메인 엔티티 삭제: `Concept.java:9`의 `@Node("concept")` 어노테이션. M2 이후 MySQL 전용 엔티티로 단순화 (또는 신규 JPA 엔티티 도입)
 - [ ] ✓ 의존성 제거: `org.springframework.boot:spring-boot-starter-data-neo4j` (`build.gradle:31`) **+ `org.testcontainers:neo4j` 테스트 의존성 (`build.gradle:62`)**
 - [ ] 공용 `application.yml`·`application-test.yml`의 Neo4j 관련 logging level 제거 (`logging.level...neo4j: DEBUG`, `org.springframework.data.neo4j.cypher: DEBUG`). `application-securelocal.yml`은 gitignored이므로 운영자가 수동으로 Neo4j 연결 설정 제거. **공용 yml에 `spring.neo4j.*` 블록은 부재**(이미 정리된 상태) — 별도 작업 불필요
-- [ ] 피처 플래그 `mmt.migration.use-mysql-cte-for-graph` 제거 (분기 사라졌으므로) + `MysqlConceptRepository`의 `@ConditionalOnProperty` 제거
+- [ ] 피처 플래그 `mmt.migration.use-mysql-cte-for-graph` 제거 (분기 사라졌으므로). spec-01에서 `MysqlConceptRepository` 클래스 자체가 삭제됐으므로 `@ConditionalOnProperty` 제거 항목은 비대상.
 
 ### 인프라 정리
 
