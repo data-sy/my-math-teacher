@@ -1,9 +1,7 @@
 package com.mmt.api.service;
 
-import com.mmt.api.dto.concept.ConceptConverter;
 import com.mmt.api.dto.network.EdgeResponse;
 import com.mmt.api.dto.network.NetworkConverter;
-import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
 import org.springframework.stereotype.Service;
@@ -16,11 +14,16 @@ import java.util.List;
 public class KnowledgeSpaceService {
 
     private final KnowledgeSpaceRepository knowledgeSpaceRepository;
-    private final ConceptRepository conceptRepository;
+    private final ConceptService conceptService;
     private final JdbcTemplateConceptRepository jdbcTemplateConceptRepository;
-    public KnowledgeSpaceService(KnowledgeSpaceRepository knowledgeSpaceRepository, ConceptRepository conceptRepository, JdbcTemplateConceptRepository jdbcTemplateConceptRepository) {
+
+    public KnowledgeSpaceService(
+        KnowledgeSpaceRepository knowledgeSpaceRepository,
+        ConceptService conceptService,
+        JdbcTemplateConceptRepository jdbcTemplateConceptRepository
+    ) {
         this.knowledgeSpaceRepository = knowledgeSpaceRepository;
-        this.conceptRepository = conceptRepository;
+        this.conceptService = conceptService;
         this.jdbcTemplateConceptRepository = jdbcTemplateConceptRepository;
     }
 
@@ -28,10 +31,10 @@ public class KnowledgeSpaceService {
         // 해당 컨셉 아이디가 속한 학교급 찾기
         String schoolLevel = jdbcTemplateConceptRepository.findSchoolLevelByConceptId(conceptId);
 
-        // 학교급에 따라 다른 메서드 사용
+        // B1 경유: ConceptService 의 분기·캐시가 자동 상속.
         Flux<Integer> conceptIdFlux;
-        if (schoolLevel.equals("초등")) conceptIdFlux = conceptRepository.findNodesIdByConceptIdDepth3(conceptId);
-        else conceptIdFlux = conceptRepository.findNodesIdByConceptIdDepth5(conceptId);
+        if (schoolLevel.equals("초등")) conceptIdFlux = conceptService.findNodesIdByConceptIdDepth3(conceptId);
+        else conceptIdFlux = conceptService.findNodesIdByConceptIdDepth5(conceptId);
 
         List<Integer> conceptIdList = conceptIdFlux.distinct().collectList().block();
         if (conceptIdList.isEmpty()){ // 선수단위개념이 없는 최초의 단위개념
