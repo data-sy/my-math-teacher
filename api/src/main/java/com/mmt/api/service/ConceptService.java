@@ -5,9 +5,9 @@ import com.mmt.api.dto.concept.ChapterIdConceptResponse;
 import com.mmt.api.dto.concept.ConceptConverter;
 import com.mmt.api.dto.concept.ConceptNameResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
+import com.mmt.api.repository.concept.ConceptDepth;
 import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
-import com.mmt.api.repository.concept.MysqlConceptRepository;
 import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ConceptService {
@@ -24,9 +23,6 @@ public class ConceptService {
     private final ConceptRepository conceptRepository;
     private final KnowledgeSpaceRepository knowledgeSpaceRepository;
     private final JdbcTemplateConceptRepository jdbcTemplateConceptRepository;
-    // M1 Spec 03 Task 3.2: 피처 플래그 true 일 때만 스텁 bean 이 등록됨.
-    // Optional 주입으로 false 상태에서 bean 미존재여도 컨텍스트 기동 가능.
-    private final Optional<MysqlConceptRepository> mysqlConceptRepository;
 
     @Value("${mmt.migration.use-mysql-cte-for-graph:false}")
     private boolean useMysqlCte;
@@ -34,13 +30,11 @@ public class ConceptService {
     public ConceptService(
         ConceptRepository conceptRepository,
         KnowledgeSpaceRepository knowledgeSpaceRepository,
-        JdbcTemplateConceptRepository jdbcTemplateConceptRepository,
-        Optional<MysqlConceptRepository> mysqlConceptRepository
+        JdbcTemplateConceptRepository jdbcTemplateConceptRepository
     ) {
         this.conceptRepository = conceptRepository;
         this.knowledgeSpaceRepository = knowledgeSpaceRepository;
         this.jdbcTemplateConceptRepository = jdbcTemplateConceptRepository;
-        this.mysqlConceptRepository = mysqlConceptRepository;
     }
 
     @Transactional(readOnly = true)
@@ -66,15 +60,12 @@ public class ConceptService {
     public Flux<Integer> findNodesIdByConceptIdDepth2(int conceptId){
         return conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
     }
-    // M1 Spec 03 Task 3.2: M2 MySQL CTE 마이그레이션을 위한 조건 분기.
-    // 반환 타입 Flux<Integer> 는 그대로 유지 (ProbabilityService:65 등 기존 호출자와 호환).
-    // true 경로는 리스트를 Flux.fromIterable 로 래핑해 동일 시그니처 보존.
-    // 나머지 depth2/5 메서드는 M2 에서 동일 패턴으로 확장 예정.
     @Transactional(readOnly = true)
     public Flux<Integer> findNodesIdByConceptIdDepth3(int conceptId){
-        if (useMysqlCte && mysqlConceptRepository.isPresent()) {
+        if (useMysqlCte) {
             return Flux.fromIterable(
-                mysqlConceptRepository.get().findPrerequisiteConceptIds(conceptId, 3));
+                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, 3)
+                    .stream().map(ConceptDepth::conceptId).toList());
         }
         return conceptRepository.findNodesIdByConceptIdDepth3(conceptId);
     }
