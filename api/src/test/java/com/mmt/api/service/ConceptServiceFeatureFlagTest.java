@@ -8,29 +8,32 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * M1 Spec 03 Task 3.2: 피처 플래그 `mmt.migration.use-mysql-cte-for-graph` 토글에 따른
+ * 피처 플래그 {@code mmt.migration.use-mysql-cte-for-graph} 토글에 따른
  * {@link ConceptService#findNodesIdByConceptIdDepth3(int)} 경로 전환 검증.
  *
- * 내부 @Nested 클래스 각각 별도 Spring 컨텍스트 (다른 @TestPropertySource) 로 기동된다.
- * Neo4j Testcontainer 에 시드 데이터는 없으므로 false 경로는 빈 리스트를 반환하지만,
- * 분기 논리 자체는 empty list != null 로 검증 가능.
+ * 내부 @Nested 클래스 각각 별도 Spring 컨텍스트 (다른 @TestPropertySource) 로 기동.
  *
- * Mysql 경로에서는 {@link com.mmt.api.repository.concept.MysqlConceptRepositoryStub} 이
- * UnsupportedOperationException 을 던진다. Flux.fromIterable 은 인자를 eager 평가 →
- * 서비스 호출 시점에 예외가 즉시 전파됨.
+ * <ul>
+ *   <li>false 경로: Neo4j Reactive 리포지토리. Testcontainer 에 시드 미주입이므로
+ *       빈 결과. 라우팅 분기의 작동만 검증.</li>
+ *   <li>true 경로: MySQL 재귀 CTE
+ *       ({@link com.mmt.api.repository.concept.JdbcTemplateConceptRepository#findPrerequisitesWithDepth}).
+ *       @Sql 로 cte_test_schema/seed.sql 을 적용해 시드 300 체인의 4개 노드 반환을 단정.</li>
+ * </ul>
  */
 @SpringBootTest
 @Import(TestcontainersConfig.class)
 @ActiveProfiles("test")
 @Testcontainers
+@Sql(scripts = {"classpath:cte_test_schema.sql", "classpath:cte_test_seed.sql"})
 class ConceptServiceFeatureFlagTest {
 
     @Nested
@@ -42,7 +45,7 @@ class ConceptServiceFeatureFlagTest {
 
         @Test
         void usesNeo4jPath() {
-            List<Integer> result = service.findNodesIdByConceptIdDepth3(4979)
+            List<Integer> result = service.findNodesIdByConceptIdDepth3(300)
                 .collectList().block();
             assertThat(result).isNotNull();
         }
@@ -56,10 +59,12 @@ class ConceptServiceFeatureFlagTest {
         private ConceptService service;
 
         @Test
-        void throwsFromStub() {
-            assertThatThrownBy(() -> service.findNodesIdByConceptIdDepth3(4979))
-                .isInstanceOf(UnsupportedOperationException.class)
-                .hasMessageContaining("Milestone 2");
+        void usesMysqlCtePath() {
+            // 시드 체인 300 → 310 → 320 → 330. depth 3 호출은 자기 자신 포함
+            // 4개 노드 ID 만 반환 (ConceptDepth → Integer 매핑).
+            List<Integer> result = service.findNodesIdByConceptIdDepth3(300)
+                .collectList().block();
+            assertThat(result).containsExactlyInAnyOrder(300, 310, 320, 330);
         }
     }
 }
