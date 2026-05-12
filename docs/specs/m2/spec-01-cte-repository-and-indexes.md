@@ -58,8 +58,8 @@ MATCH (n)-[r]->(m{concept_id: $conceptId}) RETURN (n)
 
 ```mermaid
 graph LR
-    T[concept 4659 — to_concept_id, 선수]
-    F[concept 3 — from_concept_id, 후수]
+    T["concept 4659: to_concept_id, 선수"]
+    F["concept 3: from_concept_id, 후수"]
     T -->|KNOWLEDGE_SPACE| F
 ```
 
