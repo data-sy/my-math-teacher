@@ -1,10 +1,10 @@
 name: Front CI CD to S3
 
 on:
-  push:
-    branches:
-      - main  # 배포를 트리거할 브랜치
-      - cicd
+  # M2 검증 완료 시점에 자동 트리거를 제거 — 포트폴리오 컨텍스트로 S3 배포는
+  # 실제로 수행되지 않으므로 main push 마다 deploy job 이 도는 노이즈를 차단.
+  # 필요 시 GitHub UI 의 "Run workflow" 버튼으로 수동 실행 가능.
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:

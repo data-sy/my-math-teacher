@@ -1,12 +1,10 @@
 name: Neo4j CI CD with EC2
 
 on:
-  push:
-    branches:
-      - main
-      - cicd
-    paths:
-      - 'neo4j/**'
+  # M2 검증 완료 시점에 자동 트리거를 제거 — Neo4j 인프라 자체가 M3 에서 폐기
+  # 예정. 본 워크플로우는 historical 보존 + 필요 시 수동 실행만 가능하도록.
+  # paths 도 neo4j/** 였으나 디렉토리는 neo4j-deprecated/ 로 rename 됨 (afd578b).
+  workflow_dispatch:
 
 jobs:
   build-and-push:
