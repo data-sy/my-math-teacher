@@ -31,10 +31,10 @@ public class TestcontainersConfig {
         return new Neo4jContainer<>("neo4j:5.12")
             .withoutAuthentication()
             .withCopyFileToContainer(
-                MountableFile.forHostPath("../neo4j/init/concepts.csv"),
+                MountableFile.forHostPath("../neo4j-deprecated/init/concepts.csv"),
                 "/var/lib/neo4j/import/concepts.csv")
             .withCopyFileToContainer(
-                MountableFile.forHostPath("../neo4j/init/knowledge_space.csv"),
+                MountableFile.forHostPath("../neo4j-deprecated/init/knowledge_space.csv"),
                 "/var/lib/neo4j/import/knowledge_space.csv")
             .withReuse(true);
     }

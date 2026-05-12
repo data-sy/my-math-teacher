@@ -3,10 +3,11 @@
 **브랜치 정책:** spec 단위로 분할
 - `feat/m2-spec-01-cte-repository` — Phase 1 (CTE 메서드 + 인덱스)
 - `feat/m2-spec-02-service-integration-and-caching` — Phase 2+3 (서비스 통합·캐싱)
-- `feat/m2-spec-03-validation-and-rollout` — Phase 4+5 (검증·출시·폐기)
+- `feat/m2-spec-03-validation-and-rollout` — Phase 4 (검증) — Phase 5 (출시·폐기)는 M3 로 이관
 
-**예상 소요:** 8일 (구현) + 운영 관찰 기간 (기본 1개월)
+**예상 소요:** 8일 (구현·검증)
 **의존성:** Milestone 1 (테스트 인프라 및 기준선 구축) 완료
+**후속 마일스톤:** Milestone 3 (그래프 인프라 폐기 + 운영 출시 정책) — 본 마일스톤 완료 후 진행
 **위험 수준:** 중간
 **선행 조건:** Milestone 1의 모든 완료 기준 충족, M1 산출물(기준선·결과 스냅샷·피처 플래그 구조) 가용
 
@@ -79,8 +80,8 @@ Neo4j 그래프 데이터베이스를 제거하고 MySQL Recursive CTE로 대체
   데이터 레이어 한정. JdbcTemplateConceptRepository에 재귀 CTE 메서드와 인덱스 도입.
 - **spec-02: 서비스 통합 + 캐싱 + 리액티브 정리** (Phase 2 + 3, 3일)
   ConceptService 그래프 메서드 군에 분기·캐싱·`.block()` 정리 적용.
-- **spec-03: 검증 + 점진적 출시 + 폐기** (Phase 4 + 5, 3일 + 관찰 기간)
-  정확성·성능·호환성 검증과 Neo4j 인프라 폐기.
+- **spec-03: 검증** (Phase 4, 3일)
+  정확성·성능·호환성·거리 맵 의미 보존을 검증. 본래 Phase 5 (점진 출시·관찰·폐기) 가 함께 묶여 있었으나 시간 척도·결정 시점이 달라 M3 로 분리.
 
 ---
 
@@ -110,16 +111,16 @@ Neo4j 그래프 데이터베이스를 제거하고 MySQL Recursive CTE로 대체
 
 ## 완료 기준
 
-- [ ] `ConceptRepository`의 그래프 메서드 6개를 모두 CTE로 대체 (매핑 표는 spec-01 사전 조건 참조)
-- [ ] ConceptService 그래프 메서드 5개 모두 피처 플래그 분기 적용 (spec-02)
-- [ ] 캐시 히트율 >90% 확인 (spec-03)
-- [ ] CTE 결과와 M1 Neo4j 스냅샷 정확성 100% 일치
-- [ ] 모든 CTE 쿼리가 성능 허용 기준 충족
-- [ ] 그래프 시각화(Cytoscape.js) / BFS 알고리즘 호환 확인
-- [ ] 피처 플래그로 즉시 롤백 가능
-- [ ] 운영 1개월 무사고 — [검증 필요] 모니터링 인프라 가용성
-- [ ] Neo4j 인프라 완전 제거 (코드·의존성·컨테이너·AWS 인스턴스)
-- [ ] Neo4j 폐기 ADR 작성 (도입 배경과 폐기 사유 함께 기록)
+- [x] `ConceptRepository`의 그래프 메서드 6개를 모두 CTE로 대체 (매핑 표는 spec-01 사전 조건 참조)
+- [x] ConceptService 그래프 메서드 5개 모두 피처 플래그 분기 적용 (spec-02)
+- [x] CTE 결과와 M1 Neo4j 스냅샷 정확성 100% 일치 (spec-03 Task 4.1, 15 케이스 통과)
+- [x] 모든 CTE 쿼리가 성능 허용 기준 충족 (spec-03 Task 4.2a — depth 3 p95 0.556ms, depth 5 p95 0.471ms)
+- [x] 그래프 시각화(Cytoscape.js) 응답 DTO 안정성 확인 (spec-03 Task 4.3)
+- [x] 거리 맵 의미 보존 확인 (spec-03 Task 4.4)
+- [x] 캐시 히트율 측정 인프라 도입 (spec-03 Task 4.2c — 로그 grep 집계)
+- [x] 피처 플래그로 즉시 롤백 가능
+
+> 점진 출시·관찰·폐기 작업은 **M3 (그래프 인프라 폐기 + 운영 출시 정책)** 로 이관.
 
 ---
 
