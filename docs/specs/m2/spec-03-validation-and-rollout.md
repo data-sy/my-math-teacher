@@ -80,7 +80,7 @@ void cteUniqueNodeSetMatchesNeo4jSnapshot() {
 | CTE 깊이 3 (캐시 미스) | <30ms (p95) | SimpleMeterRegistry + `QueryTimingAspect` |
 | CTE 깊이 5 (캐시 미스) | <100ms (p95) | 동상 |
 | 캐시 히트 응답 시간 | <5ms | 동상 |
-| 캐시 히트율 (warm-up 후 1시간) | >90% | `RedisUtil` 카운터 추가 또는 로그 grep 집계 (ADR 0004) |
+| 캐시 히트율 (warm-up 후 1시간) | >90% | `ConceptService` `[cache] hit\|miss key=graph:*` INFO 로그 grep 집계 (ADR 0004) |
 
 > **측정 conceptId 일관성:** M1 baseline은 `conceptId=6646` 단일 ID로 측정됨(`docs/benchmark/milestone-1-baseline.md:40,52-56`). 본 task의 CTE 측정·부하 테스트도 **동일 conceptId(6646)** 를 사용하여 깊이별·경로별 비교가 의미를 가지도록 한다. 추가 ID(7595/6420/6784)는 회귀 보강 케이스로 활용.
 
@@ -96,7 +96,7 @@ ADR 0004에 따라 production 모니터링 인프라(Prometheus + Grafana + Actu
 
 - M1의 `SimpleMeterRegistry` + `QueryTimingAspect` 슬로우 쿼리 WARN 로그로 검증 단계 측정
 - 부하 테스트 결과·메트릭 dump를 PR 설명에 첨부
-- 캐시 히트율은 `RedisUtil`에 카운터 추가 또는 로그 기반 집계로 우회
+- 캐시 히트율은 `ConceptService` 의 `[cache] hit|miss key=graph:*` INFO 로그 grep 으로 집계 (Task 4.2c)
 
 dashboard·alerting은 비범위.
 
@@ -176,11 +176,11 @@ void bfsResultIsIdenticalAcrossBranches() {
 |------|------|----------|
 | CTE 경로 에러율 | 0% | [검증 필요] 에러 로그 집계 |
 | CTE 응답 시간 (p95) | Task 4.2 기준 충족 | QueryTimingAspect 로그 |
-| 캐시 히트율 | >90% | `RedisUtil` 카운터 또는 로그 집계 (ADR 0003 + ADR 0004) |
+| 캐시 히트율 | >90% | `ConceptService` `[cache] hit\|miss` INFO 로그 grep 집계 (ADR 0003 + ADR 0004) |
 | 진단 결과 페이지 로드 시간 | 회귀 없음 (M1 기준선 대비) | 프론트 측 측정 — [검증 필요: 운영자] 측정 도구·환경 확인 |
 | 그래프 시각화 렌더링 정상 여부 | 100% | 프론트 에러 로그 — [검증 필요: 운영자] 로그 인프라 확인 |
 
-ADR 0004에 따라 production 메트릭 dashboard·alerting은 비범위. 본 task의 지표 수집은 모두 로그 기반 + `RedisUtil` 카운터로 우회.
+ADR 0004에 따라 production 메트릭 dashboard·alerting은 비범위. 본 task의 지표 수집은 모두 로그 기반(ConceptService 의 cache hit/miss INFO 로그 + `QueryTimingAspect` 슬로우 쿼리 WARN 로그)으로 처리.
 
 ---
 

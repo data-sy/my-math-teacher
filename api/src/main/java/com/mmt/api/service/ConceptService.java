@@ -12,6 +12,8 @@ import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.knowledgeSpace.KnowledgeSpaceRepository;
 import com.mmt.api.util.LogicUtil;
 import com.mmt.api.util.RedisUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ConceptService {
+
+    private static final Logger log = LoggerFactory.getLogger(ConceptService.class);
 
     private final ConceptRepository conceptRepository;
     private final KnowledgeSpaceRepository knowledgeSpaceRepository;
@@ -54,10 +58,18 @@ public class ConceptService {
     // ADR 0003: RedisUtil 직접 호출 캐시 패턴. CTE 분기 경로에서만 사용.
     // Neo4j 경로는 자체 그래프 인덱스가 있고 결과 재사용 시 의미 차이로 잘못
     // 캐시 매칭될 위험이 있어 캐시 미적용.
+    // spec-03 Task 4.2c (ADR 0003/0004): 캐시 히트율 측정을 위한 hit/miss 로그.
+    // M2 모니터링 인프라가 M3 로 분리됐으므로 production dashboard 가 없다 —
+    // 1개월 관찰 기간 동안 INFO 로그에서 "[cache] hit|miss key=graph:*" 패턴을
+    // grep 으로 집계해 히트율(>90% 목표) 검증한다.
     private <T> List<T> cachedOrCompute(String key, Supplier<List<T>> compute) {
         @SuppressWarnings("unchecked")
         List<T> cached = (List<T>) redisUtil.get(key);
-        if (cached != null) return cached;
+        if (cached != null) {
+            log.info("[cache] hit key={}", key);
+            return cached;
+        }
+        log.info("[cache] miss key={}", key);
         List<T> result = compute.get();
         redisUtil.set(key, result, TTL_24H);
         return result;
@@ -66,7 +78,11 @@ public class ConceptService {
     private <K, V> Map<K, V> cachedOrComputeMap(String key, Supplier<Map<K, V>> compute) {
         @SuppressWarnings("unchecked")
         Map<K, V> cached = (Map<K, V>) redisUtil.get(key);
-        if (cached != null) return cached;
+        if (cached != null) {
+            log.info("[cache] hit key={}", key);
+            return cached;
+        }
+        log.info("[cache] miss key={}", key);
         Map<K, V> result = compute.get();
         redisUtil.set(key, result, TTL_24H);
         return result;
