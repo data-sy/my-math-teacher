@@ -132,28 +132,31 @@ void cytoscapeResponseDtoIsStableUnderCtePath() {
 
 ---
 
-## Task 4.4 — BFS 호환
+## Task 4.4 — 거리 맵 의미 보존
 
-- **대상:** `LogicUtil.bfs(int start, List<Integer> integerList) → Map<Integer, Integer>` (거리 맵)
-- **검증:** 분기 양쪽에서 동일한 거리 맵 산출
+- **대상:** `ConceptService.findPrerequisitesAsDepthMap(int conceptId, int maxDepth) → Map<Integer, Integer>` — spec-02 Task 3.4 도입 헬퍼. CTE 분기는 `MIN(depth)` 를 직접 Map 으로, Neo4j 분기는 `findNodesIdByConceptIdDepthN` 결과 ID 리스트를 `LogicUtil.bfs` 에 흘려 Map 산출 (`ConceptService.java:165-181`).
+- **검증 접근:** `LogicUtil.bfs(start, ids)` 는 ID 리스트가 **path order** (Neo4j `UNWIND nodes(path)` 의 순서) 라는 전제로 `i`/`i+1` 인접쌍을 양방향 엣지로 가정해 그래프를 복원하고 그 위에서 BFS 거리를 계산한다. CTE 결과는 `GROUP BY concept_id` 로 dedup 된 unique 집합이라 path order 가 없으므로 동일 입력을 양쪽에 흘려도 동일 Map 이 나오지 않는다 — 이것이 정확히 spec-01 A3 silent regression 의 원인이고 spec-02 Task 3.4 가 ProbabilityService 를 헬퍼로 옮긴 이유다. 따라서 본 task 는 hypothetical "양쪽 Map 동등성" 비교 대신 **CTE 분기의 거리 맵이 의미적 안정성을 갖는지** (시작 노드=0, 최단 거리 의미, Task 4.1 스냅샷의 node set 과 일치) 만 검증한다. Neo4j 분기 동작 보존은 spec-02 Task 3.4 의 단위 테스트가 이미 검증.
 
 ```java
 @Test
-void bfsResultIsIdenticalAcrossBranches() {
-    // 실제 BFS 호출처(ProbabilityService.java:65-68)와 동일하게 깊이 3 사용
-    int conceptId = 6646;  // 스냅샷 키에 존재
-    var neo4jIds = serviceWithFlag(false).findNodesIdByConceptIdDepth3(conceptId);
-    var cteIds   = serviceWithFlag(true).findNodesIdByConceptIdDepth3(conceptId);
+void cteDepthMapPreservesShortestDistanceSemantics() {
+    int conceptId = 6646;
+    Map<Integer, Integer> map = conceptService.findPrerequisitesAsDepthMap(conceptId, 3);
 
-    var neo4jBfs = LogicUtil.bfs(conceptId, neo4jIds.collectList().block());
-    var cteBfs   = LogicUtil.bfs(conceptId, cteIds.collectList().block());
-
-    assertThat(cteBfs).isEqualTo(neo4jBfs);
+    // (1) 시작 노드 거리 = 0
+    assertThat(map.get(conceptId)).isZero();
+    // (2) 0 <= 모든 거리 <= maxDepth
+    map.values().forEach(d -> assertThat(d).isBetween(0, 3));
+    // (3) key 집합이 Task 4.1 스냅샷 노드 집합과 일치 (depth 3 또는 5)
+    assertThat(map.keySet()).satisfiesAnyOf(
+        ks -> assertThat(ks).isEqualTo(loadSnapshotIds(conceptId, 3)),
+        ks -> assertThat(ks).isEqualTo(loadSnapshotIds(conceptId, 5)));
 }
 ```
 
 검증된 사실:
-- ✓ BFS 입력 출처: `ProbabilityService.java:65-68`에서 `conceptService.findNodesIdByConceptIdDepth3(conceptId).collectList().block()` 결과를 BFS에 투입. 즉 **`findNodesIdByConceptIdDepth3` 결과 ID 리스트**가 표준 입력. 깊이 5는 BFS에 사용되지 않음.
+- ✓ BFS 입력 출처: spec-02 Task 3.4 이전 `ProbabilityService.java:65-68` 에서 `conceptService.findNodesIdByConceptIdDepth3(conceptId).collectList().block()` 결과를 `LogicUtil.bfs` 에 투입. spec-02 Task 3.4 이후 `ProbabilityService.java:61-63` 는 `findPrerequisitesAsDepthMap` 헬퍼를 호출하고 `LogicUtil.bfs` 잔존 호출은 헬퍼 내부 Neo4j 분기 (`ConceptService.java:181`) 에만 남는다 — Neo4j 폐기(Task 5.3) 시 함께 삭제.
+- ✓ `LogicUtil.bfs` 의 path-order 가정: `LogicUtil.java` 의 `buildGraph` 가 `integerList.get(i)`/`get(i+1)` 인접쌍을 엣지로 본다. CTE 결과를 흘리면 잘못된 그래프 복원 → spec-01 A3 silent regression.
 - BFS 입력 ID 집합의 의미: 시작 conceptId 자기 자신 + 그 선수 개념을 깊이 3까지 거슬러 올라간 노드들. 시작 노드가 입력에 포함되므로 거리 맵 key 집합도 시작 노드 + 선수들이다. 의미 정의는 [spec-01 데이터 모델 노트](spec-01-cte-repository-and-indexes.md#-데이터-모델-노트--knowledge_space-엣지-방향성) 참조 — spec 실행 시 시드 데이터로 한 번 더 검증 권장.
 - BFS 결과 거리 맵: key = 입력 리스트 내 conceptId, value = `start`로부터의 최단 거리. 빠진 노드가 있을 경우 동작은 `LogicUtil.bfs` 구현 확인 후 동등성 검증 케이스에 추가 (입력 리스트가 같다면 동일한 거리 맵이 보장됨).
 
