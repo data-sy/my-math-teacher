@@ -105,20 +105,29 @@ dashboard·alerting은 비범위.
 ## Task 4.3 — Cytoscape.js 호환
 
 - **대상:** `web/`의 그래프 시각화 컴포넌트가 받는 백엔드 응답
-- **검증:** 분기 양쪽에서 응답 DTO의 직렬화 결과가 동일한지 비교
+- **검증 접근:** Neo4j vs CTE 원시 결과의 노드 집합 동등성은 Task 4.1 에서 이미 검증됨. 본 task 는 그 위에서 **CTE 분기**의 응답 DTO 직렬화가 (1) Cytoscape 가 요구하는 필수 필드를 빠짐없이 포함하고, (2) Task 4.1 스냅샷의 노드 집합과 일치하는 응답을 산출하는지를 확인한다. spec body L113 의 hypothetical "분기 양쪽 비교" 는 Neo4j 시드 LOAD CSV 추가 부담 + Task 4.1 과의 중복이 커서 채택하지 않는다.
 
 ```java
 @Test
-void cytoscapeResponseDtoIsIdentical() {
-    var neo4jResponse = serviceWithFlag(false).getGraphForVisualization(...);
-    var cteResponse   = serviceWithFlag(true).getGraphForVisualization(...);
-    assertThat(toJson(cteResponse)).isEqualTo(toJson(neo4jResponse));
+void cytoscapeResponseDtoIsStableUnderCtePath() {
+    Flux<ConceptResponse> nodes = serviceWithCte().findNodesByConceptId(6646);
+    List<ConceptResponse> list = nodes.collectList().block();
+
+    // (1) Cytoscape 필수 필드 — conceptId 가 비-0 이어야 노드 식별 가능.
+    list.forEach(c -> assertThat(c.getConceptId()).isPositive());
+
+    // (2) Task 4.1 스냅샷의 conceptId 집합과 일치 — 6646 의 schoolLevel 에
+    //     따라 depth=3 또는 5 결정 (ConceptService.java:111-112).
+    Set<Integer> expected = loadSnapshotIds(6646, depthOf(6646));
+    assertThat(list.stream().map(ConceptResponse::getConceptId).collect(toSet()))
+        .isEqualTo(expected);
 }
 ```
 
 검증 결과:
 - ✓ 활성 응답 DTO: `ConceptResponse` (`ConceptConverter.convertToFluxConceptResponse` 경유, `findNodesByConceptId`/`findToConcepts`가 `Flux<ConceptResponse>` 반환). `NodeResponse`/`NetworkResponse`는 `ConceptService.java:98-109`의 주석 처리 코드에만 존재 (활성 미사용).
-- DTO 구조: `Concept` 도메인을 그대로 변환 (concept_id 등 노드 정보). **엣지 정보는 별도 조회**가 필요 — 본 spec에서 응답 동등성 비교 시 엣지 조회 경로도 검증 대상에 포함.
+- DTO 구조: `Concept` 도메인을 그대로 변환 (concept_id 등 노드 정보). **엣지 정보는 별도 조회**가 필요 — 본 task 에서 `KnowledgeSpaceService.findEdgesByConceptId` 경로도 안정성 검증 대상에 포함 (`EdgeResponse.data` 의 from/to ID 가 비-0).
+- `KnowledgeSpaceRepository` 는 단일 구현(`JdbcTemplateKnowledgeSpaceRepository`, MySQL only) — 엣지 조회 자체는 분기 분리 없음.
 - 프론트 컴포넌트: `web/src/views/ResultView.vue`, `web/src/views/ConceptView.vue`에서 `cytoscape` + `cytoscape-klay`로 그래프 렌더링. cytoscape 변환 로직은 프론트 측에 위치하므로 백엔드 응답이 동일하면 시각화 동작 보장.
 
 ---
