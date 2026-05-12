@@ -80,7 +80,7 @@ class GraphQueryPerformanceTest {
         try (var session = driver.session()) {
             session.run("MATCH (n) DETACH DELETE n");
 
-            // neo4j/init/init.cypher 와 동일한 적재 로직 (LOAD CSV WITH HEADERS).
+            // neo4j-deprecated/init/init.cypher 와 동일한 적재 로직 (LOAD CSV WITH HEADERS).
             session.run(
                 "LOAD CSV WITH HEADERS FROM 'file:///concepts.csv' AS row "
                     + "CREATE (:concept {"

@@ -18,7 +18,7 @@
 
 ### 테스트 데이터 규모
 
-- **Neo4j:** `neo4j/init/concepts.csv` (1635행) → **concept 노드 1631개 적재** (누락 4행, CSV toInteger 실패 추정; baseline 영향 미미). `neo4j/init/knowledge_space.csv` (3447행) → **KNOWLEDGE_SPACE 관계 3446개 적재**.
+- **Neo4j:** `neo4j-deprecated/init/concepts.csv` (1635행, M1 측정 당시 디렉토리명은 `neo4j/` — M2 검증 완료 후 deprecated 표기로 rename) → **concept 노드 1631개 적재** (누락 4행, CSV toInteger 실패 추정; baseline 영향 미미). `neo4j-deprecated/init/knowledge_space.csv` (3447행) → **KNOWLEDGE_SPACE 관계 3446개 적재**.
 - **MySQL:** `RepositoryBenchmarkTest.@BeforeAll` 에서 `create.sql` 의 서브셋 (chapters/concepts/items/tests/tests_items/users_tests/answers/probabilities) 을 raw DDL 로 생성 후:
   - `chapters`: 1행, `concepts`: 1행, `tests`: 1행, `items`: 1행, `tests_items`: 1행
   - `users_tests`: 2행 (find 용 1 + batch insert 용 1)

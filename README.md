@@ -148,7 +148,7 @@ done
 
 ```bash
 docker compose exec -T mmt-neo4j \
-  cypher-shell -u neo4j -p <neo4j_비번> < neo4j/init/init.cypher
+  cypher-shell -u neo4j -p <neo4j_비번> < neo4j-deprecated/init/init.cypher
 ```
 
 적재 후 MySQL `concepts` / `knowledge_space` row 수와 Neo4j 노드 / 관계 수가 일치하면 정상입니다.
