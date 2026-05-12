@@ -16,7 +16,9 @@ Milestone 2 spec-03 Task 4.2의 모니터링 인프라 의사결정에서 다음
 
 ## Decision
 
-M2 범위에서는 **production 모니터링 인프라 도입을 수행하지 않는다.** spec-03 Task 4.2의 검증 단계는 M1에서 도입한 `SimpleMeterRegistry` + 로그 기반 측정으로 진행하며, production 모니터링 인프라(Prometheus + Grafana + Actuator 등)는 별도 마일스톤 **M3 (가칭: 운영 관측성 도입)** 으로 분리한다.
+M2 범위에서는 **production 모니터링 인프라 도입을 수행하지 않는다.** spec-03 Task 4.2의 검증 단계는 M1에서 도입한 `SimpleMeterRegistry` + 로그 기반 측정으로 진행하며, production 모니터링 인프라(Prometheus + Grafana + Actuator 등)는 별도 마일스톤으로 분리한다.
+
+> **갱신 (M2 검증 완료 시점):** 본 ADR 작성 당시 "M3" 라는 가칭으로 표기했으나, M2 검증 완료 후 M3 는 "그래프 인프라 폐기 + 운영 출시 정책" 으로 좁혀 정의됐다 (`docs/milestones/milestone-3-graph-infra-deprecation.md`). 운영 관측성 도입은 M3 와 별개의 후속 마일스톤으로 흘러간다 — 본 ADR 의 결정(분리)은 그대로 유효, 단 마일스톤 번호만 미정 상태.
 
 M2 spec-03 검증 범위:
 - 회귀 테스트 (Task 4.1) — 단위 테스트 + Testcontainers
