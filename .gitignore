@@ -17,3 +17,11 @@ api/src/main/resources/application-securelocal.yml
 
 # Test scripts
 ai/oauth2_test.py
+
+# Terraform (M4 spec-03 — state/tfvars 는 자격·실 리소스 ID 를 평문 저장 → 커밋 금지)
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!*.tfvars.example
+# .terraform.lock.hcl 은 커밋 (provider 버전 잠금 공유)
