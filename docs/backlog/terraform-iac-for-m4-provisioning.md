@@ -73,3 +73,8 @@ Terraform 학습은 `apply` 없이도 70% 된다. config 쓰고 `init` → `plan
   Terraform 샌드박스는 AWS 무관 부분(plan-only)이라 별도로 진행해도 안 섞인다.
 - 우선순위가 올라가면(또는 §9 프로비저닝을 콘솔 대신 IaC 로 하기로 결정하면) 별도 spec 으로
   승격. 그 전까지는 학습 선택 항목으로 보류.
+
+> 🔼 **승격됨 (2026-06-16): plan-only 샌드박스로 착수.** 계정 없음에서 출발하는 실행 스펙
+> = [`docs/specs/m4/spec-03-terraform-plan-only-iac-sandbox.md`](../specs/m4/spec-03-terraform-plan-only-iac-sandbox.md)
+> (무과금 경계·LocalStack 무계정 경로·HCL 구성·G3 하네스 분담). 본 백로그 문서는 그 *배경·경계*
+> 기록으로 유지.
