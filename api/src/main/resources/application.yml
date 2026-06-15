@@ -1,6 +1,13 @@
 spring:
   profiles:
     include: securelocal
+  # M4 spec-01 §2.2-5 / R5: 무중단 배포의 "백엔드 절반". 종료 시 진행 중(in-flight) 요청을
+  # 흘려보낸 뒤 멈춰야 컷오버 구간 502 가 안 난다.
+  # ⚠️ timeout-per-shutdown-phase 는 Task C(switch-backend.sh)의 `docker stop -t` 하한이다 —
+  #    docker stop 기본 grace 10s 가 이 값보다 짧으면 graceful 이 SIGKILL 로 잘린다.
+  #    30s 는 보수적 초기값. §9 에서 대표 엔드포인트(CTE+RDS 왕복) p99 측정 후 조정.
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   datasource:
     hikari:
       # M2 spec-01 Task 1.4: 재귀 CTE 최대 깊이를 커넥션 단위로 제한.
@@ -16,6 +23,13 @@ spring:
         show_sql: true
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+
+# M4 spec-01: graceful shutdown 활성화 (위 spring.lifecycle.timeout-per-shutdown-phase 와 짝).
+# 🟡 초록의 의미 고정 —
+#   CI 가 보증하는 것  = 이 설정이 유효하고 컨텍스트가 안고 기동한다(설정 회귀 방지; ApiApplicationTests).
+#   CI 가 못 하는 것    = 드레인이 실제로 502 를 막는다 → spec-01 §4 유실 grader / G4 가 배포 때 소유.
+server:
+  shutdown: graceful
 logging:
   level:
     com.mmt: DEBUG
