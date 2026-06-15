@@ -49,6 +49,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - `application-prod.yml` · `application-local.yml` 도입으로 4 프로파일 (default/local/test/prod) 체계 완성
   - `application.yml` 의 공통 `com.mmt` · `springframework.data.neo4j` · `springframework.security` DEBUG 로거를 프로덕션에서 INFO 로 하향 (M1 Spec 03 Task 3.3 에서 관찰)
   - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
+- **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)**
+  - M4 §9 인프라(EC2 1 + RDS 1 + EIP + SG)는 한 번 깔고 마는 솔로 규모라 효율만 보면 콘솔이 빠르지만, IaC "경험" 목적이면 적당한 첫 소재 — spec-02 §5 **G3**(infra apply 게이트)가 이미 Terraform 을 가정. `plan`-only 는 무과금으로 지금 시작 가능, `apply`(과금)는 G1 준비 후. M4 본류와 병행 가능
+  - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](backlog/terraform-iac-for-m4-provisioning.md)
 - DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
 - 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
 - CI/CD 파이프라인 정비 및 배포 자동화
