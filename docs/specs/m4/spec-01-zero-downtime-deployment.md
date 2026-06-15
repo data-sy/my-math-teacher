@@ -171,17 +171,24 @@ docker system prune -f
 
 - `web/nginx.conf` 수정:
   ```nginx
-  upstream mmt_backend { include /etc/nginx/conf.d/active-backend.conf; }
+  upstream mmt_backend { include /etc/nginx/active-backend.conf; }   # ⚠️ conf.d 밖 — 아래 근거
   location /api/v1/      { proxy_pass http://mmt_backend; }
   location /oauth2/      { proxy_pass http://mmt_backend; }   # 타깃 통일
   location /login/oauth2 { proxy_pass http://mmt_backend; }   # 타깃 통일
   ```
 - `deploy/active-backend.conf` (신규, 호스트에 위치 — 교체 대상 fragment):
   ```nginx
-  server mmt-backend-green:8080;   # 배포 스크립트가 blue/green 으로 재작성
+  server mmt-backend-blue:8080;   # 최초 활성 색(blue). 배포 스크립트가 blue/green 으로 재작성
   ```
 - 이 fragment 를 프론트 컨테이너에 **볼륨 마운트**(`./deploy/active-backend.conf` →
-  `/etc/nginx/conf.d/active-backend.conf`)하여 런타임 교체 + reload 가능하게 함.
+  `/etc/nginx/active-backend.conf`)하여 런타임 교체 + reload 가능하게 함.
+- ⚠️ **마운트 경로는 반드시 `conf.d` 밖.** `web/Dockerfile` 이 `nginx.conf` 를
+  `/etc/nginx/conf.d/default.conf` 로 COPY 하고, 스톡 nginx 메인 설정이 `include /etc/nginx/conf.d/*.conf`
+  로 conf.d 의 **모든** `.conf` 를 http 컨텍스트에 로드한다. fragment(`server …:8080;`)를 conf.d 안에
+  두면 `upstream{}` 안의 include 와 **별개로** http 컨텍스트에서 한 번 더 로드돼 standalone server
+  디렉티브로 파싱 → **`nginx -t` 가 깨진다**. 그래서 conf.d 밖(`/etc/nginx/active-backend.conf`)에
+  마운트해 `upstream{}` 안에서만 include 되게 한다. (구현 시 `nginx:1.21.4-alpine` 으로 `nginx -t`
+  실측 확인 — 이 경로 함정은 실제 기동해봐야 드러나는 종류라 형태 검증 단계에서 정정.)
 
 ### 3.3 docker-compose.yml (gitignored — 변경점 기술만, 시크릿 미포함)
 
