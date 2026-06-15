@@ -12,6 +12,13 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 결과 보고: `docs/reports/m2-cte-migration.md`
   - 점진 출시·관찰·폐기는 **M3** 로 분리 (포트폴리오 컨텍스트로 실제 폐기 수행은 보류 가능)
 
+- **[M4] 배포 무중단화 (Zero-Downtime Deployment) — spec 작성 중**
+  - 단일 EC2 위에서 기존 nginx 를 전환 지점으로 재사용한 blue-green 으로 백엔드 재배포 무중단화 (K8s/ALB 없이 가장 기본 구성)
+  - 현행 다운타임 원인: 배포가 기존 컨테이너를 먼저 제거(겹침 0) + 이미지 태그 고정 + nginx upstream 하드코딩 + container_name 고정 + 헬스 신호 부재
+  - EC2 미생성 → **AWS 프리티어(t3.micro 1 GiB) 프로비저닝 포함**: MySQL=RDS 분리, Neo4j 미구동(CTE-only), Redis 로컬, 스왑+mem_limit
+  - **M3 와의 관계 (M4 → M3, 비차단)**: M4 단일 인스턴스 bring-up 이 "MySQL/CTE-only 실서버 정상 동작"을 검증 → M3 의 Neo4j 폐기 go/no-go 근거가 됨. Neo4j 코드·인프라 실제 삭제는 M3 잔여 작업
+  - spec: [`docs/specs/m4/spec-01-zero-downtime-deployment.md`](specs/m4/spec-01-zero-downtime-deployment.md)
+
 ---
 
 ## Next — 다음 분기 (착수 예정)
