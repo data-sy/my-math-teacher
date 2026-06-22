@@ -12,20 +12,9 @@ onMounted(() => {
     const token = urlParams.get('token');
 
     if (token) {
-        const accessTokenMatch = token.match(/accessToken=([^,]+).*?,/);
-        const refreshTokenMatch = token.match(/refreshToken=([^)]+)\)/);
-
-        if (accessTokenMatch && refreshTokenMatch) {
-            const accessToken = accessTokenMatch[1];
-            const refreshToken = refreshTokenMatch[1];
-
-            store.commit('setAccessToken', accessToken);
-            store.commit('setRefreshToken', refreshToken);
-
-            router.push({ path: '/', query: {} });
-        } else {
-            console.error('Invalid token format.');
-        }
+        // token 쿼리파라미터는 access 토큰 그대로다. refresh 는 HttpOnly 쿠키로 전달되므로 JS 가 다루지 않는다.
+        store.commit('setAccessToken', token);
+        router.push({ path: '/', query: {} });
     } else {
         console.error('Token not found in URL.');
     }

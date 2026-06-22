@@ -103,7 +103,10 @@ public class AuthController {
             String accessToken = authorizationHeader.substring(7);
             authService.logout(accessToken);
         }
-        return ResponseEntity.ok().build();
+        // refresh 쿠키 클리어 — 발급과 동일 속성·Path 라야 브라우저가 삭제한다(단일 출처 clear()).
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.SET_COOKIE, refreshCookieFactory.clear().toString());
+        return ResponseEntity.ok().headers(httpHeaders).build();
     }
 
     /**
