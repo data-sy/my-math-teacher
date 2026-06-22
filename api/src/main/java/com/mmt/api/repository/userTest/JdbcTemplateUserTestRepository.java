@@ -56,6 +56,13 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
         return jdbcTemplate.queryForList(sql, Long.class, userTestId);
     }
 
+    @Override
+    public boolean existsByUserTestIdAndUserId(Long userTestId, Long userId) {
+        String sql = "SELECT EXISTS (SELECT 1 FROM users_tests WHERE user_test_id = ? AND user_id = ?)";
+        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, userTestId, userId);
+        return Boolean.TRUE.equals(exists);
+    }
+
     private RowMapper<UserTests> userTestsRowMapper() {
         return (rs, rowNum) -> {
             UserTests userTests = new UserTests();
