@@ -57,13 +57,8 @@ public class AuthController {
     @PostMapping("/authentication")
     public ResponseEntity<TokenDTO> login(@RequestBody LoginDTO loginDTO) {
         JwtToken token = authService.authorize(loginDTO.getUserEmail(), loginDTO.getUserPassword());
-
-        // 토큰을 Response Header에도 넣어주자
-        // (#1) JwtToken 객체를 그대로 붙이면 @Data toString 으로 refreshToken 까지 헤더에 노출된다.
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
-
-        return new ResponseEntity<>(TokenDTO.from(token), httpHeaders, HttpStatus.OK);
+        // (Task 3) 비밀번호 로그인도 OAuth 와 동일하게 refresh 는 쿠키로만, body 는 access 만.
+        return accessOnlyResponseWithRefreshCookie(token);
     }
 
     /**
@@ -77,13 +72,19 @@ public class AuthController {
         String refreshToken = StringUtils.hasText(refreshCookie) ? refreshCookie : request.getRefreshToken();
 
         JwtToken token = authService.reissue(request.getAccessToken(), refreshToken);
+        // 회전된 refresh 를 동일 속성 쿠키로(review#4), body 에는 access 만.
+        return accessOnlyResponseWithRefreshCookie(token);
+    }
 
+    /**
+     * 로그인·재발급 공통 응답: access 는 Authorization 헤더+body, refresh 는 HttpOnly 쿠키로만 내린다.
+     * 쿠키 속성은 RefreshCookieFactory 단일 출처라 OAuth 핸들러·reissue 회전과 항상 일치(review#4).
+     */
+    private ResponseEntity<TokenDTO> accessOnlyResponseWithRefreshCookie(JwtToken token) {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
-        // (review#4) 회전된 refresh 를 Task 1 과 동일 속성으로 다시 쿠키에 내려준다(단일 출처).
         httpHeaders.add(HttpHeaders.SET_COOKIE, refreshCookieFactory.create(token.getRefreshToken()).toString());
 
-        // 응답 body 에는 refresh 를 싣지 않는다(쿠키로만 전달) — access 만 반환.
         TokenDTO body = TokenDTO.builder()
                 .grantType(token.getGrantType())
                 .accessToken(token.getAccessToken())
