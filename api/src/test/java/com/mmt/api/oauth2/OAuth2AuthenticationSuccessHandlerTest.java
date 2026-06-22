@@ -1,6 +1,7 @@
 package com.mmt.api.oauth2;
 
 import com.mmt.api.jwt.JwtToken;
+import com.mmt.api.jwt.RefreshCookieFactory;
 import com.mmt.api.jwt.TokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
     @BeforeEach
     void setUp() {
         tokenProvider = mock(TokenProvider.class);
-        handler = new OAuth2AuthenticationSuccessHandler(tokenProvider);
+        handler = new OAuth2AuthenticationSuccessHandler(tokenProvider, new RefreshCookieFactory(604800L));
 
         JwtToken token = JwtToken.builder()
                 .grantType("Bearer")
@@ -43,7 +44,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
                 .refreshToken(REFRESH)
                 .build();
         when(tokenProvider.generateToken(org.mockito.ArgumentMatchers.any())).thenReturn(token);
-        when(tokenProvider.getRefreshTokenValiditySeconds()).thenReturn(604800L);
     }
 
     private Authentication auth() {

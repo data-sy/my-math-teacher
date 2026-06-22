@@ -5,6 +5,7 @@ import com.mmt.api.dto.user.TokenDTO;
 import com.mmt.api.dto.user.UserDTO;
 import com.mmt.api.jwt.JwtFilter;
 import com.mmt.api.jwt.JwtToken;
+import com.mmt.api.jwt.RefreshCookieFactory;
 import com.mmt.api.service.user.AuthService;
 import com.mmt.api.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,10 +22,13 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final RefreshCookieFactory refreshCookieFactory;
 
-    public AuthController(UserService userService, AuthService authService) {
+    public AuthController(UserService userService, AuthService authService,
+                          RefreshCookieFactory refreshCookieFactory) {
         this.userService = userService;
         this.authService = authService;
+        this.refreshCookieFactory = refreshCookieFactory;
     }
 
     /**
@@ -65,14 +70,26 @@ public class AuthController {
      * AccessToken이 만료 되었을 때 토큰(AccessToken , RefreshToken)재발급
      */
     @PostMapping("/reissue")
-    public ResponseEntity<TokenDTO> reissue(@Valid @RequestBody TokenDTO request) {
-        JwtToken token = authService.reissue(request.getAccessToken(), request.getRefreshToken());
+    public ResponseEntity<TokenDTO> reissue(
+            @Valid @RequestBody TokenDTO request,
+            @CookieValue(name = RefreshCookieFactory.COOKIE_NAME, required = false) String refreshCookie) {
+        // (DR2#8) 쿠키가 있으면 쿠키만, 없을 때만 body refresh 폴백(전환기). 폴백 제거는 3차 배포(완료기준).
+        String refreshToken = StringUtils.hasText(refreshCookie) ? refreshCookie : request.getRefreshToken();
+
+        JwtToken token = authService.reissue(request.getAccessToken(), refreshToken);
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
+        // (review#4) 회전된 refresh 를 Task 1 과 동일 속성으로 다시 쿠키에 내려준다(단일 출처).
+        httpHeaders.add(HttpHeaders.SET_COOKIE, refreshCookieFactory.create(token.getRefreshToken()).toString());
 
-        return new ResponseEntity<>(TokenDTO.from(token), httpHeaders, HttpStatus.OK);
+        // 응답 body 에는 refresh 를 싣지 않는다(쿠키로만 전달) — access 만 반환.
+        TokenDTO body = TokenDTO.builder()
+                .grantType(token.getGrantType())
+                .accessToken(token.getAccessToken())
+                .build();
 
+        return new ResponseEntity<>(body, httpHeaders, HttpStatus.OK);
     }
 
     /**

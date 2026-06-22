@@ -152,11 +152,6 @@ public class TokenProvider {
         return parseClaims(token).getSubject();
     }
 
-    // refresh 토큰 유효기간(초) — refresh 쿠키 Max-Age 동기화용
-    public long getRefreshTokenValiditySeconds() {
-        return refreshTokenValidityInMilliseconds / 1000;
-    }
-
     // refresh 멀티슬롯 Redis 키: refresh:{email}:{jti}
     public static String refreshKey(String email, String jti) {
         return "refresh:" + email + ":" + jti;
