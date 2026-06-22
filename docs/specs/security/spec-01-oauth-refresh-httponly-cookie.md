@@ -5,6 +5,7 @@
 **예상 소요:** 1.5~2일 (백엔드 + 프론트 + CSRF/검증)
 **선행:** 본 핫픽스 5커밋 반영 완료 — `c24c8a7`(#2·#3·#4), `7e126be`(#1-헤더·#8), `2db7ff6`(#5), `1e49c16`(#9), `1d375ca`(#7)
 **실행:** **다른 세션에서 실행** (본 세션은 spec 작성까지). 실행 시 `/analyze-before-change` 로 시작.
+**리뷰 상태:** audit-doc 통과 + design-review 2라운드 반영 후 **freeze**. 잔여 구현-위생 항목은 §"구현 시 결정·검증 체크리스트" 로 이관 — 추가 design-review 대신 실행 시 `/analyze-before-change` 가 실제 코드 대비 잡는다.
 
 > ⚠️ 본 변경은 **백엔드+프론트에 걸친 인증 계약 변경**이며 reissue 가 상태변경이라 **CSRF 표면이 새로 생긴다**. 로컬에서 OAuth 실제 왕복을 재현하기 어려우므로(소셜 IdP 콜백 필요) 단계별 롤백 가능한 단위로 쪼개고, 각 단계마다 수동 검증 절차를 둔다.
 
@@ -85,7 +86,7 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 - 만료된 access 토큰은 계속 body 로 받음(주체 email 추출용) — 단 access 가 만료되어도 `parseClaims` 가 `ExpiredJwtException` 에서 claims 반환하므로 email 추출 가능(현행 동작 유지, `TokenProvider.parseClaims`).
 - 새 토큰 발급 시 새 refresh 를 **다시 쿠키로** 내려줌(회전). 응답 body `TokenDTO` 에서는 refreshToken 필드를 비우거나 제거.
   - ⚠️ **(review #4)** 회전 재발급 `Set-Cookie` 는 Task 1 과 **동일한 속성 세트**(name·Path·Domain·Secure·HttpOnly·SameSite)를 그대로 박을 것 — 일부만 다르면 브라우저가 별도 쿠키를 만들거나 구쿠키가 잔존한다.
-- ⚠️ **(review #2) 동시·다탭 reissue 경쟁:** HttpOnly 라 JS 가 refresh 를 직렬화/조정할 수 없어 다탭이 같은 RT0 를 동시에 보낸다. 엄격 회전이면 한 요청만 RT1 로 회전하고 나머지는 `RT0 != 저장된 RT1` 로 **spurious 401 → 강제 재로그인**(쿠키 전환이 localStorage 대비 클라이언트측 조정을 새로 차단). 둘 중 하나를 **명세 확정**: (a) reuse-detection grace window(직전 jti 단기 허용), 또는 (b) 프론트 reissue single-flight(동시 1건으로 직렬화, `AuthService.js`).
+- ⚠️ **(review #2) 동시·다탭 reissue 경쟁:** HttpOnly 라 JS 가 refresh 를 직렬화/조정할 수 없어 다탭이 같은 RT0 를 동시에 보낸다. 엄격 즉시-회전이면 한 요청만 성공하고 나머지는 `RT0 != 저장된 RT1` 로 **spurious 401 → 강제 재로그인**. **채택(확정): 서버측 grace window — 직전 jti 를 N초 동안만 허용하는 "지연 무효화"를 기본으로 한다(DR2#3/#7).** 프론트 single-flight 는 보조이며 **탭당 인스턴스라 cross-tab 을 못 막으므로 단독으로는 불충분**(쓰려면 Web Locks `navigator.locks` 등 cross-tab 직렬화 필요). N(예: 10~30초)은 ADR 로 확정.
 - 하위호환: 전환 기간 동안 `required=false` 로 두고 쿠키 없으면 기존 body 경로 폴백. ⚠️ **(review #3)** 폴백이 살아있는 동안엔 **보안 이득 미실현**(localStorage refresh 가 body 로 여전히 재생 가능) → 폴백 제거(프론트 배포 후 3차 배포)를 완료기준의 명시 단계로 둔다.
 
 **검증:** access 만료 상태에서 reissue 호출 시 쿠키만으로 갱신 성공, 새 `Set-Cookie` 로 refresh 회전, body 에 refresh 노출 없음.
@@ -108,16 +109,18 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
 - refresh 토큰에 `setSubject(authentication.getName())` + `setId(jti)`(UUID) 부여.
 - Redis 키를 `username` 단일 슬롯에서 `refresh:{username}:{jti}` 또는 화이트리스트 set 으로 확장(다기기/명시적 회전·폐기 지원). 최소안: jti 만 추가하고 회전 시 이전 jti 블랙리스트. **(이 선택이 logout 동작과 직결 — 아래 🚫 항목)**
-- reissue 시 **이전 refresh 를 무효화**(회전): 현재도 access 를 블랙리스트에 넣음 — refresh 도 jti 기준 무효화 추가.
+- reissue 시 refresh 회전: 새 jti 발급 + **직전 jti 는 grace window(N초) 경과 후 무효화**(즉시 아님 — 다탭 경쟁 흡수, review #2/DR2#7). access 는 현행대로 블랙리스트.
 - 🚫 **(review #1, Blocker) logout 의 서버측 refresh 폐기를 키 스킴과 반드시 동기화한다.** 현재 `AuthService.logout` 은 `redisUtil.delete(userEmail)`(단일 키, `AuthService.java:78`)로 지운다. **다중슬롯(`refresh:{username}:{jti}`)으로 바꾸면 이 단일키 delete 는 no-op** → 로그아웃 후에도 포획된 refresh 쿠키 + (만료/블랙리스트된) body access 로 reissue 가 성공(`parseClaims` 가 만료 무관하게 email 추출) = **로그아웃이 세션을 못 끊는 보안 회귀**. 스킴 채택과 무관하게 "logout = 해당 사용자 refresh 전수 폐기"가 성립해야 한다:
   - 다중슬롯이면 `redisUtil.deleteByPrefix("refresh:" + userEmail + ":")` (프리미티브 이미 존재, `RedisUtil.java:43`).
   - 단일슬롯 유지면 현 `delete(userEmail)` 그대로 유효 → Blocker 회피.
-  - 부수 주의: 현 logout 은 `SecurityUtil.getCurrentUserEmail()` 의존 — access 가 이미 만료/무효라 컨텍스트가 비면 `email=""` 로 폐기가 no-op. 쿠키 전환 시 logout 은 만료 access 라도 주체를 확정해 폐기하도록 함께 점검.
+  - 🚫 **(DR2#1, Blocker) 만료 access 로그아웃 경로 설계** — 가장 흔한 실사용 케이스(idle 후 로그아웃 클릭 시 access 이미 만료). logout 은 SecurityContext 가 아니라 **access 토큰에서 직접 주체를 확정**한다: `AuthController.logout` 이 이미 Authorization 헤더에서 access 를 꺼내므로(`:81-89`), `AuthService.logout` 은 `SecurityUtil.getCurrentUserEmail()` 대신 `tokenProvider.getEmail(accessToken)`(만료 access 도 `parseClaims` 가 claims 반환 → subject 추출)으로 email 을 얻어 위 전수 폐기를 수행. JwtFilter 는 토큰 무효 시에도 요청을 통과시키므로(컨텍스트만 미설정) logout(permitAll)은 만료 access 로도 도달. refresh 쿠키는 Path 스코핑으로 logout 에 안 실리지만 **logout 은 쿠키가 아니라 access 의 subject 로 Redis 를 폐기**하므로 무관.
+    - 잔여 한계(수용): access 가 완전 부재/파싱불가면 서버측 폐기 skip — 단 reissue 가 body access 를 필수로 요구하므로 refresh 단독으론 재발급 불가(2차 방어 유지). 클라이언트는 토큰 폐기 + 쿠키 클리어.
 
 ### 4b. CSRF
 - reissue 는 상태변경 + 쿠키 자동전송 → CSRF 가능. 1차 방어는 **`SameSite=Strict`**(크로스사이트 요청에 쿠키 미전송). SPA 가 동일 사이트이므로 정상 동작.
 - 추가로 reissue 는 만료 access 토큰(body)도 요구하므로 공격자가 피해자의 access 를 모르면 성공 불가 — 사실상 2차 방어. 이 점을 ADR 에 근거로 기록.
 - `SecurityConfig` 의 전역 CSRF disable 은 유지(나머지는 Authorization 헤더 기반 stateless 라 CSRF 비대상). reissue 만 위 두 장치로 보호한다는 결정을 ADR 로 남길 것.
+- ⚠️ **(DR2#4) 배포 토폴로지 가정 — 구현 전 확정:** SameSite=Strict 로 쿠키가 reissue 에 실리려면 프론트와 API 가 **same-site(동일 등록가능도메인 `my-math-teacher.com`)** 여야 한다. OAuth·서비스가 모두 `my-math-teacher.com` 이므로 API 가 `*.my-math-teacher.com`(예: `api.my-math-teacher.com`, 또는 동일 호스트 리버스프록시 `/api`)이면 성립. **완전히 다른 도메인(cross-site)이면 매 reissue 에서 쿠키 미전송 → 전 사용자 강제 재로그인 = 본 스킴 깨짐**(이 경우 Blocker). SameSite=None 회피책은 CSRF 1차 방어를 무력화하므로 비채택. → 토폴로지를 ADR 에 명시.
 
 > **ADR 작성 대상:** "refresh 토큰 전송을 HttpOnly 쿠키로, CSRF 는 SameSite=Strict + 만료 access 동반으로 방어" — `docs/adr/` 에 신규 ADR.
 
@@ -143,7 +146,19 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   - `OAuth2AuthenticationSuccessHandlerTest`: URL 에 refresh 부재 + Set-Cookie 존재.
   - `AuthControllerReissueTest`(`@WebMvcTest`): 쿠키 기반 reissue 성공/쿠키 부재 시 401, 회전 확인.
   - `TokenProviderTest`: refresh subject/jti 부여, 회전 시 이전 jti 무효화.
-  - `LogoutRevocationTest`(review #1): 로그아웃 후 직전 발급 refresh 쿠키로 reissue → **401**(서버측 폐기 성립). 다중슬롯 채택 시 `deleteByPrefix` 동작 포함.
+  - `LogoutRevocationTest`(review #1 / DR2#2): **(a) 유효 access·(b) 만료 access** 두 경우 모두 로그아웃 직후 직전 발급 refresh 쿠키로 reissue → **401**(서버측 폐기 성립). 다중슬롯 채택 시 `deleteByPrefix` 동작 포함. **(b) 만료-access 케이스 통과가 DR2#1 합격선** — 유효-access 만 덮으면 거짓 신뢰.
+
+---
+
+## 구현 시 결정·검증 체크리스트 (design-review 잔여 — 접근법 무관·구현 위생)
+
+> spec 단계에서 prose 로 미리 풀지 않고 열거만 한다. 실행 시 `/analyze-before-change` 가 실제 코드 대비 구체화·검증한다.
+
+- [ ] **회전 무효화 검증 레벨(DR2#5):** 회전·jti 무효화의 "실제 무효" 증명은 `@WebMvcTest`(service mock·Redis 미적재)로 불가 → **Testcontainers(Redis) 통합 테스트**로. `@WebMvcTest` 는 쿠키 바인딩/401 흐름만.
+- [ ] **회전 원자성(DR2#6):** 서버 회전이 check-then-act 라 두 동시 reissue 가 둘 다 RT0 통과→슬롯 덮어쓰기 가능. Redis Lua/CAS 로 "RT0 면 RT1 로 교체"를 원자화하거나, grace window 의 "직전 1개 허용"을 명시적 불변식으로 ADR 수용.
+- [ ] **폴백 우선순위(DR2#8):** 전환기 쿠키·body refresh 동시 도착 시 **쿠키 present 면 쿠키만, 없을 때만 body** 로 명시.
+- [ ] **블랙리스트 TTL(DR2#9):** 회전마다 누적되는 jti 블랙리스트 엔트리 TTL = **해당 토큰 잔여 만료초**(Redis 무한 증가 방지).
+- [ ] **subject 교차검증(DR2#10):** 4a 로 refresh 가 subject 를 갖게 되면 reissue 에서 `refresh.subject == body access.subject` 불일치 시 거절. **body-access 요구는 CSRF 2차 방어이므로 "refresh.subject 로 단순화"는 방어층 제거 — 금지** 명시.
 
 ---
 
@@ -153,9 +168,9 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 - [ ] refresh 가 `HttpOnly; Secure; SameSite=Strict` 쿠키로만 전달된다(OAuth+비번 로그인).
 - [ ] reissue 가 쿠키 기반으로 동작하고 호출 시 refresh 가 회전된다.
 - [ ] 프론트 localStorage 에 refreshToken 이 저장되지 않는다.
-- [ ] refresh 토큰에 subject+jti 존재, 회전 시 이전 토큰 무효화.
-- [ ] **(review #1) 로그아웃이 채택한 키 스킴에서 해당 사용자 refresh 를 서버측에서 실제로 폐기한다** — 로그아웃 후 포획 refresh 쿠키로 reissue 시 401.
-- [ ] **(review #2) 동시·다탭 reissue 정책(grace window 또는 프론트 single-flight)이 명세·구현되어 정상 사용자가 spurious 401 을 겪지 않는다.**
+- [ ] refresh 토큰에 subject+jti 존재, 회전 시 직전 토큰은 **grace window(직전 jti N초) 경과 후 무효화**(즉시 아님 — review #2/DR2#7 일관).
+- [ ] **(review #1/DR2#1) 로그아웃이 채택한 키 스킴에서 해당 사용자 refresh 를 서버측에서 실제로 폐기한다 — 유효 access·만료 access 양쪽에서** 로그아웃 후 포획 refresh 쿠키로 reissue 시 401.
+- [ ] **(review #2) 동시·다탭 reissue 의 grace window(지연 무효화) 정책이 명세·구현되어 정상 사용자가 spurious 401 을 겪지 않는다.**
 - [ ] CSRF 방어(SameSite=Strict + 만료 access 동반) 및 결정 근거 ADR 기록.
 - [ ] **(review #3) 전환기 body 폴백 제거(3차 배포) 완료** — 폴백 잔존 시 localStorage refresh 재생 가능하므로 보안 이득 미실현.
 - [ ] 신규 인증 테스트 통과.
