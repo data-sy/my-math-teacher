@@ -54,8 +54,9 @@ public class AuthController {
         JwtToken token = authService.authorize(loginDTO.getUserEmail(), loginDTO.getUserPassword());
 
         // 토큰을 Response Header에도 넣어주자
+        // (#1) JwtToken 객체를 그대로 붙이면 @Data toString 으로 refreshToken 까지 헤더에 노출된다.
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token);
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
 
         return new ResponseEntity<>(TokenDTO.from(token), httpHeaders, HttpStatus.OK);
     }
@@ -68,7 +69,7 @@ public class AuthController {
         JwtToken token = authService.reissue(request.getAccessToken(), request.getRefreshToken());
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token);
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + token.getAccessToken());
 
         return new ResponseEntity<>(TokenDTO.from(token), httpHeaders, HttpStatus.OK);
 
@@ -94,7 +95,6 @@ public class AuthController {
     @PostMapping("/validation")
     public ResponseEntity<Boolean> validateUser(@RequestBody LoginDTO loginDTO) {
         boolean isValid = authService.validateCurrentPassword(loginDTO.getUserEmail(), loginDTO.getUserPassword());
-        System.out.println(isValid);
         return ResponseEntity.ok(isValid);
     }
 
