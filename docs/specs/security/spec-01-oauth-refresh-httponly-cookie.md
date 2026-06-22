@@ -3,7 +3,7 @@
 **출처:** 보안 코드리뷰 (2026-06-22) 핫픽스 후속. 핫픽스 브랜치 `fix/security-auth-hotfix` 에서 분리.
 **대상 결함:** #1(OAuth **URL** refresh 누출, 미해결분) + #6(refresh 토큰 설계 약함)
 **예상 소요:** 1.5~2일 (백엔드 + 프론트 + CSRF/검증)
-**선행:** 본 핫픽스 4커밋(#1-헤더/#2/#3/#4/#5/#8/#9) 반영 완료
+**선행:** 본 핫픽스 5커밋 반영 완료 — `c24c8a7`(#2·#3·#4), `7e126be`(#1-헤더·#8), `2db7ff6`(#5), `1e49c16`(#9), `1d375ca`(#7)
 **실행:** **다른 세션에서 실행** (본 세션은 spec 작성까지). 실행 시 `/analyze-before-change` 로 시작.
 
 > ⚠️ 본 변경은 **백엔드+프론트에 걸친 인증 계약 변경**이며 reissue 가 상태변경이라 **CSRF 표면이 새로 생긴다**. 로컬에서 OAuth 실제 왕복을 재현하기 어려우므로(소셜 IdP 콜백 필요) 단계별 롤백 가능한 단위로 쪼개고, 각 단계마다 수동 검증 절차를 둔다.
@@ -20,7 +20,7 @@
            .queryParam("token", token)   // token == JwtToken(@Data) → toString 으로 access+refresh 가 URL 에 박힘
            .build().toUriString();
    ```
-   프론트 `web/src/views/OauthLogin.vue:13-23` 가 이 toString 을 **정규식**으로 파싱해 두 토큰을 꺼내 localStorage 에 저장.
+   프론트 `web/src/views/OauthLogin.vue:14-25` 가 이 toString 을 **정규식**으로 파싱해 두 토큰을 꺼내 localStorage 에 저장.
    → URL 은 브라우저 히스토리·access 로그·Referer 로 유출되므로 **refresh 토큰을 URL 에 절대 두면 안 됨**.
 
 2. **refresh 토큰 설계 약함 (#6)** — `TokenProvider.generateToken()` (`api/.../jwt/TokenProvider.java`)
@@ -31,15 +31,15 @@
            .compact();                                   // subject·claims·jti 전무 (만료값만)
    redisUtil.set(authentication.getName(), refreshToken, getExpiration(refreshToken)); // username 키, 단일 슬롯
    ```
-   - refresh 토큰에 subject 가 없어 **토큰 자체로 주체 식별 불가** → reissue 가 별도로 accessToken 에서 email 을 꺼내 의존 (`AuthService.reissue`, `api/.../service/user/AuthService.java:44-66`).
+   - refresh 토큰에 subject 가 없어 **토큰 자체로 주체 식별 불가** → reissue 가 별도로 accessToken 에서 email 을 꺼내 의존 (`AuthService.reissue`, `api/.../service/user/AuthService.java:44-67`).
    - Redis 가 username→refresh 단일 슬롯이라 다중 기기/회전 추적 불가, jti 부재로 개별 무효화 불가.
 
 3. **저장 위치** — 프론트는 모든 경로에서 refresh 를 **localStorage** 저장 (`web/src/store/index.js:28-40`, 쿠키 코드는 주석). XSS 시 탈취 가능. `composables/api.js:11` 은 이미 `withCredentials: true`.
 
 4. **연관 호출 지점:**
-   - `AuthController.reissue` (`api/.../controller/AuthController.java:66-75`): body `TokenDTO` 의 accessToken+refreshToken 을 받아 `authService.reissue` 호출.
+   - `AuthController.reissue` (`api/.../controller/AuthController.java:67-76`): body `TokenDTO` 의 accessToken+refreshToken 을 받아 `authService.reissue` 호출.
    - 프론트 reissue: `web/src/service/AuthService.js:24-56` 가 localStorage refreshToken 을 body 로 전송.
-   - 비밀번호 로그인: `AuthController.login` (`:52-61`) → body `TokenDTO` 로 refresh 반환 → `SignUpView.vue:155-156`, `AppTopbar.vue:93-94` 가 localStorage 저장.
+   - 비밀번호 로그인: `AuthController.login` (`:52-62`) → body `TokenDTO` 로 refresh 반환 → `SignUpView.vue:155-156`, `AppTopbar.vue:93-94` 가 localStorage 저장.
    - CORS: `WebConfig` `allowCredentials(true)` (핫픽스에서 origin 병합 완료) — 쿠키 송수신 전제 충족.
    - 보안: `SecurityConfig` CSRF **disabled** — 쿠키 기반 reissue 도입 시 CSRF 재검토 필요(Task 4).
 
@@ -48,7 +48,8 @@
 ## 범위
 
 - **포함:** refresh 토큰을 `HttpOnly; Secure; SameSite=Strict` 쿠키로 전환(OAuth + 비밀번호 로그인 양 경로 통일), URL 에서 refresh 제거(access 만 잔류), reissue 를 쿠키 기반으로 변경, refresh 토큰 하드닝(subject+jti+회전), CSRF 대응.
-- **비포함:** #7(프로덕션 로깅) — 독립 quick-win(프로파일 오버라이드). access 토큰의 URL 잔류 제거(소셜 로그인 표준 관행상 수용; 추가 강화는 후속). access 토큰 저장소를 메모리 전용으로 옮기는 것(별도 검토).
+- **비포함:** access 토큰의 URL 잔류 제거(소셜 로그인 표준 관행상 수용; 추가 강화는 후속), access 토큰 저장소를 메모리 전용으로 옮기는 것(별도 검토).
+  - ℹ️ #7(프로덕션 로깅)은 본 spec 작성 시점엔 후속 대상이었으나 이후 `1d375ca` 로 **완료**됨(`application-secure.yml` 에서 INFO/WARN·show_sql:false 오버라이드). 더는 본 spec 의 후속 범위 아님.
 
 ---
 
@@ -78,7 +79,7 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
 ## Task 2 — 백엔드: reissue 를 쿠키 기반으로
 
-**파일:** `AuthController.reissue` (`:66-75`), `AuthService.reissue`
+**파일:** `AuthController.reissue` (`:67-76`), `AuthService.reissue`
 
 - reissue 가 refresh 를 **쿠키에서** 읽도록 변경: `@CookieValue(name = "refreshToken", required = false) String refreshToken`.
 - 만료된 access 토큰은 계속 body 로 받음(주체 email 추출용) — 단 access 가 만료되어도 `parseClaims` 가 `ExpiredJwtException` 에서 claims 반환하므로 email 추출 가능(현행 동작 유지, `TokenProvider.parseClaims`).
@@ -91,7 +92,7 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
 ## Task 3 — 백엔드: 비밀번호 로그인도 동일하게 쿠키로 통일
 
-**파일:** `AuthController.login` (`:52-61`)
+**파일:** `AuthController.login` (`:52-62`)
 
 - 일관성을 위해 비밀번호 로그인도 refresh 를 쿠키로 발급, body `TokenDTO.refreshToken` 제거(access 만 body).
 - 이 단계는 #1(OAuth URL) 자체와는 독립이나, 두 경로가 다른 저장방식이면 reissue/프론트 분기가 복잡해지므로 **함께 통일** 권장. 분리 실행도 가능(그 경우 Task 5 프론트 작업이 경로별로 갈림).
@@ -123,7 +124,8 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 - `OauthLogin.vue`: 정규식 파싱 제거 → `token` 쿼리파라미터를 **access 토큰 그대로** 사용, `setAccessToken` 만 호출.
 - `store/index.js`: `setRefreshToken`/`getRefreshToken`/localStorage refresh 제거. access 만 관리(또는 메모리). 주석 처리된 쿠키 코드도 정리.
 - `AuthService.js` reissue: body 에서 refreshToken 제거(쿠키 자동전송), `withCredentials` 이미 true. 응답에서 refresh 읽던 부분 제거.
-- 로그아웃: refresh 쿠키 만료(서버가 `Set-Cookie Max-Age=0`)로 처리하도록 백엔드 로그아웃에 쿠키 클리어 추가 검토(`AuthController.logout :80-88`).
+- 로그아웃: refresh 쿠키 만료(서버가 `Set-Cookie Max-Age=0`)로 처리하도록 백엔드 로그아웃에 쿠키 클리어 추가 검토(`AuthController.logout :81-89`).
+  - ⚠️ **Task 1 ↔ 여기 자기정합성:** Task 1 이 refresh 쿠키를 `Path=/api/v1/auth/reissue` 로 좁히므로, (a) 로그아웃은 `DELETE /api/v1/auth/authentication` 이라 브라우저가 그 경로엔 refresh 쿠키를 **애초에 보내지 않고**, (b) 쿠키 삭제용 `Set-Cookie Max-Age=0` 도 **반드시 동일한 `Path=/api/v1/auth/reissue` 속성을 명시**해야 브라우저가 해당 쿠키를 지운다(다른 Path 의 Max-Age=0 은 무시됨). → 로그아웃 응답의 클리어 쿠키에 같은 Path 를 박거나, refresh 쿠키 Path 스코프를 재검토할 것.
 
 **검증:** 로그인/재발급/로그아웃 전 과정에서 localStorage 에 refreshToken 키가 생기지 않음. devtools Application→Cookies 에 HttpOnly refresh 쿠키 확인.
 
@@ -160,13 +162,14 @@ response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
 ## 비범위 / 후속
 
-- **#7 프로덕션 로깅**: `application.yml` 의 `security: DEBUG`, `com.mmt: DEBUG`, `show_sql: true` 를 운영 프로파일에서 낮춤. 본 spec 과 독립한 작은 설정 변경 → 별도 처리.
+- ~~#7 프로덕션 로깅~~ → **완료** (`1d375ca`): `application-secure.yml` 에서 `com.mmt`/`security`/`data.neo4j` INFO·`hibernate.SQL` WARN·`show_sql:false` 오버라이드. base 의 DEBUG 는 로컬 dev 유지.
 - access 토큰의 URL 잔류 제거 / 메모리 전용 저장 → 별도 검토.
 
 ---
 
 ## 참조
 
-- 보안 코드리뷰 결과(임시): 레포 루트 `SECURITY-REVIEW.md`(커밋 비대상).
-- 핫픽스 커밋: `fix/security-auth-hotfix` (#1-헤더/#2/#3/#4/#5/#8/#9).
+- 보안 코드리뷰 결과: 레포 루트 `SECURITY-REVIEW.md` 는 **휘발성**(커밋 비대상·이미 워킹트리에서 제거됨)이므로 참조용 핵심 결함(#1-URL·#6) 요약은 본 문서 §배경에 인라인되어 있다. 실행 세션은 §배경만으로 컨텍스트가 충족된다.
+- 핫픽스 커밋 매핑(브랜치 `fix/security-auth-hotfix`):
+  `c24c8a7`=#2·#3·#4(인가 잠금+IDOR), `7e126be`=#1-헤더·#8, `2db7ff6`=#5(CORS), `1e49c16`=#9, `1d375ca`=#7(운영 로깅).
 - 루트 CLAUDE.md 피처플래그·마이그레이션·ADR 규칙, `api/CLAUDE.md` 보안 섹션.
