@@ -388,10 +388,10 @@ const goToNextPage = async () => {
                         <div class="flex align-items-center gap-2 justify-content-around">
                             <div class="flex align-items-center gap-2 text-xl text-primary">
                                 <span class="font-bold mx-2"> [문항 {{ slotProps.data.testItemNumber }}번] </span>
-                                <span>{{ slotProps.data.representative.conceptName }}</span>
+                                <span>{{ slotProps.data.representative?.conceptName ?? slotProps.data.conceptName }}</span>
                             </div>
                             <div>
-                                <Button @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 트리 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
+                                <Button v-if="slotProps.data.representative" @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 트리 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
                             </div>
                         </div>
                     </template>
