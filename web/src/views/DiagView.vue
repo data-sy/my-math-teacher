@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
+import { useLoginDialog } from '@/composables/useLoginDialog.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import TitleService from '@/service/TitleService';
 import levelDic from '@/assets/data/level.json';
@@ -14,6 +15,7 @@ import 'vue3-markdown/dist/style.css';
 const store = useStore();
 const router = useRouter();
 const api = useApi();
+const { open: openLoginDialog } = useLoginDialog();
 const { htmlToPdf } = useHtmlToPdf();
 
 const logoUrl = computed(() => {
@@ -113,7 +115,7 @@ watch(listboxTest, async (newValue) => {
                 testDetail.value = response.map((item) => {
                     return {
                         ...item,
-                        itemImagePath: "/images/items/empty001.jpg"
+                        itemImagePath: '/images/items/empty001.jpg'
                     };
                 });
             } else {
@@ -229,9 +231,10 @@ const downloadTest = () => {
 };
 
 // 로그인 없이 '회원가입 및 로그인' 클릭 시
-// 로그인 UI는 전역 토프바(AppTopbar) 다이얼로그로 일원화. 회원가입만 이 화면에서 라우팅.
-const goToSignup = () => {
-    router.push({ name: 'signup' });
+// 전역 LoginDialog(로그인 폼 + 회원가입 + OAuth)를 그 자리에서 연다 — 진입을 토프바와 일원화.
+const openLogin = () => {
+    closeConfirmation();
+    openLoginDialog();
 };
 </script>
 
@@ -357,17 +360,20 @@ const goToSignup = () => {
             <template v-else-if="!isLoggedIn">
                 <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
                 <Dialog v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div class="text-red-600 font-bold mb-6"> 로그인 없이도 다운로드는 가능합니다. <br/> 단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다. </div>
-                    <div class="text-600 text-lg font-bold mb-2"> 다음 학습지를 다운로드 하시겠습니까?</div>
+                    <div class="text-red-600 font-bold mb-6">
+                        로그인 없이도 다운로드는 가능합니다. <br />
+                        단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다.
+                    </div>
+                    <div class="text-600 text-lg font-bold mb-2">다음 학습지를 다운로드 하시겠습니까?</div>
                     <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
                     <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
-                        <div> 
+                        <div>
                             <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
                             <Button label="예" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
                         </div>
                         <div class="mt-3">
-                            <Button label="회원가입 및 로그인" class="p-button-link" @click="goToSignup" autofocus />
+                            <Button label="회원가입 및 로그인" class="p-button-link" @click="openLogin" autofocus />
                         </div>
                     </template>
                 </Dialog>
@@ -383,7 +389,6 @@ const goToSignup = () => {
                     </template>
                 </Dialog>
             </template>
-
         </div>
     </div>
 </template>
