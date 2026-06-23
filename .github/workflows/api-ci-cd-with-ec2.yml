@@ -57,7 +57,9 @@ jobs:
         # Dockerfile의 경로입니다.
         push: true  
         # 이미지를 레지스트리에 푸시합니다.
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/mmt-backend:1.0.0
+        # M4 spec-01 §3.5: 가변 태그(:1.0.0, 매 빌드 덮어쓰기) → immutable git sha.
+        # blue-green 의 신·구 버전 구분과 sha 단위 롤백의 전제(§1.1·§2.2-1).
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/mmt-backend:${{ github.sha }}
         platforms: linux/amd64,linux/arm64
 
   deploy:
@@ -65,15 +67,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: EC2 Docker Run
+    # M4 spec-01 §3.5: 기존 다운타임 시퀀스(rm -f → rmi → compose up → prune,
+    # 유일 백엔드를 먼저 죽여 502 발생 — §1.1·§1.2) 제거. 대신 EC2 의
+    # deploy/switch-backend.sh(Task C)를 immutable sha 로 호출해 blue-green 무중단 전환.
+    # 구버전 정리는 스크립트가 graceful 드레인(docker stop -t ≥30s)으로 수행하므로
+    # 여기서 rm/rmi/prune 안 한다 — 이전 sha 이미지는 롤백용으로 보존(§2.2·§4.4).
+    - name: EC2 blue-green switch
       uses: appleboy/ssh-action@master
+      env:
+        IMAGE_REPO: ${{ secrets.DOCKERHUB_USERNAME }}/mmt-backend
+        # 비밀 아님 — front 와 백엔드가 공유하는 compose user-defined 네트워크명(R3).
+        # 미설정 시 compose 프로젝트 기본값(앱 디렉토리=ec2-user → ec2-user_default).
+        COMPOSE_NET: ${{ vars.COMPOSE_NET || 'ec2-user_default' }}
+        NEW_TAG: ${{ github.sha }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
+        # ⚠️ spec-01 §9.2: password → 키페어(key) 인증 전환 권장(GH Secret 에 private key).
+        #    프로비저닝(§9.6 step6) 시 EC2_SSH_KEY 로 교체 예정 — 현재는 기존 password 유지.
         password: ${{ secrets.EC2_PASSWORD }}
         port: ${{ secrets.EC2_PORT }}
+        # IMAGE_REPO/COMPOSE_NET/NEW_TAG 를 원격 셸로 전달(switch-backend.sh 가 읽음).
+        envs: IMAGE_REPO,COMPOSE_NET,NEW_TAG
+        # 원격 기본 작업 디렉토리=홈(~). 앱 디렉토리에 docker-compose.yml + deploy/ 배치(§9.6 step4-5).
         script: |
-          docker rm -f ec2-user-mmt-backend-1
-          docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/mmt-backend:1.0.0
-          docker-compose up -d mmt-backend
-          docker system prune -f
+          bash deploy/switch-backend.sh "$NEW_TAG"
