@@ -1,7 +1,3 @@
-<script setup>
-// import AppConfig from '@/layout/AppConfig.vue';
-</script>
-
 <template>
     <div class="surface-ground flex align-items-center justify-content-center mb-7">
         <div class="flex flex-column align-items-center justify-content-center">
@@ -26,5 +22,4 @@
             </div>
         </div>
     </div>
-    <AppConfig simple />
 </template>

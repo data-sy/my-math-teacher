@@ -222,30 +222,9 @@ const downloadTest = () => {
 };
 
 // 로그인 없이 '회원가입 및 로그인' 클릭 시
-const oauth2googlelogoUrl = computed(() => {
-    return 'images/oauth2/google-logo.png';
-});
-const oauth2naverlogoUrl = computed(() => {
-    return 'images/oauth2/naver-logo.png';
-});
-const oauth2kakaologoUrl = computed(() => {
-    return 'images/oauth2/kakao-logo.png';
-});
-const loginDialog = ref(false);
-const closeDialog = () => {
-    loginDialog.value = false;
-};
-const onUserClick = () => {
-    loginDialog.value = true;
-};
+// 로그인 UI는 전역 토프바(AppTopbar) 다이얼로그로 일원화. 회원가입만 이 화면에서 라우팅.
 const goToSignup = () => {
-    loginDialog.value = false;
     router.push({ name: 'signup' });
-};
-const openLogin = () => {
-    closeConfirmation();
-    onUserClick();
-
 };
 </script>
 
@@ -381,7 +360,7 @@ const openLogin = () => {
                             <Button label="Yes" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
                         </div>
                         <div class="mt-3">
-                            <Button label="회원가입 및 로그인" class="p-button-link" @click="openLogin" autofocus />
+                            <Button label="회원가입 및 로그인" class="p-button-link" @click="goToSignup" autofocus />
                         </div>
                     </template>
                 </Dialog>
@@ -399,48 +378,6 @@ const openLogin = () => {
             </template>
 
         </div>
-        <!-- user 아이콘 클릭 시 로그인 or 회원가입 창 -->
-        <Dialog v-model:visible="loginDialog" :style="{ width: '500px' }" :modal="true" class="p-fluid">
-            <div class="w-full surface-card px-6 sm:px-8">
-                <div class="text-center mb-5">
-                    <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
-                    <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
-                </div>
-                <form v-on:submit.prevent="login">
-                    <div>
-                        <InputText id="email" v-model="email" type="text" placeholder="아이디" class="w-full mb-3" style="padding: 1rem" />
-                        <Password id="password" v-model="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-4" inputClass="w-full" :inputStyle="{ padding: '1rem' }" :feedback="false"></Password>
-                        <p v-html="loginErrorMessage" class="text-red-600 text-base text-font-medium"></p>
-                        <Button type="submit" label="로그인" class="w-full p-2.5 p-button-raised text-lg border-round-2xl"></Button>
-                    </div>
-                </form>
-                <div class="flex align-items-center justify-content-center mt-3 mb-5">
-                    <Button @click="goToSignup()" label="회원가입" class="w-full p-2.5 p-button-raised p-button-success text-lg border-round-2xl"></Button>
-                </div>
-                <div class="divider-container mt-4 mb-4">
-                    <div class="left-divider"></div>
-                    <span class="divider-text"> 간편로그인 </span>
-                    <div class="right-divider"></div>
-                </div>
-                <div class="flex justify-content-center gap-7 mb-7">
-                    <div class="icon-container">
-                        <a href="/oauth2/authorization/google">
-                            <img :src="oauth2googlelogoUrl" alt="Google" class="icon" />
-                        </a>
-                    </div>
-                    <div class="icon-container">
-                        <a href="/oauth2/authorization/naver">
-                            <img :src="oauth2naverlogoUrl" alt="Naver" class="icon" />
-                        </a>
-                    </div>
-                    <div class="icon-container kakao">
-                        <a href="/oauth2/authorization/kakao">
-                            <img :src="oauth2kakaologoUrl" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </Dialog>
     </div>
 </template>
 
