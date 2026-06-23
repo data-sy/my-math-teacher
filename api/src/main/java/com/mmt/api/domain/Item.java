@@ -11,6 +11,7 @@ public class Item {
     private Long itemId;
     private String itemAnswer;
     private String itemImagePath;
+    private Integer conceptId;
     // concepts
     private String conceptName;
     // chapters

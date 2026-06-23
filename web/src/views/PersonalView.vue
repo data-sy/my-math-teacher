@@ -106,7 +106,10 @@ watch(listboxTest, (newValue) => {
 });
 
 
-// 맞춤 학습지 조건 (Scope B에서 백엔드 연동 예정 — 현재는 UI만 노출, 출제에 미반영)
+// 맞춤 학습지 조건 (Scope B — 출제 API 파라미터로 전달)
+//  radioValue1 = 맞춤 유형: 'wrong'(오답 위주=depth0) | 'prerequisite'(선수지식 위주=depth1~2)
+//  radioValue2 = 재출제: 'nothing' | 'wrong'(원래 오답 문항) | 'all'(원래 응시 문항 전체). null=재출제 없음
+//  inputNumberValue = 신규 문항 수(6~30)
 const inputNumberValue = ref(10);
 const radioValue1 = ref(null);
 const radioValue2 = ref(null);
@@ -120,9 +123,22 @@ const isSet = ref(false);
 // 맞춤 학습지 미리보기 - [출제하기] 버튼 누르면 조건에 맞는 문항 제시
 const testDetail = ref([]);
 const getPersonalItems = async () => {
-    if (userTestId.value !== null) {
+    if (userTestId.value === null) return;
+    // 맞춤 유형은 필수 — 미선택 시 출제하지 않고 안내
+    if (!radioValue1.value) {
+        toast.add({ severity: 'warn', summary: '맞춤 유형을 선택해주세요', detail: '오답 문항 위주 또는 선수 지식 위주 중 하나를 선택하면 출제됩니다.', life: 3000 });
+        return;
+    }
+    {
         try {
-            const endpoint = `/api/v1/items/personal?userTestId=${userTestId.value}`;
+            const params = new URLSearchParams({
+                userTestId: userTestId.value,
+                category: radioValue1.value,
+                count: inputNumberValue.value
+            });
+            // 재출제 미선택(null)은 '없음'(원본 미포함)으로 처리 — 파라미터 생략
+            if (radioValue2.value) params.set('reExam', radioValue2.value);
+            const endpoint = `/api/v1/items/personal?${params.toString()}`;
             const response = await api.get(endpoint);
             testDetail.value = response.map((item) => {
                 return {
@@ -282,25 +298,25 @@ const yesClick = () => {
                 <div class="developing-wrapper">
                     <div id="developing">
                         <div class="mb-3 mt-4">
-                            <p class="text-700 text-lg m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 자동 출제됩니다.</p>
-                            <p class="text-500 m-0">아래 세부 조건 설정은 곧 추가될 예정입니다.</p>
+                            <p class="text-700 text-lg m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 맞춤 출제됩니다.</p>
+                            <p class="text-500 m-0">맞춤 유형을 선택하고 문항 수·재출제 조건을 설정해 출제하세요.</p>
                         </div>
                         <div class="mb-4">
                             <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수 (6 ~ 30)</label>
-                            <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30" :disabled="true"></InputNumber>
+                            <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
                         </div>
                         <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
                         <div class="grid">
                             <div class="col-12 md:col-6">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="wrong" name="category" value="wrong" v-model="radioValue1" :disabled="true" />
-                                    <label for="wrong">오답 문항 위주</label>
+                                    <RadioButton id="categoryWrong" name="category" value="wrong" v-model="radioValue1" />
+                                    <label for="categoryWrong">오답 문항 위주</label>
                                 </div>
                             </div>
                             <div class="col-12 md:col-6">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="prerequisite" name="category" value="prerequisite" v-model="radioValue1" :disabled="true" />
-                                    <label for="prerequisite">선수 지식 위주</label>
+                                    <RadioButton id="categoryPrerequisite" name="category" value="prerequisite" v-model="radioValue1" />
+                                    <label for="categoryPrerequisite">선수 지식 위주</label>
                                 </div>
                             </div>
                         </div>
@@ -308,20 +324,20 @@ const yesClick = () => {
                         <div class="grid">
                             <div class="col-12 md:col-4">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="nothing" name="reExam" value="nothing" v-model="radioValue2" :disabled="true" />
-                                    <label for="nothing">없음</label>
+                                    <RadioButton id="reExamNothing" name="reExam" value="nothing" v-model="radioValue2" />
+                                    <label for="reExamNothing">없음</label>
                                 </div>
                             </div>
                             <div class="col-12 md:col-4">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="wrong" name="reExam" value="wrong" v-model="radioValue2" :disabled="true" />
-                                    <label for="wrong">오답 문항</label>
+                                    <RadioButton id="reExamWrong" name="reExam" value="wrong" v-model="radioValue2" />
+                                    <label for="reExamWrong">오답 문항</label>
                                 </div>
                             </div>
                             <div class="col-12 md:col-4">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="all" name="reExam" value="prerequisite" v-model="radioValue2" :disabled="true" />
-                                    <label for="all">전체 문항</label>
+                                    <RadioButton id="reExamAll" name="reExam" value="all" v-model="radioValue2" />
+                                    <label for="reExamAll">전체 문항</label>
                                 </div>
                             </div>
                         </div>
