@@ -4,6 +4,7 @@ import com.mmt.api.dto.user.LoginDTO;
 import com.mmt.api.dto.user.TokenDTO;
 import com.mmt.api.dto.user.UserDTO;
 import com.mmt.api.jwt.JwtFilter;
+import com.mmt.api.exception.UnauthorizedException;
 import com.mmt.api.jwt.JwtToken;
 import com.mmt.api.jwt.RefreshCookieFactory;
 import com.mmt.api.service.user.AuthService;
@@ -68,10 +69,13 @@ public class AuthController {
     public ResponseEntity<TokenDTO> reissue(
             @Valid @RequestBody TokenDTO request,
             @CookieValue(name = RefreshCookieFactory.COOKIE_NAME, required = false) String refreshCookie) {
-        // (DR2#8) 쿠키가 있으면 쿠키만, 없을 때만 body refresh 폴백(전환기). 폴백 제거는 3차 배포(완료기준).
-        String refreshToken = StringUtils.hasText(refreshCookie) ? refreshCookie : request.getRefreshToken();
+        // refresh 는 HttpOnly 쿠키 전용 — body 폴백 제거(spec-01 완료기준 / 3차 잠금).
+        // 폴백을 두면 탈취·캐시된 localStorage refresh 가 body 로 재생 가능하므로, 쿠키 없으면 거절한다.
+        if (!StringUtils.hasText(refreshCookie)) {
+            throw new UnauthorizedException("refresh 쿠키가 없습니다. 다시 로그인해주세요.");
+        }
 
-        JwtToken token = authService.reissue(request.getAccessToken(), refreshToken);
+        JwtToken token = authService.reissue(request.getAccessToken(), refreshCookie);
         // 회전된 refresh 를 동일 속성 쿠키로(review#4), body 에는 access 만.
         return accessOnlyResponseWithRefreshCookie(token);
     }
