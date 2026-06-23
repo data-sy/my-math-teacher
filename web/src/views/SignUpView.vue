@@ -173,7 +173,7 @@ const yesClick = async () => {
             <!-- <div class="text-center mb-7 cursor-pointer" @click="goToHome"> 홈으로 가는 클릭 이벤트 없앰 (나중에 (페이지가 아니라) 컨펌창으로 만들 때 추가하기) -->
             <div class="text-center mb-7">
                 <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
-                <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
+                <div class="text-900 text-3xl font-medium mb-3">MMT에 오신 것을 환영합니다</div>
                 <!-- <div class="flex align-items-center justify-content-center">
                     개인 프로젝트 입니다.
                 </div>
@@ -184,7 +184,7 @@ const yesClick = async () => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="email" class="text-900 text-2xl font-medium"
-                        >ID
+                        >아이디
                         <span class="text-red-600 text-base font-medium mx-2">{{ emailErrorMessage }}</span>
                     </label>
                 </div>
@@ -197,7 +197,7 @@ const yesClick = async () => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="password" class="text-900 text-2xl font-medium"
-                        >Password
+                        >비밀번호
                         <span class="text-red-600 text-base text-font-medium mx-2">{{ passwordLengthErrorMessage }}</span>
                         <!-- <span class="text-red-600 text-lg text-font-medium mx-2" >{{passwordErrorMessage }}</span> -->
                     </label>
@@ -221,7 +221,7 @@ const yesClick = async () => {
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="passwordConfirm" class="text-900 text-2xl font-medium">Password Confirm</label>
+                    <label for="passwordConfirm" class="text-900 text-2xl font-medium">비밀번호 확인</label>
                 </div>
                 <Password id="passwordConfirm" placeholder="비밀번호 확인" :toggleMask="true" class="w-full" :class="{ 'p-invalid': password !== passwordConfirm }" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="passwordConfirm" @input="confirmPassword" :feedback="false" />
                 <div class="text-red-600 text-base text-font-medium mx-2">{{ passwordConfirmMessage }}</div>
@@ -229,7 +229,7 @@ const yesClick = async () => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="name" class="text-900 text-2xl font-medium"
-                        >Name
+                        >이름
                         <span class="text-red-600 text-base text-font-medium mx-2">{{ userNameErrorMessage }}</span>
                     </label>
                 </div>
@@ -240,7 +240,7 @@ const yesClick = async () => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="calendar" class="block text-900 text-2xl font-medium mb-2"
-                        >BirthDate
+                        >생년월일
                         <span class="text-600 text-base font-normal mx-2"> <span class="text-red-600 font-bold">연도를 클릭</span>하여 해당 연도를 찾아보세요. </span>
                     </label>
                 </div>
@@ -249,7 +249,7 @@ const yesClick = async () => {
             <div class="mb-7">
                 <div class="flex flex-row mb-2">
                     <label for="comments" class="block text-900 text-2xl font-medium mb-2"
-                        >Comments
+                        >기타사항
                         <span class="text-red-600 text-base text-font-medium mx-2">{{ userCommentsErrorMessage }}</span>
                     </label>
                 </div>
@@ -261,21 +261,21 @@ const yesClick = async () => {
             <Button v-if="!isNotDuplicate" :disabled="!isNotDuplicate" label="[중복확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else-if="!isEmailValid" :disabled="!isEmailValid" label="[아이디]를 확인해 주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="회원가입" class="w-full p-3 text-xl mr-2 mb-2" />
             <Dialog header="회원가입 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
-                    <div class="my-2">ID : {{ requestData.userEmail }}</div>
+                    <div class="my-2">아이디 : {{ requestData.userEmail }}</div>
                     <!--비번은 어떤 방식으로 보여줄 수 있을지 생각해보기-->
                     <!-- <div> Password : {{ requestData.userPassword }}</div>  -->
-                    <div class="my-2">Name : {{ requestData.userName }}</div>
-                    <div class="my-2">BirthDate : {{ calendarShow }}</div>
-                    <div class="my-2">Comments : {{ requestData.userComments }}</div>
+                    <div class="my-2">이름 : {{ requestData.userName }}</div>
+                    <div class="my-2">생년월일 : {{ calendarShow }}</div>
+                    <div class="my-2">기타사항 : {{ requestData.userComments }}</div>
                 </div>
                 <div class="text-900 text-xl font-medium mx-3">회원가입 하시겠습니까?</div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>

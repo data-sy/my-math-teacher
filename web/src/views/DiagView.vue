@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
+import { useLoginDialog } from '@/composables/useLoginDialog.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import TitleService from '@/service/TitleService';
 import levelDic from '@/assets/data/level.json';
@@ -14,6 +15,7 @@ import 'vue3-markdown/dist/style.css';
 const store = useStore();
 const router = useRouter();
 const api = useApi();
+const { open: openLoginDialog } = useLoginDialog();
 const { htmlToPdf } = useHtmlToPdf();
 
 const logoUrl = computed(() => {
@@ -113,7 +115,7 @@ watch(listboxTest, async (newValue) => {
                 testDetail.value = response.map((item) => {
                     return {
                         ...item,
-                        itemImagePath: "/images/items/empty001.jpg"
+                        itemImagePath: '/images/items/empty001.jpg'
                     };
                 });
             } else {
@@ -122,6 +124,13 @@ watch(listboxTest, async (newValue) => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
+    } else {
+        // 선택 해제(Listbox 토글) 시 다운로드 게이트를 'testId == null'로 되돌림
+        // → 다운로드 확인 Dialog의 listboxTest null 역참조(크래시) + 옛 학습지 잔존 다운로드 방지
+        testId.value = null;
+        testName.value = '';
+        testDetail.value = [];
+        isImageExist.value = false;
     }
 });
 // 날짜
@@ -222,9 +231,10 @@ const downloadTest = () => {
 };
 
 // 로그인 없이 '회원가입 및 로그인' 클릭 시
-// 로그인 UI는 전역 토프바(AppTopbar) 다이얼로그로 일원화. 회원가입만 이 화면에서 라우팅.
-const goToSignup = () => {
-    router.push({ name: 'signup' });
+// 전역 LoginDialog(로그인 폼 + 회원가입 + OAuth)를 그 자리에서 연다 — 진입을 토프바와 일원화.
+const openLogin = () => {
+    closeConfirmation();
+    openLoginDialog();
 };
 </script>
 
@@ -245,11 +255,11 @@ const goToSignup = () => {
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
-                <h5>School Level</h5>
+                <h5>학교급</h5>
                 <SelectButton v-model="selectButtonLevel" :options="selectButtonLevels" optionLabel="name" />
             </div>
             <div class="card">
-                <h5>Grade Level</h5>
+                <h5>학년</h5>
                 <Listbox v-model="listboxLevel" :options="listboxLevels" optionLabel="name" />
             </div>
         </div>
@@ -350,17 +360,20 @@ const goToSignup = () => {
             <template v-else-if="!isLoggedIn">
                 <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
                 <Dialog v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div class="text-red-600 font-bold mb-6"> 로그인 없이도 다운로드는 가능합니다. <br/> 단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다. </div>
-                    <div class="text-600 text-lg font-bold mb-2"> 다음 학습지를 다운로드 하시겠습니까?</div>
-                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <div class="text-red-600 font-bold mb-6">
+                        로그인 없이도 다운로드는 가능합니다. <br />
+                        단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다.
+                    </div>
+                    <div class="text-600 text-lg font-bold mb-2">다음 학습지를 다운로드 하시겠습니까?</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
-                        <div> 
-                            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                            <Button label="Yes" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
+                        <div>
+                            <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                            <Button label="예" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
                         </div>
                         <div class="mt-3">
-                            <Button label="회원가입 및 로그인" class="p-button-link" @click="goToSignup" autofocus />
+                            <Button label="회원가입 및 로그인" class="p-button-link" @click="openLogin" autofocus />
                         </div>
                     </template>
                 </Dialog>
@@ -368,15 +381,14 @@ const goToSignup = () => {
             <template v-else>
                 <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
                 <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                        <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                        <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                        <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                     </template>
                 </Dialog>
             </template>
-
         </div>
     </div>
 </template>

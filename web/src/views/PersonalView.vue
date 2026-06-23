@@ -419,8 +419,8 @@ const yesClick = () => {
                 <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
                 <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }} &quot; 학습지</div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>

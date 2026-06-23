@@ -4,8 +4,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
-import cytoscape from 'cytoscape';
-import klay from 'cytoscape-klay';
+import { useConceptGraph } from '@/composables/useConceptGraph.js';
 import levelDic from '@/assets/data/level.json';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
@@ -90,7 +89,7 @@ watch(listboxConcept, async (newValue) => {
         try {
             const endpoint = `/api/v1/concepts/${conceptId.value}`;
             const response = await api.get(endpoint);
-            response.conceptDescription = response.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne')
+            response.conceptDescription = response.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
             conceptDetail.value = response;
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
@@ -123,134 +122,9 @@ const goToHome = () => {
     }
 };
 
-// cytoscape
-cytoscape.use(klay);
+// cytoscape (렌더링 레이어는 useConceptGraph 컴포저블이 소유)
 const cyElement = ref(null);
-let cy = null;
-
-// 크기 기본값
-const nodeSize = 7;
-const fontSize = 7;
-const edgeWidth = '2px';
-const arrowScale = 0.8;
-// 색상 기본값
-const dimColor = '#dfe4ea';
-const edgeColor = '#ced6e0';
-const nodeColor = '#57606f'; // 글씨색
-// activate 시 크기
-const nodeActiveSize = 15;
-const fontActiveSize = 11;
-const edgeActiveWidth = '4px';
-const arrowActiveScale = 1.2;
-// activate 시 색상
-const nodeActiveColor = '#6466f1'; // 선택한 노드
-const fromColor = '#ff6348'; // 후수지식
-const toColor = '#1e90ff'; // 선수지식
-
-const setDimStyle = (target_cy, style) => {
-    target_cy.nodes().forEach((target) => {
-        target.style(style);
-    });
-    target_cy.edges().forEach((target) => {
-        target.style(style);
-    });
-};
-const setFocus = (target_element, fromColor, toColor, edgeWidth, arrowScale) => {
-    if (!target_element) {
-        console.error('Invalid target element.');
-        return;
-    }
-    target_element.style('background-color', nodeActiveColor);
-    target_element.style('width', Math.max(parseFloat(target_element.style('width')), nodeActiveSize));
-    target_element.style('height', Math.max(parseFloat(target_element.style('height')), nodeActiveSize));
-    target_element.style('font-size', Math.max(parseFloat(target_element.style('font-size')), fontActiveSize));
-    target_element.style('color', nodeColor);
-    target_element.successors().each((e) => {
-        if (e.isEdge()) {
-            e.style('width', edgeWidth);
-            e.style('arrow-scale', arrowScale);
-        }
-        e.style('color', nodeColor);
-        e.style('background-color', fromColor);
-        e.style('line-color', fromColor);
-        e.style('target-arrow-color', fromColor);
-        e.style('opacity', 0.5);
-    });
-    target_element.predecessors().each((e) => {
-        if (e.isEdge()) {
-            e.style('width', edgeWidth);
-            e.style('arrow-scale', arrowScale);
-        }
-        e.style('color', nodeColor);
-        e.style('background-color', toColor);
-        e.style('line-color', toColor);
-        e.style('target-arrow-color', toColor);
-        e.style('opacity', 0.5);
-    });
-    target_element.neighborhood().each((e) => {
-        // 이웃한 엣지와 노드
-        e.style('font-size', Math.max(parseFloat(e.style('font-size')), fontActiveSize));
-        e.style('color', nodeColor);
-        e.style('opacity', 1);
-    });
-};
-const setResetFocus = (target_cy) => {
-    target_cy.nodes().forEach((target) => {
-        const originalColor = target.data('nodeMyColor');
-        target.style('background-color', originalColor);
-        target.style('width', nodeSize);
-        target.style('height', nodeSize);
-        target.style('font-size', fontSize);
-        target.style('color', nodeColor);
-        target.style('opacity', 1);
-    });
-    target_cy.edges().forEach(function (target) {
-        target.style('line-color', edgeColor);
-        target.style('target-arrow-color', edgeColor);
-        target.style('width', edgeWidth);
-        target.style('arrow-scale', arrowScale);
-        target.style('opacity', 1);
-    });
-};
-const getNodeColor = (gradeLevel) => {
-    switch (gradeLevel) {
-        case '초1':
-        case '초2':
-            return 'yellow';
-        case '초3':
-        case '초4':
-            return 'springGreen';
-        case '초5':
-        case '초6':
-            return 'green';
-        case '중1':
-            return 'lightblue';
-        case '중2':
-            return 'dodgerblue';
-        case '중3':
-            return 'rgb(9, 106, 204)';
-        case '수학':
-            return 'lightpink';
-        case '수1':
-        case '수2':
-            return 'hotpink';
-        case '미적':
-        case '확통':
-        case '기하':
-            return 'red';
-        default:
-            return 'gray';
-    }
-};
-// 노드 속성에 따라 색상 변경
-const changeNodeColor = (cy) => {
-    cy.nodes().forEach((node) => {
-        const nodeData = node.data();
-        const nodeMyColor = getNodeColor(nodeData.conceptGradeLevel);
-        node.data('nodeMyColor', nodeMyColor); // 노드의 초기 색상을 저장
-        node.style('background-color', nodeMyColor);
-    });
-};
+const { initGraph, destroy: destroyGraph, GRADE_COLORS } = useConceptGraph();
 
 // 선수지식 데이터
 const uniqueConceptIds = new Set();
@@ -295,75 +169,11 @@ const showKnowledgeSpace = async () => {
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
     }
-    if (cyElement.value) {
-        cy = cytoscape({
-            container: cyElement.value,
-            elements: knowledgeSpace.value,
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                        'background-color': nodeColor,
-                        width: nodeSize,
-                        height: nodeSize,
-                        'font-size': fontSize,
-                        color: nodeColor,
-                        label: 'data(label)',
-                        'text-margin-y': -2,
-                        'text-wrap': 'wrap', // 텍스트 줄바꿈 설정
-                        'text-max-width': '60px' // 텍스트 최대 가로 길이 설정
-                    }
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        width: edgeWidth,
-                        'curve-style': 'bezier',
-                        'line-color': edgeColor, //#ccc
-                        'target-arrow-color': edgeColor, //#ccc
-                        'target-arrow-shape': 'triangle',
-                        'arrow-scale': arrowScale
-                    }
-                }
-            ],
-            layout: {
-                name: 'klay',
-                animate: false,
-                gravityRangeCompound: 1.5,
-                klay: {
-                    spacing: 26
-                },
-                fit: true, //레이아웃을 컨테이너에 맞게 자동 조정
-                tile: true // 타일형 레이아웃 (노드를 격자로 배치)
-                // nodeDimensionsIncludeLabels: true,
-                // avoidOverlap: true, // 겹치는 노드 및 레이블 방지
-                // avoidOverlapPadding: 10 // 겹치는 것을 방지하기 위한 여백
-            }
-        });
-        // 노드 속성에 따라 색상 변경
-        changeNodeColor(cy);
-
-        // 클릭한 id 추출 (상세보기에 뿌려주기 위해)
-        cy.on('tap', 'node', (event) => {
-            clickedNodeId.value = event.target.id();
-        });
-
-        // 마우스 인/아웃 하이라이트
-        cy.on('tapstart mouseover', 'node', (e) => {
-            setDimStyle(cy, {
-                'background-color': dimColor,
-                'line-color': dimColor,
-                'source-arrow-color': dimColor,
-                color: dimColor
-            });
-            setFocus(e.target, fromColor, toColor, edgeActiveWidth, arrowActiveScale);
-        });
-        cy.on('tapend mouseout', 'node', (e) => {
-            const node = e.target;
-            const originalColor = node.data('nodeMyColor');
-            setResetFocus(e.cy);
-        });
-    }
+    initGraph(cyElement.value, knowledgeSpace.value, {
+        onTapNode: (id) => {
+            clickedNodeId.value = id;
+        }
+    });
     // 아래로 스크롤
     const selectedNodeElement = document.getElementById('scroll-tree');
     if (selectedNodeElement) {
@@ -400,22 +210,19 @@ const hideSpec = () => {
 // Cytoscape 인스턴스 파기
 const clearCy = () => {
     knowledgeSpace.value = [];
-    if (cy) {
-        cy.destroy();
-    }
+    destroyGraph();
 };
-
 </script>
 
 <template>
     <div class="grid p-fluid">
         <div class="col-12 md:col-6 xl:col-3">
             <div class="card">
-                <h5>School Level</h5>
+                <h5>학교급</h5>
                 <SelectButton v-model="selectButtonLevel" :options="selectButtonLevels" optionLabel="name" />
             </div>
             <div class="card">
-                <h5>Grade Level</h5>
+                <h5>학년</h5>
                 <Listbox v-model="listboxLevel" :options="listboxLevels" optionLabel="name" />
             </div>
         </div>
@@ -497,8 +304,8 @@ const clearCy = () => {
         <div class="col-12">
             <div class="card" id="scroll-tree">
                 <div class="flex align-items-center mb-5">
-                    <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
-                    <div class="mx-3"> 점을 클릭해보세요. 개념 상세보기를 할 수 있습니다.</div>
+                    <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
+                    <div class="mx-3">점을 클릭해보세요. 개념 상세보기를 할 수 있습니다.</div>
                     <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                 </div>
                 <OverlayPanel ref="op" appendTo="body">
@@ -511,16 +318,17 @@ const clearCy = () => {
                 </div>
                 <ul style="list-style-type: disc">
                     <li class="text-600 font-medium mb-3">
-                        초등학교 : 초1,2 <i class="pi pi-circle-fill" style="color: yellow; font-size: 1.5rem"></i> 초3,4 <i class="pi pi-circle-fill" style="color: springgreen; font-size: 1.5rem"></i> 초5,6
-                        <i class="pi pi-circle-fill" style="color: green; font-size: 1.5rem"></i>
+                        초등학교 : 초1,2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초1'], fontSize: '1.5rem' }"></i> 초3,4 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초3'], fontSize: '1.5rem' }"></i> 초5,6
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초5'], fontSize: '1.5rem' }"></i>
                     </li>
                     <li class="text-600 font-medium mb-3">
-                        중학교 : 중1 <i class="pi pi-circle-fill" style="color: skyblue; font-size: 1.5rem"></i> 중2 <i class="pi pi-circle-fill" style="color: dodgerblue; font-size: 1.5rem"></i> 중3
-                        <i class="pi pi-circle-fill" style="color: rgb(9, 106, 204); font-size: 1.5rem"></i>
+                        중학교 : 중1 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중1'], fontSize: '1.5rem' }"></i> 중2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중2'], fontSize: '1.5rem' }"></i> 중3
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중3'], fontSize: '1.5rem' }"></i>
                     </li>
                     <li class="text-600 font-medium">
-                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" style="color: lightpink; font-size: 1.5rem"></i> 수&#8544;,수&#8545; <i class="pi pi-circle-fill" style="color: hotpink; font-size: 1.5rem"></i> 미적,기하,확통
-                        <i class="pi pi-circle-fill" style="color: red; font-size: 1.5rem"></i>
+                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수학'], fontSize: '1.5rem' }"></i> 수&#8544;,수&#8545;
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수1'], fontSize: '1.5rem' }"></i> 미적,기하,확통
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['미적'], fontSize: '1.5rem' }"></i>
                     </li>
                 </ul>
             </div>

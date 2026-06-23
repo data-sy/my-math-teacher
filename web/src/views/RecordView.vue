@@ -388,13 +388,13 @@ const goToResultPage = async () => {
             <Button v-else-if="isRecord" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-500 font-semibold px-3 mb-5">기록 성공 시, HOME으로 이동합니다.</div>
+                <div class="text-500 font-semibold px-3 mb-5">기록 성공 시 홈 화면으로 이동합니다.</div>
                 <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
                     <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }}</div>
                 </div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>
