@@ -13,7 +13,9 @@ import com.mmt.api.repository.users.UsersRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,10 +77,10 @@ public class ItemService {
         }
 
         int cappedCount = clampCount(count);
-        // item_id 기준 dedup + 삽입 순서 보존(재출제 원본 먼저 → 신규). 원본 우선.
+        // item_id 기준 dedup + 삽입 순서 보존(재출제 원본 먼저 → 신규 채우기). 원본 우선.
         Map<Long, PersonalItemsResponse> byItemId = new LinkedHashMap<>();
 
-        // 1) 재출제 원본 문항 (additive)
+        // 1) 재출제 원본 문항 — 선택 시 전부 포함. count 에 산입(원본이 count 이상이면 초과 허용).
         if ("wrong".equals(reExam) || "all".equals(reExam)) {
             boolean onlyWrong = "wrong".equals(reExam);
             for (Item original : itemRepository.findOriginalItemsByUserTestId(userTestId, onlyWrong)) {
@@ -86,21 +88,10 @@ public class ItemService {
             }
         }
 
-        // 2) 맞춤 유형 기반 신규 문항 (오답 answer → probabilities depth 필터 → distinct concept → count 캡)
-        List<Answer> answerList = answerRepository.findAnswersByUserTestId(userTestId);
-        if (!answerList.isEmpty()) {
-            List<Long> answerIdList = answerList.stream().map(Answer::getAnswerId).collect(Collectors.toList());
-            List<Probability> probabilityList = probabilityRepository.findProbability(answerIdList);
-            List<Integer> conceptIdList = probabilityList.stream()
-                    .filter(pro -> matchesCategory(category, pro.getToConceptDepth()))
-                    .map(Probability::getConceptId)
-                    .distinct()
-                    .limit(cappedCount)
-                    .collect(Collectors.toList());
-            for (int conceptId : conceptIdList) {
-                PersonalItemsResponse item = PersonalItemConverter.convertToPersonalItemsResponse(itemRepository.findByConceptId(conceptId));
-                byItemId.putIfAbsent(item.getItemId(), item);
-            }
+        // 2) 남은 자리(count - 원본수)를 맞춤 유형 범위에서 채운다. 원본이 이미 count 이상이면 생략.
+        if (byItemId.size() < cappedCount) {
+            List<Integer> categoryConcepts = findCategoryConcepts(userTestId, category);
+            fillFromRange(byItemId, categoryConcepts, cappedCount);
         }
 
         // 3) 최종 순서대로 출제 번호 부여
@@ -109,6 +100,50 @@ public class ItemService {
             result.get(i).setTestItemNumber(i + 1);
         }
         return result;
+    }
+
+    // 맞춤 유형 범위 = 오답 answer → probabilities depth 필터 → distinct concept(등장 순서 보존)
+    private List<Integer> findCategoryConcepts(Long userTestId, String category) {
+        List<Answer> answerList = answerRepository.findAnswersByUserTestId(userTestId);
+        if (answerList.isEmpty()) return new ArrayList<>();
+        List<Long> answerIdList = answerList.stream().map(Answer::getAnswerId).collect(Collectors.toList());
+        List<Probability> probabilityList = probabilityRepository.findProbability(answerIdList);
+        return probabilityList.stream()
+                .filter(pro -> matchesCategory(category, pro.getToConceptDepth()))
+                .map(Probability::getConceptId)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 범위 채우기(spec D3): 개념당 1문항씩(다양성, 개념 등장 순서) → 추가 패스로 같은 개념 다른 문항을
+     * round-robin 으로 채워 targetCount 도달까지. item_id dedup(원본 우선). 범위 소진 시 중단(미달 허용).
+     */
+    private void fillFromRange(Map<Long, PersonalItemsResponse> byItemId, List<Integer> categoryConcepts, int targetCount) {
+        if (categoryConcepts.isEmpty()) return;
+        // 개념 등장 순서를 보존한 개념별 문항 큐 (문항 자체 순서는 쿼리 ORDER BY RAND())
+        Map<Integer, Deque<Item>> pool = new LinkedHashMap<>();
+        for (Integer cid : categoryConcepts) pool.put(cid, new ArrayDeque<>());
+        for (Item it : itemRepository.findItemsByConceptIds(categoryConcepts)) {
+            Deque<Item> q = pool.get(it.getConceptId());
+            if (q != null) q.add(it);
+        }
+        boolean progressed = true;
+        while (byItemId.size() < targetCount && progressed) {
+            progressed = false;
+            for (Integer cid : categoryConcepts) {
+                if (byItemId.size() >= targetCount) break;
+                Deque<Item> q = pool.get(cid);
+                while (q != null && !q.isEmpty()) {
+                    Item it = q.poll();
+                    if (!byItemId.containsKey(it.getItemId())) {
+                        byItemId.put(it.getItemId(), PersonalItemConverter.convertToPersonalItemsResponse(it));
+                        progressed = true;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // 맞춤 유형 → to_concept_depth 매핑 (spec D1)
