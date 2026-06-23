@@ -122,6 +122,13 @@ watch(listboxTest, async (newValue) => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
+    } else {
+        // 선택 해제(Listbox 토글) 시 다운로드 게이트를 'testId == null'로 되돌림
+        // → 다운로드 확인 Dialog의 listboxTest null 역참조(크래시) + 옛 학습지 잔존 다운로드 방지
+        testId.value = null;
+        testName.value = '';
+        testDetail.value = [];
+        isImageExist.value = false;
     }
 });
 // 날짜
@@ -352,8 +359,8 @@ const goToSignup = () => {
                 <Dialog v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                     <div class="text-red-600 font-bold mb-6"> 로그인 없이도 다운로드는 가능합니다. <br/> 단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다. </div>
                     <div class="text-600 text-lg font-bold mb-2"> 다음 학습지를 다운로드 하시겠습니까?</div>
-                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
                         <div> 
                             <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
@@ -368,8 +375,8 @@ const goToSignup = () => {
             <template v-else>
                 <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
                 <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
                         <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
                         <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
