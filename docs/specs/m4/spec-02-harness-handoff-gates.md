@@ -140,8 +140,15 @@ G4 는 grader 2개를 묶지만, RED 일 때 재개 경로가 시점에 따라 �
 
 | 마일스톤 | setup 개입 (G1·G2·G3·G6) | per-deploy 개입 (G4·G5) | risk-forced / chosen | 비고 |
 |---|---|---|---|---|
-| M4 | _TBD (첫 프로비저닝 시)_ | _TBD (첫 배포 시)_ | _TBD_ | 기준선 |
+| M4 — Terraform Phase A (2026-06-23) | **G3 plan-only: 사람 수동 개입 0** ✱. G1·G2·G6 = 미발생(real apply·시크릿·프로비저닝 전) | _TBD (첫 배포 시)_ | risk-forced 0 / chosen 1 (Terraform = 학습 경로, spec-03) | 첫 줄. plan-only(EC2/SG/RDS) 어시스턴트 셸 직접 실행, apply 안 함(과금·G1 미진입) |
+| M4 — 첫 real apply/배포 | _TBD (G1 계정·결제 준비 시)_ | _TBD (첫 배포 시)_ | _TBD_ | 기준선 본체 |
 | _(다음 마일스톤)_ | | | | M4 대비 감소? |
+
+> ✱ **spec-03 §6 가정 정정(2026-06-23).** spec-03 §6 은 "어시스턴트는 로컬 셸에서 `terraform` 을 직접
+> 못 돌린다 → 실행은 사용자"라고 적었으나, 실제 CC 하네스 환경에선 어시스턴트가 Bash 로 `init`/`validate`/
+> `plan`/`apply`/`destroy` 를 직접 실행했다(LocalStack mock, 무과금). 따라서 plan-only G3 의 사람 수동
+> 개입은 **0**. 이는 spec-03 §6 의 "사람 개입 0 에 가까운 첫 실전 G3" 를 *0 으로* 충족한 것. (단 real
+> `apply`=Phase C 는 여전히 G1 사람 게이트 — 비가역·과금이라 환경 능력과 무관하게 사람 승인 유지.)
 
 ---
 
