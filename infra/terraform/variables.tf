@@ -1,8 +1,7 @@
 # infra/terraform/variables.tf
 #
-# 원칙: "안 닿은 배선은 미리 선언 안 한다" — 이 슬라이스(network.tf SG)가
-# 실제로 쓰는 변수만 둔다. region/instance_type/db_*/GDB_* 등은 해당 슬라이스
-# (compute.tf / database.tf)가 들어올 때 추가한다.
+# 원칙: "안 닿은 배선은 미리 선언 안 한다" — 슬라이스가 실제로 쓰는 변수만
+# 둔다. db_* 등 RDS 변수는 database.tf 가 들어올 때 추가한다.
 
 variable "my_ip" {
   description = <<-EOT
@@ -13,4 +12,42 @@ variable "my_ip" {
   EOT
   type        = string
   default     = "203.0.113.0" # RFC 5737 TEST-NET-3 (문서·예시 전용, 실 IP 아님)
+}
+
+# --- compute.tf 슬라이스 (EC2 + EIP, spec-01 §9.2) ------------------------
+
+variable "instance_type" {
+  description = "EC2 인스턴스 타입 (spec-01 §9.2: 프리티어 t3.micro)"
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "root_volume_size" {
+  description = "루트 EBS 볼륨 크기 GB (spec-01 §9.2: gp3 30GB)"
+  type        = number
+  default     = 30
+}
+
+# 더미 GDB_* — spec-01 R1: Neo4j 를 더미 env 로 재워 코드 0 변경으로 풀
+# 컨텍스트 기동. 이 값들은 *의도된 placeholder*(실 자격 아님) → 커밋 가능.
+# use-mysql-cte-for-graph=true 와 함께 user_data 로 주입.
+variable "gdb_host" {
+  type    = string
+  default = "localhost"
+}
+
+variable "gdb_port" {
+  type    = string
+  default = "7687"
+}
+
+variable "gdb_user" {
+  type    = string
+  default = "neo4j"
+}
+
+variable "gdb_password" {
+  description = "R1 더미 placeholder('dummy') — 실 시크릿 아님. 실 GDB 자격은 도입 시 비커밋 주입."
+  type        = string
+  default     = "dummy"
 }
