@@ -3,18 +3,18 @@ import klay from 'cytoscape-klay';
 
 cytoscape.use(klay);
 
-// ─── 크기 기본값 ───
-const nodeSize = 7;
-const fontSize = 7;
+// ─── 크기 기본값 (7px → 가독 가능한 크기로 상향, spec-03 Task3) ───
+const nodeSize = 14;
+const fontSize = 11;
 const edgeWidth = '2px';
 const arrowScale = 0.8;
 // ─── 색상 기본값 ───
 const dimColor = '#dfe4ea';
 const edgeColor = '#ced6e0';
 const nodeColor = '#57606f'; // 글씨색
-// ─── activate 시 크기 ───
-const nodeActiveSize = 15;
-const fontActiveSize = 11;
+// ─── activate 시 크기 (base 보다 커야 Math.max 로 강조됨) ───
+const nodeActiveSize = 24;
+const fontActiveSize = 15;
 const edgeActiveWidth = '4px';
 const arrowActiveScale = 1.2;
 // ─── activate 시 색상 ───
@@ -161,7 +161,7 @@ const buildCyLayout = () => ({
     animate: false,
     gravityRangeCompound: 1.5,
     klay: {
-        spacing: 26
+        spacing: 40
     },
     fit: true, // 레이아웃을 컨테이너에 맞게 자동 조정
     tile: true // 타일형 레이아웃 (노드를 격자로 배치)
@@ -191,25 +191,43 @@ export function useConceptGraph() {
         // 노드 속성에 따라 색상 변경
         changeNodeColor(cy);
 
-        // 클릭한 id 추출 (상세보기에 뿌려주기 위해)
-        cy.on('tap', 'node', (event) => {
-            if (opts.onTapNode) {
-                opts.onTapNode(event.target.id());
-            }
-        });
-
-        // 마우스 인/아웃 하이라이트
-        cy.on('tapstart mouseover', 'node', (e) => {
+        // 선택 상태(클릭으로 유지). 호버는 선택이 없을 때만 미리보기 — 모바일/터치 대응.
+        let selectedEl = null;
+        const applyFocus = (el) => {
             setDimStyle(cy, {
                 'background-color': dimColor,
                 'line-color': dimColor,
                 'source-arrow-color': dimColor,
                 color: dimColor
             });
-            setFocus(e.target, fromColor, toColor, edgeActiveWidth, arrowActiveScale);
+            setFocus(el, fromColor, toColor, edgeActiveWidth, arrowActiveScale);
+        };
+
+        // 노드 탭(클릭) = 선택. focus 를 유지하고 id 를 상세보기로 전달.
+        cy.on('tap', 'node', (e) => {
+            selectedEl = e.target;
+            applyFocus(selectedEl);
+            if (opts.onTapNode) {
+                opts.onTapNode(e.target.id());
+            }
         });
-        cy.on('tapend mouseout', 'node', (e) => {
-            setResetFocus(e.cy);
+        // 빈 배경 탭 = 선택 해제.
+        cy.on('tap', (e) => {
+            if (e.target === cy) {
+                selectedEl = null;
+                setResetFocus(cy);
+            }
+        });
+        // 데스크톱 호버 미리보기 — 선택이 있으면 덮어쓰지 않음.
+        cy.on('mouseover', 'node', (e) => {
+            if (!selectedEl) {
+                applyFocus(e.target);
+            }
+        });
+        cy.on('mouseout', 'node', () => {
+            if (!selectedEl) {
+                setResetFocus(cy);
+            }
         });
         return cy;
     };
