@@ -91,12 +91,17 @@ onMounted(async () => {
 // 맞춤학습지의 근간이 될 학습지 선택
 const userTestId = ref(null);
 watch(listboxTest, (newValue) => {
+    // 베이스 학습지 선택/해제 시 출제 상태 초기화 — [출제하기]를 다시 눌러야 다운로드 가능
+    isSet.value = false;
+    testDetail.value = [];
     if (newValue !== null) {
         userTestId.value = newValue.userTestId;
         testName.value = newValue.testName;
-        // 베이스 학습지를 새로 고르면 출제 상태 초기화 — [출제하기]를 다시 눌러야 다운로드 가능
-        isSet.value = false;
-        testDetail.value = [];
+    } else {
+        // 선택 해제(Listbox 토글) 시 다운로드 게이트를 '학습지를 선택하세요.'로 되돌림
+        // → 다운로드 확인 Dialog의 listboxTest null 역참조(크래시) 방지
+        userTestId.value = null;
+        testName.value = '';
     }
 });
 
@@ -395,8 +400,8 @@ const yesClick = () => {
             <Button v-else-if="!isSet" ref="popup" @click="confirm3($event)" label="출제하기를 누르세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
             <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }} &quot; 학습지</div>
+                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }} &quot; 학습지</div>
                 <template #footer>
                     <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
                     <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
