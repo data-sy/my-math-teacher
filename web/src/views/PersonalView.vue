@@ -90,31 +90,28 @@ onMounted(async () => {
 
 // 맞춤학습지의 근간이 될 학습지 선택
 const userTestId = ref(null);
-watch(listboxTest, async (newValue) => {
-    if(newValue !== null) {
+watch(listboxTest, (newValue) => {
+    // 베이스 학습지 선택/해제 시 출제 상태 초기화 — [출제하기]를 다시 눌러야 다운로드 가능
+    isSet.value = false;
+    testDetail.value = [];
+    if (newValue !== null) {
         userTestId.value = newValue.userTestId;
-        // 우선 조건 없이 바로 출제 - 조건 생기면 이 부분 삭제
-        try {
-            const endpoint = `/api/v1/items/personal?userTestId=${userTestId.value}`;
-            const response = await api.get(endpoint);
-            testDetail.value = response.map((item) => {
-                return {
-                    ...item,
-                    itemImagePath: "/images/items/empty001.jpg"
-                };
-            });
-        } catch (err) {
-            console.error('데이터 생성 중 에러 발생:', err);
-        }
+        testName.value = newValue.testName;
+    } else {
+        // 선택 해제(Listbox 토글) 시 다운로드 게이트를 '학습지를 선택하세요.'로 되돌림
+        // → 다운로드 확인 Dialog의 listboxTest null 역참조(크래시) 방지
+        userTestId.value = null;
+        testName.value = '';
     }
 });
 
 
-// 맞춤 학습지 조건
-const isDeveloping = true; // 조건 사용 X 인 동안 "개발 중" 표시하기
+// 맞춤 학습지 조건 (Scope B에서 백엔드 연동 예정 — 현재는 UI만 노출, 출제에 미반영)
 const inputNumberValue = ref(10);
 const radioValue1 = ref(null);
 const radioValue2 = ref(null);
+// 출제 완료 여부 = 다운로드 게이트. 베이스 학습지 선택 후 [출제하기]를 누르면 true
+const isSet = ref(false);
 /////////////////////////////////////////////////////////////////////////////////
 // 추가구현 해야 할 부분
 // (+) 프론트 단에서 조건들을 만족해야 출제하기 버튼 활성화하기 (클릭하면 조건 채워달라고 알람)
@@ -133,13 +130,13 @@ const getPersonalItems = async () => {
                     itemImagePath: "/images/items/empty001.jpg"
                 };
             });
+            isSet.value = true;
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
     }
 }
 
-const testId = ref(null);
 const testName = ref('');
 
 // 날짜
@@ -284,21 +281,25 @@ const yesClick = () => {
                 <h5> 맞춤학습지 조건</h5>
                 <div class="developing-wrapper">
                     <div id="developing">
-                        <div class="mb-4 mt-5">
+                        <div class="mb-3 mt-4">
+                            <p class="text-700 text-lg m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 자동 출제됩니다.</p>
+                            <p class="text-500 m-0">아래 세부 조건 설정은 곧 추가될 예정입니다.</p>
+                        </div>
+                        <div class="mb-4">
                             <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수 (6 ~ 30)</label>
-                            <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
+                            <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30" :disabled="true"></InputNumber>
                         </div>
                         <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
                         <div class="grid">
                             <div class="col-12 md:col-6">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="wrong" name="category" value="wrong" v-model="radioValue1" />
+                                    <RadioButton id="wrong" name="category" value="wrong" v-model="radioValue1" :disabled="true" />
                                     <label for="wrong">오답 문항 위주</label>
                                 </div>
                             </div>
                             <div class="col-12 md:col-6">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="prerequisite" name="category" value="prerequisite" v-model="radioValue1" />
+                                    <RadioButton id="prerequisite" name="category" value="prerequisite" v-model="radioValue1" :disabled="true" />
                                     <label for="prerequisite">선수 지식 위주</label>
                                 </div>
                             </div>
@@ -307,31 +308,26 @@ const yesClick = () => {
                         <div class="grid">
                             <div class="col-12 md:col-4">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="nothing" name="reExam" value="nothing" v-model="radioValue2" />
+                                    <RadioButton id="nothing" name="reExam" value="nothing" v-model="radioValue2" :disabled="true" />
                                     <label for="nothing">없음</label>
                                 </div>
                             </div>
                             <div class="col-12 md:col-4">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="wrong" name="reExam" value="wrong" v-model="radioValue2" />
+                                    <RadioButton id="wrong" name="reExam" value="wrong" v-model="radioValue2" :disabled="true" />
                                     <label for="wrong">오답 문항</label>
                                 </div>
                             </div>
                             <div class="col-12 md:col-4">
                                 <div class="field-radiobutton mb-0">
-                                    <RadioButton id="all" name="reExam" value="prerequisite" v-model="radioValue2" />
+                                    <RadioButton id="all" name="reExam" value="prerequisite" v-model="radioValue2" :disabled="true" />
                                     <label for="all">전체 문항</label>
                                 </div>
                             </div>
                         </div>
-                        <!-- 준비 중이라 disable -->
                         <div class="mt-5">
-                            <Button label="출제하기" class="mr-2 mb-5" :disabled="true"></Button>
+                            <Button label="출제하기" class="mr-2 mb-5" :disabled="userTestId == null" @click="getPersonalItems"></Button>
                         </div>
-                    </div>
-                    <!-- 덮는 회색 박스 -->
-                    <div class="blocking-overlay" v-if="isDeveloping">
-                        <p class="p-3">새로운 기능이 곧 추가됩니다! <br><br> 잠시만 기다려주세요.</p>
                     </div>
                 </div>
                 <div class="mt-5">
@@ -400,12 +396,12 @@ const yesClick = () => {
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <Button v-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인 후 다운로드" icon="pi pi-download" class="mr-2 mb-2"></Button>
-            <Button v-else-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
+            <Button v-else-if="userTestId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
             <Button v-else-if="!isSet" ref="popup" @click="confirm3($event)" label="출제하기를 누르세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
             <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }} &quot; 학습지</div>
+                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }} &quot; 학습지</div>
                 <template #footer>
                     <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
                     <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
@@ -455,25 +451,6 @@ const yesClick = () => {
 .developing-wrapper {
   position: relative; /* 카드 내부의 덮는 요소가 부모인 카드 안에 위치하도록 */
 }
-
-.blocking-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3); /* 불투명도 30%의 회색 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 100; /* 카드 위에 덮는 요소가 위치하도록 z-index 설정 */
-  pointer-events: all; /* 클릭 이벤트 차단 */
-  border-radius: 10px; /* 모서리 둥글게 */
-}
-
 
 
 </style>
