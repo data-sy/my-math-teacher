@@ -345,10 +345,10 @@ const confirm = (event) => {
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <div class="mb-7">
-                <Button v-if="!isCurrentPasswordValid" :disabled="!isCurrentPasswordValid" label="[현재 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+                <Button v-if="!isCurrentPasswordValid" :disabled="!isCurrentPasswordValid" label="[현재 비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
                 <Button v-else-if="password==''" @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
                 <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[새 비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-                <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[새 비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+                <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[새 비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
                 <Button v-else @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
             </div>
             <Dialog header="수정 성공 시 홈 화면으로 이동합니다." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">

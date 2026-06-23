@@ -148,14 +148,14 @@ const logout = async () => {
 
         <!--반응형 작은 화면-->
         <div class="layout-topbar-menu-button">
-            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그<br/>아웃 </span>
+            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그아웃 </span>
             <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-user" style="font-size: 1.5rem"></i>
             </button>
         </div>
         <!--반응형 큰 화면-->
         <div class="layout-topbar-menu">
-            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그<br/>아웃 </span>
+            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그아웃 </span>
             <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
                 <i class="pi pi-user" style="font-size: 1.5rem"></i>
             </button>

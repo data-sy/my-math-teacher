@@ -261,7 +261,7 @@ const yesClick = async () => {
             <Button v-if="!isNotDuplicate" :disabled="!isNotDuplicate" label="[중복확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else-if="!isEmailValid" :disabled="!isEmailValid" label="[아이디]를 확인해 주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[비밀번호 확인]울 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
+            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="회원가입" class="w-full p-3 text-xl mr-2 mb-2" />
             <Dialog header="회원가입 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
