@@ -1,6 +1,7 @@
 package com.mmt.api.service;
 
 import com.mmt.api.domain.Answer;
+import com.mmt.api.domain.Item;
 import com.mmt.api.domain.Probability;
 import com.mmt.api.dto.item.PersonalItemConverter;
 import com.mmt.api.dto.item.PersonalItemsResponse;
@@ -13,7 +14,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,8 +38,29 @@ public class ItemService {
         this.userTestRepository = userTestRepository;
     }
 
-    public List<PersonalItemsResponse> findPersonalItems(Long userTestId, String userEmail) {
+    // Scope B 문항 수 경계 (PersonalView InputNumber 6~30 과 일치)
+    private static final int COUNT_MIN = 6;
+    private static final int COUNT_MAX = 30;
+    private static final int COUNT_DEFAULT = 10;
 
+    /**
+     * 레거시(Scope A) 진입점 — 조건 파라미터 없는 호출. 하위호환을 위해 유지한다.
+     */
+    public List<PersonalItemsResponse> findPersonalItems(Long userTestId, String userEmail) {
+        return findPersonalItems(userTestId, userEmail, null, null, null);
+    }
+
+    /**
+     * 맞춤학습지 조건부 출제 (Scope B).
+     * spec: docs/specs/product/spec-01-personalview-conditional-items-scope-b.md
+     *
+     * @param category 맞춤 유형. {@code "wrong"}=오답 개념 자체(depth 0), {@code "prerequisite"}=선수지식(depth 1~2).
+     *                 {@code null} 이면 레거시 Scope A 동작(depth≤2 혼합, 재출제 없음, count 무제한).
+     * @param reExam   재출제. {@code "nothing"}=신규 문항만, {@code "wrong"}=원래 오답 문항+신규, {@code "all"}=원래 응시 문항 전체+신규.
+     * @param count    신규 문항 상한(6~30 clamp). 재출제 원본 문항은 count 와 무관하게 추가된다.
+     */
+    public List<PersonalItemsResponse> findPersonalItems(Long userTestId, String userEmail,
+                                                         String category, String reExam, Integer count) {
         // (#2) IDOR 방어: 요청한 userTestId 가 인증된 사용자 본인 소유인지 확인한다.
         // 위반 시 AccessDeniedException → jwtAccessDeniedHandler 가 403 으로 응답.
         Long userId = usersRepository.findUserIdByUserEmail(userEmail)
@@ -45,54 +69,82 @@ public class ItemService {
             throw new AccessDeniedException("본인의 학습 기록만 조회할 수 있습니다.");
         }
 
+        // 조건 미지정 = 레거시 Scope A 경로 (롤백 안전판)
+        if (category == null) {
+            return findLegacyPersonalItems(userTestId);
+        }
+
+        int cappedCount = clampCount(count);
+        // item_id 기준 dedup + 삽입 순서 보존(재출제 원본 먼저 → 신규). 원본 우선.
+        Map<Long, PersonalItemsResponse> byItemId = new LinkedHashMap<>();
+
+        // 1) 재출제 원본 문항 (additive)
+        if ("wrong".equals(reExam) || "all".equals(reExam)) {
+            boolean onlyWrong = "wrong".equals(reExam);
+            for (Item original : itemRepository.findOriginalItemsByUserTestId(userTestId, onlyWrong)) {
+                byItemId.putIfAbsent(original.getItemId(), PersonalItemConverter.convertToPersonalItemsResponse(original));
+            }
+        }
+
+        // 2) 맞춤 유형 기반 신규 문항 (오답 answer → probabilities depth 필터 → distinct concept → count 캡)
+        List<Answer> answerList = answerRepository.findAnswersByUserTestId(userTestId);
+        if (!answerList.isEmpty()) {
+            List<Long> answerIdList = answerList.stream().map(Answer::getAnswerId).collect(Collectors.toList());
+            List<Probability> probabilityList = probabilityRepository.findProbability(answerIdList);
+            List<Integer> conceptIdList = probabilityList.stream()
+                    .filter(pro -> matchesCategory(category, pro.getToConceptDepth()))
+                    .map(Probability::getConceptId)
+                    .distinct()
+                    .limit(cappedCount)
+                    .collect(Collectors.toList());
+            for (int conceptId : conceptIdList) {
+                PersonalItemsResponse item = PersonalItemConverter.convertToPersonalItemsResponse(itemRepository.findByConceptId(conceptId));
+                byItemId.putIfAbsent(item.getItemId(), item);
+            }
+        }
+
+        // 3) 최종 순서대로 출제 번호 부여
+        List<PersonalItemsResponse> result = new ArrayList<>(byItemId.values());
+        for (int i = 0; i < result.size(); i++) {
+            result.get(i).setTestItemNumber(i + 1);
+        }
+        return result;
+    }
+
+    // 맞춤 유형 → to_concept_depth 매핑 (spec D1)
+    private boolean matchesCategory(String category, int depth) {
+        if ("wrong".equals(category)) return depth == 0;
+        if ("prerequisite".equals(category)) return depth >= 1 && depth <= 2;
+        return depth <= 2; // 방어적 기본 (정상 흐름에서는 category==null 이 레거시 경로로 분기됨)
+    }
+
+    private int clampCount(Integer count) {
+        if (count == null) return COUNT_DEFAULT;
+        return Math.max(COUNT_MIN, Math.min(COUNT_MAX, count));
+    }
+
+    /**
+     * 레거시 Scope A 출제: 오답 → 선수지식 depth≤2 → 개념당 1문항. distinct·count 미적용(원형 보존).
+     */
+    private List<PersonalItemsResponse> findLegacyPersonalItems(Long userTestId) {
         List<PersonalItemsResponse> personalItemsResponseList = new ArrayList<>();
 
-        /**
-         * ANSWERS TABLE에서 user_test_id에 따른 answer_id 쿼리 (조건 : 정오답 여부 0)
-         */
         List<Answer> answerList = answerRepository.findAnswersByUserTestId(userTestId);
-
-        // 리팩토링) 정오답 여부 0인 결과가 없을 때, 어떻게 처리할 것인가
-            // 우선은 쿼리 결과 리스트가 isEmpty라면 빈 List<PersonalItemsResponse> 리턴하도록 처리해 둠
         if (answerList.isEmpty()) return personalItemsResponseList;
 
-        // 다음 쿼리의 인풋을 위해 필터링 결과물에서 answer_id만 추출
         List<Long> answerIdList = answerList.stream().map(Answer::getAnswerId).collect(Collectors.toList());
-
-
-        /**
-         * PROBABILITIES TABLE에서 answer_id에 따른 concept_id 쿼리 (조건 : 없음. 우선 다 가져와서 자바에서 필터링 테스트)
-         */
         List<Probability> probabilityList = probabilityRepository.findProbability(answerIdList);
-
-        // 리팩토링 : 필터링 조건은 계속 수정될 부분 !!! (핵심 비즈니스 로직)
-            // 우선은 "선수지식 2 이하" 만 필터 걸자 & conceptId만 추출
         List<Integer> conceptIdList = probabilityList.stream()
                 .filter(pro -> pro.getToConceptDepth() <= 2)
                 .map(Probability::getConceptId)
                 .collect(Collectors.toList());
 
-
-        /**
-         * (여기가 성능 테스트 파트이므로 다양한 시도 고고!)
-         * ITEMS TABLE에서 concept_id에 맞는 item 쿼리 (조건 : 각각 1개만 랜덤으로 추출)
-         */
-        // 1. for문 돌려서 각각의 결과물 받아서 add
-            // 결과물에 순서대로 testItemNumber 붙여주기 (다른 방법으로 하면 list를 컨버터 하는데서 번호 넘버링 해줄 수 있을 듯)
         for (int i = 0; i < conceptIdList.size(); i++) {
             int conceptId = conceptIdList.get(i);
             PersonalItemsResponse item = PersonalItemConverter.convertToPersonalItemsResponse(itemRepository.findByConceptId(conceptId));
             item.setTestItemNumber(i + 1);
             personalItemsResponseList.add(item);
         }
-
-        // 2. DB 단에서 ROW_NUMBER() 방식 사용해서 한 쿼리로 처리
-
-        // 3.
-
-        // 4.
-
-
         return personalItemsResponseList;
     }
 }
