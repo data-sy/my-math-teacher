@@ -16,9 +16,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-//                .allowedOrigins("/*") // 외부에서 들어오는 모든 url 허용
-                .allowedOrigins(allowedOrigins1, allowedOrigins2)  // EC2
-                .allowedOrigins("http://localhost:8080", "http://localhost:5173", "http://localhost:8000") // local
+                // (#5) allowedOrigins 는 누적이 아니라 덮어쓰기다. 이전엔 EC2 origin 이
+                // localhost 호출에 덮여 무시됐다 → 운영/로컬 origin 을 한 번에 나열한다.
+                .allowedOrigins(
+                        allowedOrigins1, allowedOrigins2,                                    // EC2(운영)
+                        "http://localhost:8080", "http://localhost:5173", "http://localhost:8000" // 로컬 개발
+                )
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true) // 클라이언트에서 쿠키를 받기 위해

@@ -174,9 +174,7 @@ const deleteUser = async () => {
         await api.del('/api/v1/users');
         // 탈퇴 성공, 로그아웃 진행
         store.commit('setAccessToken', null);
-        store.commit('setRefreshToken', null);
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         api.removeAccessToken();
         openConfirmation3();
     } catch (err) {

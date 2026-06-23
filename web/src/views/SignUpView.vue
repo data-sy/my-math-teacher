@@ -153,7 +153,6 @@ const login = async () => {
     try {
         const response = await api.post('/api/v1/auth/authentication', requestData2.value);
         store.commit('setAccessToken', response.accessToken);
-        store.commit('setRefreshToken', response.refreshToken);
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
     }

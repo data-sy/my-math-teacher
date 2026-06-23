@@ -15,4 +15,6 @@ public interface UserTestRepository {
 
     List<Long> findUserTestIds(Long userTestId);
 
+    boolean existsByUserTestIdAndUserId(Long userTestId, Long userId);
+
 }

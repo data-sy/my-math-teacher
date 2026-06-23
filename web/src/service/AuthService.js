@@ -20,18 +20,15 @@ const isExpired = (token) => {
       }
 };
 
-// refreshToken을 사용해서 token 재생성
+// refreshToken(HttpOnly 쿠키, withCredentials 로 자동 전송)으로 access 재발급
 const reissue = async (requestData, store) => {
     try {
-      const response = await api.post('/api/v1/auth/reissue', requestData.value);
-      // 토큰을 store에 저장
+      const response = await api.post('/api/v1/auth/reissue', requestData);
+      // 응답 body 에는 access 만 온다(refresh 는 Set-Cookie 로 회전).
       store.commit('setAccessToken', response.accessToken);
-      store.commit('setRefreshToken', response.refreshToken);
     } catch (refreshError) {
         store.commit('setAccessToken', null);
-        store.commit('setRefreshToken', null);
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         api.removeAccessToken();
         console.error('토큰 갱신에 실패했습니다. : ', refreshError);
     }
@@ -40,20 +37,16 @@ const reissue = async (requestData, store) => {
 const authService = {
     async initializeStore(store) {
       const accessToken = localStorage.getItem('accessToken');
-      const refreshToken = localStorage.getItem('refreshToken');
       if (accessToken) {
         store.commit('setAccessToken', accessToken);
         if (isExpired(accessToken)) {
+          // refresh 는 쿠키로 자동 전송되므로 body 엔 만료 access 만 싣는다(CSRF 2차 방어용).
           const requestData = {
             grantType: "Bearer",
             accessToken: accessToken,
-            refreshToken: refreshToken,
           };
           await reissue(requestData, store);
         }
-      }
-      if (refreshToken) {
-        store.commit('setRefreshToken', refreshToken);
       }
     },
 };

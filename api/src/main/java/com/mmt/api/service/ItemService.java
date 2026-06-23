@@ -7,6 +7,9 @@ import com.mmt.api.dto.item.PersonalItemsResponse;
 import com.mmt.api.repository.answer.AnswerRepository;
 import com.mmt.api.repository.item.ItemRepository;
 import com.mmt.api.repository.probability.ProbabilityRepository;
+import com.mmt.api.repository.userTest.UserTestRepository;
+import com.mmt.api.repository.users.UsersRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,15 +22,28 @@ public class ItemService {
     private final AnswerRepository answerRepository;
     private final ProbabilityRepository probabilityRepository;
     private final ItemRepository itemRepository;
+    private final UsersRepository usersRepository;
+    private final UserTestRepository userTestRepository;
 
-    public ItemService(AnswerService answerService, AnswerRepository answerRepository, ProbabilityRepository probabilityRepository, ItemRepository itemRepository) {
+    public ItemService(AnswerService answerService, AnswerRepository answerRepository, ProbabilityRepository probabilityRepository, ItemRepository itemRepository,
+                       UsersRepository usersRepository, UserTestRepository userTestRepository) {
         this.answerService = answerService;
         this.answerRepository = answerRepository;
         this.probabilityRepository = probabilityRepository;
         this.itemRepository = itemRepository;
+        this.usersRepository = usersRepository;
+        this.userTestRepository = userTestRepository;
     }
 
-    public List<PersonalItemsResponse> findPersonalItems(Long userTestId) {
+    public List<PersonalItemsResponse> findPersonalItems(Long userTestId, String userEmail) {
+
+        // (#2) IDOR 방어: 요청한 userTestId 가 인증된 사용자 본인 소유인지 확인한다.
+        // 위반 시 AccessDeniedException → jwtAccessDeniedHandler 가 403 으로 응답.
+        Long userId = usersRepository.findUserIdByUserEmail(userEmail)
+                .orElseThrow(() -> new AccessDeniedException("인증 정보를 확인할 수 없습니다."));
+        if (!userTestRepository.existsByUserTestIdAndUserId(userTestId, userId)) {
+            throw new AccessDeniedException("본인의 학습 기록만 조회할 수 있습니다.");
+        }
 
         List<PersonalItemsResponse> personalItemsResponseList = new ArrayList<>();
 

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -61,14 +62,17 @@ public class TokenProvider {
                 .setExpiration(new Date(now + accessTokenValidityInMilliseconds))
                 .compact();
 
-        //Refresh Token 생성
+        //Refresh Token 생성 — subject(주체)+jti(개별 식별자) 부여로 토큰 자체로 주체 식별 가능 (#6)
+        String jti = UUID.randomUUID().toString();
         String refreshToken = Jwts.builder()
+                .setSubject(authentication.getName())
+                .setId(jti)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setExpiration(new Date(now + refreshTokenValidityInMilliseconds))
                 .compact();
 
-        //Refresh Token RedisDB에 저장
-        redisUtil.set(authentication.getName(), refreshToken, getExpiration(refreshToken));
+        //Refresh Token RedisDB에 저장 — 멀티슬롯 refresh:{email}:{jti} (다기기/개별 회전·폐기 지원)
+        redisUtil.set(refreshKey(authentication.getName(), jti), refreshToken, getExpiration(refreshToken));
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -136,6 +140,26 @@ public class TokenProvider {
     public String getEmail(String token){
         Authentication authentication = getAuthentication(token);
         return authentication.getName();
+    }
+
+    // refresh 토큰의 jti(개별 식별자) 추출 — 만료 토큰도 parseClaims 가 claims 반환
+    public String getJti(String token) {
+        return parseClaims(token).getId();
+    }
+
+    // 토큰의 subject(주체 email) 직접 추출 — refresh 는 auth claim 이 없어 getEmail/getAuthentication 사용 불가
+    public String getSubject(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    // refresh 멀티슬롯 Redis 키: refresh:{email}:{jti}
+    public static String refreshKey(String email, String jti) {
+        return "refresh:" + email + ":" + jti;
+    }
+
+    // 특정 사용자의 모든 refresh 슬롯 prefix (logout 전수 폐기용)
+    public static String refreshKeyPrefix(String email) {
+        return "refresh:" + email + ":";
     }
 
 }
