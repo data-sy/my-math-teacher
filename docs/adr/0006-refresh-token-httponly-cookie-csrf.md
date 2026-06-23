@@ -16,7 +16,7 @@ Accepted
 
 결정에 영향을 준 확정 사실:
 
-- **배포 토폴로지(확정):** 프론트(`www.my-math-teacher.com`)와 API 가 **same-site**(동일 등록가능도메인 `my-math-teacher.com`, API 는 `*.my-math-teacher.com` 또는 동일 호스트 리버스프록시 `/api`)다. 따라서 `SameSite=Strict` 쿠키가 reissue 요청에 정상 첨부된다.
+- **배포 토폴로지(확정):** 프론트와 API 를 **동일 Nginx(동일 호스트)** 에서 서빙한다 — `web/nginx.conf` 가 `/` 는 정적 프론트로, `/api/v1/` 는 백엔드로 리버스프록시(OAuth 콜백 `/oauth2/`·`/login/oauth2` 도 동일 백엔드). 따라서 프론트와 reissue 요청이 **same-origin**(따라서 당연히 same-site)이라 `SameSite=Strict` 쿠키가 reissue 에 정상 첨부된다. cross-site 분리 배포로 바뀌면 본 스킴이 깨지므로(아래 Negative) 그때 ADR 재검토.
 
 ## Decision
 
@@ -44,7 +44,7 @@ Accepted
 
 - **전역 CSRF 는 계속 disabled** 로 둔다. reissue 외 API 는 Authorization 헤더 기반 stateless 라 CSRF 비대상.
 - reissue 만 두 장치로 보호한다:
-  1. **1차 — `SameSite=Strict`**: 크로스사이트 요청에는 refresh 쿠키가 첨부되지 않는다. SPA 가 same-site 이므로 정상 동작(위 토폴로지 전제).
+  1. **1차 — `SameSite=Strict`**: 크로스사이트 요청에는 refresh 쿠키가 첨부되지 않는다. 프론트·API 가 동일 Nginx 호스트라 reissue 가 same-origin → 정상 첨부(위 토폴로지 전제).
   2. **2차 — 만료 access 동반 요구**: reissue 는 body 로 (만료된) access 도 받아 주체를 확정한다. 공격자가 피해자의 access 를 모르면 성공 불가. 추가로 **`refresh.subject == access.subject` 교차검증**으로 방어층을 유지한다 — "refresh.subject 만으로 단순화"는 2차 방어층 제거이므로 금지.
 
 ### 5. 전환기 폴백

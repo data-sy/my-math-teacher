@@ -12,7 +12,7 @@
 ## 공통 — 어떤 경로든 반드시 일어나는 일
 
 - **기존 로그인 사용자 전원 강제 재로그인 1회.** Redis refresh 키 스킴이 단일슬롯→멀티슬롯(`refresh:{email}:{jti}`)으로 바뀌어 기존 세션은 reissue 불가. 단계를 합치든 나누든 동일하며 피할 수 없다. (구 키는 자체 TTL 로 소멸. 즉시 정리하려면 운영자가 구 키 패턴만 SCAN 삭제.)
-- **토폴로지 전제:** 프론트(`www.my-math-teacher.com`)와 API 가 same-site(`*.my-math-teacher.com`). cross-site 면 `SameSite=Strict` 쿠키가 reissue 에 안 실려 스킴이 깨진다(ADR 0006). → 깨지면 중단.
+- **토폴로지 전제:** 프론트·API 를 동일 Nginx 호스트에서 서빙(`web/nginx.conf`: `/`→프론트, `/api/v1/`→백엔드) → reissue 가 same-origin 이라 `SameSite=Strict` 쿠키 정상 첨부. cross-site 분리 배포로 바꾸면 쿠키가 안 실려 스킴이 깨진다(ADR 0006). → 그렇게 바꾸면 중단·재검토.
 
 ---
 
