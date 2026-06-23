@@ -51,3 +51,39 @@ variable "gdb_password" {
   type        = string
   default     = "dummy"
 }
+
+# --- database.tf 슬라이스 (RDS MySQL, spec-01 §9.3) -----------------------
+
+variable "db_name" {
+  description = "초기 생성 DB 스키마 이름"
+  type        = string
+  default     = "mmt"
+}
+
+variable "db_username" {
+  description = "RDS 마스터 유저명 (시크릿 아님 — 노출돼도 비번 없이는 무용)"
+  type        = string
+  default     = "mmtadmin"
+}
+
+variable "db_password" {
+  description = <<-EOT
+    RDS 마스터 비밀번호. ★ 진짜 시크릿 — default 없음.
+    비커밋 terraform.tfvars 또는 TF_VAR_db_password 로만 주입(§7·G2).
+    한 번도 코드/커밋/tfstate(=비커밋)에 평문으로 남기지 않는다.
+  EOT
+  type        = string
+  sensitive   = true
+}
+
+variable "db_allocated_storage" {
+  description = "RDS 스토리지 GB (spec-01 §9.3: 20GB)"
+  type        = number
+  default     = 20
+}
+
+variable "db_engine_version" {
+  description = "MySQL 엔진 버전 (운영 MySQL 8 과 정렬)"
+  type        = string
+  default     = "8.0"
+}

@@ -31,11 +31,13 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   # 이번 조각이 닿는 서비스만 LocalStack 엣지(단일 포트 4566)로 라우팅.
-  # rds 엔드포인트는 database.tf 들어올 때 여기 추가.
-  # ec2 = network.tf(SG)·compute.tf(EC2/EIP) 슬라이스가 닿는 도메인.
+  # ec2 = network.tf(SG)·compute.tf(EC2/EIP). rds = database.tf.
+  # ⚠️ community LocalStack 은 RDS 미지원 → rds 는 plan/validate 까지만
+  #    신뢰(R-T1). mock-apply 금지.
   endpoints {
     sts = "http://localhost:4566"
     ec2 = "http://localhost:4566"
+    rds = "http://localhost:4566"
   }
 }
 
