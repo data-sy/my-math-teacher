@@ -89,7 +89,7 @@ watch(listboxConcept, async (newValue) => {
         try {
             const endpoint = `/api/v1/concepts/${conceptId.value}`;
             const response = await api.get(endpoint);
-            response.conceptDescription = response.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne')
+            response.conceptDescription = response.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
             conceptDetail.value = response;
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
@@ -124,7 +124,7 @@ const goToHome = () => {
 
 // cytoscape (렌더링 레이어는 useConceptGraph 컴포저블이 소유)
 const cyElement = ref(null);
-const { initGraph, destroy: destroyGraph } = useConceptGraph();
+const { initGraph, destroy: destroyGraph, GRADE_COLORS } = useConceptGraph();
 
 // 선수지식 데이터
 const uniqueConceptIds = new Set();
@@ -212,7 +212,6 @@ const clearCy = () => {
     knowledgeSpace.value = [];
     destroyGraph();
 };
-
 </script>
 
 <template>
@@ -306,7 +305,7 @@ const clearCy = () => {
             <div class="card" id="scroll-tree">
                 <div class="flex align-items-center mb-5">
                     <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
-                    <div class="mx-3"> 점을 클릭해보세요. 개념 상세보기를 할 수 있습니다.</div>
+                    <div class="mx-3">점을 클릭해보세요. 개념 상세보기를 할 수 있습니다.</div>
                     <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                 </div>
                 <OverlayPanel ref="op" appendTo="body">
@@ -319,16 +318,17 @@ const clearCy = () => {
                 </div>
                 <ul style="list-style-type: disc">
                     <li class="text-600 font-medium mb-3">
-                        초등학교 : 초1,2 <i class="pi pi-circle-fill" style="color: yellow; font-size: 1.5rem"></i> 초3,4 <i class="pi pi-circle-fill" style="color: springgreen; font-size: 1.5rem"></i> 초5,6
-                        <i class="pi pi-circle-fill" style="color: green; font-size: 1.5rem"></i>
+                        초등학교 : 초1,2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초1'], fontSize: '1.5rem' }"></i> 초3,4 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초3'], fontSize: '1.5rem' }"></i> 초5,6
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초5'], fontSize: '1.5rem' }"></i>
                     </li>
                     <li class="text-600 font-medium mb-3">
-                        중학교 : 중1 <i class="pi pi-circle-fill" style="color: skyblue; font-size: 1.5rem"></i> 중2 <i class="pi pi-circle-fill" style="color: dodgerblue; font-size: 1.5rem"></i> 중3
-                        <i class="pi pi-circle-fill" style="color: rgb(9, 106, 204); font-size: 1.5rem"></i>
+                        중학교 : 중1 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중1'], fontSize: '1.5rem' }"></i> 중2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중2'], fontSize: '1.5rem' }"></i> 중3
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중3'], fontSize: '1.5rem' }"></i>
                     </li>
                     <li class="text-600 font-medium">
-                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" style="color: lightpink; font-size: 1.5rem"></i> 수&#8544;,수&#8545; <i class="pi pi-circle-fill" style="color: hotpink; font-size: 1.5rem"></i> 미적,기하,확통
-                        <i class="pi pi-circle-fill" style="color: red; font-size: 1.5rem"></i>
+                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수학'], fontSize: '1.5rem' }"></i> 수&#8544;,수&#8545;
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수1'], fontSize: '1.5rem' }"></i> 미적,기하,확통
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['미적'], fontSize: '1.5rem' }"></i>
                     </li>
                 </ul>
             </div>

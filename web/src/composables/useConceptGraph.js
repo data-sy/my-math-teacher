@@ -22,37 +22,33 @@ const nodeActiveColor = '#6466f1'; // 선택한 노드
 const fromColor = '#ff6348'; // 후수지식
 const toColor = '#1e90ff'; // 선수지식
 
-// 학년(conceptGradeLevel) → 노드 색상
-const getNodeColor = (gradeLevel) => {
-    switch (gradeLevel) {
-        case '초1':
-        case '초2':
-            return 'yellow';
-        case '초3':
-        case '초4':
-            return 'springGreen';
-        case '초5':
-        case '초6':
-            return 'green';
-        case '중1':
-            return 'lightblue';
-        case '중2':
-            return 'dodgerblue';
-        case '중3':
-            return 'rgb(9, 106, 204)';
-        case '수학':
-            return 'lightpink';
-        case '수1':
-        case '수2':
-            return 'hotpink';
-        case '미적':
-        case '확통':
-        case '기하':
-            return 'red';
-        default:
-            return 'gray';
-    }
+// 학교급 3색(초=green / 중=violet / 고=magenta) × 명도 3단계.
+// 전부 흰 배경 비텍스트 대비 ≥3:1 (WCAG 1.4.11). 노란색 등 저대비 색 퇴출.
+// 색 진실원천 1곳 — 범례(뷰 template)도 이 값을 바인딩한다.
+const GRADE_COLORS = {
+    // 초등 (green)  3.34 / 5.13 / 7.87
+    초1: '#4f9d57',
+    초2: '#4f9d57',
+    초3: '#2e7d32',
+    초4: '#2e7d32',
+    초5: '#1b5e20',
+    초6: '#1b5e20',
+    // 중등 (violet) 5.21 / 8.02 / 10.24
+    중1: '#7e57c2',
+    중2: '#5e35b1',
+    중3: '#4527a0',
+    // 고등 (magenta) 4.62 / 6.40 / 9.05
+    수학: '#d6336c',
+    수1: '#b3215a',
+    수2: '#b3215a',
+    미적: '#8a1a47',
+    확통: '#8a1a47',
+    기하: '#8a1a47'
 };
+const DEFAULT_NODE_COLOR = 'gray';
+
+// 학년(conceptGradeLevel) → 노드 색상
+const getNodeColor = (gradeLevel) => GRADE_COLORS[gradeLevel] ?? DEFAULT_NODE_COLOR;
 
 // 노드 속성에 따라 색상 변경 (초기 색상을 nodeMyColor 데이터에 저장)
 const changeNodeColor = (cy) => {
@@ -226,5 +222,5 @@ export function useConceptGraph() {
         }
     };
 
-    return { initGraph, destroy, getNodeColor };
+    return { initGraph, destroy, getNodeColor, GRADE_COLORS };
 }

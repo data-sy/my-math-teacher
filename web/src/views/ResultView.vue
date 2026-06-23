@@ -17,7 +17,7 @@ const dataToSend = history.state.dataToSend;
 const receivedData = ref('');
 
 const cyElement = ref(null);
-const { initGraph, destroy: destroyGraph } = useConceptGraph();
+const { initGraph, destroy: destroyGraph, GRADE_COLORS } = useConceptGraph();
 
 const isLoggedIn = ref(false);
 const listboxTest = ref(null);
@@ -47,7 +47,7 @@ onMounted(async () => {
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
-    // 로그인 안 했을 때는 샘플 학습지
+        // 로그인 안 했을 때는 샘플 학습지
     } else {
         console.log('사용자가 로그인하지 않았습니다. 샘플 학습지 목록을 제공합니다.');
         try {
@@ -61,7 +61,7 @@ onMounted(async () => {
             });
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
-        }       
+        }
     }
     // [기록하기] 화면에서 넘어왔을 때는 해당 학습지 선택
     if (dataToSend) {
@@ -421,16 +421,17 @@ const goToNextPage = async () => {
                 </div>
                 <ul style="list-style-type: disc">
                     <li class="text-600 font-medium mb-3">
-                        초등학교 : 초1,2 <i class="pi pi-circle-fill" style="color: yellow; font-size: 1.5rem"></i> 초3,4 <i class="pi pi-circle-fill" style="color: springgreen; font-size: 1.5rem"></i> 초5,6
-                        <i class="pi pi-circle-fill" style="color: green; font-size: 1.5rem"></i>
+                        초등학교 : 초1,2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초1'], fontSize: '1.5rem' }"></i> 초3,4 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초3'], fontSize: '1.5rem' }"></i> 초5,6
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초5'], fontSize: '1.5rem' }"></i>
                     </li>
                     <li class="text-600 font-medium mb-3">
-                        중학교 : 중1 <i class="pi pi-circle-fill" style="color: skyblue; font-size: 1.5rem"></i> 중2 <i class="pi pi-circle-fill" style="color: dodgerblue; font-size: 1.5rem"></i> 중3
-                        <i class="pi pi-circle-fill" style="color: rgb(9, 106, 204); font-size: 1.5rem"></i>
+                        중학교 : 중1 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중1'], fontSize: '1.5rem' }"></i> 중2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중2'], fontSize: '1.5rem' }"></i> 중3
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중3'], fontSize: '1.5rem' }"></i>
                     </li>
                     <li class="text-600 font-medium">
-                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" style="color: lightpink; font-size: 1.5rem"></i> 수&#8544;,수&#8545; <i class="pi pi-circle-fill" style="color: hotpink; font-size: 1.5rem"></i> 미적,기하,확통
-                        <i class="pi pi-circle-fill" style="color: red; font-size: 1.5rem"></i>
+                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수학'], fontSize: '1.5rem' }"></i> 수&#8544;,수&#8545;
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수1'], fontSize: '1.5rem' }"></i> 미적,기하,확통
+                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['미적'], fontSize: '1.5rem' }"></i>
                     </li>
                 </ul>
             </div>
