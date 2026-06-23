@@ -91,7 +91,6 @@ const login = async () => {
         const response = await api.post('/api/v1/auth/authentication', requestData.value);
         if (response.accessToken){
             store.commit('setAccessToken', response.accessToken);
-            store.commit('setRefreshToken', response.refreshToken);
             error.value = null;
             closeDialog();
             router.push({ name: 'home' });
@@ -127,9 +126,7 @@ const logout = async () => {
     try {
         await api.del('api/v1/auth/authentication');
         store.commit('setAccessToken', null);
-        store.commit('setRefreshToken', null);
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         api.removeAccessToken();
         router.push({ name: 'home' });
     } catch (err) {

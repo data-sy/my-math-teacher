@@ -59,6 +59,12 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
+  # (#7) 운영 프로파일에서 SQL 로깅 비활성화 — base application.yml 의 show_sql:true 를 오버라이드.
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        show_sql: false
 jwt:
   header: Authorization
   secret: ${JWT_SECRET}
@@ -69,3 +75,13 @@ allowed:
   # origins: http://${EC2_IP}
   origins1: https://${EC2_DOMAIN_NAME1}
   origins2: https://${EC2_DOMAIN_NAME2}
+
+# (#7) 운영 로깅 레벨 — base application.yml 의 DEBUG(com.mmt / security / data.neo4j) 를 오버라이드.
+# 토큰·인증·SQL 상세가 운영 로그로 새지 않도록 INFO/WARN 으로 낮춘다.
+# 로컬 dev 는 base + securelocal 의 DEBUG 를 그대로 유지(이 파일은 secure 프로파일에서만 로드).
+logging:
+  level:
+    com.mmt: INFO
+    org.springframework.security: INFO
+    org.springframework.data.neo4j: INFO
+    org.hibernate.SQL: WARN

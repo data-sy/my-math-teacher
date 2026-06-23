@@ -77,9 +77,15 @@ public class SecurityConfig {
                                 // 인증 없이 접근 가능
                                 .requestMatchers("/", "/favicon.ico", "/api/v1/hello/**").permitAll()
                                 .requestMatchers("/login.html", "/oauth2/**", "/login/**").permitAll()
-                                .requestMatchers("api/v1/auth/**", "/api/v1/chapters/**", "/api/v1/concepts/**", "/api/v1/tests/school-level/**", "/api/v1/tests/detail/**").permitAll()
+                                // 인증 진입점만 공개. (#4) /api/v1/auth/validation 은 현재 비밀번호 확인
+                                // 오라클이므로 의도적으로 제외 → anyRequest().authenticated() 로 보호.
+                                .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/duplication", "/api/v1/auth/authentication", "/api/v1/auth/reissue").permitAll()
+                                // 공개 카탈로그(정답 미포함): 단원·개념·시험 목록
+                                .requestMatchers("/api/v1/chapters/**", "/api/v1/concepts/**", "/api/v1/tests/school-level/**").permitAll()
+                                // 비로그인 체험용 샘플
                                 .requestMatchers("/api/v1/tests/sample/**", "/api/v1/weakness-diagnosis/sample/**").permitAll()
-                                .requestMatchers("api/v1/items/**", "api/v1/perf-test/*").permitAll() // API 테스트 중이라 잠시 열어둠
+                                // (#2/#3) 정답(item_answer) 포함 응답(items, tests/detail)과 perf-test 는
+                                // 인증 필수 → permitAll 제거. anyRequest().authenticated() 가 커버.
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))
                                 .anyRequest().authenticated()
