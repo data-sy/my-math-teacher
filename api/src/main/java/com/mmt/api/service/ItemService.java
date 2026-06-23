@@ -88,10 +88,14 @@ public class ItemService {
             }
         }
 
-        // 2) 남은 자리(count - 원본수)를 맞춤 유형 범위에서 채운다. 원본이 이미 count 이상이면 생략.
+        // 2) 남은 자리(count - 원본수)를 D1 우선순위 tier 순서로 채운다. 원본이 이미 count 이상이면 생략.
+        //    primary(맞춤유형 우선 depth) 를 먼저 채우고, 모자라면 secondary 로 넘어간다(spill).
         if (byItemId.size() < cappedCount) {
-            List<Integer> categoryConcepts = findCategoryConcepts(userTestId, category);
-            fillFromRange(byItemId, categoryConcepts, cappedCount);
+            List<List<Integer>> tiers = findConceptTiers(userTestId, category);
+            fillFromRange(byItemId, tiers.get(0), cappedCount);
+            if (byItemId.size() < cappedCount) {
+                fillFromRange(byItemId, tiers.get(1), cappedCount);
+            }
         }
 
         // 3) 최종 순서대로 출제 번호 부여
@@ -102,17 +106,35 @@ public class ItemService {
         return result;
     }
 
-    // 맞춤 유형 범위 = 오답 answer → probabilities depth 필터 → distinct concept(등장 순서 보존)
-    private List<Integer> findCategoryConcepts(Long userTestId, String category) {
+    /**
+     * 맞춤 유형별 우선순위 tier (spec D1). 반환 = [primary 개념목록, secondary 개념목록].
+     * 범위 = 학생 오답 answer → probabilities 의 depth≤2 개념(union). depth 3 제외.
+     * - wrong(오답 위주): primary=depth 0, secondary=depth 1~2
+     * - prerequisite(선수지식 위주): primary=depth 1~2, secondary=depth 0
+     * secondary 는 primary 와 중복 개념 제외(개념은 우선 tier 에만 1회).
+     */
+    private List<List<Integer>> findConceptTiers(Long userTestId, String category) {
+        List<Integer> primary = new ArrayList<>();
+        List<Integer> secondary = new ArrayList<>();
+
         List<Answer> answerList = answerRepository.findAnswersByUserTestId(userTestId);
-        if (answerList.isEmpty()) return new ArrayList<>();
+        if (answerList.isEmpty()) return List.of(primary, secondary);
         List<Long> answerIdList = answerList.stream().map(Answer::getAnswerId).collect(Collectors.toList());
         List<Probability> probabilityList = probabilityRepository.findProbability(answerIdList);
-        return probabilityList.stream()
-                .filter(pro -> matchesCategory(category, pro.getToConceptDepth()))
-                .map(Probability::getConceptId)
-                .distinct()
-                .collect(Collectors.toList());
+
+        for (Probability p : probabilityList) {
+            int d = p.getToConceptDepth();
+            if (d < 0 || d > 2) continue; // depth 3 제외
+            boolean isPrimary = "wrong".equals(category) ? (d == 0) : (d >= 1);
+            int cid = p.getConceptId();
+            if (isPrimary) {
+                if (!primary.contains(cid)) primary.add(cid);
+            } else {
+                if (!secondary.contains(cid)) secondary.add(cid);
+            }
+        }
+        secondary.removeAll(primary); // 우선 tier 에 있으면 secondary 에서 제외
+        return List.of(primary, secondary);
     }
 
     /**
@@ -144,13 +166,6 @@ public class ItemService {
                 }
             }
         }
-    }
-
-    // 맞춤 유형 → to_concept_depth 매핑 (spec D1)
-    private boolean matchesCategory(String category, int depth) {
-        if ("wrong".equals(category)) return depth == 0;
-        if ("prerequisite".equals(category)) return depth >= 1 && depth <= 2;
-        return depth <= 2; // 방어적 기본 (정상 흐름에서는 category==null 이 레거시 경로로 분기됨)
     }
 
     private int clampCount(Integer count) {
