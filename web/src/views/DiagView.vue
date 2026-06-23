@@ -252,11 +252,11 @@ const goToSignup = () => {
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
-                <h5>School Level</h5>
+                <h5>학교급</h5>
                 <SelectButton v-model="selectButtonLevel" :options="selectButtonLevels" optionLabel="name" />
             </div>
             <div class="card">
-                <h5>Grade Level</h5>
+                <h5>학년</h5>
                 <Listbox v-model="listboxLevel" :options="listboxLevels" optionLabel="name" />
             </div>
         </div>
@@ -363,8 +363,8 @@ const goToSignup = () => {
                     <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
                         <div> 
-                            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                            <Button label="Yes" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
+                            <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                            <Button label="예" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
                         </div>
                         <div class="mt-3">
                             <Button label="회원가입 및 로그인" class="p-button-link" @click="goToSignup" autofocus />
@@ -378,8 +378,8 @@ const goToSignup = () => {
                     <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
                     <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                        <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                        <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                        <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                     </template>
                 </Dialog>
             </template>

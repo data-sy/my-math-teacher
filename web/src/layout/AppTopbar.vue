@@ -166,7 +166,7 @@ const logout = async () => {
             <div class="w-full surface-card px-6 sm:px-8">
                 <div class="text-center mb-5">
                     <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
-                    <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
+                    <div class="text-900 text-3xl font-medium mb-3">MMT에 오신 것을 환영합니다</div>
                 </div>
                 <form v-on:submit.prevent="login">
                     <div>

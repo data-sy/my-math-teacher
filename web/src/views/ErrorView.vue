@@ -7,13 +7,13 @@
                         <div class="flex justify-content-center align-items-center bg-pink-500 border-circle" style="height: 3.2rem; width: 3.2rem">
                             <i class="pi pi-fw pi-exclamation-circle text-2xl text-white"></i>
                         </div>
-                        <h1 class="text-900 font-bold text-5xl mb-2">Error Occured</h1>
-                        <span class="text-600 mb-5">Requested resource is not available.</span>
+                        <h1 class="text-900 font-bold text-5xl mb-2">오류가 발생했습니다</h1>
+                        <span class="text-600 mb-5">요청하신 페이지를 사용할 수 없습니다.</span>
                         <img src="/images/error/asset-error.svg" alt="Error" class="mb-5" width="80%" />
                         <div class="col-12 mt-5 text-center">
                             <i class="pi pi-fw pi-arrow-left text-blue-500 font-bold mr-2" style="vertical-align: center"></i>
                             <router-link to="/" class="text-blue-500 text-3xl">
-                                Go to home
+                                홈으로 이동
                                 <!-- <img src="images/logo/logo-mmt4.png" alt="logo" class="w-3rem" /> -->
                             </router-link>
                         </div>

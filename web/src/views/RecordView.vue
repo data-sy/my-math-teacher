@@ -393,8 +393,8 @@ const goToResultPage = async () => {
                     <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }}</div>
                 </div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>

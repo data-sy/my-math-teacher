@@ -411,11 +411,11 @@ const clearCy = () => {
     <div class="grid p-fluid">
         <div class="col-12 md:col-6 xl:col-3">
             <div class="card">
-                <h5>School Level</h5>
+                <h5>학교급</h5>
                 <SelectButton v-model="selectButtonLevel" :options="selectButtonLevels" optionLabel="name" />
             </div>
             <div class="card">
-                <h5>Grade Level</h5>
+                <h5>학년</h5>
                 <Listbox v-model="listboxLevel" :options="listboxLevels" optionLabel="name" />
             </div>
         </div>
@@ -497,7 +497,7 @@ const clearCy = () => {
         <div class="col-12">
             <div class="card" id="scroll-tree">
                 <div class="flex align-items-center mb-5">
-                    <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
+                    <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
                     <div class="mx-3"> 점을 클릭해보세요. 개념 상세보기를 할 수 있습니다.</div>
                     <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                 </div>

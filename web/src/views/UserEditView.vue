@@ -257,7 +257,7 @@ const confirm = (event) => {
             <!-- <div class="text-center mb-7 cursor-pointer" @click="goToHome"> 홈으로 가는 클릭 이벤트 없앰 (나중에 (페이지가 아니라) 컨펌창으로 만들 때 추가하기) -->
             <div class="text-center mb-7">
                 <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
-                <div class="text-primary text-3xl font-medium mb-3">[ My Page ]</div>
+                <div class="text-primary text-3xl font-medium mb-3">[ 마이페이지 ]</div>
                 <div class="flex align-items-center justify-content-center mt-2">
                     회원 정보 수정이 가능한 마이페이지 입니다.
                 </div>
@@ -268,8 +268,8 @@ const confirm = (event) => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="email" class="text-900 text-2xl font-medium"
-                        >ID 
-                    <span class="text-600 text-base font-normal mx-1"> ( ID는 수정할 수 없습니다. ) </span>
+                        >아이디
+                    <span class="text-600 text-base font-normal mx-1"> ( 아이디는 수정할 수 없습니다. ) </span>
                     </label>
                 </div>
                 <div class="flex justify-content-between mb-2">
@@ -291,7 +291,7 @@ const confirm = (event) => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="password" class="text-900 text-2xl font-medium"
-                        >New Password
+                        >새 비밀번호
                         <span class="text-red-600 text-base text-font-medium mx-2">{{ passwordLengthErrorMessage }}</span>
                         <!-- <span class="text-red-600 text-lg text-font-medium mx-2" >{{passwordErrorMessage }}</span> -->
                     </label>
@@ -318,7 +318,7 @@ const confirm = (event) => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="name" class="text-900 text-2xl font-medium"
-                        >Name
+                        >이름
                         <span class="text-red-600 text-base text-font-medium mx-2">{{ userNameErrorMessage }}</span>
                     </label>
                 </div>
@@ -327,7 +327,7 @@ const confirm = (event) => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="calendar" class="block text-900 text-2xl font-medium mb-2"
-                        >BirthDate
+                        >생년월일
                         <span class="text-600 text-base font-normal mx-2"> <span class="text-red-600 font-bold">연도를 클릭</span>하여 해당 연도를 찾아보세요. </span>
                     </label>
                 </div>
@@ -336,7 +336,7 @@ const confirm = (event) => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="comments" class="block text-900 text-2xl font-medium mb-2"
-                        >Comments
+                        >기타사항
                         <span class="text-red-600 text-base text-font-medium mx-2">{{ userCommentsErrorMessage }}</span>
                     </label>
                 </div>
@@ -353,15 +353,15 @@ const confirm = (event) => {
             </div>
             <Dialog header="수정 성공 시 홈 화면으로 이동합니다." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
-                    <div class="my-2" v-if="requestData3.userPassword !== ''"> Password : 비밀번호가 수정됩니다. </div> 
-                    <div class="my-2" v-if="requestData3.userName !== ''">Name : {{ requestData3.userName }}</div>
-                    <div class="my-2" v-if="requestData3.userBirthdate !== ''">BirthDate : {{ calendarShow }}</div>
-                    <div class="my-2" v-if="requestData3.userComments !== ''">Comments : {{ requestData3.userComments }}</div>
+                    <div class="my-2" v-if="requestData3.userPassword !== ''"> 비밀번호 : 비밀번호가 수정됩니다. </div>
+                    <div class="my-2" v-if="requestData3.userName !== ''">이름 : {{ requestData3.userName }}</div>
+                    <div class="my-2" v-if="requestData3.userBirthdate !== ''">생년월일 : {{ calendarShow }}</div>
+                    <div class="my-2" v-if="requestData3.userComments !== ''">기타사항 : {{ requestData3.userComments }}</div>
                 </div>
                 <div class="text-900 text-xl font-medium mx-3">회원 정보를 수정하시겠습니까?</div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
             <div class="mb-2">
@@ -371,14 +371,14 @@ const confirm = (event) => {
             <Dialog header="탈퇴 시 모든 데이터가 삭제됩니다." v-model:visible="displayConfirmation2" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
                     <div class="my-2"> 탈퇴 시 삭제된 데이터는 <span class="text-red-600 font-bold">복구 불가</span>합니다. </div>
-                    <div class="my-2"> "YES" 버튼을 누르면 돌이킬 수 없습니다. </div>
+                    <div class="my-2"> "예" 버튼을 누르면 돌이킬 수 없습니다. </div>
                     <!-- 나중에 추가할 기능 -->
                     <!-- <div> 다음 단어를 따라 치면 탈퇴 버튼이 활성화됩니다. </div> -->
                 </div>
                 <div class="text-900 text-xl font-medium mx-3">탈퇴 하시겠습니까?</div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation2" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick2" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation2" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick2" class="p-button-text" autofocus />
                 </template>
             </Dialog>
             <Dialog header="탈퇴가 완료되었습니다." v-model:visible="displayConfirmation3" :style="{ width: '350px' }" :modal="true">

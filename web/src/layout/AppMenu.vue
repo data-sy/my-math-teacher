@@ -8,7 +8,7 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
+        label: '홈',
         items: [{ label: '홈 화면', icon: 'pi pi-fw pi-home', to: '/' }]
     },
     {

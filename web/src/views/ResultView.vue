@@ -561,7 +561,7 @@ const goToNextPage = async () => {
                     scrollHeight="30rem"
                     tableStyle="min-width: 50rem"
                 >
-                    <Column field="representative.testItemNumber" header="Representative"></Column>
+                    <Column field="representative.testItemNumber" header="대표 개념"></Column>
                     <Column field="priority" header="시급도">
                         <template #body="slotProps">
                             <Badge :value="slotProps.data.priority" :severity="getPriority(slotProps.data.priority)" size="large" />
@@ -578,7 +578,7 @@ const goToNextPage = async () => {
                                 <span>{{ slotProps.data.representative.conceptName }}</span>
                             </div>
                             <div>
-                                <Button @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 TREE 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
+                                <Button @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 트리 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
                             </div>
                         </div>
                     </template>
@@ -592,7 +592,7 @@ const goToNextPage = async () => {
         <div class="col-12">
             <div class="card" id="scroll-tree">
                 <div class="flex align-items-center mb-5">
-                    <div class="text-2xl font-semibold mx-2">선수지식 TREE</div>
+                    <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
                     <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                     <div class="mx-6">
                         <Button @click="clearCy" label="화면 비우기" class="p-button-outlined p-button-primary mr-2" />
