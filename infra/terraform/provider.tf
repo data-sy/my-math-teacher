@@ -31,9 +31,11 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   # 이번 조각이 닿는 서비스만 LocalStack 엣지(단일 포트 4566)로 라우팅.
-  # ec2/rds 엔드포인트는 compute.tf / database.tf 들어올 때 여기 추가
+  # rds 엔드포인트는 database.tf 들어올 때 여기 추가.
+  # ec2 = network.tf(SG)·compute.tf(EC2/EIP) 슬라이스가 닿는 도메인.
   endpoints {
     sts = "http://localhost:4566"
+    ec2 = "http://localhost:4566"
   }
 }
 
