@@ -240,6 +240,10 @@ const refreshDerivedResults = () => {
     weaknessCards.value = buildWeaknessCards(resultList.value);
     resultSummary.value = buildResultSummary(weaknessCards.value);
 };
+// 표시 헬퍼 (Task 2) — 차트 미사용(D3), 숙련도는 숫자 + CSS 막대로
+const masteryLabel = (m) => `${Math.round(m)}%`;
+const masteryBarColor = (severity) => (severity === '상' ? '#e53935' : severity === '중' ? '#fb8c00' : '#43a047');
+const masteryBarStyle = (card) => ({ width: `${Math.max(0, Math.min(100, card.mastery))}%`, backgroundColor: masteryBarColor(card.severity), height: '8px' });
 
 /////////////////// ConceptTree ///////////////////
 // 렌더링 레이어는 useConceptGraph 컴포저블이 소유 (위에서 initGraph/destroyGraph 구조분해)
@@ -407,6 +411,39 @@ const goToNextPage = async () => {
         <!-- <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div> -->
+        <!-- spec-04 Task 2 · 헤드라인 요약 + 시급도순 우선순위 약점 카드 -->
+        <div class="col-12" v-if="resultSummary.itemCount > 0">
+            <div class="card">
+                <h5>진단 결과 요약</h5>
+                <p class="text-xl line-height-3 mb-4">
+                    분석된 <b>{{ resultSummary.itemCount }}문항</b> 중 <span class="text-red-600 font-bold">{{ resultSummary.weaknessCount }}개 약점</span>이 있어요.
+                    <template v-if="resultSummary.mostUrgent">
+                        가장 급한 건 <b>{{ resultSummary.mostUrgent.weakest.conceptName }}</b
+                        >(숙련도 {{ masteryLabel(resultSummary.mostUrgent.mastery) }})예요.
+                    </template>
+                </p>
+                <div class="text-2xl font-semibold mb-3">지금 채워야 할 약점 <span class="text-500 text-base">(시급도순)</span></div>
+                <div class="grid">
+                    <div v-for="card in weaknessCards" :key="card.testItemNumber" class="col-12 md:col-6 xl:col-4">
+                        <div class="surface-card border-1 surface-border border-round p-3 h-full flex flex-column">
+                            <div class="flex align-items-center justify-content-between mb-2">
+                                <Badge :value="card.severity" :severity="getPriority(card.severity)" size="large" />
+                                <span class="text-500 text-sm">문항 {{ card.testItemNumber }}번</span>
+                            </div>
+                            <div class="text-xl font-bold mb-1">{{ card.weakest.conceptName }}</div>
+                            <div v-if="card.representative" class="text-500 text-sm mb-3">대표개념 · {{ card.representative.conceptName }}</div>
+                            <div class="text-sm mb-1">숙련도 {{ masteryLabel(card.mastery) }}</div>
+                            <div class="surface-200 border-round mb-3" style="height: 8px">
+                                <div class="border-round" :style="masteryBarStyle(card)"></div>
+                            </div>
+                            <div class="mt-auto">
+                                <Button v-if="card.representative" @click="showTree(card.representative.conceptId)" label="선수지식 트리 보기" class="p-button-sm p-button-outlined w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="col-12 md:col-3 xl:col-3">
             <div class="card">
                 <h5>정오답 기록한 학습지 목록</h5>
