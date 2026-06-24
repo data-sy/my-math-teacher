@@ -39,6 +39,21 @@ public class ConceptConverter {
         return response;
     }
 
+    public static List<ConceptSearchResponse> convertListToConceptSearchResponseList(List<Concept> concepts) {
+        List<ConceptSearchResponse> responses = new ArrayList<>(concepts.size());
+        for (Concept c : concepts) {
+            ConceptSearchResponse r = new ConceptSearchResponse();
+            r.setConceptId(c.getConceptId());
+            r.setConceptName(c.getName());
+            r.setConceptSchoolLevel(c.getSchoolLevel());
+            r.setConceptGradeLevel(c.getGradeLevel());
+            r.setConceptSemester(c.getSemester());
+            r.setConceptChapterName(c.getChapterName());
+            responses.add(r);
+        }
+        return responses;
+    }
+
     public static ConceptNameResponse convertToConceptNameResponse(Concept concept) {
         ConceptNameResponse conceptResponse = new ConceptNameResponse();
         conceptResponse.setConceptId(concept.getConceptId());

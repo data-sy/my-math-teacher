@@ -6,6 +6,7 @@ import com.mmt.api.dto.concept.ChapterIdConceptResponse;
 import com.mmt.api.dto.concept.ConceptConverter;
 import com.mmt.api.dto.concept.ConceptNameResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
+import com.mmt.api.dto.concept.ConceptSearchResponse;
 import com.mmt.api.repository.concept.ConceptDepth;
 import com.mmt.api.repository.concept.ConceptRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
@@ -187,6 +188,19 @@ public class ConceptService {
 
     public List<ConceptNameResponse> findConceptNameByChapterId(int chapterId){
         return ConceptConverter.convertListToConceptNameResponseList(jdbcTemplateConceptRepository.findAllByChapterId(chapterId));
+    }
+
+    /**
+     * 개념명 검색(자동완성). 공백/빈 질의는 빈 목록, limit 은 1~50 으로 클램프.
+     * schoolLevel 이 주어지면 학교급으로 좁힌다(null/blank 면 전체).
+     */
+    public List<ConceptSearchResponse> searchConcepts(String query, String schoolLevel, int limit) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        int safeLimit = Math.max(1, Math.min(limit, 50));
+        return ConceptConverter.convertListToConceptSearchResponseList(
+                jdbcTemplateConceptRepository.searchByName(query.trim(), schoolLevel, safeLimit));
     }
 
 //    /**
