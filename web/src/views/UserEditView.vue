@@ -308,7 +308,7 @@ const confirm = (event) => {
                 <Button @click="attemptSubmit" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
             </div>
             <Dialog header="수정 성공 시 홈 화면으로 이동합니다." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-lg mx-3 mb-5">
+                <div class="t-body mx-3 mb-5">
                     <div class="my-2" v-if="requestData3.userPassword !== ''">비밀번호 : 비밀번호가 수정됩니다.</div>
                     <div class="my-2" v-if="requestData3.userName !== ''">이름 : {{ requestData3.userName }}</div>
                     <div class="my-2" v-if="requestData3.userBirthdate !== ''">생년월일 : {{ calendarShow }}</div>
@@ -325,7 +325,7 @@ const confirm = (event) => {
                 <span v-else @click="openConfirmation2">탈퇴 하시겠습니까?</span>
             </div>
             <Dialog header="탈퇴 시 모든 데이터가 삭제됩니다." v-model:visible="displayConfirmation2" :style="{ width: '350px' }" :modal="true">
-                <div class="text-lg mx-3 mb-5">
+                <div class="t-body mx-3 mb-5">
                     <div class="my-2">탈퇴 시 삭제된 데이터는 <span class="text-red-600 font-bold">복구 불가</span>합니다.</div>
                     <div class="my-2">"예" 버튼을 누르면 돌이킬 수 없습니다.</div>
                 </div>
@@ -336,7 +336,7 @@ const confirm = (event) => {
                 </template>
             </Dialog>
             <Dialog header="탈퇴가 완료되었습니다." v-model:visible="displayConfirmation3" :style="{ width: '350px' }" :modal="true">
-                <div class="text-lg mx-3 mb-5"></div>
+                <div class="t-body mx-3 mb-5"></div>
                 <div class="t-subheading mx-3 flex justify-content-center">
                     <div class="justify-content-center">홈 화면으로 이동합니다.</div>
                 </div>
