@@ -21,7 +21,7 @@ const steps = [
         <div class="col-12">
             <div class="card hero text-center py-6 px-4">
                 <h1 class="text-4xl md:text-5xl font-bold text-900 line-height-2 mb-3">수학은 계단입니다.<br />어디서 막혔는지 AI가 짚어드립니다.</h1>
-                <p class="text-lg md:text-xl text-700 mb-5 mx-auto hero-sub">이전 개념의 이해가 다음 학습을 좌우합니다. 진단 한 번으로 약한 고리를 찾아, 바로 채울 맞춤 학습지를 받아보세요.</p>
+                <p class="text-lg md:text-xl text-700 mb-5 mx-auto hero-sub">이전 개념의 이해가 다음 학습을 좌우합니다.<br />진단 한 번으로 약한 고리를 찾아, 바로 채울 맞춤 학습지를 받아보세요.</p>
                 <div class="flex flex-column sm:flex-row gap-3 justify-content-center">
                     <Button label="무료로 진단 시작" icon="pi pi-pencil" class="p-button-lg" @click="go('/diagnosis')" />
                     <Button label="개념 그래프 둘러보기 (로그인 불필요)" icon="pi pi-share-alt" class="p-button-lg p-button-outlined" @click="go('/concept')" />
