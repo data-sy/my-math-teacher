@@ -216,7 +216,7 @@ const confirm = (event) => {
                 <div class="flex flex-row mb-2">
                     <label for="passwordConfirm" class="t-subheading">정보 수정을 위해 현재 비밀번호를 확인합니다.</label>
                 </div>
-                <div class="flex justify-content-between mb-2">
+                <div class="flex justify-content-between gap-3 mb-2">
                     <Password id="currentPassword" placeholder="현재 비밀번호 확인" :toggleMask="true" class="w-15rem" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="currentPassword" :feedback="false" />
                     <Button v-if="!isLoggedIn" @click="confirm($event)" label="현재 비밀번호 확인" class="w-11rem"></Button>
                     <Button v-else-if="!isCurrentPasswordValid" @click="validateCurrentPassword" label="현재 비밀번호 확인"></Button>
