@@ -207,7 +207,7 @@ const yesClick = async () => {
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
                     <label for="calendar" class="block t-subheading mb-2"
-                        >생년월일
+                        >생년월일 <span class="field-optional">(선택)</span>
                         <span class="t-caption mx-2">연도 칸을 누르면 <span class="font-bold">연도 목록</span>으로 빠르게 이동할 수 있습니다.</span>
                     </label>
                 </div>
@@ -216,7 +216,7 @@ const yesClick = async () => {
             <div class="mb-7">
                 <div class="flex flex-row mb-2">
                     <label for="comments" class="block t-subheading mb-2"
-                        >기타사항
+                        >기타사항 <span class="field-optional">(선택)</span>
                         <span class="field-error mx-2">{{ userCommentsErrorMessage }}</span>
                     </label>
                 </div>
@@ -254,6 +254,11 @@ const yesClick = async () => {
 .field-error {
     font-size: var(--mmt-fs-caption);
     color: var(--mmt-danger);
+}
+.field-optional {
+    font-size: var(--mmt-fs-caption);
+    color: var(--mmt-text-muted);
+    font-weight: 400;
 }
 /* 시안 A — 제출 막힌 항목 요약 (필드 에러와 같은 danger 톤, 노란색 퇴출 기조) */
 .submit-summary {
