@@ -43,6 +43,14 @@ onMounted(async () => {
     );
     // 로그인 했을 때는 user의 학습지
     if (isLoggedIn.value) {
+        // PDF 학습지 헤더에 표시할 사용자 이름·학년 (RecordView와 동일 패턴)
+        try {
+            const userResponse = await api.get('/api/v1/users');
+            userDetail.value = userResponse;
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
+        } catch (err) {
+            console.error('사용자 정보 조회 중 에러 발생:', err);
+        }
         try {
             const endpoint = '/api/v1/tests/user/is-record';
             const response = await api.get(endpoint);
