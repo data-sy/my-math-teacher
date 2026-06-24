@@ -177,18 +177,17 @@ const setPriority = (data) => {
         }
     });
 };
-// 각 priority에 해당하는 태그 매칭하기
+// 시급도(상/중/하) → Badge severity 색. spec-04 §4.3 / D4
 const getPriority = (status) => {
     switch (status) {
         case '상':
             return 'danger'; // 빨강
-
         case '중':
             return 'warning'; // 주황
-
-        case 'new':
-            return 'success'; // 기본
-        // return 'info'; // 기본
+        case '하':
+            return 'info'; // 파랑(중립)
+        default:
+            return 'info';
     }
 };
 
@@ -368,10 +367,10 @@ const confirm = (event) => {
         target: event.target,
         message: '학습지 목록에서 학습지를 선택해주세요.',
         icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Ok',
+        acceptLabel: '확인',
         rejectLabel: ' ',
         accept: () => {
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: '학습지를 선택하면 그에 따른 맞춤 학습지를 출제할 수 있습니다.', life: 3000 });
+            toast.add({ severity: 'info', summary: '안내', detail: '학습지를 선택하면 그에 따른 맞춤 학습지를 출제할 수 있습니다.', life: 3000 });
         }
     });
 };
@@ -382,10 +381,10 @@ const confirm2 = (event) => {
         target: event.target,
         message: '로그인 혹은 회원가입을 해주세요.',
         icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Ok',
+        acceptLabel: '확인',
         rejectLabel: ' ',
         accept: () => {
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: '로그인을 하면 결과를 볼 수 있습니다.', life: 3000 });
+            toast.add({ severity: 'info', summary: '안내', detail: '로그인을 하면 결과를 볼 수 있습니다.', life: 3000 });
         }
     });
 };
@@ -445,6 +444,14 @@ const goToNextPage = async () => {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <!-- spec-04 Task 4 · 빈 상태: 라벨만 있는 빈 표 대신 안내형 -->
+        <div class="col-12" v-else>
+            <div class="card text-center py-6">
+                <i class="pi pi-chart-bar text-primary mb-3" style="font-size: 2.5rem"></i>
+                <div class="text-2xl font-semibold mb-2">아직 분석할 결과가 없어요</div>
+                <p class="text-500 text-lg m-0">왼쪽 목록에서 정오답을 기록한 학습지를 선택하면, 약점 진단 결과가 여기에 나타나요.</p>
             </div>
         </div>
         <div class="col-12 md:col-3 xl:col-3">
