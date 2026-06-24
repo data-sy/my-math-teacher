@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import AppTopbar from './AppTopbar.vue';
 import AppLearningSteps from './AppLearningSteps.vue';
+import AppBottomTabs from './AppBottomTabs.vue';
 import AppFooter from './AppFooter.vue';
 import LoginDialog from '@/components/LoginDialog.vue';
 import { useLayout } from '@/layout/composables/layout';
@@ -28,6 +29,7 @@ const containerClass = computed(() => {
             </div>
             <app-footer></app-footer>
         </div>
+        <app-bottom-tabs></app-bottom-tabs>
         <login-dialog></login-dialog>
     </div>
 </template>
