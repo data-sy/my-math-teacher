@@ -1,67 +1,46 @@
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useLayout } from '@/layout/composables/layout';
 import { useApi } from '@/composables/api.js';
 import { useLoginDialog } from '@/composables/useLoginDialog.js';
 
 const store = useStore();
 const router = useRouter();
-const { onMenuToggle } = useLayout();
 const api = useApi();
 const { open: openLoginDialog } = useLoginDialog();
 
-const outsideClickListener = ref(null);
-const topbarMenuActive = ref(false);
+const logoUrl = computed(() => 'images/logo/logo-mmt4.png');
 
-onMounted(() => {
-    bindOutsideClickListener();
-});
+const go = (to) => router.push(to);
 
-onBeforeUnmount(() => {
-    unbindOutsideClickListener();
-});
-
-const logoUrl = computed(() => {
-    return 'images/logo/logo-mmt4.png';
-});
-const bindOutsideClickListener = () => {
-    if (!outsideClickListener.value) {
-        outsideClickListener.value = (event) => {
-            if (isOutsideClicked(event)) {
-                topbarMenuActive.value = false;
-            }
-        };
-        document.addEventListener('click', outsideClickListener.value);
+// 상단 글로벌 내비 (spec-07): 개념 탐색 / 진단 / 내 학습 ▾(채점·결과·맞춤출제)
+const navModel = ref([
+    { label: '개념 탐색', icon: 'pi pi-sitemap', command: () => go('/concept') },
+    { label: '진단', icon: 'pi pi-file', command: () => go('/diagnosis') },
+    {
+        label: '내 학습',
+        icon: 'pi pi-compass',
+        items: [
+            { label: '채점하기', icon: 'pi pi-check-square', command: () => go('/record') },
+            { label: 'AI 분석 결과', icon: 'pi pi-chart-line', command: () => go('/result') },
+            { label: '맞춤 학습지 출제', icon: 'pi pi-book', command: () => go('/personal') }
+        ]
     }
-};
-const unbindOutsideClickListener = () => {
-    if (outsideClickListener.value) {
-        document.removeEventListener('click', outsideClickListener.value);
-        outsideClickListener.value = null;
-    }
-};
-const isOutsideClicked = (event) => {
-    if (!topbarMenuActive.value) return;
-
-    const sidebarEl = document.querySelector('.layout-topbar-menu');
-    const topbarEl = document.querySelector('.layout-topbar-menu-button');
-
-    return !(sidebarEl.isSameNode(event.target) || sidebarEl.contains(event.target) || topbarEl.isSameNode(event.target) || topbarEl.contains(event.target));
-};
+]);
 
 const isLoggedIn = ref(false);
 onMounted(() => {
     isLoggedIn.value = localStorage.getItem('accessToken') !== null; // 새로고침에 대응
-    watch(() => store.state.accessToken,
+    watch(
+        () => store.state.accessToken,
         (newToken) => {
             isLoggedIn.value = newToken !== null;
         }
-    )
+    );
 });
 
-// 로그인/회원가입 진입은 전역 LoginDialog 로 일원화 — 아이콘 클릭 시 공유 다이얼로그를 연다.
+// 로그인/회원가입 진입은 전역 LoginDialog 로 일원화
 const onUserClick = () => {
     openLoginDialog();
 };
@@ -74,37 +53,50 @@ const logout = async () => {
         api.removeAccessToken();
         router.push({ name: 'home' });
     } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+        console.error('로그아웃 중 에러 발생:', err);
     }
 };
 </script>
 
 <template>
-    <div class="layout-topbar">
-        <router-link to="/" class="layout-topbar-logo">
-            <img :src="logoUrl" alt="logo" />
-            <span>My Math Teacher</span>
-        </router-link>
-
-        <button class="p-link layout-menu-button layout-topbar-button" @click="onMenuToggle()">
-            <i class="pi pi-bars"></i>
-        </button>
-
-        <!--반응형 작은 화면-->
-        <div class="layout-topbar-menu-button">
-            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그아웃 </span>
-            <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
-                <i class="pi pi-user" style="font-size: 1.5rem"></i>
-            </button>
-        </div>
-        <!--반응형 큰 화면-->
-        <div class="layout-topbar-menu">
-            <span v-if="isLoggedIn" @click="logout()" class="p-link layout-topbar-button"> 로그아웃 </span>
-            <button v-else @click="onUserClick()" class="p-link layout-topbar-button">
-                <i class="pi pi-user" style="font-size: 1.5rem"></i>
-            </button>
-        </div>
-    </div>
+    <Menubar :model="navModel" class="mmt-global-nav">
+        <template #start>
+            <router-link to="/" class="mmt-nav-logo">
+                <img :src="logoUrl" alt="My Math Teacher" />
+                <span class="t-subheading mmt-brand-name">My Math Teacher</span>
+            </router-link>
+        </template>
+        <template #end>
+            <div class="flex align-items-center gap-2">
+                <template v-if="isLoggedIn">
+                    <Button label="회원정보 수정" icon="pi pi-user-edit" class="p-button-text" @click="go('/user-edit')" />
+                    <Button label="로그아웃" icon="pi pi-sign-out" class="p-button-text" @click="logout()" />
+                </template>
+                <Button v-else label="로그인" icon="pi pi-user" @click="onUserClick()" />
+            </div>
+        </template>
+    </Menubar>
 </template>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.mmt-global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 997;
+    border-radius: 0;
+}
+.mmt-nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--mmt-text);
+}
+.mmt-nav-logo img {
+    height: 2rem;
+    width: auto;
+}
+.mmt-brand-name {
+    color: var(--mmt-brand);
+}
+</style>

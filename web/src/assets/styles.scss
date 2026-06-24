@@ -10,3 +10,6 @@ $gutter: 1rem; //for primeflex grid system
 
 /* MMT 디자인 토큰 (spec-06) — PrimeFlex 뒤에 둬 .t-* 역할 클래스가 유틸리티를 덮을 수 있게 */
 @import '@/assets/tokens';
+
+/* MMT 셸 — 상단 글로벌 내비 풀폭 레이아웃 (spec-07) */
+@import '@/assets/shell';
