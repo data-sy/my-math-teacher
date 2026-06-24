@@ -110,6 +110,14 @@ const logout = async () => {
     color: var(--mmt-brand);
 }
 
+/* 로고와 내비 항목 사이 간격 (웹) — 너무 바짝 붙어 active 하단 인디케이터가 로고에 닿던 것 보정.
+ * 모바일(<960px)에선 root-list 가 숨김이라 데스크톱에만 적용. */
+@media screen and (min-width: 961px) {
+    .mmt-global-nav :deep(.p-menubar-root-list) {
+        margin-left: 1.25rem;
+    }
+}
+
 /* 내비 active 라우트 하이라이트: 현재 페이지의 최상위 항목을 브랜드 컬러 + 하단 인디케이터로 표시.
  * navModel 이 active 항목에 .mmt-nav-active 를 주입 → Menubar 가 해당 <li> 에 클래스 반영. */
 .mmt-global-nav :deep(.p-menuitem.mmt-nav-active > .p-menuitem-content) {
