@@ -6,6 +6,13 @@ const router = useRouter();
 const go = (to) => router.push(to);
 
 const conceptImageUrl = computed(() => 'images/concept-for-home.png');
+
+const steps = [
+    { no: '①', label: '진단 학습지 받기', desc: '중단원별 시험지로 개념 이해 여부를 확인합니다.', icon: 'pi-file', to: '/diagnosis' },
+    { no: '②', label: '채점하기', desc: '채점 결과를 AI에게 전달합니다.', icon: 'pi-check-square', to: '/record' },
+    { no: '③', label: 'AI 약점 분석', desc: '어떤 개념이 부족한지·필요한 선수지식을 확인합니다.', icon: 'pi-chart-bar', to: '/result' },
+    { no: '④', label: '맞춤 학습지 출제', desc: '분석에 따라 나에게 딱 맞는 문제를 출제합니다.', icon: 'pi-book', to: '/personal' }
+];
 </script>
 
 <template>
@@ -32,48 +39,23 @@ const conceptImageUrl = computed(() => 'images/concept-for-home.png');
                 </div>
             </router-link>
         </div>
-        <div class="col-12 md:col-6 xl:col-6">
-            <router-link to="/diagnosis">
-                <div class="card">
-                    <div class="text-900 font-medium text-2xl">
-                        &#9312; 진단 학습지 다운로드
-                        <i v-tooltip="'중단원 별 시험지 제공\n - 개념 이해 여부 확인'" class="pi pi-question-circle text-xl mx-2"></i>
+        <!-- 작동 방식: 진단 → 채점 → 분석 → 맞춤 학습지 -->
+        <div class="col-12">
+            <div class="card">
+                <div class="text-900 font-bold text-2xl mb-4 text-center">이렇게 작동합니다</div>
+                <div class="grid">
+                    <div v-for="step in steps" :key="step.label" class="col-12 md:col-3">
+                        <router-link :to="step.to" class="step-link">
+                            <div class="step-box h-full flex flex-column align-items-center text-center p-3">
+                                <span class="step-no text-primary font-bold text-2xl mb-2">{{ step.no }}</span>
+                                <i :class="['pi', step.icon, 'text-3xl', 'text-primary', 'mb-3']"></i>
+                                <div class="font-medium text-900 text-lg mb-2">{{ step.label }}</div>
+                                <div class="text-600 text-sm">{{ step.desc }}</div>
+                            </div>
+                        </router-link>
                     </div>
                 </div>
-            </router-link>
-        </div>
-        <div class="col-12 md:col-6 xl:col-6">
-            <router-link to="/record">
-                <div class="card">
-                    <div class="text-900 font-medium text-2xl">
-                        &#9313; 채점하기
-                        <i v-tooltip="'&#9312; 의 학습지 채점\n - 채점 결과를 AI에게 제공'" class="pi pi-question-circle text-xl mx-2"></i>
-                    </div>
-                </div>
-            </router-link>
-        </div>
-        <div class="col-12 md:col-6 xl:col-6">
-            <router-link to="/result">
-                <div class="card border-2 border-red-300">
-                    <div class="flex align-items-center">
-                        <span class="text-900 font-medium text-2xl">
-                            &#9314; AI 분석 결과보기
-                            <i v-tooltip="'&#9313; 의 채점 결과를 분석\n - 어떤 개념이 부족한지\n - 필요한 선수지식 확인 '" class="pi pi-question-circle text-xl mx-2"></i>
-                        </span>
-                        <span class="mx-3">(클릭해서 샘플을 확인하세요.)</span>
-                    </div>
-                </div>
-            </router-link>
-        </div>
-        <div class="col-12 md:col-6 xl:col-6 mb-7">
-            <router-link to="/personal">
-                <div class="card">
-                    <div class="text-900 font-medium text-2xl">
-                        &#9315; 맞춤 학습지 출제
-                        <i v-tooltip="'&#9314; 에 따른 학습지 출제\n - 나에게 딱 맞는 문제 '" class="pi pi-question-circle text-xl mx-2"></i>
-                    </div>
-                </div>
-            </router-link>
+            </div>
         </div>
     </div>
 </template>
@@ -84,6 +66,19 @@ const conceptImageUrl = computed(() => 'images/concept-for-home.png');
 }
 .hero-sub {
     max-width: 640px;
+}
+.step-link {
+    text-decoration: none;
+    color: inherit;
+}
+.step-box {
+    border-radius: 12px;
+    border: 1px solid var(--surface-border);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.step-box:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
 }
 .responsive-img {
     max-width: 100%;
