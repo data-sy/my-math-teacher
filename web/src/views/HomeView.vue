@@ -29,16 +29,6 @@ const steps = [
             </div>
         </div>
 
-        <div class="col-12">
-            <router-link to="/concept">
-                <div class="card">
-                    <div class="flex justify-content-center text-900 font-medium text-4xl mb-2">선수 지식 알아보기</div>
-                    <div class="flex justify-content-center">
-                        <img :src="conceptImageUrl" alt="conceptImage" class="responsive-img" />
-                    </div>
-                </div>
-            </router-link>
-        </div>
         <!-- 작동 방식: 진단 → 채점 → 분석 → 맞춤 학습지 -->
         <div class="col-12">
             <div class="card">
@@ -53,6 +43,25 @@ const steps = [
                                 <div class="text-600 text-sm">{{ step.desc }}</div>
                             </div>
                         </router-link>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 그래프 미리보기 + 샘플 결과 -->
+        <div class="col-12 mb-5">
+            <div class="card">
+                <div class="flex flex-column md:flex-row align-items-center gap-4">
+                    <router-link to="/concept" class="preview-img-link flex-1">
+                        <img :src="conceptImageUrl" alt="개념 그래프 미리보기" class="responsive-img" />
+                    </router-link>
+                    <div class="flex flex-column gap-3 text-center md:text-left">
+                        <div class="text-900 font-bold text-2xl">선수 지식, 한눈에 보기</div>
+                        <p class="text-700 m-0">개념 간 선·후 관계를 그래프로 탐색해 보세요. 로그인 없이 바로 둘러볼 수 있습니다.</p>
+                        <div class="flex flex-column sm:flex-row gap-2 justify-content-center md:justify-content-start">
+                            <Button label="개념 그래프 둘러보기" icon="pi pi-share-alt" class="p-button-outlined" @click="go('/concept')" />
+                            <Button label="샘플 결과 보기" icon="pi pi-arrow-right" icon-pos="right" class="p-button-text" @click="go('/result')" />
+                        </div>
                     </div>
                 </div>
             </div>
