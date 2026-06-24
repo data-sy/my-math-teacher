@@ -1,6 +1,7 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import { computed } from 'vue';
+import { CONTACT_EMAIL } from '@/constants/contact';
 
 const { layoutConfig } = useLayout();
 
@@ -14,7 +15,7 @@ const logoUrl = computed(() => {
         <div class="col-12 sm:col-6 xl:col-6 ">
             <h4>문의하기</h4>
             <p>화면 멈춤 및 오류 발생 시 개발자에게 문의주세요.</p>
-            <p>Email: contact.mmt.2024@gmail.com</p>
+            <p>Email: {{ CONTACT_EMAIL }}</p>
         </div>
         <nav class="col-12 sm:col-6 xl:col-6 vertical-links">
             <h4>소셜 링크</h4>
