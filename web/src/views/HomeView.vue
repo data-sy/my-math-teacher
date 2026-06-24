@@ -20,8 +20,8 @@ const steps = [
         <!-- 히어로: 가치 제안 + 1차 CTA -->
         <div class="col-12">
             <div class="card hero text-center py-6 px-4">
-                <h1 class="text-4xl md:text-5xl font-bold text-900 line-height-2 mb-3">수학은 계단입니다.<br />어디서 막혔는지 AI가 짚어드립니다.</h1>
-                <p class="text-lg md:text-xl text-700 mb-5 mx-auto hero-sub">이전 개념의 이해가 다음 학습을 좌우합니다.<br />진단 한 번으로 약한 고리를 찾아, 바로 채울 맞춤 학습지를 받아보세요.</p>
+                <h1 class="t-display text-center mb-3">수학은 계단입니다.<br />어디서 막혔는지 AI가 짚어드립니다.</h1>
+                <p class="hero-sub mb-5 mx-auto">이전 개념의 이해가 다음 학습을 좌우합니다.<br />진단 한 번으로 약한 고리를 찾아, 바로 채울 맞춤 학습지를 받아보세요.</p>
                 <div class="flex flex-column sm:flex-row gap-3 justify-content-center">
                     <Button label="무료로 진단 시작" icon="pi pi-pencil" class="p-button-lg" @click="go('/diagnosis')" />
                     <Button label="개념 그래프 둘러보기 (로그인 불필요)" icon="pi pi-share-alt" class="p-button-lg p-button-outlined" @click="go('/concept')" />
@@ -32,15 +32,15 @@ const steps = [
         <!-- 작동 방식: 진단 → 채점 → 분석 → 맞춤 학습지 -->
         <div class="col-12">
             <div class="card">
-                <div class="text-900 font-bold text-2xl mb-4 text-center">이렇게 작동합니다</div>
+                <div class="t-heading mb-4 text-center">이렇게 작동합니다</div>
                 <div class="grid">
                     <div v-for="step in steps" :key="step.label" class="col-12 md:col-3">
                         <router-link :to="step.to" class="step-link">
                             <div class="step-box h-full flex flex-column align-items-center text-center p-3">
-                                <span class="step-no text-primary font-bold text-2xl mb-2">{{ step.no }}</span>
+                                <span class="step-no t-heading text-primary mb-2">{{ step.no }}</span>
                                 <i :class="['pi', step.icon, 'text-3xl', 'text-primary', 'mb-3']"></i>
-                                <div class="font-medium text-900 text-lg mb-2">{{ step.label }}</div>
-                                <div class="text-600 text-sm">{{ step.desc }}</div>
+                                <div class="t-subheading mb-2">{{ step.label }}</div>
+                                <div class="t-caption">{{ step.desc }}</div>
                             </div>
                         </router-link>
                     </div>
@@ -56,8 +56,8 @@ const steps = [
                         <img :src="conceptImageUrl" alt="개념 그래프 미리보기" class="responsive-img" />
                     </router-link>
                     <div class="flex flex-column gap-3 text-center md:text-left">
-                        <div class="text-900 font-bold text-2xl">선수 지식, 한눈에 보기</div>
-                        <p class="text-700 m-0">개념 간 선·후 관계를 그래프로 탐색해 보세요. 로그인 없이 바로 둘러볼 수 있습니다.</p>
+                        <div class="t-heading">선수 지식, 한눈에 보기</div>
+                        <p class="t-body preview-desc m-0">개념 간 선·후 관계를 그래프로 탐색해 보세요. 로그인 없이 바로 둘러볼 수 있습니다.</p>
                         <div class="flex flex-column sm:flex-row gap-2 justify-content-center md:justify-content-start">
                             <Button label="개념 그래프 둘러보기" icon="pi pi-share-alt" class="p-button-outlined" @click="go('/concept')" />
                             <Button label="샘플 결과 보기" icon="pi pi-arrow-right" icon-pos="right" class="p-button-text" @click="go('/result')" />
@@ -75,6 +75,13 @@ const steps = [
 }
 .hero-sub {
     max-width: 640px;
+    /* 히어로 리드: 토큰 기반 — 본문보다 한 단계 큰 muted 카피 */
+    font-size: var(--mmt-fs-subhead);
+    line-height: var(--mmt-lh-snug);
+    color: var(--mmt-text-muted);
+}
+.preview-desc {
+    color: var(--mmt-text-muted);
 }
 .step-link {
     text-decoration: none;
