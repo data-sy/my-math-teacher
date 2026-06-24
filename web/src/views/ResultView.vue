@@ -25,6 +25,9 @@ const listboxTests = ref([]);
 const resultList = ref([]);
 const userTestId = ref(null);
 const sortedResultList = ref([]);
+// spec-04: 헤드라인 요약 + 우선순위 약점 카드용 파생 모델 (Task 2에서 렌더, 현재는 데이터만)
+const weaknessCards = ref([]);
+const resultSummary = ref({ itemCount: 0, weaknessCount: 0, mostUrgent: null });
 const knowledgeSpace = ref([]); // clearCy;를 위해 앞에서 선언함
 // 학습지 목록
 onMounted(async () => {
@@ -84,7 +87,7 @@ onMounted(async () => {
                         };
                     }
                 });
-                sortedResultList.value = sortProbaGroupByTestItemId(resultList.value);
+                refreshDerivedResults();
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
             }
@@ -115,7 +118,7 @@ watch(listboxTest, async (newValue) => {
                         };
                     }
                 });
-                sortedResultList.value = sortProbaGroupByTestItemId(resultList.value);
+                refreshDerivedResults();
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
             }
@@ -186,6 +189,56 @@ const getPriority = (status) => {
             return 'success'; // 기본
         // return 'info'; // 기본
     }
+};
+
+/////////////////// spec-04 · 약점 카드 모델 + 헤드라인 요약 (순수 가공) ///////////////////
+// 시급도 절대 구간 (spec-04 §4.3). 제안 출발값 — 실데이터 mastery 분포 확인 후 도메인 보정 대상.
+// probabilityPercent 가 0~100(percent) 스케일 전제. 런타임 검증에서 스케일·임계 확인.
+const SEVERITY_BANDS = { high: 40, mid: 65 }; // mastery < 40 → 상, < 65 → 중, 그 외 → 하
+const severityForMastery = (mastery) => {
+    if (mastery < SEVERITY_BANDS.high) return '상';
+    if (mastery < SEVERITY_BANDS.mid) return '중';
+    return '하';
+};
+// 문항(testItemNumber) 그룹 → 카드 1개. (spec-04 §4.1, D1 문항 단위)
+const buildWeaknessCards = (list) => {
+    if (!Array.isArray(list) || list.length === 0) return [];
+    const grouped = list.reduce((acc, row) => {
+        (acc[row.testItemNumber] ??= []).push(row);
+        return acc;
+    }, {});
+    const cards = Object.entries(grouped).map(([itemNumber, rows]) => {
+        // 대표개념 = 문항이 직접 묻는 개념(depth 0). 누락 시 null 가드(PR #27 6098760 패턴).
+        const representativeItem = rows.find((r) => r.toConceptDepth === 0) ?? null;
+        // 가장 약한 선수지식 = probabilityPercent 최소 행 (채워야 할 곳). 카드 제목이 됨.
+        const weakest = rows.reduce((min, r) => (r.probabilityPercent < min.probabilityPercent ? r : min), rows[0]);
+        const mastery = weakest.probabilityPercent;
+        return {
+            testItemNumber: Number(itemNumber),
+            representative: representativeItem ? { conceptId: representativeItem.conceptId, conceptName: representativeItem.conceptName } : null,
+            weakest: { conceptId: weakest.conceptId, conceptName: weakest.conceptName, level: weakest.level, chapter: weakest.chapter },
+            mastery,
+            severity: severityForMastery(mastery),
+            conceptCount: rows.length
+        };
+    });
+    // 시급도순 = mastery 오름차순 (가장 약한 카드가 위로). spec-04 §4.1
+    cards.sort((a, b) => a.mastery - b.mastery);
+    return cards;
+};
+// 헤드라인 요약 (spec-04 §4.2, D2 가용 데이터만)
+const buildResultSummary = (cards) => {
+    return {
+        itemCount: cards.length, // 분석된 N문항
+        weaknessCount: cards.filter((c) => c.severity === '상' || c.severity === '중').length, // 약점 개념 M개(상·중)
+        mostUrgent: cards.length > 0 ? cards[0] : null // 가장 급한 약점 (mastery 최저 = 정렬 선두)
+    };
+};
+// resultList 로부터 파생 모델 일괄 재계산 (onMounted·watch 공용)
+const refreshDerivedResults = () => {
+    sortedResultList.value = sortProbaGroupByTestItemId(resultList.value);
+    weaknessCards.value = buildWeaknessCards(resultList.value);
+    resultSummary.value = buildResultSummary(weaknessCards.value);
 };
 
 /////////////////// ConceptTree ///////////////////
