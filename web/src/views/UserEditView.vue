@@ -4,7 +4,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
-import { useUserForm } from '@/composables/useUserForm.js';
+import { useUserForm, useSubmitGuard } from '@/composables/useUserForm.js';
 import PasswordRequirements from '@/components/PasswordRequirements.vue';
 
 const store = useStore();
@@ -151,6 +151,20 @@ const openConfirmation = () => {
 const closeConfirmation = () => {
     displayConfirmation.value = false;
 };
+
+// 제출 게이트 — 기존 disabled 체인과 동일한 통과 조건. 새 비밀번호는 선택(빈 값이면 비번 변경 없이 제출 가능),
+// 값이 있을 때만 조건·일치를 검사. 미충족 항목 배열로 모은다(빈 배열 = 제출 가능).
+const submitBlockers = computed(() => {
+    const list = [];
+    if (!isCurrentPasswordValid.value) list.push({ message: '[현재 비밀번호 확인]을 해주세요.', field: 'currentPassword' });
+    if (password.value !== '') {
+        if (!isPasswordValid.value) list.push({ message: '[새 비밀번호]가 조건을 만족하지 않습니다.', field: 'password' });
+        if (!isPasswordMatch.value) list.push({ message: '[새 비밀번호 확인]이 일치하지 않습니다.', field: 'passwordConfirm' });
+    }
+    return list;
+});
+const { showBlockers, attemptSubmit, focusField } = useSubmitGuard(submitBlockers, openConfirmation);
+
 const yesClick = async () => {
     closeConfirmation();
     const success = await updateProfile();
@@ -283,11 +297,15 @@ const confirm = (event) => {
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <div class="mb-7">
-                <Button v-if="!isCurrentPasswordValid" :disabled="!isCurrentPasswordValid" label="[현재 비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-                <Button v-else-if="password == ''" @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
-                <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[새 비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-                <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[새 비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-                <Button v-else @click="openConfirmation" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
+                <div v-if="showBlockers && submitBlockers.length" class="submit-summary mb-3" role="alert">
+                    <div class="submit-summary__title"><i class="pi pi-exclamation-circle mr-2" />아래 항목을 확인해 주세요</div>
+                    <ul class="submit-summary__list">
+                        <li v-for="blocker in submitBlockers" :key="blocker.field + blocker.message">
+                            <a href="#" @click.prevent="focusField(blocker.field)">{{ blocker.message }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <Button @click="attemptSubmit" label="회원정보 수정" class="w-full p-3 text-xl mr-2 mb-2" />
             </div>
             <Dialog header="수정 성공 시 홈 화면으로 이동합니다." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
@@ -334,5 +352,35 @@ const confirm = (event) => {
 .field-error {
     font-size: var(--mmt-fs-caption);
     color: var(--mmt-danger);
+}
+/* 시안 A — 제출 막힌 항목 요약 (필드 에러와 같은 danger 톤, 노란색 퇴출 기조) */
+.submit-summary {
+    border: 1px solid var(--red-200);
+    background: var(--red-50);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+.submit-summary__title {
+    display: flex;
+    align-items: center;
+    font-size: var(--mmt-fs-caption);
+    font-weight: 700;
+    color: var(--mmt-danger);
+    margin-bottom: 0.5rem;
+}
+.submit-summary__list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+.submit-summary__list li {
+    font-size: var(--mmt-fs-caption);
+    margin: 0.25rem 0;
+}
+.submit-summary__list a {
+    color: var(--red-700);
+    text-decoration: none;
+}
+.submit-summary__list a:hover {
+    text-decoration: underline;
 }
 </style>
