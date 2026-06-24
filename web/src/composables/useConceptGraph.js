@@ -240,5 +240,25 @@ export function useConceptGraph() {
         }
     };
 
-    return { initGraph, destroy, getNodeColor, GRADE_COLORS };
+    // ─── 뷰포트 컨트롤 (spec-09: 줌/전체보기/리셋 상시 노출) ───
+    // 모두 cy 인스턴스가 없을 때 no-op. 기존 소비자(ResultView)는 호출하지 않으므로 영향 없음.
+    const ZOOM_STEP = 1.2;
+    const zoomBy = (factor) => {
+        if (!cy) return;
+        cy.zoom({ level: cy.zoom() * factor, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } });
+    };
+    const zoomIn = () => zoomBy(ZOOM_STEP);
+    const zoomOut = () => zoomBy(1 / ZOOM_STEP);
+    // 전체보기: 모든 노드가 보이도록 맞춤.
+    const fit = (padding = 30) => {
+        if (cy) cy.fit(undefined, padding);
+    };
+    // 리셋: 줌/팬 초기화 후 전체보기.
+    const reset = (padding = 30) => {
+        if (!cy) return;
+        cy.reset();
+        cy.fit(undefined, padding);
+    };
+
+    return { initGraph, destroy, getNodeColor, GRADE_COLORS, zoomIn, zoomOut, fit, reset };
 }
