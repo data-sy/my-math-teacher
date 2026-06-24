@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch, onBeforeUnmount } from 'vue';
+import { onMounted, ref, watch, onBeforeUnmount, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -28,6 +28,7 @@ const sortedResultList = ref([]);
 // spec-04: 헤드라인 요약 + 우선순위 약점 카드용 파생 모델 (Task 2에서 렌더, 현재는 데이터만)
 const weaknessCards = ref([]);
 const resultSummary = ref({ itemCount: 0, weaknessCount: 0, mostUrgent: null });
+const evidenceOpen = ref(false); // spec-04 Task 3: 근거(표·그래프·상세) progressive disclosure 토글
 const knowledgeSpace = ref([]); // clearCy;를 위해 앞에서 선언함
 // 학습지 목록
 onMounted(async () => {
@@ -253,6 +254,7 @@ const uniqueConceptIds = new Set();
 const clickedNodeId = ref('');
 const conceptDetail = ref(null);
 const showTree = async (conceptId) => {
+    evidenceOpen.value = true; // 근거 패널을 펼쳐 그래프 컨테이너가 렌더되게 함 (v-show)
     // knowledgeSpace
     try {
         const nodesEndpoint = `/api/v1/concepts/nodes/${conceptId}`;
@@ -293,7 +295,8 @@ const showTree = async (conceptId) => {
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
     }
-    // cytoScape
+    // cytoScape — 근거 패널 펼침이 DOM에 반영돼 컨테이너 크기가 잡힌 뒤 그래프 생성
+    await nextTick();
     initGraph(cyElement.value, knowledgeSpace.value, {
         onTapNode: (id) => {
             clickedNodeId.value = id;
@@ -450,166 +453,180 @@ const goToNextPage = async () => {
                 <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" />
             </div>
         </div>
-        <div class="col-12 md:col-9 xl:col-9">
-            <div class="card">
-                <h5>분석 결과</h5>
-                <DataTable
-                    :value="sortedResultList"
-                    rowGroupMode="subheader"
-                    groupRowsBy="representative.testItemNumber"
-                    sortMode="single"
-                    sortField="representative.testItemNumber"
-                    :sortOrder="1"
-                    scrollable
-                    scrollHeight="30rem"
-                    tableStyle="min-width: 50rem"
-                >
-                    <Column field="representative.testItemNumber" header="대표 개념"></Column>
-                    <Column field="priority" header="시급도">
-                        <template #body="slotProps">
-                            <Badge :value="slotProps.data.priority" :severity="getPriority(slotProps.data.priority)" size="large" />
-                        </template>
-                    </Column>
-                    <Column field="toConceptDepth" header="선수지식 깊이" style="min-width: 20px"></Column>
-                    <Column field="conceptName" header="개념" style="min-width: 200px"></Column>
-                    <Column field="level" header="학교-학년-학기" style="min-width: 120px"></Column>
-                    <Column field="chapter" header="단원" style="min-width: 300px"></Column>
-                    <template #groupheader="slotProps">
-                        <div class="flex align-items-center gap-2 justify-content-around">
-                            <div class="flex align-items-center gap-2 text-xl text-primary">
-                                <span class="font-bold mx-2"> [문항 {{ slotProps.data.testItemNumber }}번] </span>
-                                <span>{{ slotProps.data.representative?.conceptName ?? slotProps.data.conceptName }}</span>
-                            </div>
-                            <div>
-                                <Button v-if="slotProps.data.representative" @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 트리 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
+        <!-- spec-04 Task 3 · 근거(표·그래프·상세)를 "근거 더보기"로 강등 (progressive disclosure) -->
+        <div class="col-12">
+            <Button
+                :label="evidenceOpen ? '근거 접기' : '근거 더보기 (문항별 표 · 선수지식 그래프 · 개념 상세)'"
+                :icon="evidenceOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                class="p-button-text p-button-secondary"
+                @click="evidenceOpen = !evidenceOpen"
+            />
+        </div>
+        <div class="col-12" v-show="evidenceOpen">
+            <div class="grid">
+                <div class="col-12">
+                    <div class="card">
+                        <h5>분석 결과</h5>
+                        <DataTable
+                            :value="sortedResultList"
+                            rowGroupMode="subheader"
+                            groupRowsBy="representative.testItemNumber"
+                            sortMode="single"
+                            sortField="representative.testItemNumber"
+                            :sortOrder="1"
+                            scrollable
+                            scrollHeight="30rem"
+                            tableStyle="min-width: 50rem"
+                        >
+                            <Column field="representative.testItemNumber" header="대표 개념"></Column>
+                            <Column field="priority" header="시급도">
+                                <template #body="slotProps">
+                                    <Badge :value="slotProps.data.priority" :severity="getPriority(slotProps.data.priority)" size="large" />
+                                </template>
+                            </Column>
+                            <Column field="toConceptDepth" header="선수지식 깊이" style="min-width: 20px"></Column>
+                            <Column field="conceptName" header="개념" style="min-width: 200px"></Column>
+                            <Column field="level" header="학교-학년-학기" style="min-width: 120px"></Column>
+                            <Column field="chapter" header="단원" style="min-width: 300px"></Column>
+                            <template #groupheader="slotProps">
+                                <div class="flex align-items-center gap-2 justify-content-around">
+                                    <div class="flex align-items-center gap-2 text-xl text-primary">
+                                        <span class="font-bold mx-2"> [문항 {{ slotProps.data.testItemNumber }}번] </span>
+                                        <span>{{ slotProps.data.representative?.conceptName ?? slotProps.data.conceptName }}</span>
+                                    </div>
+                                    <div>
+                                        <Button v-if="slotProps.data.representative" @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 트리 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
+                                    </div>
+                                </div>
+                            </template>
+                            <template #groupfooter="slotProps">
+                                <div class="flex justify-content-end font-bold w-full">전체 개수 : {{ calculateResultTotal(slotProps.data.testItemNumber) }}</div>
+                            </template>
+                        </DataTable>
+                        <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card" id="scroll-tree">
+                        <div class="flex align-items-center mb-5">
+                            <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
+                            <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
+                            <div class="mx-6">
+                                <Button @click="clearCy" label="화면 비우기" class="p-button-outlined p-button-primary mr-2" />
                             </div>
                         </div>
-                    </template>
-                    <template #groupfooter="slotProps">
-                        <div class="flex justify-content-end font-bold w-full">전체 개수 : {{ calculateResultTotal(slotProps.data.testItemNumber) }}</div>
-                    </template>
-                </DataTable>
-                <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="card" id="scroll-tree">
-                <div class="flex align-items-center mb-5">
-                    <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
-                    <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
-                    <div class="mx-6">
-                        <Button @click="clearCy" label="화면 비우기" class="p-button-outlined p-button-primary mr-2" />
+                        <OverlayPanel ref="op" appendTo="body">
+                            <li class="text-600 font-medium mb-3">스크롤 : 화면 확대/축소</li>
+                            <li class="text-600 font-medium mb-3">점 클릭 & 드래그 : 점 이동</li>
+                            <li class="text-red-700 font-bold">점 클릭 : [선수지식 상세보기]</li>
+                        </OverlayPanel>
+                        <div>
+                            <div ref="cyElement" style="height: 400px; width: 100%"></div>
+                        </div>
+                        <ul style="list-style-type: disc">
+                            <li class="text-600 font-medium mb-3">
+                                초등학교 : 초1,2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초1'], fontSize: '1.5rem' }"></i> 초3,4 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초3'], fontSize: '1.5rem' }"></i> 초5,6
+                                <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초5'], fontSize: '1.5rem' }"></i>
+                            </li>
+                            <li class="text-600 font-medium mb-3">
+                                중학교 : 중1 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중1'], fontSize: '1.5rem' }"></i> 중2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중2'], fontSize: '1.5rem' }"></i> 중3
+                                <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중3'], fontSize: '1.5rem' }"></i>
+                            </li>
+                            <li class="text-600 font-medium">
+                                고등학교 : 수학(상/하) <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수학'], fontSize: '1.5rem' }"></i> 수&#8544;,수&#8545;
+                                <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수1'], fontSize: '1.5rem' }"></i> 미적,기하,확통
+                                <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['미적'], fontSize: '1.5rem' }"></i>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                <OverlayPanel ref="op" appendTo="body">
-                    <li class="text-600 font-medium mb-3">스크롤 : 화면 확대/축소</li>
-                    <li class="text-600 font-medium mb-3">점 클릭 & 드래그 : 점 이동</li>
-                    <li class="text-red-700 font-bold">점 클릭 : [선수지식 상세보기]</li>
-                </OverlayPanel>
-                <div>
-                    <div ref="cyElement" style="height: 400px; width: 100%"></div>
-                </div>
-                <ul style="list-style-type: disc">
-                    <li class="text-600 font-medium mb-3">
-                        초등학교 : 초1,2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초1'], fontSize: '1.5rem' }"></i> 초3,4 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초3'], fontSize: '1.5rem' }"></i> 초5,6
-                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['초5'], fontSize: '1.5rem' }"></i>
-                    </li>
-                    <li class="text-600 font-medium mb-3">
-                        중학교 : 중1 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중1'], fontSize: '1.5rem' }"></i> 중2 <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중2'], fontSize: '1.5rem' }"></i> 중3
-                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['중3'], fontSize: '1.5rem' }"></i>
-                    </li>
-                    <li class="text-600 font-medium">
-                        고등학교 : 수학(상/하) <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수학'], fontSize: '1.5rem' }"></i> 수&#8544;,수&#8545;
-                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['수1'], fontSize: '1.5rem' }"></i> 미적,기하,확통
-                        <i class="pi pi-circle-fill" :style="{ color: GRADE_COLORS['미적'], fontSize: '1.5rem' }"></i>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6">
-            <div class="card" id="scroll-node">
-                <h5>개념 상세보기 1</h5>
-                <div class="surface-section" v-if="selectedNode1">
-                    <div>
-                        <VMarkdownView :content="selectedNode1.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
-                    </div>
-                    <div class="text-500 mb-5"></div>
-                    <ul class="list-none p-0 m-0">
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode1.conceptSchoolLevel }}-{{ selectedNode1.conceptGradeLevel }}-{{ selectedNode1.conceptSemester }}</div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode1.conceptChapterMain }}-{{ selectedNode1.conceptChapterSub }}-{{ selectedNode1.conceptChapterName }}</div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode1.conceptAchievementName }}</div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
-                                <VMarkdownView :content="selectedNode1.conceptDescription"></VMarkdownView>
+                <div class="col-12 lg:col-6">
+                    <div class="card" id="scroll-node">
+                        <h5>개념 상세보기 1</h5>
+                        <div class="surface-section" v-if="selectedNode1">
+                            <div>
+                                <VMarkdownView :content="selectedNode1.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
                             </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="surface-section" v-else>
-                    <div class="font-medium text-3xl text-900 mb-3 text-blue-500">개념을 선택해주세요</div>
-                    <div class="text-500 mb-5"></div>
-                    <ul class="list-none p-0 m-0">
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">개념설명</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 lg:col-6">
-            <div class="card">
-                <h5>개념 상세보기 2</h5>
-                <div class="surface-section" v-if="selectedNode2">
-                    <div>
-                        <VMarkdownView :content="selectedNode2.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                            <div class="text-500 mb-5"></div>
+                            <ul class="list-none p-0 m-0">
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode1.conceptSchoolLevel }}-{{ selectedNode1.conceptGradeLevel }}-{{ selectedNode1.conceptSemester }}</div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode1.conceptChapterMain }}-{{ selectedNode1.conceptChapterSub }}-{{ selectedNode1.conceptChapterName }}</div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode1.conceptAchievementName }}</div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
+                                    <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                                        <VMarkdownView :content="selectedNode1.conceptDescription"></VMarkdownView>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="surface-section" v-else>
+                            <div class="font-medium text-3xl text-900 mb-3 text-blue-500">개념을 선택해주세요</div>
+                            <div class="text-500 mb-5"></div>
+                            <ul class="list-none p-0 m-0">
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">개념설명</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1"></div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="text-500 mb-5"></div>
-                    <ul class="list-none p-0 m-0">
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode2.conceptSchoolLevel }}-{{ selectedNode2.conceptGradeLevel }}-{{ selectedNode2.conceptSemester }}</div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode2.conceptChapterMain }}-{{ selectedNode2.conceptChapterSub }}-{{ selectedNode2.conceptChapterName }}</div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-                            <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
-                            <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode2.conceptAchievementName }}</div>
-                        </li>
-                        <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
-                            <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
-                            <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
-                                <VMarkdownView :content="selectedNode2.conceptDescription"></VMarkdownView>
+                </div>
+                <div class="col-12 lg:col-6">
+                    <div class="card">
+                        <h5>개념 상세보기 2</h5>
+                        <div class="surface-section" v-if="selectedNode2">
+                            <div>
+                                <VMarkdownView :content="selectedNode2.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
                             </div>
-                        </li>
-                    </ul>
+                            <div class="text-500 mb-5"></div>
+                            <ul class="list-none p-0 m-0">
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">학교-학년-학기</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode2.conceptSchoolLevel }}-{{ selectedNode2.conceptGradeLevel }}-{{ selectedNode2.conceptSemester }}</div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">대-중-소단원</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode2.conceptChapterMain }}-{{ selectedNode2.conceptChapterSub }}-{{ selectedNode2.conceptChapterName }}</div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
+                                    <div class="text-500 w-6 md:w-3 font-medium">성취기준</div>
+                                    <div class="text-900 w-full md:w-9 md:flex-order-0 flex-order-1">{{ selectedNode2.conceptAchievementName }}</div>
+                                </li>
+                                <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+                                    <div class="text-primary-500 w-6 md:w-3 font-xl font-bold">개념설명</div>
+                                    <div class="text-900 font-medium w-full md:w-9 md:flex-order-0 flex-order-1">
+                                        <VMarkdownView :content="selectedNode2.conceptDescription"></VMarkdownView>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- /근거 더보기 -->
         <div class="col-4 xs:col-4 sm:col-4 md:col-4 lg:col-3 xl:col-2 mb-5">
             <Button @click="goToHome" label="홈으로" class="mr-2 mb-2"></Button>
         </div>
