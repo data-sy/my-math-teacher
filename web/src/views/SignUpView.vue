@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/api.js';
-import { useUserForm } from '@/composables/useUserForm.js';
+import { useUserForm, useSubmitGuard } from '@/composables/useUserForm.js';
 import PasswordRequirements from '@/components/PasswordRequirements.vue';
 
 const store = useStore();
@@ -95,6 +95,19 @@ const openConfirmation = () => {
 const closeConfirmation = () => {
     displayConfirmation.value = false;
 };
+
+// 제출 게이트 — 기존 disabled 체인과 동일한 통과 조건(아이디 형식·중복확인·비번 조건·비번 일치)을
+// 미충족 항목 배열로 모은다. 빈 배열 = 제출 가능. 아이디 형식/중복확인은 상호배타로 한 줄만 노출.
+const submitBlockers = computed(() => {
+    const list = [];
+    if (!isEmailValid.value) list.push({ message: '[아이디]를 5~20자 영문 소문자·숫자로 입력해 주세요.', field: 'email' });
+    else if (!isNotDuplicate.value) list.push({ message: '[아이디 중복확인]을 해주세요.', field: 'email' });
+    if (!isPasswordValid.value) list.push({ message: '[비밀번호]가 조건을 만족하지 않습니다.', field: 'password' });
+    if (!isPasswordMatch.value) list.push({ message: '[비밀번호 확인]이 일치하지 않습니다.', field: 'passwordConfirm' });
+    return list;
+});
+const { showBlockers, attemptSubmit, focusField } = useSubmitGuard(submitBlockers, openConfirmation);
+
 // 회원가입
 const signup = async () => {
     try {
@@ -211,11 +224,15 @@ const yesClick = async () => {
             </div>
             <ConfirmPopup></ConfirmPopup>
             <Toast />
-            <Button v-if="!isNotDuplicate" :disabled="!isNotDuplicate" label="[중복확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isEmailValid" :disabled="!isEmailValid" label="[아이디]를 확인해 주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isPasswordValid" :disabled="!isPasswordValid" label="[비밀번호]가 조건을 만족하지 않습니다." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else-if="!isPasswordMatch" :disabled="!isPasswordMatch" label="[비밀번호 확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
-            <Button v-else @click="openConfirmation" label="회원가입" class="w-full p-3 text-xl mr-2 mb-2" />
+            <div v-if="showBlockers && submitBlockers.length" class="submit-summary mb-3" role="alert">
+                <div class="submit-summary__title"><i class="pi pi-exclamation-circle mr-2" />아래 항목을 확인해 주세요</div>
+                <ul class="submit-summary__list">
+                    <li v-for="blocker in submitBlockers" :key="blocker.field + blocker.message">
+                        <a href="#" @click.prevent="focusField(blocker.field)">{{ blocker.message }}</a>
+                    </li>
+                </ul>
+            </div>
+            <Button @click="attemptSubmit" label="회원가입" class="w-full p-3 text-xl mr-2 mb-2" />
             <Dialog header="회원가입 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
                     <div class="my-2">아이디 : {{ requestData.userEmail }}</div>
@@ -237,5 +254,35 @@ const yesClick = async () => {
 .field-error {
     font-size: var(--mmt-fs-caption);
     color: var(--mmt-danger);
+}
+/* 시안 A — 제출 막힌 항목 요약 (필드 에러와 같은 danger 톤, 노란색 퇴출 기조) */
+.submit-summary {
+    border: 1px solid var(--red-200);
+    background: var(--red-50);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+.submit-summary__title {
+    display: flex;
+    align-items: center;
+    font-size: var(--mmt-fs-caption);
+    font-weight: 700;
+    color: var(--mmt-danger);
+    margin-bottom: 0.5rem;
+}
+.submit-summary__list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+.submit-summary__list li {
+    font-size: var(--mmt-fs-caption);
+    margin: 0.25rem 0;
+}
+.submit-summary__list a {
+    color: var(--red-700);
+    text-decoration: none;
+}
+.submit-summary__list a:hover {
+    text-decoration: underline;
 }
 </style>
