@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import AppTopbar from './AppTopbar.vue';
+import AppLearningSteps from './AppLearningSteps.vue';
 import AppFooter from './AppFooter.vue';
 import LoginDialog from '@/components/LoginDialog.vue';
 import { useLayout } from '@/layout/composables/layout';
@@ -20,6 +21,7 @@ const containerClass = computed(() => {
 <template>
     <div class="layout-wrapper mmt-shell" :class="containerClass">
         <app-topbar></app-topbar>
+        <app-learning-steps></app-learning-steps>
         <div class="layout-main-container">
             <div class="layout-main">
                 <router-view></router-view>
