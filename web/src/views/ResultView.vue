@@ -24,8 +24,7 @@ const listboxTest = ref(null);
 const listboxTests = ref([]);
 const resultList = ref([]);
 const userTestId = ref(null);
-const sortedResultList = ref([]);
-// spec-04: 헤드라인 요약 + 우선순위 약점 카드용 파생 모델 (Task 2에서 렌더, 현재는 데이터만)
+// spec-04: 헤드라인 요약 + 우선순위 약점 카드용 파생 모델
 const weaknessCards = ref([]);
 const resultSummary = ref({ itemCount: 0, weaknessCount: 0, mostUrgent: null });
 const evidenceOpen = ref(false); // spec-04 Task 3: 근거(표·그래프·상세) progressive disclosure 토글
@@ -78,16 +77,6 @@ onMounted(async () => {
                 const endpoint = `/api/v1/weakness-diagnosis/${userTestId.value}`;
                 const response = await api.get(endpoint);
                 resultList.value = response;
-                resultList.value.forEach((item) => {
-                    const representativeItem = resultList.value.find((e) => e.testItemNumber === item.testItemNumber && e.toConceptDepth === 0);
-                    if (representativeItem) {
-                        item.representative = {
-                            testItemNumber: item.testItemNumber,
-                            conceptId: representativeItem.conceptId,
-                            conceptName: representativeItem.conceptName
-                        };
-                    }
-                });
                 refreshDerivedResults();
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
@@ -109,16 +98,6 @@ watch(listboxTest, async (newValue) => {
             try {
                 const response = await api.get(endpoint);
                 resultList.value = response;
-                resultList.value.forEach((item) => {
-                    const representativeItem = resultList.value.find((e) => e.testItemNumber === item.testItemNumber && e.toConceptDepth === 0);
-                    if (representativeItem) {
-                        item.representative = {
-                            testItemNumber: item.testItemNumber,
-                            conceptId: representativeItem.conceptId,
-                            conceptName: representativeItem.conceptName
-                        };
-                    }
-                });
                 refreshDerivedResults();
             } catch (err) {
                 console.error('데이터 생성 중 에러 발생:', err);
@@ -128,55 +107,6 @@ watch(listboxTest, async (newValue) => {
         }
     }
 });
-const calculateResultTotal = (testItemNumber) => {
-    let total = 0;
-    if (resultList.value) {
-        for (let result of resultList.value) {
-            if (result.testItemNumber === testItemNumber) {
-                total++;
-            }
-        }
-    }
-    return total;
-};
-// 그룹별 (testItemNumber별) 시급도 할당
-const sortProbaGroupByTestItemId = (array) => {
-    // 그룹화
-    const grouped = array.reduce((acc, obj) => {
-        const keyValue = obj['testItemNumber'];
-        if (!acc[keyValue]) {
-            acc[keyValue] = [];
-        }
-        acc[keyValue].push(obj);
-        return acc;
-    }, {});
-    // 그룹별 정렬 및 시급도 할당
-    for (const group in grouped) {
-        grouped[group].sort((a, b) => a.probabilityPercent - b.probabilityPercent);
-        setPriority(grouped[group]); // 시급도 할당
-    }
-    // 그룹화 해제
-    const flattenedArray = Object.values(grouped).flatMap((group) => group);
-    // const flattenedArray = Object.values(grouped).reduce((acc, group) => {
-    //     acc.push(...group);
-    //     return acc;
-    // }, []);
-
-    return flattenedArray;
-};
-// priority에 시급도를 할당하는 함수
-const setPriority = (data) => {
-    const totalItems = data.length;
-    data.forEach((item, index) => {
-        if (index < totalItems / 3) {
-            item.priority = '상';
-        } else if (index < (totalItems * 2) / 3) {
-            item.priority = '중';
-        } else {
-            item.priority = '하';
-        }
-    });
-};
 // 시급도(상/중/하) → Badge severity 색. spec-04 §4.3 / D4
 const getPriority = (status) => {
     switch (status) {
@@ -236,7 +166,6 @@ const buildResultSummary = (cards) => {
 };
 // resultList 로부터 파생 모델 일괄 재계산 (onMounted·watch 공용)
 const refreshDerivedResults = () => {
-    sortedResultList.value = sortProbaGroupByTestItemId(resultList.value);
     weaknessCards.value = buildWeaknessCards(resultList.value);
     resultSummary.value = buildResultSummary(weaknessCards.value);
 };
@@ -413,10 +342,17 @@ const goToNextPage = async () => {
         <!-- <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div> -->
-        <!-- spec-04 Task 2 · 헤드라인 요약 + 시급도순 우선순위 약점 카드 -->
-        <div class="col-12" v-if="resultSummary.itemCount > 0">
+        <!-- 학습지 선택기 (좌측 고정) -->
+        <div class="col-12 md:col-3 xl:col-3">
             <div class="card">
-                <h5>진단 결과 요약</h5>
+                <h5>정오답 기록한 학습지 목록</h5>
+                <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" />
+            </div>
+        </div>
+        <!-- spec-04 · 진단 결과: 헤드라인 요약 + 시급도순 우선순위 약점 카드 -->
+        <div class="col-12 md:col-9 xl:col-9" v-if="resultSummary.itemCount > 0">
+            <div class="card">
+                <h5>진단 결과</h5>
                 <p class="text-xl line-height-3 mb-4">
                     분석된 <b>{{ resultSummary.itemCount }}문항</b> 중 <span class="text-red-600 font-bold">{{ resultSummary.weaknessCount }}개 약점</span>이 있어요.
                     <template v-if="resultSummary.mostUrgent">
@@ -446,73 +382,20 @@ const goToNextPage = async () => {
                 </div>
             </div>
         </div>
-        <!-- spec-04 Task 4 · 빈 상태: 라벨만 있는 빈 표 대신 안내형 -->
-        <div class="col-12" v-else>
+        <!-- 빈 상태: 라벨만 있는 빈 표 대신 안내형 -->
+        <div class="col-12 md:col-9 xl:col-9" v-else>
             <div class="card text-center py-6">
                 <i class="pi pi-chart-bar text-primary mb-3" style="font-size: 2.5rem"></i>
                 <div class="text-2xl font-semibold mb-2">아직 분석할 결과가 없어요</div>
                 <p class="text-500 text-lg m-0">왼쪽 목록에서 정오답을 기록한 학습지를 선택하면, 약점 진단 결과가 여기에 나타나요.</p>
             </div>
         </div>
-        <div class="col-12 md:col-3 xl:col-3">
-            <div class="card">
-                <h5>정오답 기록한 학습지 목록</h5>
-                <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" />
-            </div>
-        </div>
-        <!-- spec-04 Task 3 · 근거(표·그래프·상세)를 "근거 더보기"로 강등 (progressive disclosure) -->
+        <!-- spec-04 · 근거(선수지식 그래프·개념 상세)를 "근거 더보기"로 강등 (progressive disclosure) -->
         <div class="col-12">
-            <Button
-                :label="evidenceOpen ? '근거 접기' : '근거 더보기 (문항별 표 · 선수지식 그래프 · 개념 상세)'"
-                :icon="evidenceOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                class="p-button-text p-button-secondary"
-                @click="evidenceOpen = !evidenceOpen"
-            />
+            <Button :label="evidenceOpen ? '근거 접기' : '근거 더보기 (선수지식 그래프 · 개념 상세)'" :icon="evidenceOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" class="p-button-text p-button-secondary" @click="evidenceOpen = !evidenceOpen" />
         </div>
         <div class="col-12" v-show="evidenceOpen">
             <div class="grid">
-                <div class="col-12">
-                    <div class="card">
-                        <h5>분석 결과</h5>
-                        <DataTable
-                            :value="sortedResultList"
-                            rowGroupMode="subheader"
-                            groupRowsBy="representative.testItemNumber"
-                            sortMode="single"
-                            sortField="representative.testItemNumber"
-                            :sortOrder="1"
-                            scrollable
-                            scrollHeight="30rem"
-                            tableStyle="min-width: 50rem"
-                        >
-                            <Column field="representative.testItemNumber" header="대표 개념"></Column>
-                            <Column field="priority" header="시급도">
-                                <template #body="slotProps">
-                                    <Badge :value="slotProps.data.priority" :severity="getPriority(slotProps.data.priority)" size="large" />
-                                </template>
-                            </Column>
-                            <Column field="toConceptDepth" header="선수지식 깊이" style="min-width: 20px"></Column>
-                            <Column field="conceptName" header="개념" style="min-width: 200px"></Column>
-                            <Column field="level" header="학교-학년-학기" style="min-width: 120px"></Column>
-                            <Column field="chapter" header="단원" style="min-width: 300px"></Column>
-                            <template #groupheader="slotProps">
-                                <div class="flex align-items-center gap-2 justify-content-around">
-                                    <div class="flex align-items-center gap-2 text-xl text-primary">
-                                        <span class="font-bold mx-2"> [문항 {{ slotProps.data.testItemNumber }}번] </span>
-                                        <span>{{ slotProps.data.representative?.conceptName ?? slotProps.data.conceptName }}</span>
-                                    </div>
-                                    <div>
-                                        <Button v-if="slotProps.data.representative" @click="showTree(slotProps.data.representative.conceptId)" label="선수지식 트리 누적해서 보기" class="p-button-outlined p-button-primary mr-2" />
-                                    </div>
-                                </div>
-                            </template>
-                            <template #groupfooter="slotProps">
-                                <div class="flex justify-content-end font-bold w-full">전체 개수 : {{ calculateResultTotal(slotProps.data.testItemNumber) }}</div>
-                            </template>
-                        </DataTable>
-                        <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
-                    </div>
-                </div>
                 <div class="col-12">
                     <div class="card" id="scroll-tree">
                         <div class="flex align-items-center mb-5">
