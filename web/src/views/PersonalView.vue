@@ -26,20 +26,7 @@ const userDetail = ref({
     userBirthdate: ''
 });
 const userGrade = ref('');
-// [출제하기] 버튼에 준비중 띄워둠
 const confirmPopup = useConfirm();
-// const confirm4 = (event) => {
-//     confirmPopup.require({
-//         target: event.target,
-//         message: '이 기능은 준비중입니다. 조금만 기다려주세요!',
-//         icon: 'pi pi-exclamation-triangle',
-//         acceptLabel: 'Ok',
-//         rejectLabel: ' ',
-//         accept: () => {
-//             // toast.add({ severity: 'info', summary: 'Confirmed', detail: '', life: 3000 });
-//         }
-//     });
-// };
 
 const dataToSend = history.state.dataToSend;
 const receivedData = ref('');
@@ -56,6 +43,14 @@ onMounted(async () => {
     );
     // 로그인 했을 때는 user의 학습지
     if (isLoggedIn.value) {
+        // PDF 학습지 헤더에 표시할 사용자 이름·학년 (RecordView와 동일 패턴)
+        try {
+            const userResponse = await api.get('/api/v1/users');
+            userDetail.value = userResponse;
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
+        } catch (err) {
+            console.error('사용자 정보 조회 중 에러 발생:', err);
+        }
         try {
             const endpoint = '/api/v1/tests/user/is-record';
             const response = await api.get(endpoint);
@@ -243,20 +238,6 @@ const confirm3 = (event) => {
         }
     });
 };
-// 맞춤학습지의 근간이 될 학습지를 선택하지 않고 [출제하기]를 누리면, 학습지를 먼저 선택해달라고 안내
-const confirm5 = (event) => {
-    confirmPopup.require({
-        target: event.target,
-        message: '학습지를 선택해 주세요.',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Ok',
-        rejectLabel: ' ',
-        accept: () => {
-            // toast.add({ severity: 'info', summary: 'Confirmed', detail: '', life: 3000 });
-        }
-    });
-};
-
 // '이전' 버튼 (홈으로 또는 분석결과보기로)
 const goToHome = () => {
     try {
@@ -295,67 +276,52 @@ const yesClick = () => {
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5> 맞춤학습지 조건</h5>
-                <div class="developing-wrapper">
-                    <div id="developing">
-                        <div class="mb-3 mt-4">
-                            <p class="text-700 text-lg m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 맞춤 출제됩니다.</p>
-                            <p class="text-500 m-0">맞춤 유형을 선택하고 문항 수·재출제 조건을 설정해 출제하세요.</p>
+                <div class="mb-3 mt-4">
+                    <p class="text-700 text-lg m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 맞춤 출제됩니다.</p>
+                    <p class="text-500 m-0">맞춤 유형을 선택하고 문항 수·재출제 조건을 설정해 출제하세요.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수 (6 ~ 30)</label>
+                    <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
+                </div>
+                <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field-radiobutton mb-0">
+                            <RadioButton id="categoryWrong" name="category" value="wrong" v-model="radioValue1" />
+                            <label for="categoryWrong">오답 문항 위주</label>
                         </div>
-                        <div class="mb-4">
-                            <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수 (6 ~ 30)</label>
-                            <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
+                    </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field-radiobutton mb-0">
+                            <RadioButton id="categoryPrerequisite" name="category" value="prerequisite" v-model="radioValue1" />
+                            <label for="categoryPrerequisite">선수 지식 위주</label>
                         </div>
-                        <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
-                        <div class="grid">
-                            <div class="col-12 md:col-6">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="categoryWrong" name="category" value="wrong" v-model="radioValue1" />
-                                    <label for="categoryWrong">오답 문항 위주</label>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-6">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="categoryPrerequisite" name="category" value="prerequisite" v-model="radioValue1" />
-                                    <label for="categoryPrerequisite">선수 지식 위주</label>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+                <label for="number" class="block text-900 text-xl font-medium mb-2">문항 재출제</label>
+                <div class="grid">
+                    <div class="col-12 md:col-4">
+                        <div class="field-radiobutton mb-0">
+                            <RadioButton id="reExamNothing" name="reExam" value="nothing" v-model="radioValue2" />
+                            <label for="reExamNothing">없음</label>
                         </div>
-                        <label for="number" class="block text-900 text-xl font-medium mb-2">문항 재출제</label>
-                        <div class="grid">
-                            <div class="col-12 md:col-4">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="reExamNothing" name="reExam" value="nothing" v-model="radioValue2" />
-                                    <label for="reExamNothing">없음</label>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-4">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="reExamWrong" name="reExam" value="wrong" v-model="radioValue2" />
-                                    <label for="reExamWrong">오답 문항</label>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-4">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="reExamAll" name="reExam" value="all" v-model="radioValue2" />
-                                    <label for="reExamAll">전체 문항</label>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="field-radiobutton mb-0">
+                            <RadioButton id="reExamWrong" name="reExam" value="wrong" v-model="radioValue2" />
+                            <label for="reExamWrong">오답 문항</label>
                         </div>
-                        <div class="mt-5">
-                            <Button label="출제하기" class="mr-2 mb-5" :disabled="userTestId == null" @click="getPersonalItems"></Button>
+                    </div>
+                    <div class="col-12 md:col-4">
+                        <div class="field-radiobutton mb-0">
+                            <RadioButton id="reExamAll" name="reExam" value="all" v-model="radioValue2" />
+                            <label for="reExamAll">전체 문항</label>
                         </div>
                     </div>
                 </div>
                 <div class="mt-5">
-                    <!-- 이 전에 준비중이었을 때 -->
-                    <!-- <Button @click="confirm4($event)" label="출제하기" class="mr-2 mb-5"></Button> -->
-                    <!-- 조건 없이 근간 학습지로만 출제 -->
-                    <!-- <div class="mt-5">                
-                        <Button v-if="userTestId == null" @click="confirm5($event)" label="출제하기" class="mr-2 mb-5 p-button-outlined"></Button>
-                        <Button v-else @click="getPersonalItems" label="출제하기" class="mr-2 mb-5"></Button>
-                    </div> -->
-                    <!-- 나중에 조건 추가되면 여기로 다시 돌아와. isLoggedIn, testId 에 따라 조건문 줘야 해-->
-                    <!-- <Button @click="" label="출제하기" class="mr-2 mb-5"></Button> -->
+                    <Button label="출제하기" class="mr-2 mb-5" :disabled="userTestId == null" @click="getPersonalItems"></Button>
                 </div>
             </div>
         </div>
@@ -463,10 +429,4 @@ const yesClick = () => {
     max-width: 5%;
     margin-right: 0.5rem;
 }
-
-.developing-wrapper {
-  position: relative; /* 카드 내부의 덮는 요소가 부모인 카드 안에 위치하도록 */
-}
-
-
 </style>
