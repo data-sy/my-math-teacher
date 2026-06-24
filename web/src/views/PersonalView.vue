@@ -7,6 +7,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import TitleService from '@/service/TitleService';
+import { CONTACT_EMAIL } from '@/constants/contact';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
 
@@ -336,7 +337,7 @@ const yesClick = () => {
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
-                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : {{ CONTACT_EMAIL }}</span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
