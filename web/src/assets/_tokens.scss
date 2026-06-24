@@ -10,6 +10,12 @@
  * ============================================================ */
 
 :root {
+  /* --- 글꼴: Pretendard 우선(테마 기본 "Inter var" 오버라이드) ---
+   * 앱 전역이 var(--font-family) 를 소비하므로 이 한 줄로 글꼴이 흐른다.
+   * 한글 폴백은 OS 기본 한글 글꼴(미로드 글리프·구형 브라우저 대비). */
+  --font-family: 'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Malgun Gothic', sans-serif;
+
   /* --- 타이포 스케일: 본문 16px 기준 1.25 모듈러 --- */
   --mmt-fs-display: 2.441rem;   /* ≈ 39px · 히어로 H1 */
   --mmt-fs-title:   1.953rem;   /* ≈ 31px · 페이지 제목 */
