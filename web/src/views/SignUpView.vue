@@ -3,6 +3,8 @@ import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useApi } from '@/composables/api.js';
+import { useUserForm } from '@/composables/useUserForm.js';
+import PasswordRequirements from '@/components/PasswordRequirements.vue';
 
 const store = useStore();
 const router = useRouter();
@@ -12,28 +14,35 @@ const logoUrl = computed(() => {
     return 'images/logo/logo-mmt4.png';
 });
 
-// input 데이터
+// 공통 검증 (비번/이름/기타/일치 + formatDate) — spec-08
+const {
+    password,
+    passwordConfirm,
+    name,
+    comments,
+    isPasswordValid,
+    passwordLengthErrorMessage,
+    validatePassword,
+    userNameErrorMessage,
+    validateUserName,
+    userCommentsErrorMessage,
+    validateUserComments,
+    passwordConfirmMessage,
+    isPasswordMatch,
+    confirmPassword,
+    formatDate
+} = useUserForm();
+
+// 가입 고유 필드
 const email = ref('');
-const password = ref('');
-const name = ref('');
 const phone = ref('');
 const calendar = ref('');
 const calendarShow = ref('');
+const maxBirthdate = new Date(); // 미래 생년월일 차단
 watch(calendar, (newVal) => {
-    if (newVal) {
-        calendarShow.value = formatDate(new Date(newVal));
-    } else {
-        calendarShow.value = '';
-    }
+    calendarShow.value = newVal ? formatDate(new Date(newVal)) : '';
 });
-// 날짜 포맷팅 함수
-const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}년 ${month}월 ${day}일`;
-};
-const comments = ref('');
+
 const requestData = ref({
     userEmail: email,
     userPassword: password,
@@ -42,7 +51,8 @@ const requestData = ref({
     userBirthdate: calendar,
     userComments: comments
 });
-// 유효성 검사
+
+// 아이디(이메일) 검증 — 가입 고유(중복확인 상태 리셋 포함)
 const isEmailValid = ref(false);
 const emailErrorMessage = ref('5~20자의 영문 소문자, 숫자만 사용 가능합니다.');
 const validateEmail = () => {
@@ -52,48 +62,7 @@ const validateEmail = () => {
     isNotDuplicate.value = false;
     checkDuplicateResult.value = '';
 };
-const isPasswordValid = ref(false);
-const isPasswordLengthValid = ref(false);
-const passwordErrorMessage = ref('8~16자, 최소한 하나의 대문자, 하나의 소문자, 하나의 숫자를 포함해야 합니다.');
-const passwordLengthErrorMessage = ref('');
-const validatePassword = () => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,16}$/;
-    isPasswordValid.value = passwordRegex.test(password.value);
-    // passwordErrorMessage.value = isPasswordValid.value ? '' : '8~16자의 영문 대/소문자, 숫자, 특수문자를 사용해 주세요.';
-    isPasswordLengthValid.value = password.value.length <= 16;
-    passwordLengthErrorMessage.value = isPasswordLengthValid.value ? '' : '16자 이하로 가능합니다.';
-};
-const isUserNameValid = ref(true);
-const userNameErrorMessage = ref('');
-const validateUserName = () => {
-    isUserNameValid.value = name.value.length <= 20;
-    userNameErrorMessage.value = isUserNameValid.value ? '' : '20자 이하로 가능합니다.';
-};
-const isUserCommentsValid = ref(true);
-const userCommentsErrorMessage = ref('');
-const validateUserComments = () => {
-    isUserCommentsValid.value = comments.value.length <= 200;
-    userCommentsErrorMessage.value = isUserCommentsValid.value ? '' : '200자 이하로 가능합니다.';
-};
-// 비밀번호와 비밀번호 확인 일치하는지 확인
-const passwordConfirm = ref('');
-const passwordConfirmMessage = ref('');
-const isPasswordMatch = ref(false);
-const confirmPassword = () => {
-    if(password.value !== passwordConfirm.value && passwordConfirm.value!==''){
-        passwordConfirmMessage.value = '비밀번호가 일치하지 않습니다.';
-        isPasswordMatch.value = false;
 
-    }
-    else {
-        passwordConfirmMessage.value = '';
-        isPasswordMatch.value = true;
-    }
-}
-// 비밀번호 변경 시 비밀번호 확인창 초기화
-watch(password, () => {
-    passwordConfirm.value = '';
-});
 // 중복 확인
 const isNotDuplicate = ref(false); // false = 중복이거나, 중복확인을 하지 않았거나
 const checkDuplicateResult = ref('');
@@ -103,11 +72,7 @@ const checkDuplicate = async () => {
             const endpoint = `/api/v1/auth/duplication?userEmail=${email.value}`;
             const response = await api.get(endpoint);
             isNotDuplicate.value = !response;
-            if (isNotDuplicate.value) {
-                checkDuplicateResult.value = '사용 가능한 아이디입니다.';
-            } else {
-                checkDuplicateResult.value = '이미 사용중인 아이디입니다.';
-            }
+            checkDuplicateResult.value = isNotDuplicate.value ? '사용 가능한 아이디입니다.' : '이미 사용중인 아이디입니다.';
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
@@ -126,17 +91,14 @@ const goToHome = () => {
 const displayConfirmation = ref(false);
 const openConfirmation = () => {
     displayConfirmation.value = true;
-    // console.log(requestData.value.userEmail);
 };
 const closeConfirmation = () => {
     displayConfirmation.value = false;
 };
 // 회원가입
 const signup = async () => {
-    // // 보내기 전에 데이터 형태 어떻게 되는지 확인
-    // console.log(requestData.value);
     try {
-        const response = await api.post('/api/v1/auth/signup', requestData.value);
+        await api.post('/api/v1/auth/signup', requestData.value);
         router.push({ name: 'home' });
     } catch (err) {
         console.error('데이터 생성 중 에러 발생:', err);
@@ -159,7 +121,6 @@ const login = async () => {
 };
 // yes 버튼 클릭 시
 const yesClick = async () => {
-    // document.querySelector('form').submit();
     closeConfirmation();
     await signup();
     await login();
@@ -170,92 +131,84 @@ const yesClick = async () => {
 <template>
     <div class="flex align-items-center justify-content-center mb-7">
         <div class="surface-card py-6 px-7 sm:px-8 shadow-2 border-round">
-            <!-- <div class="text-center mb-7 cursor-pointer" @click="goToHome"> 홈으로 가는 클릭 이벤트 없앰 (나중에 (페이지가 아니라) 컨펌창으로 만들 때 추가하기) -->
             <div class="text-center mb-7">
                 <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
-                <div class="text-900 text-3xl font-medium mb-3">MMT에 오신 것을 환영합니다</div>
-                <!-- <div class="flex align-items-center justify-content-center">
-                    개인 프로젝트 입니다.
-                </div>
-                <div class="flex align-items-center justify-content-center mt-2">
-                    안전을 위해 '<span class="font-bold"> 사용빈도가 낮은 </span>' 비밀번호를 사용해 주세요.
-                </div> -->
+                <div class="t-heading mb-3">MMT에 오신 것을 환영합니다</div>
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="email" class="text-900 text-2xl font-medium"
+                    <label for="email" class="t-subheading"
                         >아이디
-                        <span class="text-red-600 text-base font-medium mx-2">{{ emailErrorMessage }}</span>
+                        <span class="field-error mx-2">{{ emailErrorMessage }}</span>
                     </label>
                 </div>
                 <div class="flex justify-content-between mb-2">
                     <InputText id="email" type="text" placeholder="아이디" class="w-17rem" style="padding: 1rem" v-model="email" @input="validateEmail" />
                     <Button @click="checkDuplicate" :disabled="!isEmailValid" label="중복확인"></Button>
                 </div>
-                <div>{{ checkDuplicateResult }}</div>
+                <div class="t-caption">{{ checkDuplicateResult }}</div>
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="password" class="text-900 text-2xl font-medium"
+                    <label for="password" class="t-subheading"
                         >비밀번호
-                        <span class="text-red-600 text-base text-font-medium mx-2">{{ passwordLengthErrorMessage }}</span>
-                        <!-- <span class="text-red-600 text-lg text-font-medium mx-2" >{{passwordErrorMessage }}</span> -->
+                        <span class="field-error mx-2">{{ passwordLengthErrorMessage }}</span>
                     </label>
                 </div>
                 <Password id="password" placeholder="비밀번호" :toggleMask="true" class="w-full" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="password" @input="validatePassword">
                     <template #header>
-                        <h6>비밀번호 안전도</h6>
+                        <h6 class="mt-0 mb-2 t-subheading">비밀번호 안전도</h6>
                     </template>
                     <template #footer>
-                        <Divider />
-                        <p class="mt-2">요구사항</p>
-                        <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
-                            <li>8에서 16자의 길이</li>
-                            <li>하나 이상의 <span class="text-lg font-bold">대문자</span></li>
-                            <li>하나 이상의 <span class="text-lg font-bold">소문자</span></li>
-                            <li>하나 이상의 <span class="text-lg font-bold">숫자</span></li>
-                            <li>특수문자도 사용 가능합니다.</li>
-                        </ul>
+                        <PasswordRequirements />
                     </template>
                 </Password>
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="passwordConfirm" class="text-900 text-2xl font-medium">비밀번호 확인</label>
+                    <label for="passwordConfirm" class="t-subheading">비밀번호 확인</label>
                 </div>
-                <Password id="passwordConfirm" placeholder="비밀번호 확인" :toggleMask="true" class="w-full" :class="{ 'p-invalid': password !== passwordConfirm }" inputClass="w-full" :inputStyle="{ padding: '1rem' }" v-model="passwordConfirm" @input="confirmPassword" :feedback="false" />
-                <div class="text-red-600 text-base text-font-medium mx-2">{{ passwordConfirmMessage }}</div>
+                <Password
+                    id="passwordConfirm"
+                    placeholder="비밀번호 확인"
+                    :toggleMask="true"
+                    class="w-full"
+                    :class="{ 'p-invalid': password !== passwordConfirm }"
+                    inputClass="w-full"
+                    :inputStyle="{ padding: '1rem' }"
+                    v-model="passwordConfirm"
+                    @input="confirmPassword"
+                    :feedback="false"
+                />
+                <div class="field-error mx-2">{{ passwordConfirmMessage }}</div>
             </div>
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="name" class="text-900 text-2xl font-medium"
+                    <label for="name" class="t-subheading"
                         >이름
-                        <span class="text-red-600 text-base text-font-medium mx-2">{{ userNameErrorMessage }}</span>
+                        <span class="field-error mx-2">{{ userNameErrorMessage }}</span>
                     </label>
                 </div>
                 <InputText id="name" type="text" placeholder="이름" class="w-full" style="padding: 1rem" v-model="name" @input="validateUserName" :maxlength="20" />
             </div>
-            <!-- <label for="phone" class="block text-900 text-xl font-medium mb-2">Phone</label>
-            <InputText id="phone" type="text" placeholder="핸드폰 번호" class="w-full  mb-5" style="padding: 1rem" v-model="phone" /> -->
             <div class="mb-5">
                 <div class="flex flex-row mb-2">
-                    <label for="calendar" class="block text-900 text-2xl font-medium mb-2"
+                    <label for="calendar" class="block t-subheading mb-2"
                         >생년월일
-                        <span class="text-600 text-base font-normal mx-2"> <span class="text-red-600 font-bold">연도를 클릭</span>하여 해당 연도를 찾아보세요. </span>
+                        <span class="t-caption mx-2">연도 칸을 누르면 <span class="font-bold">연도 목록</span>으로 빠르게 이동할 수 있습니다.</span>
                     </label>
                 </div>
-                <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full" :inputStyle="{ padding: '1rem' }" v-model="calendar">Calendar</Calendar>
+                <Calendar :showIcon="true" placeholder="생년월일" inputId="calendar" class="w-full" :inputStyle="{ padding: '1rem' }" :maxDate="maxBirthdate" v-model="calendar">Calendar</Calendar>
             </div>
             <div class="mb-7">
                 <div class="flex flex-row mb-2">
-                    <label for="comments" class="block text-900 text-2xl font-medium mb-2"
+                    <label for="comments" class="block t-subheading mb-2"
                         >기타사항
-                        <span class="text-red-600 text-base text-font-medium mx-2">{{ userCommentsErrorMessage }}</span>
+                        <span class="field-error mx-2">{{ userCommentsErrorMessage }}</span>
                     </label>
                 </div>
                 <Textarea placeholder="적고 싶은 기타사항을 적으세요. (200자 이하)" :autoResize="true" class="w-full" rows="3" v-model="comments" @input="validateUserComments" :maxlength="200" />
             </div>
-            <!-- <Button type="submit" label="회원가입" class="w-full p-3 text-xl"></Button> -->
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <Button v-if="!isNotDuplicate" :disabled="!isNotDuplicate" label="[중복확인]을 해주세요." class="w-full p-3 text-xl mr-2 mb-2"></Button>
@@ -266,13 +219,11 @@ const yesClick = async () => {
             <Dialog header="회원가입 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
                 <div class="text-lg mx-3 mb-5">
                     <div class="my-2">아이디 : {{ requestData.userEmail }}</div>
-                    <!--비번은 어떤 방식으로 보여줄 수 있을지 생각해보기-->
-                    <!-- <div> Password : {{ requestData.userPassword }}</div>  -->
                     <div class="my-2">이름 : {{ requestData.userName }}</div>
                     <div class="my-2">생년월일 : {{ calendarShow }}</div>
                     <div class="my-2">기타사항 : {{ requestData.userComments }}</div>
                 </div>
-                <div class="text-900 text-xl font-medium mx-3">회원가입 하시겠습니까?</div>
+                <div class="t-subheading mx-3">회원가입 하시겠습니까?</div>
                 <template #footer>
                     <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
                     <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
@@ -281,3 +232,10 @@ const yesClick = async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.field-error {
+    font-size: var(--mmt-fs-caption);
+    color: var(--mmt-danger);
+}
+</style>
