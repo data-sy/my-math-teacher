@@ -171,73 +171,117 @@ const refreshDerivedResults = () => {
 };
 // 표시 헬퍼 (Task 2) — 차트 미사용(D3), 숙련도는 숫자 + CSS 막대로
 const masteryLabel = (m) => `${Math.round(m)}%`;
-const masteryBarColor = (severity) => (severity === '상' ? '#e53935' : severity === '중' ? '#fb8c00' : '#43a047');
+// 숙련도 막대 색 = 시급도 의미 토큰 (상=danger/중=warning/하=success). raw hex 대신 _tokens.scss 별칭.
+const masteryBarColor = (severity) => (severity === '상' ? 'var(--mmt-danger)' : severity === '중' ? 'var(--mmt-warning)' : 'var(--mmt-success)');
 const masteryBarStyle = (card) => ({ width: `${Math.max(0, Math.min(100, card.mastery))}%`, backgroundColor: masteryBarColor(card.severity), height: '8px' });
 
 /////////////////// ConceptTree ///////////////////
 // 렌더링 레이어는 useConceptGraph 컴포저블이 소유 (위에서 initGraph/destroyGraph 구조분해)
 
-// 문항 이름 클릭 시 : conceptTree 보여주기
-const uniqueConceptIds = new Set();
+// 선수지식 트리 — "누적해서 보기"(시안 A)
+// 약점 카드의 "선수지식 트리 보기"를 누르면 그 개념(root)의 트리를 캔버스에 누적 추가한다.
+// 누적 상태의 정본 = loadedRoots(진입 개념별 노드/엣지 보관). 칩 표시·개별 제거·전체 비우기는
+// 모두 loadedRoots 를 갱신한 뒤 거기서 그래프를 다시 빌드한다(id 기준 dedup → 중복 element 방지).
 const clickedNodeId = ref('');
-const conceptDetail = ref(null);
-const showTree = async (conceptId) => {
-    evidenceOpen.value = true; // 근거 패널을 펼쳐 그래프 컨테이너가 렌더되게 함 (v-show)
-    // knowledgeSpace
-    try {
-        const nodesEndpoint = `/api/v1/concepts/nodes/${conceptId}`;
-        const nodesResponse = await api.get(nodesEndpoint);
-        const edgesEndpoint = `/api/v1/concepts/edges/${conceptId}`;
-        const edgesResponse = await api.get(edgesEndpoint);
-        // 해당 concept
-        conceptDetail.value = nodesResponse.find((node) => node.conceptId === conceptId);
-        conceptDetail.value.conceptDescription = conceptDetail.value.conceptDescription.replace(/\\n/g, '\n').replace(/\ne/g, '\\ne');
-        // nodes -> knowledgeSpace의 data
-        nodesResponse.forEach((node) => {
-            uniqueConceptIds.add(node.conceptId);
-        });
-        // 중복이 제거된 conceptId를 가지고 knowledgeSpace에 데이터 추가
-        uniqueConceptIds.forEach((uniqueConceptId) => {
-            const filteredNode = nodesResponse.find((node) => node.conceptId === uniqueConceptId);
-            if (filteredNode) {
-                knowledgeSpace.value.push({
-                    data: {
-                        id: filteredNode.conceptId.toString(),
-                        label: filteredNode.conceptName,
-                        conceptGradeLevel: filteredNode.conceptGradeLevel
-                    }
-                });
-            }
-        });
-        // edges -> knowledgeSpace의 data
-        edgesResponse.forEach((edge) => {
-            // edge의 source가 nodes의 conceptId에 있는지 확인 (나중에 미리 백단에서 걸러오는 방법으로 리팩토링)
-            const sourceExists = nodesResponse.some((node) => {
-                return node.conceptId === parseInt(edge.data.source);
-            });
-            // target이 nodes 안에 있을 경우만 추가
-            if (sourceExists) {
-                knowledgeSpace.value.push(edge);
-            }
-        });
-    } catch (err) {
-        console.error('데이터 생성 중 에러 발생:', err);
+const loadedRoots = ref([]); // [{ conceptId, conceptName, nodes, edges }]
+const isLoadingTree = ref(false);
+
+// 한 root 의 선수지식 노드/엣지를 조회해 Cytoscape element 형태로 가공
+const fetchTree = async (conceptId) => {
+    const nodesResponse = await api.get(`/api/v1/concepts/nodes/${conceptId}`);
+    const edgesResponse = await api.get(`/api/v1/concepts/edges/${conceptId}`);
+    const nodes = nodesResponse.map((node) => ({
+        data: {
+            id: node.conceptId.toString(),
+            label: node.conceptName,
+            conceptGradeLevel: node.conceptGradeLevel
+        }
+    }));
+    // source 가 이 트리의 노드 안에 있는 엣지만 (백엔드 선필터 전까지 프론트 가드)
+    const edges = edgesResponse.filter((edge) => nodesResponse.some((node) => node.conceptId === parseInt(edge.data.source)));
+    return { nodes, edges };
+};
+
+// loadedRoots → knowledgeSpace 재빌드(id dedup union) 후 그래프 렌더/파기
+const rebuildGraph = async () => {
+    const nodeMap = new Map();
+    const edgeMap = new Map();
+    loadedRoots.value.forEach((root) => {
+        root.nodes.forEach((n) => nodeMap.set(n.data.id, n));
+        root.edges.forEach((e) => edgeMap.set(e.data.id ?? `${e.data.source}->${e.data.target}`, e));
+    });
+    knowledgeSpace.value = [...nodeMap.values(), ...edgeMap.values()];
+    if (knowledgeSpace.value.length === 0) {
+        destroyGraph();
+        return;
     }
-    // cytoScape — 근거 패널 펼침이 DOM에 반영돼 컨테이너 크기가 잡힌 뒤 그래프 생성
+    // 근거 패널 펼침이 DOM 에 반영돼 컨테이너 크기가 잡힌 뒤 그래프 생성
     await nextTick();
     initGraph(cyElement.value, knowledgeSpace.value, {
         onTapNode: (id) => {
             clickedNodeId.value = id;
         }
     });
-    // 아래로 스크롤
-    const selectedNodeElement = document.getElementById('scroll-tree');
-    if (selectedNodeElement) {
-        selectedNodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
 };
-// Cytoscape 인스턴스 파기
+
+const scrollToTree = () => {
+    const el = document.getElementById('scroll-tree');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+};
+
+// 약점 카드 "선수지식 트리 보기" → 해당 트리를 캔버스에 누적 추가
+const showTree = async (conceptId, conceptName) => {
+    evidenceOpen.value = true; // 근거 패널을 펼쳐 그래프 컨테이너가 렌더되게 함 (v-show)
+    if (loadedRoots.value.some((r) => r.conceptId === conceptId)) {
+        scrollToTree(); // 이미 누적된 트리면 펼치고 스크롤만
+        return;
+    }
+    isLoadingTree.value = true;
+    try {
+        const { nodes, edges } = await fetchTree(conceptId);
+        loadedRoots.value.push({ conceptId, conceptName, nodes, edges });
+        await rebuildGraph();
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    } finally {
+        isLoadingTree.value = false;
+    }
+    scrollToTree();
+};
+
+// 누적 칩 ✕ → 해당 root 트리만 제거 후 재빌드
+const removeRoot = async (conceptId) => {
+    loadedRoots.value = loadedRoots.value.filter((r) => r.conceptId !== conceptId);
+    await rebuildGraph();
+};
+
+// "모든 약점 한 번에 보기" → 약점 카드 대표개념 트리를 일괄 누적
+const showAllWeaknessTrees = async () => {
+    evidenceOpen.value = true;
+    const roots = weaknessCards.value
+        .filter((c) => c.representative)
+        .map((c) => ({ conceptId: c.representative.conceptId, conceptName: c.representative.conceptName }))
+        .filter((r) => !loadedRoots.value.some((lr) => lr.conceptId === r.conceptId));
+    if (roots.length === 0) {
+        scrollToTree();
+        return;
+    }
+    isLoadingTree.value = true;
+    try {
+        const fetched = await Promise.all(roots.map((r) => fetchTree(r.conceptId)));
+        roots.forEach((r, i) => loadedRoots.value.push({ conceptId: r.conceptId, conceptName: r.conceptName, nodes: fetched[i].nodes, edges: fetched[i].edges }));
+        await rebuildGraph();
+    } catch (err) {
+        console.error('데이터 생성 중 에러 발생:', err);
+    } finally {
+        isLoadingTree.value = false;
+    }
+    scrollToTree();
+};
+
+// 전체 비우기 — 누적 트리 모두 제거 + Cytoscape 파기
 const clearCy = () => {
+    loadedRoots.value = [];
     knowledgeSpace.value = [];
     destroyGraph();
 };
@@ -353,29 +397,32 @@ const goToNextPage = async () => {
         <div class="col-12 md:col-9 xl:col-9" v-if="resultSummary.itemCount > 0">
             <div class="card">
                 <h5>진단 결과</h5>
-                <p class="text-xl line-height-3 mb-4">
+                <p class="t-body line-height-3 mb-4">
                     분석된 <b>{{ resultSummary.itemCount }}문항</b> 중 <span class="text-red-600 font-bold">{{ resultSummary.weaknessCount }}개 약점</span>이 있어요.
                     <template v-if="resultSummary.mostUrgent">
                         가장 급한 건 <b>{{ resultSummary.mostUrgent.weakest.conceptName }}</b
                         >(숙련도 {{ masteryLabel(resultSummary.mostUrgent.mastery) }})예요.
                     </template>
                 </p>
-                <div class="text-2xl font-semibold mb-3">지금 채워야 할 약점 <span class="text-500 text-base">(시급도순)</span></div>
+                <div class="flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div class="t-heading">지금 채워야 할 약점 <span class="t-caption">(시급도순)</span></div>
+                    <Button @click="showAllWeaknessTrees" label="모든 약점 한 번에 보기" icon="pi pi-share-alt" class="p-button-sm p-button-outlined" :loading="isLoadingTree" />
+                </div>
                 <div class="grid">
                     <div v-for="card in weaknessCards" :key="card.testItemNumber" class="col-12 md:col-6 xl:col-4">
                         <div class="surface-card border-1 surface-border border-round p-3 h-full flex flex-column">
                             <div class="flex align-items-center justify-content-between mb-2">
                                 <Badge :value="card.severity" :severity="getPriority(card.severity)" size="large" />
-                                <span class="text-500 text-sm">문항 {{ card.testItemNumber }}번</span>
+                                <span class="t-caption">문항 {{ card.testItemNumber }}번</span>
                             </div>
-                            <div class="text-xl font-bold mb-1">{{ card.weakest.conceptName }}</div>
-                            <div v-if="card.representative" class="text-500 text-sm mb-3">대표개념 · {{ card.representative.conceptName }}</div>
-                            <div class="text-sm mb-1">숙련도 {{ masteryLabel(card.mastery) }}</div>
+                            <div class="t-subheading mb-1">{{ card.weakest.conceptName }}</div>
+                            <div v-if="card.representative" class="t-caption mb-3">대표개념 · {{ card.representative.conceptName }}</div>
+                            <div class="t-caption mb-1">숙련도 {{ masteryLabel(card.mastery) }}</div>
                             <div class="surface-200 border-round mb-3" style="height: 8px">
                                 <div class="border-round" :style="masteryBarStyle(card)"></div>
                             </div>
                             <div class="mt-auto">
-                                <Button v-if="card.representative" @click="showTree(card.representative.conceptId)" label="선수지식 트리 보기" class="p-button-sm p-button-outlined w-full" />
+                                <Button v-if="card.representative" @click="showTree(card.representative.conceptId, card.representative.conceptName)" label="선수지식 트리 보기" class="p-button-sm p-button-outlined w-full" />
                             </div>
                         </div>
                     </div>
@@ -386,8 +433,8 @@ const goToNextPage = async () => {
         <div class="col-12 md:col-9 xl:col-9" v-else>
             <div class="card text-center py-6">
                 <i class="pi pi-chart-bar text-primary mb-3" style="font-size: 2.5rem"></i>
-                <div class="text-2xl font-semibold mb-2">아직 분석할 결과가 없어요</div>
-                <p class="text-500 text-lg m-0">왼쪽 목록에서 정오답을 기록한 학습지를 선택하면, 약점 진단 결과가 여기에 나타나요.</p>
+                <div class="t-heading mb-2">아직 분석할 결과가 없어요</div>
+                <p class="t-body text-500 m-0">왼쪽 목록에서 정오답을 기록한 학습지를 선택하면, 약점 진단 결과가 여기에 나타나요.</p>
             </div>
         </div>
         <!-- spec-04 · 근거(선수지식 그래프·개념 상세)를 "근거 더보기"로 강등 (progressive disclosure) -->
@@ -399,12 +446,23 @@ const goToNextPage = async () => {
                 <div class="col-12">
                     <div class="card" id="scroll-tree">
                         <div class="flex align-items-center mb-5">
-                            <div class="text-2xl font-semibold mx-2">선수지식 트리</div>
+                            <div class="t-heading mx-2">선수지식 트리</div>
                             <div><i class="pi pi-question-circle font-semibold mx-2" @mouseover="showSpec" @mouseout="hideSpec" style="font-size: 1.5rem"></i></div>
                             <div class="mx-6">
-                                <Button @click="clearCy" label="화면 비우기" class="p-button-outlined p-button-primary mr-2" />
+                                <Button @click="clearCy" label="화면 비우기" icon="pi pi-trash" class="p-button-outlined p-button-primary mr-2" :disabled="loadedRoots.length === 0" />
                             </div>
                         </div>
+                        <!-- 누적해서 보기: 캔버스에 쌓인 트리(root)를 칩으로 — ✕로 개별 제거 -->
+                        <div v-if="loadedRoots.length" class="mb-3">
+                            <div class="t-caption mb-2">누적된 트리 {{ loadedRoots.length }}개 · 칩의 ✕로 개별 제거</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span v-for="root in loadedRoots" :key="root.conceptId" class="mmt-chip">
+                                    {{ root.conceptName }}
+                                    <button type="button" class="mmt-chip__x" @click="removeRoot(root.conceptId)" :aria-label="`${root.conceptName} 트리 제거`">✕</button>
+                                </span>
+                            </div>
+                        </div>
+                        <div v-else class="t-caption mb-3">약점 카드의 <b>선수지식 트리 보기</b> 또는 <b>모든 약점 한 번에 보기</b>를 누르면 여기에 트리가 누적됩니다.</div>
                         <OverlayPanel ref="op" appendTo="body">
                             <li class="text-600 font-medium mb-3">스크롤 : 화면 확대/축소</li>
                             <li class="text-600 font-medium mb-3">점 클릭 & 드래그 : 점 이동</li>
@@ -435,7 +493,7 @@ const goToNextPage = async () => {
                         <h5>개념 상세보기 1</h5>
                         <div class="surface-section" v-if="selectedNode1">
                             <div>
-                                <VMarkdownView :content="selectedNode1.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                                <VMarkdownView :content="selectedNode1.conceptName" class="t-title text-900 mb-3"></VMarkdownView>
                             </div>
                             <div class="text-500 mb-5"></div>
                             <ul class="list-none p-0 m-0">
@@ -460,7 +518,7 @@ const goToNextPage = async () => {
                             </ul>
                         </div>
                         <div class="surface-section" v-else>
-                            <div class="font-medium text-3xl text-900 mb-3 text-blue-500">개념을 선택해주세요</div>
+                            <div class="t-heading mb-3 text-blue-500">개념을 선택해주세요</div>
                             <div class="text-500 mb-5"></div>
                             <ul class="list-none p-0 m-0">
                                 <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
@@ -488,7 +546,7 @@ const goToNextPage = async () => {
                         <h5>개념 상세보기 2</h5>
                         <div class="surface-section" v-if="selectedNode2">
                             <div>
-                                <VMarkdownView :content="selectedNode2.conceptName" class="font-medium text-4xl text-900 mb-3"></VMarkdownView>
+                                <VMarkdownView :content="selectedNode2.conceptName" class="t-title text-900 mb-3"></VMarkdownView>
                             </div>
                             <div class="text-500 mb-5"></div>
                             <ul class="list-none p-0 m-0">
@@ -535,9 +593,36 @@ const goToNextPage = async () => {
 </template>
 
 <style scoped>
-/* .clickable {
-  cursor: pointer;
-  text-decoration: underline;
-  color: blue;
-} */
+/* 누적해서 보기 — 트리(root) 칩. 색은 _tokens.scss 의미 토큰만 참조(raw hex 금지). */
+.mmt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.4rem 0.3rem 0.75rem;
+    border: 1px solid var(--mmt-brand);
+    border-radius: 999px;
+    background: var(--mmt-surface);
+    color: var(--mmt-brand);
+    font-size: var(--mmt-fs-caption);
+    font-weight: var(--mmt-fw-medium);
+    line-height: 1.2;
+}
+.mmt-chip__x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--mmt-brand);
+    color: var(--mmt-brand-text);
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.mmt-chip__x:hover {
+    background: var(--mmt-danger);
+}
 </style>

@@ -234,7 +234,7 @@ const yesClick = async () => {
             </div>
             <Button @click="attemptSubmit" label="회원가입" class="w-full p-3 text-xl mr-2 mb-2" />
             <Dialog header="회원가입 정보를 확인해주세요." v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-lg mx-3 mb-5">
+                <div class="t-body mx-3 mb-5">
                     <div class="my-2">아이디 : {{ requestData.userEmail }}</div>
                     <div class="my-2">이름 : {{ requestData.userName }}</div>
                     <div class="my-2">생년월일 : {{ calendarShow }}</div>

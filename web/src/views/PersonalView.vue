@@ -276,49 +276,39 @@ const yesClick = () => {
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
-                <h5> 맞춤학습지 조건</h5>
-                <div class="mb-3 mt-4">
-                    <p class="text-700 text-lg m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 맞춤 출제됩니다.</p>
+                <h5>맞춤학습지 조건</h5>
+                <div class="mb-5 mt-2">
+                    <p class="t-body text-700 m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 맞춤 출제됩니다.</p>
                     <p class="text-500 m-0">맞춤 유형을 선택하고 문항 수·재출제 조건을 설정해 출제하세요.</p>
                 </div>
-                <div class="mb-4">
-                    <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수 (6 ~ 30)</label>
+                <div class="mb-5">
+                    <label for="number" class="block t-subheading mb-3">문항 수 (6 ~ 30)</label>
                     <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
                 </div>
-                <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
-                <div class="grid">
-                    <div class="col-12 md:col-6">
-                        <div class="field-radiobutton mb-0">
-                            <RadioButton id="categoryWrong" name="category" value="wrong" v-model="radioValue1" />
-                            <label for="categoryWrong">오답 문항 위주</label>
-                        </div>
+                <div class="mb-5">
+                    <label class="block t-subheading mb-3">맞춤 유형</label>
+                    <div class="field-radiobutton mb-2">
+                        <RadioButton id="categoryWrong" name="category" value="wrong" v-model="radioValue1" />
+                        <label for="categoryWrong">오답 문항 위주</label>
                     </div>
-                    <div class="col-12 md:col-6">
-                        <div class="field-radiobutton mb-0">
-                            <RadioButton id="categoryPrerequisite" name="category" value="prerequisite" v-model="radioValue1" />
-                            <label for="categoryPrerequisite">선수 지식 위주</label>
-                        </div>
+                    <div class="field-radiobutton mb-0">
+                        <RadioButton id="categoryPrerequisite" name="category" value="prerequisite" v-model="radioValue1" />
+                        <label for="categoryPrerequisite">선수 지식 위주</label>
                     </div>
                 </div>
-                <label for="number" class="block text-900 text-xl font-medium mb-2">문항 재출제</label>
-                <div class="grid">
-                    <div class="col-12 md:col-4">
-                        <div class="field-radiobutton mb-0">
-                            <RadioButton id="reExamNothing" name="reExam" value="nothing" v-model="radioValue2" />
-                            <label for="reExamNothing">없음</label>
-                        </div>
+                <div class="mb-5">
+                    <label class="block t-subheading mb-3">문항 재출제</label>
+                    <div class="field-radiobutton mb-2">
+                        <RadioButton id="reExamNothing" name="reExam" value="nothing" v-model="radioValue2" />
+                        <label for="reExamNothing">없음</label>
                     </div>
-                    <div class="col-12 md:col-4">
-                        <div class="field-radiobutton mb-0">
-                            <RadioButton id="reExamWrong" name="reExam" value="wrong" v-model="radioValue2" />
-                            <label for="reExamWrong">오답 문항</label>
-                        </div>
+                    <div class="field-radiobutton mb-2">
+                        <RadioButton id="reExamWrong" name="reExam" value="wrong" v-model="radioValue2" />
+                        <label for="reExamWrong">오답 문항</label>
                     </div>
-                    <div class="col-12 md:col-4">
-                        <div class="field-radiobutton mb-0">
-                            <RadioButton id="reExamAll" name="reExam" value="all" v-model="radioValue2" />
-                            <label for="reExamAll">전체 문항</label>
-                        </div>
+                    <div class="field-radiobutton mb-0">
+                        <RadioButton id="reExamAll" name="reExam" value="all" v-model="radioValue2" />
+                        <label for="reExamAll">전체 문항</label>
                     </div>
                 </div>
                 <div class="mt-5">

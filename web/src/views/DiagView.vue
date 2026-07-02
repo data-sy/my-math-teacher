@@ -248,7 +248,7 @@ const openLogin = () => {
             <div class="card">
                 <div class="flex justify-content-between">
                     <div>
-                        <span class="text-red-500 text-lg font-medium"> 저작권 제약으로 실제 문제가 제공되지는 않습니다. </span>
+                        <span class="t-body text-red-500 font-medium"> 저작권 제약으로 실제 문제가 제공되지는 않습니다. </span>
                         <span class="mt-2 block font-medium"> - 준비된 샘플 학습지 : 고등 -> 수학(상) -> 복소수와 이차방정식(1)~(5) </span>
                     </div>
                 </div>
@@ -365,7 +365,7 @@ const openLogin = () => {
                         로그인 없이도 다운로드는 가능합니다. <br />
                         단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다.
                     </div>
-                    <div class="text-600 text-lg font-bold mb-2">다음 학습지를 다운로드 하시겠습니까?</div>
+                    <div class="t-body text-600 font-bold mb-2">다음 학습지를 다운로드 하시겠습니까?</div>
                     <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
                     <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
