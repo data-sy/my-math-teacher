@@ -60,6 +60,11 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 - **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)**
   - M4 §9 인프라(EC2 1 + RDS 1 + EIP + SG)는 한 번 깔고 마는 솔로 규모라 효율만 보면 콘솔이 빠르지만, IaC "경험" 목적이면 적당한 첫 소재 — spec-02 §5 **G3**(infra apply 게이트)가 이미 Terraform 을 가정. `plan`-only 는 무과금으로 지금 시작 가능, `apply`(과금)는 G1 준비 후. M4 본류와 병행 가능
   - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](backlog/terraform-iac-for-m4-provisioning.md)
+- **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ⏸ **role 생성 후에만 가능**(편집 항목이 상세 페이지에 그때 열림 → 지금 실행 불가)
+  - 목적: assume 한 admin 세션이 Terraform 작업 중 만료돼 재-MFA 하는 성가심 축소. **편의 최적화 — 배포 파이프라인 동작엔 비필수·급하지 않음**(가역).
+  - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).
+  - 작업: ① IAM 콘솔 → 역할 → `mmt-terraform-admin` → 요약의 **최대 세션 기간(Maximum session duration)** 편집 → 8h (CLI: `aws iam update-role --role-name mmt-terraform-admin --max-session-duration 28800`) ② 로컬 `~/.aws/config` `[profile mmt-admin]` 의 `duration_seconds` 3600→28800 (role max ≥ config duration) ③ 검증 `aws sts get-caller-identity --profile mmt-admin`(MFA 입력 → assumed-role 신원).
+  - 상한: **8h(28800) 채택**. 최대 12h(43200) 가능하나 세션 길수록 노출 창도 커져 8h 로.
 - DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
 - 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
 - CI/CD 파이프라인 정비 및 배포 자동화

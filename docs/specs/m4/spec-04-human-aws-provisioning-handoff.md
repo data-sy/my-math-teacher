@@ -8,7 +8,7 @@
 **상위 마일스톤:** Milestone 4 (배포 무중단화)
 **성격:** 👤 **인간 실행 스펙(human-run)** — 가역성상 사람만 가능한 비가역 작업(spec-02 §2 정렬축)
 **근거 spec:** [spec-01 §9](spec-01-zero-downtime-deployment.md)(리소스 정의), [spec-02 §5](spec-02-harness-handoff-gates.md)(게이트 G1~G3)
-**상태:** 🔴 미착수 — M4 자율 진행이 이 핸드오프 대기에서 멈춰 있음
+**상태:** 🟡 진행 중 — AWS 계정 생성 완료(2026-07-03), G1 계정 부트스트랩 착수 단계
 
 ---
 
@@ -49,8 +49,23 @@ spec-02 는 "정체성/결제/시크릿이라서"가 아니라 **되돌릴 수 �
 
 ### G1 — 정체성/결제/소유 (비가역, 1회성)
 
-- [ ] ☐ **AWS 계정 생성 + 결제수단(카드) 등록**
-  - 가입 자체가 카드를 요구한다 → 계정 생성 = G1 의 절반. **이걸 미루고 싶으면 Terraform Phase A(LocalStack, spec-03 §2)를 먼저** 무계정으로 경험 가능.
+> **계정 부트스트랩 순서: ①복구 앵커 → ②root 잠금 → ③빌링 → ④기본 → ⑤아이덴티티 → ⑥자격.**
+> ①②와 ③⑤ 사이엔 *하드* 의존이 없다(MFA 없이도 IAM 생성 가능). 그러나 ⑤ 이후 작업은
+> 모두 **root 세션에서** 하므로 ①②로 root 를 먼저 잠근 뒤 진행해 무방비 노출창을 줄인다.
+> ③④는 가역이나 **콘솔 전용이라 사람만** 가능(하네스 불가) → ☐ 로 둔다.
+
+- [x] ☐ **AWS 계정 생성** (`mmt.contact2026@gmail.com`, 2026-07-03 완료) — 가입 시 카드 등록 동반. Phase A(LocalStack)는 무계정으로도 먼저 경험 가능했음(spec-03 §2)
+- [ ] ☐ **① Gmail 2FA** — root 비번 복구 앵커. 여기가 실질 마스터키라 사슬 최하단
+- [ ] ☐ **② root 하드닝** — 강한 비번 + MFA(인증앱/하드웨어) + **root 액세스 키 없음 확인**(있으면 삭제; root 키는 만들지 않음). 이후 **root 로그인 금지** 원칙
+- [ ] ☐ **③ 빌링 안전핀** — 결제수단 확인 + AWS Budgets 월 예산·초과/예측 알림 + Billing preferences 이메일 알림 + Cost Explorer. 프리티어/크레딧(가입 후 12개월 만료) 잔량 위치 파악
+- [ ] ☐ **④ 계정 기본** — 대체 연락처(청구/운영/보안) + 기본 리전 **ap-northeast-2(서울)** 확인(provider.tf 와 정렬) + 태그 컨벤션(`Project=mmt`, 비용 추적·정리용)
+- [ ] ☐ **⑤ admin 아이덴티티 — ✅ 결정: B_IAM(IAM user + assume-role), 2026-07-03**. 근거: **비대칭 가역성** — Identity Center(=Org 생성)는 무료 크레딧($100~200)을 *비가역* 소멸시키는데, Identity Center 자체는 *언제든* 켤 수 있다. 소멸성 자산(크레딧)부터 태우고 SSO 는 크레딧 소진·만료 후 전환. Paid 계정도 예외 없음(FAQ "When your account **joins an AWS Organization**... credits expire immediately" — plan 무관, [FAQ](https://aws.amazon.com/free/free-tier-faqs/)).
+  - **채택 B_IAM.** IAM role `mmt-terraform-admin`(AdministratorAccess, 신뢰정책=내 user assume + `aws:MultiFactorAuthPresent:true`) ← IAM user `mmt-cli`(정책=그 role 에 대한 `sts:AssumeRole`만) + 액세스 키 + 가상 MFA. **장기 *admin* 키는 없음**(베이스 키는 assume-role 전용 최소권한). Org 미생성 → 크레딧 보존(가입 12개월 ~2027-07).
+  - *대안 A_SSO(미채택).* Identity Center 조직 인스턴스 + `aws sso login`(정적 키 0, 더 위생적)이나 **켜는 순간 크레딧 소멸**. account instance 우회는 계정 접근 미지원이라 불가([문서](https://docs.aws.amazon.com/singlesignon/latest/userguide/account-instances-identity-center.html)). SSO 깔끔함 > 크레딧이면 override 가능 — 그땐 리전 먼저 확정 후 Enable.
+  - 공통: 솔로 M4 엔 **S3/DynamoDB state 백엔드는 과함** — local state(gitignored) 유지(provider.tf §17).
+- [ ] ☐ **⑥ Terraform/CLI 자격 (B_IAM)** — `~/.aws/config` 에 `[profile mmt-base]`(정적 키, credentials 파일) + `[profile mmt-admin]`(`role_arn`+`source_profile=mmt-base`+`mfa_serial`+`duration_seconds`). 검증 `aws sts get-caller-identity --profile mmt-admin`(MFA 프롬프트). **키 커밋 절대 금지.** ⚠️ **Terraform 은 프로필의 MFA assume 를 대화형 처리 못 함**(`AssumeRoleTokenProvider session option not set`) → provider 에 `profile` 을 박지 않고, **`source infra/terraform/tf-assume.sh`** 로 role 을 MFA assume 해 `AWS_*` env 주입 후 plan/apply. `default_tags{Project="mmt"}` 는 provider 유지. Phase B 자격은 `TF_VAR` 아닌 이 env 경로로 spec-03 **Phase B/C** 에서 더미 `test`/`test` 대체(§3). M4 검증 후 베이스 키 삭제/rotate.
+
+> 💸 **비용 현실(신규 계정 보정):** 이 계정(2026-07-03 생성)은 2025-07-15 이후라 **크레딧 기반 신규 플랜** — 레거시 "12개월 750h 무료"가 그대로 적용되지 않는다. blue-green t3.micro + RDS db.t3.micro 24/7 은 크레딧 소진 후 **서울 기준 대략 월 $25~30** 실과금. "프리티어라 계속 무료"가 아니라 **크레딧이 3~6개월 완충**이며, ③ zero-spend budget + `terraform destroy` 습관이 진짜 안전핀.
 - [ ] ☐ **DockerHub 계정·토큰 확보** (현행 레지스트리 유지, ECR 전환은 범위 밖)
 - [ ] ☐ *(HTTPS 추진 시에만)* 도메인 소유 + OAuth 앱 등록 — R2 로 후속 분리. **무중단 검증 자체엔 불필요**(HTTP 80 으로 증명)
 
