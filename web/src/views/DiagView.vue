@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -110,7 +110,8 @@ watch(listboxTest, async (newValue) => {
             isImageExist.value = false;
         }
         try {
-            const endpoint = `/api/v1/tests/detail/${testId.value}`;
+            // 비로그인은 정답 포함 /detail 이 인증 게이트라 401 → 안내 샘플 전용 공개 엔드포인트로 조회.
+            const endpoint = isLoggedIn.value ? `/api/v1/tests/detail/${testId.value}` : `/api/v1/tests/sample/detail/${testId.value}`;
             const response = await api.get(endpoint);
             if (testId.value < 491 || testId.value > 495) {
                 testDetail.value = response.map((item) => {
@@ -124,6 +125,7 @@ watch(listboxTest, async (newValue) => {
             }
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
+            testDetail.value = []; // 실패 시(비로그인이 비샘플 선택 등) 이전 미리보기 잔존 방지
         }
     } else {
         // 선택 해제(Listbox 토글) 시 다운로드 게이트를 'testId == null'로 되돌림
@@ -237,6 +239,44 @@ const openLogin = () => {
     closeConfirmation();
     openLoginDialog();
 };
+
+// 비로그인 진입 시 안내 샘플(고등 → 수학(상) → 복소수와 이차방정식) 기본 노출 + 첫 샘플 학습지 자동 선택.
+// selectButtonLevel/listboxLevel watch 가 학습지 목록을 비동기 fetch 하므로, 순서를 명시적으로 await 로 확정한다
+// (동기 세팅 시 listboxLevel watch 가 아직 안 채워진 listboxTestsAll 을 필터해 목록이 비는 레이스가 발생).
+const seedGuestSample = async () => {
+    const highSchool = selectButtonLevels.value.find((l) => l.name === '고등');
+    const mathUpper = levelDic['고등'].find((l) => l.name === '수학(상)');
+    if (!highSchool || !mathUpper) return;
+    // 1) 학교급 = 고등 (watch 가 schoolLevel·listboxLevels 세팅 + 목록 fetch 시작)
+    selectButtonLevel.value = highSchool;
+    // 2) 학습지 전체 목록 로드 완료를 직접 보장 — watch 의 fetch 완료 시점을 await 할 수 없어 순서 확정용으로 여기서 로드
+    try {
+        listboxTestsAll.value = await api.get('/api/v1/tests/school-level/고등');
+    } catch (err) {
+        console.error('샘플 학습지 로드 실패:', err);
+        return;
+    }
+    // 3) 학년 = 수학(상) (watch 가 grade/semester 세팅 + listboxTests 필터)
+    listboxLevel.value = mathUpper;
+    await nextTick(); // listboxLevel watch 반영 대기
+    // 4) 첫 샘플 학습지 자동 선택 → 우측 미리보기 렌더 (목록 순서 무관하게 복소수와 이차방정식(1) 우선)
+    const sample = listboxTests.value.find((t) => t.testName?.includes('복소수와 이차방정식')) ?? listboxTests.value[0];
+    if (sample) {
+        listboxTest.value = sample;
+        await nextTick(); // 선택 하이라이트 렌더 후, 학습지 목록(ScrollPanel) 내부만 스크롤해 선택 항목을 목록 맨 위로 (전체 페이지는 최상단 유지)
+        const content = document.querySelector('#testListWrap .p-scrollpanel-content');
+        const item = document.querySelector('#testListWrap .p-listbox-item.p-highlight');
+        if (content && item) {
+            content.scrollTop += item.getBoundingClientRect().top - content.getBoundingClientRect().top;
+        }
+    }
+};
+onMounted(() => {
+    // isLoggedIn 은 위 첫 onMounted 의 동기부에서 세팅됨 → 이 훅 실행 시점엔 확정
+    if (!isLoggedIn.value) {
+        seedGuestSample();
+    }
+});
 </script>
 
 <template>
@@ -244,16 +284,6 @@ const openLogin = () => {
         <!-- <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div> -->
-        <div class="col-12">
-            <div class="card">
-                <div class="flex justify-content-between">
-                    <div>
-                        <span class="t-body text-red-500 font-medium"> 저작권 제약으로 실제 문제가 제공되지는 않습니다. </span>
-                        <span class="mt-2 block font-medium"> - 준비된 샘플 학습지 : 고등 -> 수학(상) -> 복소수와 이차방정식(1)~(5) </span>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5>학교급</h5>
@@ -267,7 +297,7 @@ const openLogin = () => {
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5>학습지 목록</h5>
-                <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
+                <ScrollPanel id="testListWrap" :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" :filter="true" />
                     <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
@@ -276,6 +306,8 @@ const openLogin = () => {
         <div class="col-12 xl:col-6">
             <div class="card">
                 <h5>학습지 미리보기</h5>
+                <!-- 저작권 안내: 실제 문제가 없는(플레이스홀더/미제공) 학습지를 볼 때만 표시 — 실제 샘플(복소수와 이차방정식)엔 안 뜸 -->
+                <div v-if="testId != null && !isImageExist" class="t-body text-red-500 font-medium mb-3">저작권 제약으로 실제 문제는 샘플(복소수와 이차방정식 1~5)만 제공됩니다.</div>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div id="testImage" ref="pdfAreaRef">
                         <div v-if="isImageExist" class="grid mx-2 my-4">
