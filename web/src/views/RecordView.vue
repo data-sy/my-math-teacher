@@ -276,7 +276,7 @@ const goToResultPage = async () => {
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div v-if="!listboxTest"></div>
                     <div v-else-if="listboxTest.record">
-                        <div class="mx-2 my-5 text-2xl text-bold text-pink-500">
+                        <div class="mx-2 my-5 t-heading text-pink-500">
                             <div>정오답이 이미 기록된 학습지입니다.</div>
                             <div>
                                 AI 분석 결과가 궁금하면
@@ -286,9 +286,9 @@ const goToResultPage = async () => {
                         </div>
                     </div>
                     <div v-else>
-                        <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
-                            <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>
-                            <Column field="itemAnswer" header="정답" style="min-width: 5em">
+                        <DataTable :value="testDetail" class="p-datatable-sm" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
+                            <Column field="testItemNumber" header="번호" style="min-width: 3em"></Column>
+                            <Column field="itemAnswer" header="정답">
                                 <template #body="rowData">
                                     <span v-if="isImageExist">
                                         <VMarkdownView v-if="isLatex(rowData.data.itemAnswer)" :content="rowData.data.itemAnswer"></VMarkdownView>
@@ -296,9 +296,9 @@ const goToResultPage = async () => {
                                     </span>
                                 </template>
                             </Column>
-                            <Column field="answerCode" header="정오답입력" style="min-width: 5em">
+                            <Column field="answerCode" header="정오답" style="min-width: 4em">
                                 <template #body="rowData">
-                                    <ToggleButton v-model="rowData.data.answerCode" onLabel="o" offLabel="x" :style="{ width: '3.3em' }" />
+                                    <ToggleButton v-model="rowData.data.answerCode" onLabel="o" offLabel="x" :style="{ width: '2.7em', padding: '0.75rem 0' }" />
                                 </template>
                             </Column>
                         </DataTable>
