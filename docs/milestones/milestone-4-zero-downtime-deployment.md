@@ -7,7 +7,7 @@
 **예상 소요:** 설계 ✅ 완료 · 기반 코드 일부 ✅ · 구현(스크립트·워크플로) 1~2일 · 프로비저닝(사람 핸드오프 후) 0.5~1일 · 검증 0.5일
 **의존성:** M2(Neo4j → MySQL CTE 검증 완료) — CTE-only 로 실서버를 구성하는 전제. M1(성능 측정 관습) — "유실률 N%→0%" 측정의 기반.
 **위험 수준:** 중간 — 인프라/배포 레이어 변경 + 신규 AWS 프로비저닝. 단 앱 로직 변경은 거의 없고(헬스 엔드포인트·graceful 설정뿐), blue-green 구조 자체가 즉시 롤백 안전망.
-**선행 조건:** 비가역 사람 핸드오프(아래 §사람 핸드오프 G1·G2) 완료 — AWS 계정·결제·시크릿. **현재 이 지점에서 자율 진행이 멈춰 있음.**
+**선행 조건:** 비가역 사람 핸드오프(아래 §사람 핸드오프 G1·G2). **G1 완료(2026-07-03: 계정·root MFA·빌링·IAM B_IAM), Terraform Phase B `plan` 성공(12 리소스) — 다음은 G2 시크릿·G3 `apply`.**
 
 ---
 
@@ -67,7 +67,7 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 
 ---
 
-## 진행 현황 (2026-06-16)
+## 진행 현황 (2026-07-03)
 
 | 조각 | 내용 | 상태 |
 |---|---|---|
@@ -76,12 +76,12 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 | **A.5** | `server.shutdown=graceful` + `timeout-per-shutdown-phase: 30s` (R5 드레인) | ✅ 커밋 `5da8d9b` |
 | **R1** | Neo4j 부재 + CTE flag ON + 더미 `GDB_*` 로 풀 컨텍스트 기동 로컬 증명 | ✅ 커밋 `1cc6efd` |
 | **B** | nginx blue-green 전환 구조 + spec-01 §3.2 fragment 경로 정정(`nginx -t` 통과) | ✅ 커밋 `3491a55` |
-| **C** | `switch-backend.sh` blue-green 로직(`--network` join · 헬스 폴 재시도 · `docker stop -t ≥30s`) | 🔴 미착수(배포 시) |
-| **D** | 워크플로 `${github.sha}` immutable 태그 + deploy job → 스크립트 호출 | 🔴 미착수(배포 시) |
-| **§9 프로비저닝** | EC2 / RDS / EIP / SG + 더미 `GDB_*` + RDS 시드 | 🙋 G1~G3 대기(AWS 미준비) |
-| **Terraform Phase A** | LocalStack plan-only — `provider.tf` 작성됨(미커밋·미검증), `init`/`validate`/`plan` 대기 | 🟢 진행 중(AWS 무관, 본류와 병행) |
+| **C** | `switch-backend.sh` blue-green 로직(`--network` join · 헬스 폴 재시도 · `docker stop -t ≥30s`) | ✅ 커밋 `ce3ccc7`(동작 검증은 배포 때) |
+| **D** | 워크플로 `${github.sha}` immutable 태그 + deploy job → 스크립트 호출 | ✅ 커밋 `abd08af`(동작 검증은 배포 때) |
+| **§9 프로비저닝** | EC2 / RDS / EIP / SG + 더미 `GDB_*` + RDS 시드 | 🟢 G1 완료·Phase B `plan` 성공(12 리소스), `apply`(G3) 대기 |
+| **Terraform Phase A/B** | LocalStack plan-only(A) → real AWS `plan`(B) | ✅ A 4슬라이스 완주 · **B `plan` 성공(2026-07-03, 12 리소스)**: provider 실 AWS 전환·키페어·RDS 3306 SG(커밋 `dec0139`→`f4e5c56`), 런북 `infra/terraform/README.md` |
 
-> 재개 메모는 비커밋 `m4-resume-prompt.md` 에 있다(Carry-forward 결정 포함: R1 종결 · 더미 GDB 면 기동 → 폴백 불필요 · Co-Authored-By 트레일러 유지 · Terraform D1~D3 잠금).
+> 재개 메모는 비커밋 `m4-resume-prompt.md` 에 있다(Carry-forward 결정 포함: R1 종결 · 더미 GDB 면 기동 → 폴백 불필요 · **AI 트레일러 제거(2026-07-03 정책 override)** · Terraform D1~D3 잠금).
 
 ---
 
@@ -114,9 +114,9 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 
 - [x] spec-01/02/03 설계 작성·커밋
 - [x] 헬스 엔드포인트(A) · graceful shutdown(A.5) · 기동 무결성 증명(R1) · nginx 전환 구조(B)
-- [ ] `switch-backend.sh`(C) — blue-green 전환 로직(헬스 폴 재시도 · `docker stop -t ≥ phase 타임아웃`)
-- [ ] 워크플로(D) — `${github.sha}` immutable 태그 + 전환 스크립트 호출
-- [ ] AWS 프로비저닝(§사람 핸드오프 G1~G3) 완료
+- [x] `switch-backend.sh`(C) — 커밋 `ce3ccc7`(blue-green 전환 로직; 동작 검증은 배포 때)
+- [x] 워크플로(D) — 커밋 `abd08af`(`${github.sha}` immutable 태그 + 전환 스크립트 호출)
+- [ ] AWS 프로비저닝(§사람 핸드오프 G1~G3) 완료 — G1 ✅ · Phase B `plan` ✅ · **G3 `apply` 대기**
 - [ ] **§검증: 부하 도중 배포 → 대표 GET 엔드포인트 `http_req_failed==0`(유실률 0%)** — graceful drain 적용 상태에서
 - [ ] 배포 전략(blue-green) ADR 작성(착수 시점 디스크 다음 빈 번호)
 - [ ] spec-02 §6.1 개입 원장 M4 행 채움(첫 프로비저닝/배포 시)

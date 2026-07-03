@@ -12,12 +12,12 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 결과 보고: `docs/reports/m2-cte-migration.md`
   - 점진 출시·관찰·폐기는 **M3** 로 분리 (포트폴리오 컨텍스트로 실제 폐기 수행은 보류 가능)
 
-- **[M4] 배포 무중단화 (Zero-Downtime Deployment) — spec 작성 중**
+- **[M4] 배포 무중단화 (Zero-Downtime Deployment) — 프로비저닝 진행 중 (Terraform Phase B `plan` 성공)**
   - 단일 EC2 위에서 기존 nginx 를 전환 지점으로 재사용한 blue-green 으로 백엔드 재배포 무중단화 (K8s/ALB 없이 가장 기본 구성)
   - 현행 다운타임 원인: 배포가 기존 컨테이너를 먼저 제거(겹침 0) + 이미지 태그 고정 + nginx upstream 하드코딩 + container_name 고정 + 헬스 신호 부재
   - EC2 미생성 → **AWS 프리티어(t3.micro 1 GiB) 프로비저닝 포함**: MySQL=RDS 분리, Neo4j 미구동(CTE-only), Redis 로컬, 스왑+mem_limit
   - **M3 와의 관계 (M4 → M3, 비차단)**: M4 단일 인스턴스 bring-up 이 "MySQL/CTE-only 실서버 정상 동작"을 검증 → M3 의 Neo4j 폐기 go/no-go 근거가 됨. Neo4j 코드·인프라 실제 삭제는 M3 잔여 작업
-  - 현재: 설계 3건(spec-01/02/03)·기반 코드(A·A.5·R1·B) 완료. **AWS 사람 핸드오프(G1·G2 비가역)에서 자율 진행 멈춤** — 사람용 체크리스트는 👤 spec-04
+  - 현재: 설계 3건(spec-01/02/03)·기반 코드(A·A.5·R1·B·C·D)·Terraform IaC 완료. **G1 사람 핸드오프 완료(2026-07-03: 계정·root MFA·빌링 경보·IAM assume-role B_IAM)** + **Terraform Phase B `plan` 성공(12 리소스, 키페어·RDS SG 배선)**. 남은 것 = G2 시크릿·G3 `apply`(과금)·유실률 검증 — 👤 spec-04, 실행 절차 `infra/terraform/README.md`
   - [milestone](milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](specs/m4/spec-01-zero-downtime-deployment.md) · [02](specs/m4/spec-02-harness-handoff-gates.md) · [03](specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04 사람용](specs/m4/spec-04-human-aws-provisioning-handoff.md)
 
 ---
