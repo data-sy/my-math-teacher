@@ -90,8 +90,8 @@ Phase A(LocalStack) 로 돌리려면: `terraform plan -var use_localstack=true`
 
 - ~~EC2 키페어~~ · ~~RDS 3306 SG 룰~~ — **배선 완료**(`aws_key_pair.app`, 전용 `aws_security_group.db` + 3306).
   개인키는 로컬 `~/.ssh/mmt-ec2`. apply 후 `ssh -i ~/.ssh/mmt-ec2 ec2-user@<EIP>` 로 접속.
-- **EC2 초기화** — apply 후 EC2 는 bare AL2023(Docker/compose·2GB 스왑 미설치, user_data 는 env 파일만).
-  SSH 로 초기화 필요(spec-04 C).
+- ~~EC2 초기화~~ — ✅ **user_data 자동화**: apply 시 2GB 스왑 + Docker/compose + `/etc/mmt/backend.env` 설치(부팅 스크립트).
+  실패 시 `/var/log/cloud-init-output.log`. 수동 SSH 초기화 불필요(호스트에 deploy 파일 배치는 남음).
 - **RDS 스키마·시드(R4)** — apply 후 RDS 는 빈 상태. M2 스키마·인덱스·시드 적재해야 CTE 정상.
 - **HTTPS(R2)** — 무중단 검증은 HTTP 80 으로. 도메인·인증서는 후속(범위 밖).
 

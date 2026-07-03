@@ -81,7 +81,7 @@ spec-02 는 "정체성/결제/시크릿이라서"가 아니라 **되돌릴 수 �
 - [ ] ◑ **RDS(MySQL) 프리티어** db.t3.micro Single-AZ 생성 + **M2 스키마·인덱스·시드 적재**
   - ⚠️ 인덱스·시드 누락 시 CTE 가 느려지거나 결과 비정상(R4). 적재가 EC2 띄우기보다 먼저.
 - [ ] ◑ **EC2 t3.micro**(AL2023, gp3 30GB) + **Elastic IP** + **SG**(80/443 공개 · 22 내 IP만 · **8080 비공개**) + 키페어
-- [ ] ◑ **EC2 초기화**: 2GB 스왑 + Docker/compose 설치
+- [ ] ◑ **EC2 초기화**: 2GB 스왑 + Docker/compose 설치 — ✅ **`compute.tf` user_data 로 자동화**(apply 시 부팅 스크립트 실행, 수동 SSH 불필요). 실패 시 `/var/log/cloud-init-output.log` 확인
 - [ ] ◑ `deploy/active-backend.conf` + `deploy/switch-backend.sh` 배치
 - [ ] ◑ **최초 1회 수동 배포**(`workflow_dispatch`) → 유실률 검증(spec-01 §4)
 

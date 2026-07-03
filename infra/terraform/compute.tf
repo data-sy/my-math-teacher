@@ -24,7 +24,28 @@ data "aws_ami" "al2023" {
 locals {
   user_data = <<-EOT
     #!/bin/bash
-    # spec-01 R1: Neo4j 더미 env 로 재우고 MySQL CTE 경로로 풀 기동
+    set -euxo pipefail
+
+    # --- 2GB 스왑 (spec-01 §9.4: t3.micro 1GiB 에 전환 구간 JVM 2개 공존용) ---
+    if [ ! -f /swapfile ]; then
+      dd if=/dev/zero of=/swapfile bs=1M count=2048
+      chmod 600 /swapfile
+      mkswap /swapfile
+      swapon /swapfile
+      echo '/swapfile none swap sw 0 0' >> /etc/fstab
+    fi
+
+    # --- Docker + compose v2 플러그인 (AL2023) ---
+    dnf install -y docker
+    systemctl enable --now docker
+    usermod -aG docker ec2-user
+    mkdir -p /usr/local/lib/docker/cli-plugins
+    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
+      -o /usr/local/lib/docker/cli-plugins/docker-compose
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+    # --- spec-01 R1: Neo4j 더미 env 로 재우고 MySQL CTE 경로로 풀 기동 ---
+    mkdir -p /etc/mmt
     cat >/etc/mmt/backend.env <<'ENV'
     GDB_HOST=${var.gdb_host}
     GDB_PORT=${var.gdb_port}
