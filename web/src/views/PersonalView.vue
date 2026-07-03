@@ -7,6 +7,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import TitleService from '@/service/TitleService';
+import { CONTACT_EMAIL } from '@/constants/contact';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
 
@@ -26,20 +27,7 @@ const userDetail = ref({
     userBirthdate: ''
 });
 const userGrade = ref('');
-// [출제하기] 버튼에 준비중 띄워둠
 const confirmPopup = useConfirm();
-// const confirm4 = (event) => {
-//     confirmPopup.require({
-//         target: event.target,
-//         message: '이 기능은 준비중입니다. 조금만 기다려주세요!',
-//         icon: 'pi pi-exclamation-triangle',
-//         acceptLabel: 'Ok',
-//         rejectLabel: ' ',
-//         accept: () => {
-//             // toast.add({ severity: 'info', summary: 'Confirmed', detail: '', life: 3000 });
-//         }
-//     });
-// };
 
 const dataToSend = history.state.dataToSend;
 const receivedData = ref('');
@@ -56,6 +44,14 @@ onMounted(async () => {
     );
     // 로그인 했을 때는 user의 학습지
     if (isLoggedIn.value) {
+        // PDF 학습지 헤더에 표시할 사용자 이름·학년 (RecordView와 동일 패턴)
+        try {
+            const userResponse = await api.get('/api/v1/users');
+            userDetail.value = userResponse;
+            userGrade.value = TitleService.calculateGrade(userDetail.value.userBirthdate);
+        } catch (err) {
+            console.error('사용자 정보 조회 중 에러 발생:', err);
+        }
         try {
             const endpoint = '/api/v1/tests/user/is-record';
             const response = await api.get(endpoint);
@@ -90,31 +86,31 @@ onMounted(async () => {
 
 // 맞춤학습지의 근간이 될 학습지 선택
 const userTestId = ref(null);
-watch(listboxTest, async (newValue) => {
-    if(newValue !== null) {
+watch(listboxTest, (newValue) => {
+    // 베이스 학습지 선택/해제 시 출제 상태 초기화 — [출제하기]를 다시 눌러야 다운로드 가능
+    isSet.value = false;
+    testDetail.value = [];
+    if (newValue !== null) {
         userTestId.value = newValue.userTestId;
-        // 우선 조건 없이 바로 출제 - 조건 생기면 이 부분 삭제
-        try {
-            const endpoint = `/api/v1/items/personal?userTestId=${userTestId.value}`;
-            const response = await api.get(endpoint);
-            testDetail.value = response.map((item) => {
-                return {
-                    ...item,
-                    itemImagePath: "/images/items/empty001.jpg"
-                };
-            });
-        } catch (err) {
-            console.error('데이터 생성 중 에러 발생:', err);
-        }
+        testName.value = newValue.testName;
+    } else {
+        // 선택 해제(Listbox 토글) 시 다운로드 게이트를 '학습지를 선택하세요.'로 되돌림
+        // → 다운로드 확인 Dialog의 listboxTest null 역참조(크래시) 방지
+        userTestId.value = null;
+        testName.value = '';
     }
 });
 
 
-// 맞춤 학습지 조건
-const isDeveloping = true; // 조건 사용 X 인 동안 "개발 중" 표시하기
+// 맞춤 학습지 조건 (Scope B — 출제 API 파라미터로 전달)
+//  radioValue1 = 맞춤 유형: 'wrong'(오답 위주=depth0) | 'prerequisite'(선수지식 위주=depth1~2)
+//  radioValue2 = 재출제: 'nothing' | 'wrong'(원래 오답 문항) | 'all'(원래 응시 문항 전체). null=재출제 없음
+//  inputNumberValue = 신규 문항 수(6~20)
 const inputNumberValue = ref(10);
 const radioValue1 = ref(null);
 const radioValue2 = ref(null);
+// 출제 완료 여부 = 다운로드 게이트. 베이스 학습지 선택 후 [출제하기]를 누르면 true
+const isSet = ref(false);
 /////////////////////////////////////////////////////////////////////////////////
 // 추가구현 해야 할 부분
 // (+) 프론트 단에서 조건들을 만족해야 출제하기 버튼 활성화하기 (클릭하면 조건 채워달라고 알람)
@@ -123,9 +119,22 @@ const radioValue2 = ref(null);
 // 맞춤 학습지 미리보기 - [출제하기] 버튼 누르면 조건에 맞는 문항 제시
 const testDetail = ref([]);
 const getPersonalItems = async () => {
-    if (userTestId.value !== null) {
+    if (userTestId.value === null) return;
+    // 맞춤 유형은 필수 — 미선택 시 출제하지 않고 안내
+    if (!radioValue1.value) {
+        toast.add({ severity: 'warn', summary: '맞춤 유형을 선택해주세요', detail: '오답 문항 위주 또는 선수 지식 위주 중 하나를 선택하면 출제됩니다.', life: 3000 });
+        return;
+    }
+    {
         try {
-            const endpoint = `/api/v1/items/personal?userTestId=${userTestId.value}`;
+            const params = new URLSearchParams({
+                userTestId: userTestId.value,
+                category: radioValue1.value,
+                count: inputNumberValue.value
+            });
+            // 재출제 미선택(null)은 '없음'(원본 미포함)으로 처리 — 파라미터 생략
+            if (radioValue2.value) params.set('reExam', radioValue2.value);
+            const endpoint = `/api/v1/items/personal?${params.toString()}`;
             const response = await api.get(endpoint);
             testDetail.value = response.map((item) => {
                 return {
@@ -133,13 +142,13 @@ const getPersonalItems = async () => {
                     itemImagePath: "/images/items/empty001.jpg"
                 };
             });
+            isSet.value = true;
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
         }
     }
 }
 
-const testId = ref(null);
 const testName = ref('');
 
 // 날짜
@@ -230,20 +239,6 @@ const confirm3 = (event) => {
         }
     });
 };
-// 맞춤학습지의 근간이 될 학습지를 선택하지 않고 [출제하기]를 누리면, 학습지를 먼저 선택해달라고 안내
-const confirm5 = (event) => {
-    confirmPopup.require({
-        target: event.target,
-        message: '학습지를 선택해 주세요.',
-        icon: 'pi pi-exclamation-triangle',
-        acceptLabel: 'Ok',
-        rejectLabel: ' ',
-        accept: () => {
-            // toast.add({ severity: 'info', summary: 'Confirmed', detail: '', life: 3000 });
-        }
-    });
-};
-
 // '이전' 버튼 (홈으로 또는 분석결과보기로)
 const goToHome = () => {
     try {
@@ -281,69 +276,43 @@ const yesClick = () => {
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
-                <h5> 맞춤학습지 조건</h5>
-                <div class="developing-wrapper">
-                    <div id="developing">
-                        <div class="mb-4 mt-5">
-                            <label for="number" class="block text-900 text-xl font-medium mb-3">문항 수 (6 ~ 30)</label>
-                            <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
-                        </div>
-                        <label for="number" class="block text-900 text-xl font-medium mb-3">맞춤 유형</label>
-                        <div class="grid">
-                            <div class="col-12 md:col-6">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="wrong" name="category" value="wrong" v-model="radioValue1" />
-                                    <label for="wrong">오답 문항 위주</label>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-6">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="prerequisite" name="category" value="prerequisite" v-model="radioValue1" />
-                                    <label for="prerequisite">선수 지식 위주</label>
-                                </div>
-                            </div>
-                        </div>
-                        <label for="number" class="block text-900 text-xl font-medium mb-2">문항 재출제</label>
-                        <div class="grid">
-                            <div class="col-12 md:col-4">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="nothing" name="reExam" value="nothing" v-model="radioValue2" />
-                                    <label for="nothing">없음</label>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-4">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="wrong" name="reExam" value="wrong" v-model="radioValue2" />
-                                    <label for="wrong">오답 문항</label>
-                                </div>
-                            </div>
-                            <div class="col-12 md:col-4">
-                                <div class="field-radiobutton mb-0">
-                                    <RadioButton id="all" name="reExam" value="prerequisite" v-model="radioValue2" />
-                                    <label for="all">전체 문항</label>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 준비 중이라 disable -->
-                        <div class="mt-5">
-                            <Button label="출제하기" class="mr-2 mb-5" :disabled="true"></Button>
-                        </div>
+                <h5>맞춤학습지 조건</h5>
+                <div class="mb-5 mt-2">
+                    <p class="t-body text-700 m-0 mb-1">진단 결과(오답·선수 지식)를 바탕으로 맞춤 출제됩니다.</p>
+                    <p class="text-500 m-0">맞춤 유형을 선택하고 문항 수·재출제 조건을 설정해 출제하세요.</p>
+                </div>
+                <div class="mb-5">
+                    <label for="number" class="block t-subheading mb-3">문항 수 (6 ~ 20)</label>
+                    <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="20"></InputNumber>
+                </div>
+                <div class="mb-5">
+                    <label class="block t-subheading mb-3">맞춤 유형</label>
+                    <div class="field-radiobutton mb-2">
+                        <RadioButton id="categoryWrong" name="category" value="wrong" v-model="radioValue1" />
+                        <label for="categoryWrong">오답 문항 위주</label>
                     </div>
-                    <!-- 덮는 회색 박스 -->
-                    <div class="blocking-overlay" v-if="isDeveloping">
-                        <p class="p-3">새로운 기능이 곧 추가됩니다! <br><br> 잠시만 기다려주세요.</p>
+                    <div class="field-radiobutton mb-0">
+                        <RadioButton id="categoryPrerequisite" name="category" value="prerequisite" v-model="radioValue1" />
+                        <label for="categoryPrerequisite">선수 지식 위주</label>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="block t-subheading mb-3">문항 재출제</label>
+                    <div class="field-radiobutton mb-2">
+                        <RadioButton id="reExamNothing" name="reExam" value="nothing" v-model="radioValue2" />
+                        <label for="reExamNothing">없음</label>
+                    </div>
+                    <div class="field-radiobutton mb-2">
+                        <RadioButton id="reExamWrong" name="reExam" value="wrong" v-model="radioValue2" />
+                        <label for="reExamWrong">오답 문항</label>
+                    </div>
+                    <div class="field-radiobutton mb-0">
+                        <RadioButton id="reExamAll" name="reExam" value="all" v-model="radioValue2" />
+                        <label for="reExamAll">전체 문항</label>
                     </div>
                 </div>
                 <div class="mt-5">
-                    <!-- 이 전에 준비중이었을 때 -->
-                    <!-- <Button @click="confirm4($event)" label="출제하기" class="mr-2 mb-5"></Button> -->
-                    <!-- 조건 없이 근간 학습지로만 출제 -->
-                    <!-- <div class="mt-5">                
-                        <Button v-if="userTestId == null" @click="confirm5($event)" label="출제하기" class="mr-2 mb-5 p-button-outlined"></Button>
-                        <Button v-else @click="getPersonalItems" label="출제하기" class="mr-2 mb-5"></Button>
-                    </div> -->
-                    <!-- 나중에 조건 추가되면 여기로 다시 돌아와. isLoggedIn, testId 에 따라 조건문 줘야 해-->
-                    <!-- <Button @click="" label="출제하기" class="mr-2 mb-5"></Button> -->
+                    <Button label="출제하기" class="mr-2 mb-5" :disabled="userTestId == null" @click="getPersonalItems"></Button>
                 </div>
             </div>
         </div>
@@ -358,7 +327,7 @@ const yesClick = () => {
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
-                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : {{ CONTACT_EMAIL }}</span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
@@ -400,15 +369,15 @@ const yesClick = () => {
             <ConfirmPopup></ConfirmPopup>
             <Toast />
             <Button v-if="!isLoggedIn" ref="popup" @click="confirm2($event)" label="로그인 후 다운로드" icon="pi pi-download" class="mr-2 mb-2"></Button>
-            <Button v-else-if="testId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
+            <Button v-else-if="userTestId == null" ref="popup" @click="confirm($event)" label="학습지를 선택하세요." class="mr-2 mb-2"></Button>
             <Button v-else-if="!isSet" ref="popup" @click="confirm3($event)" label="출제하기를 누르세요." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
             <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }} &quot; 학습지</div>
+                <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }} &quot; 학습지</div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>
@@ -451,29 +420,4 @@ const yesClick = () => {
     max-width: 5%;
     margin-right: 0.5rem;
 }
-
-.developing-wrapper {
-  position: relative; /* 카드 내부의 덮는 요소가 부모인 카드 안에 위치하도록 */
-}
-
-.blocking-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3); /* 불투명도 30%의 회색 배경 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 100; /* 카드 위에 덮는 요소가 위치하도록 z-index 설정 */
-  pointer-events: all; /* 클릭 이벤트 차단 */
-  border-radius: 10px; /* 모서리 둥글게 */
-}
-
-
-
 </style>

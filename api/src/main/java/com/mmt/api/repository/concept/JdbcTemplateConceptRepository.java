@@ -30,6 +30,28 @@ public class JdbcTemplateConceptRepository {
         return jdbcTemplate.query(sql, conceptNameRowMapper(), chapterId);
     }
 
+    /**
+     * 개념명 부분 일치 검색 (자동완성용). concepts JOIN chapters 로 학교/학년/단원 맥락 포함.
+     * 접두 일치를 부분 일치보다 먼저 노출하고, schoolLevel 이 주어지면 학교급으로 좁힌다.
+     * LIKE 와일드카드(%, _, \)는 이스케이프(MySQL 기본 escape '\').
+     */
+    public List<Concept> searchByName(String query, String schoolLevel, int limit) {
+        boolean hasSchoolLevel = schoolLevel != null && !schoolLevel.isBlank();
+        String escaped = query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        String contains = "%" + escaped + "%";
+        String prefix = escaped + "%";
+        String sql = "SELECT c.concept_id, c.concept_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_name "
+                + "FROM concepts c JOIN chapters ch ON c.concept_chapter_id = ch.chapter_id "
+                + "WHERE c.concept_name LIKE ? "
+                + (hasSchoolLevel ? "AND ch.school_level = ? " : "")
+                + "ORDER BY CASE WHEN c.concept_name LIKE ? THEN 0 ELSE 1 END, c.concept_name "
+                + "LIMIT ?";
+        if (hasSchoolLevel) {
+            return jdbcTemplate.query(sql, conceptSearchRowMapper(), contains, schoolLevel, prefix, limit);
+        }
+        return jdbcTemplate.query(sql, conceptSearchRowMapper(), contains, prefix, limit);
+    }
+
     public String findSchoolLevelByConceptId(int conceptId){
         String sql = "SELECT ch.school_level FROM chapters ch JOIN concepts c ON ch.chapter_id = c.concept_chapter_id WHERE c.concept_id = ?";
         return jdbcTemplate.queryForObject(sql, String.class, conceptId);
@@ -126,6 +148,20 @@ public class JdbcTemplateConceptRepository {
             Concept concept = new Concept();
             concept.setConceptId(rs.getInt("concept_id"));
             concept.setName(rs.getString("concept_name"));
+            return concept;
+        };
+    }
+
+    // 검색 결과 경량 매핑: 자동완성/breadcrumb 에 필요한 학교/학년/학기/단원만(설명 제외).
+    private RowMapper<Concept> conceptSearchRowMapper() {
+        return (rs, rowNum) -> {
+            Concept concept = new Concept();
+            concept.setConceptId(rs.getInt("concept_id"));
+            concept.setName(rs.getString("concept_name"));
+            concept.setSchoolLevel(rs.getString("school_level"));
+            concept.setGradeLevel(rs.getString("grade_level"));
+            concept.setSemester(rs.getString("semester"));
+            concept.setChapterName(rs.getString("chapter_name"));
             return concept;
         };
     }

@@ -2,6 +2,7 @@ package com.mmt.api.controller;
 
 import com.mmt.api.dto.concept.ConceptNameResponse;
 import com.mmt.api.dto.concept.ConceptResponse;
+import com.mmt.api.dto.concept.ConceptSearchResponse;
 import com.mmt.api.dto.network.EdgeResponse;
 import com.mmt.api.service.ConceptService;
 import com.mmt.api.service.KnowledgeSpaceService;
@@ -27,6 +28,17 @@ public class ConceptController {
     @GetMapping("")
     public List<ConceptNameResponse> getConceptByChapterId(@RequestParam("chapterId") int chapterId){
         return conceptService.findConceptNameByChapterId(chapterId);
+    }
+
+    /**
+     * 개념명 검색 (자동완성). q 부분 일치, schoolLevel 선택 필터, limit 기본 10.
+     */
+    @GetMapping("/search")
+    public List<ConceptSearchResponse> searchConcepts(
+            @RequestParam("q") String query,
+            @RequestParam(value = "schoolLevel", required = false) String schoolLevel,
+            @RequestParam(value = "limit", defaultValue = "10") int limit) {
+        return conceptService.searchConcepts(query, schoolLevel, limit);
     }
 
     /**

@@ -1,12 +1,14 @@
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue';
+import { ref, watch, onMounted, computed, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
+import { useLoginDialog } from '@/composables/useLoginDialog.js';
 import { useHtmlToPdf } from '@/composables/htmlToPdf';
 import TitleService from '@/service/TitleService';
+import { CONTACT_EMAIL } from '@/constants/contact';
 import levelDic from '@/assets/data/level.json';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
@@ -14,6 +16,7 @@ import 'vue3-markdown/dist/style.css';
 const store = useStore();
 const router = useRouter();
 const api = useApi();
+const { open: openLoginDialog } = useLoginDialog();
 const { htmlToPdf } = useHtmlToPdf();
 
 const logoUrl = computed(() => {
@@ -107,13 +110,14 @@ watch(listboxTest, async (newValue) => {
             isImageExist.value = false;
         }
         try {
-            const endpoint = `/api/v1/tests/detail/${testId.value}`;
+            // 비로그인은 정답 포함 /detail 이 인증 게이트라 401 → 안내 샘플 전용 공개 엔드포인트로 조회.
+            const endpoint = isLoggedIn.value ? `/api/v1/tests/detail/${testId.value}` : `/api/v1/tests/sample/detail/${testId.value}`;
             const response = await api.get(endpoint);
             if (testId.value < 491 || testId.value > 495) {
                 testDetail.value = response.map((item) => {
                     return {
                         ...item,
-                        itemImagePath: "/images/items/empty001.jpg"
+                        itemImagePath: '/images/items/empty001.jpg'
                     };
                 });
             } else {
@@ -121,7 +125,15 @@ watch(listboxTest, async (newValue) => {
             }
         } catch (err) {
             console.error('데이터 생성 중 에러 발생:', err);
+            testDetail.value = []; // 실패 시(비로그인이 비샘플 선택 등) 이전 미리보기 잔존 방지
         }
+    } else {
+        // 선택 해제(Listbox 토글) 시 다운로드 게이트를 'testId == null'로 되돌림
+        // → 다운로드 확인 Dialog의 listboxTest null 역참조(크래시) + 옛 학습지 잔존 다운로드 방지
+        testId.value = null;
+        testName.value = '';
+        testDetail.value = [];
+        isImageExist.value = false;
     }
 });
 // 날짜
@@ -222,31 +234,49 @@ const downloadTest = () => {
 };
 
 // 로그인 없이 '회원가입 및 로그인' 클릭 시
-const oauth2googlelogoUrl = computed(() => {
-    return 'images/oauth2/google-logo.png';
-});
-const oauth2naverlogoUrl = computed(() => {
-    return 'images/oauth2/naver-logo.png';
-});
-const oauth2kakaologoUrl = computed(() => {
-    return 'images/oauth2/kakao-logo.png';
-});
-const loginDialog = ref(false);
-const closeDialog = () => {
-    loginDialog.value = false;
-};
-const onUserClick = () => {
-    loginDialog.value = true;
-};
-const goToSignup = () => {
-    loginDialog.value = false;
-    router.push({ name: 'signup' });
-};
+// 전역 LoginDialog(로그인 폼 + 회원가입 + OAuth)를 그 자리에서 연다 — 진입을 토프바와 일원화.
 const openLogin = () => {
     closeConfirmation();
-    onUserClick();
-
+    openLoginDialog();
 };
+
+// 비로그인 진입 시 안내 샘플(고등 → 수학(상) → 복소수와 이차방정식) 기본 노출 + 첫 샘플 학습지 자동 선택.
+// selectButtonLevel/listboxLevel watch 가 학습지 목록을 비동기 fetch 하므로, 순서를 명시적으로 await 로 확정한다
+// (동기 세팅 시 listboxLevel watch 가 아직 안 채워진 listboxTestsAll 을 필터해 목록이 비는 레이스가 발생).
+const seedGuestSample = async () => {
+    const highSchool = selectButtonLevels.value.find((l) => l.name === '고등');
+    const mathUpper = levelDic['고등'].find((l) => l.name === '수학(상)');
+    if (!highSchool || !mathUpper) return;
+    // 1) 학교급 = 고등 (watch 가 schoolLevel·listboxLevels 세팅 + 목록 fetch 시작)
+    selectButtonLevel.value = highSchool;
+    // 2) 학습지 전체 목록 로드 완료를 직접 보장 — watch 의 fetch 완료 시점을 await 할 수 없어 순서 확정용으로 여기서 로드
+    try {
+        listboxTestsAll.value = await api.get('/api/v1/tests/school-level/고등');
+    } catch (err) {
+        console.error('샘플 학습지 로드 실패:', err);
+        return;
+    }
+    // 3) 학년 = 수학(상) (watch 가 grade/semester 세팅 + listboxTests 필터)
+    listboxLevel.value = mathUpper;
+    await nextTick(); // listboxLevel watch 반영 대기
+    // 4) 첫 샘플 학습지 자동 선택 → 우측 미리보기 렌더 (목록 순서 무관하게 복소수와 이차방정식(1) 우선)
+    const sample = listboxTests.value.find((t) => t.testName?.includes('복소수와 이차방정식')) ?? listboxTests.value[0];
+    if (sample) {
+        listboxTest.value = sample;
+        await nextTick(); // 선택 하이라이트 렌더 후, 학습지 목록(ScrollPanel) 내부만 스크롤해 선택 항목을 목록 맨 위로 (전체 페이지는 최상단 유지)
+        const content = document.querySelector('#testListWrap .p-scrollpanel-content');
+        const item = document.querySelector('#testListWrap .p-listbox-item.p-highlight');
+        if (content && item) {
+            content.scrollTop += item.getBoundingClientRect().top - content.getBoundingClientRect().top;
+        }
+    }
+};
+onMounted(() => {
+    // isLoggedIn 은 위 첫 onMounted 의 동기부에서 세팅됨 → 이 훅 실행 시점엔 확정
+    if (!isLoggedIn.value) {
+        seedGuestSample();
+    }
+});
 </script>
 
 <template>
@@ -254,30 +284,20 @@ const openLogin = () => {
         <!-- <div class="col-12 text-center">
             <div v-if="!isLoggedIn" class="text-orange-500 font-medium text-3xl">로그인이 필요한 페이지 입니다.</div>
         </div> -->
-        <div class="col-12">
-            <div class="card">
-                <div class="flex justify-content-between">
-                    <div>
-                        <span class="text-red-500 text-lg font-medium"> 저작권 제약으로 실제 문제가 제공되지는 않습니다. </span>
-                        <span class="mt-2 block font-medium"> - 준비된 샘플 학습지 : 고등 -> 수학(상) -> 복소수와 이차방정식(1)~(5) </span>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
-                <h5>School Level</h5>
+                <h5>학교급</h5>
                 <SelectButton v-model="selectButtonLevel" :options="selectButtonLevels" optionLabel="name" />
             </div>
             <div class="card">
-                <h5>Grade Level</h5>
+                <h5>학년</h5>
                 <Listbox v-model="listboxLevel" :options="listboxLevels" optionLabel="name" />
             </div>
         </div>
         <div class="col-12 lg:col-6 xl:col-3">
             <div class="card">
                 <h5>학습지 목록</h5>
-                <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
+                <ScrollPanel id="testListWrap" :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <Listbox v-model="listboxTest" :options="listboxTests" optionLabel="testName" :filter="true" />
                     <ScrollTop target="parent" :threshold="100" icon="pi pi-arrow-up"></ScrollTop>
                 </ScrollPanel>
@@ -286,6 +306,8 @@ const openLogin = () => {
         <div class="col-12 xl:col-6">
             <div class="card">
                 <h5>학습지 미리보기</h5>
+                <!-- 저작권 안내: 실제 문제가 없는(플레이스홀더/미제공) 학습지를 볼 때만 표시 — 실제 샘플(복소수와 이차방정식)엔 안 뜸 -->
+                <div v-if="testId != null && !isImageExist" class="t-body text-red-500 font-medium mb-3">저작권 제약으로 실제 문제는 샘플(복소수와 이차방정식 1~5)만 제공됩니다.</div>
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div id="testImage" ref="pdfAreaRef">
                         <div v-if="isImageExist" class="grid mx-2 my-4">
@@ -294,7 +316,7 @@ const openLogin = () => {
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
-                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : {{ CONTACT_EMAIL }}</span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
@@ -327,7 +349,7 @@ const openLogin = () => {
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
-                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : {{ CONTACT_EMAIL }}</span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
@@ -371,14 +393,17 @@ const openLogin = () => {
             <template v-else-if="!isLoggedIn">
                 <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
                 <Dialog v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div class="text-red-600 font-bold mb-6"> 로그인 없이도 다운로드는 가능합니다. <br/> 단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다. </div>
-                    <div class="text-600 text-lg font-bold mb-2"> 다음 학습지를 다운로드 하시겠습니까?</div>
-                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <div class="text-red-600 font-bold mb-6">
+                        로그인 없이도 다운로드는 가능합니다. <br />
+                        단, 로그인하지 않으면 진행한 내역이 기록되지 않습니다.
+                    </div>
+                    <div class="t-body text-600 font-bold mb-2">다음 학습지를 다운로드 하시겠습니까?</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
-                        <div> 
-                            <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                            <Button label="Yes" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
+                        <div>
+                            <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                            <Button label="예" icon="pi pi-check" @click="downloadTest" class="p-button-text" autofocus />
                         </div>
                         <div class="mt-3">
                             <Button label="회원가입 및 로그인" class="p-button-link" @click="openLogin" autofocus />
@@ -389,58 +414,15 @@ const openLogin = () => {
             <template v-else>
                 <Button @click="openConfirmation" label="다운로드" icon="pi pi-download" class="mr-2 mb-2" />
                 <Dialog header="다음 학습지를 다운로드 하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest.testSchoolLevel }} - {{ listboxTest.testGradeLevel }} - {{ listboxTest.testSemester }}</div>
-                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest.testName }}&quot; 학습지</div>
+                    <div class="text-600 font-semibold px-3 py-2">{{ listboxTest?.testSchoolLevel }} - {{ listboxTest?.testGradeLevel }} - {{ listboxTest?.testSemester }}</div>
+                    <div class="text-600 font-semibold px-3 py-1">&quot;{{ listboxTest?.testName ?? testName }}&quot; 학습지</div>
                     <template #footer>
-                        <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                        <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                        <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                        <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                     </template>
                 </Dialog>
             </template>
-
         </div>
-        <!-- user 아이콘 클릭 시 로그인 or 회원가입 창 -->
-        <Dialog v-model:visible="loginDialog" :style="{ width: '500px' }" :modal="true" class="p-fluid">
-            <div class="w-full surface-card px-6 sm:px-8">
-                <div class="text-center mb-5">
-                    <img :src="logoUrl" alt="logo" class="mb-1 w-3rem flex-shrink-0" />
-                    <div class="text-900 text-3xl font-medium mb-3">Welcome, MMT!</div>
-                </div>
-                <form v-on:submit.prevent="login">
-                    <div>
-                        <InputText id="email" v-model="email" type="text" placeholder="아이디" class="w-full mb-3" style="padding: 1rem" />
-                        <Password id="password" v-model="password" placeholder="비밀번호" :toggleMask="true" class="w-full mb-4" inputClass="w-full" :inputStyle="{ padding: '1rem' }" :feedback="false"></Password>
-                        <p v-html="loginErrorMessage" class="text-red-600 text-base text-font-medium"></p>
-                        <Button type="submit" label="로그인" class="w-full p-2.5 p-button-raised text-lg border-round-2xl"></Button>
-                    </div>
-                </form>
-                <div class="flex align-items-center justify-content-center mt-3 mb-5">
-                    <Button @click="goToSignup()" label="회원가입" class="w-full p-2.5 p-button-raised p-button-success text-lg border-round-2xl"></Button>
-                </div>
-                <div class="divider-container mt-4 mb-4">
-                    <div class="left-divider"></div>
-                    <span class="divider-text"> 간편로그인 </span>
-                    <div class="right-divider"></div>
-                </div>
-                <div class="flex justify-content-center gap-7 mb-7">
-                    <div class="icon-container">
-                        <a href="/oauth2/authorization/google">
-                            <img :src="oauth2googlelogoUrl" alt="Google" class="icon" />
-                        </a>
-                    </div>
-                    <div class="icon-container">
-                        <a href="/oauth2/authorization/naver">
-                            <img :src="oauth2naverlogoUrl" alt="Naver" class="icon" />
-                        </a>
-                    </div>
-                    <div class="icon-container kakao">
-                        <a href="/oauth2/authorization/kakao">
-                            <img :src="oauth2kakaologoUrl" alt="Kakao" class="icon" style="width: 2.7rem; height: 2.7rem" />
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </Dialog>
     </div>
 </template>
 

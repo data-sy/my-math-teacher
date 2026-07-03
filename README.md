@@ -19,19 +19,19 @@
 
 <a name="Highlights"> </a>
 
-## ✨ 기술 하이라이트
+## 기술 하이라이트
 
 ### v2 의 핵심 작업: 그래프 데이터베이스를 단일 RDB 로 통합 (마일스톤 2, 2026-05 완료)
 
-수학 개념의 선후 관계 그래프 탐색을 **Neo4j → MySQL 재귀 CTE** 로 옮긴 마이그레이션. v1 시기 도입했던 그래프 DB 가 1,631 노드 / 3,446 엣지 규모에서는 오히려 오버 엔지니어링이었던 점을 인지하고 단일 RDB 로 통합.
+수학 개념의 선후 관계 그래프 탐색을 **Neo4j → MySQL 재귀 CTE** 로 옮긴 마이그레이션. v1 시기 도입했던 그래프 DB 가 1,631 노드 / 3,446 엣지 규모에서는 오히려 오버 엔지니어링이라 판단해 단일 RDB 로 통합.
 
 - **응답 시간 p95 14.034 ms → 0.556 ms (약 25× 개선)** — 깊이 3 그래프 탐색 기준
-- **결과 정확성·시각화 안전성·알고리즘 의미 보존** 을 자동화 테스트로 검증 (회귀 15 케이스 + 성능 6 케이스 + DTO 안정성 4 케이스 + 거리 맵 의미 4 케이스)
-- **데이터 중복 · 리액티브 안티패턴 (`.block()`) · 인프라 복잡도** 동시 해소
-- **피처 플래그 + 결과 스냅샷 비교** 기반 롤백 가능 마이그레이션
+- 결과 정확성·시각화 안전성·알고리즘 의미 보존을 **자동화 테스트로 검증** (회귀 15 케이스 + 성능 6 케이스 + DTO 안정성 4 케이스 + 거리 맵 의미 4 케이스)
+- 데이터 중복 · 리액티브 안티패턴(`.block()`) · 인프라 복잡도를 **동시 해소**
+- 피처 플래그 + 결과 스냅샷 비교 기반 **롤백 가능 마이그레이션**
 - 작업 중 **알고리즘 함정**(옛 BFS 유틸의 path-order 가정 → CTE 결과와 비호환) 을 사전 발견해 silent regression 방지
 
-📄 **자세한 회고:** [docs/reports/m2-cte-migration.md](docs/reports/m2-cte-migration.md) (읽는 데 5~7 분)
+**자세한 회고:** [docs/reports/m2-cte-migration.md](docs/reports/m2-cte-migration.md) (읽는 데 5~7 분)
 
 **핵심 의사결정 기록 (ADR):**
 - [0001 — 마이그레이션 전 테스트 커버리지 선행 구축](docs/adr/0001-test-coverage-before-migration.md) (정답지·롤백·피처 플래그 우선)
@@ -42,7 +42,7 @@
 
 <a name="Overview"> </a>
 
-## 💻 프로젝트 개요
+## 프로젝트 개요
 기간 : (v1) 2023.12 ~ 2024.07 (8개월), (v2) 2025.02 ~ (진행 중) <br/>
 개발 인원 : 1인 개발 <br/>
 서비스 링크 : https://www.my-math-teacher.com  <br/>
@@ -83,7 +83,7 @@ MMT는  **수학 지식 간 선/후 관계를 그래프로 확인**하고 **수�
 
 <a name="Arch"> </a>
 
-## ⚒️ 아키텍처 및 기술 스택
+## 아키텍처 및 기술 스택
 
 ### 아키텍처
 ![](https://velog.velcdn.com/images/data_sy/post/e6e5b39d-411a-4bb9-8041-da41086c461b/image.jpg)
@@ -105,7 +105,7 @@ MMT는  **수학 지식 간 선/후 관계를 그래프로 확인**하고 **수�
 
 <a name="Design"> </a>
 
-## 📜 시스템 설계 및 구현 상세
+## 시스템 설계 및 구현 상세
 
 ### ERD
 ![](https://velog.velcdn.com/images/data_sy/post/539ab1a0-4dcd-4a83-b393-6486655e08ab/image.jpg)
@@ -122,7 +122,7 @@ MMT는  **수학 지식 간 선/후 관계를 그래프로 확인**하고 **수�
 
 <a name="Setup"> </a>
 
-## 🛠️ 로컬 개발 환경 셋업
+## 로컬 개발 환경 셋업
 
 `docker-compose`로 인프라(MySQL / Neo4j / Redis)만 띄우고, 백엔드와 프론트는 호스트에서 직접 실행하는 구성입니다.
 
@@ -204,7 +204,7 @@ docker compose down
 
 <a name="Ref"> </a>
 
-## 🤝 레퍼런스
+## 레퍼런스
 - [AIHub 수학분야 학습자 역량 측정 데이터](https://aihub.or.kr/aihubdata/data/view.do?currMenu=115&topMenu=100&aihubDataSe=realm&dataSetSn=133)
 
 <p align="right">(<a href="#readme-top">맨 위로</a>)</p>

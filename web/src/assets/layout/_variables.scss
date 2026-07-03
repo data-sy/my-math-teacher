@@ -1,4 +1,4 @@
 /* General */
-$scale:14px;                    /* main font size */ 
+$scale:16px;                    /* main font size (rem base) — 디자인 토큰(_tokens.scss)이 16px 기준 rem 스케일이라 base 일치 */
 $borderRadius:12px;             /* border radius of layout element e.g. card, sidebar */ 
 $transitionDuration:.2s;        /* transition duration of layout elements e.g. sidebar, overlay menus */ 

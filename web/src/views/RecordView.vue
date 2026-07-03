@@ -6,6 +6,7 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useApi } from '@/composables/api.js';
 import TitleService from '@/service/TitleService';
+import { CONTACT_EMAIL } from '@/constants/contact';
 // import axios from 'axios';
 import { VMarkdownView } from 'vue3-markdown';
 import 'vue3-markdown/dist/style.css';
@@ -275,7 +276,7 @@ const goToResultPage = async () => {
                 <ScrollPanel :style="{ width: '100%', height: '35rem' }" :pt="{ wrapper: { style: { 'border-right': '10px solid var(--surface-ground)' } }, bary: 'hover:bg-primary-300 bg-primary-200 opacity-80' }">
                     <div v-if="!listboxTest"></div>
                     <div v-else-if="listboxTest.record">
-                        <div class="mx-2 my-5 text-2xl text-bold text-pink-500">
+                        <div class="mx-2 my-5 t-heading text-pink-500">
                             <div>정오답이 이미 기록된 학습지입니다.</div>
                             <div>
                                 AI 분석 결과가 궁금하면
@@ -285,9 +286,9 @@ const goToResultPage = async () => {
                         </div>
                     </div>
                     <div v-else>
-                        <DataTable :value="testDetail" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
-                            <Column field="testItemNumber" header="번호" style="min-width: 5em"></Column>
-                            <Column field="itemAnswer" header="정답" style="min-width: 5em">
+                        <DataTable :value="testDetail" class="p-datatable-sm" rowGroupMode="subheader" groupRowsBy="representative.name" sortMode="single" sortField="representative.name" :sortOrder="1">
+                            <Column field="testItemNumber" header="번호" style="min-width: 3em"></Column>
+                            <Column field="itemAnswer" header="정답">
                                 <template #body="rowData">
                                     <span v-if="isImageExist">
                                         <VMarkdownView v-if="isLatex(rowData.data.itemAnswer)" :content="rowData.data.itemAnswer"></VMarkdownView>
@@ -295,9 +296,9 @@ const goToResultPage = async () => {
                                     </span>
                                 </template>
                             </Column>
-                            <Column field="answerCode" header="정오답입력" style="min-width: 5em">
+                            <Column field="answerCode" header="정오답" style="min-width: 4em">
                                 <template #body="rowData">
-                                    <ToggleButton v-model="rowData.data.answerCode" onLabel="o" offLabel="x" :style="{ width: '3.3em' }" />
+                                    <ToggleButton v-model="rowData.data.answerCode" onLabel="o" offLabel="x" :style="{ width: '2.7em', padding: '0.75rem 0' }" />
                                 </template>
                             </Column>
                         </DataTable>
@@ -318,7 +319,7 @@ const goToResultPage = async () => {
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
-                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : {{ CONTACT_EMAIL }}</span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
@@ -345,7 +346,7 @@ const goToResultPage = async () => {
                                     <div class="col-12 mx-3 mt-3 logo">
                                         <img :src="logoUrl" alt="logo" />
                                         <span class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-3xl"> MMT</span>
-                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : contact.mmt.2024@gmail.com </span>
+                                        <span class="text-xs sm:text-base md:text-lg lg:text-xl xl:text-lg ml-auto px-5"> 문의 : {{ CONTACT_EMAIL }}</span>
                                     </div>
                                     <div class="col-12">
                                         <div class="flex justify-content-between">
@@ -388,13 +389,13 @@ const goToResultPage = async () => {
             <Button v-else-if="isRecord" ref="popup" @click="confirm3($event)" label="이미 기록한 학습지입니다." class="mr-2 mb-2"></Button>
             <Button v-else @click="openConfirmation" label="기록하기" class="mr-2 mb-2" />
             <Dialog header="다음 정오답을 기록하시겠습니까?" v-model:visible="displayConfirmation" :style="{ width: '350px' }" :modal="true">
-                <div class="text-500 font-semibold px-3 mb-5">기록 성공 시, HOME으로 이동합니다.</div>
+                <div class="text-500 font-semibold px-3 mb-5">기록 성공 시 홈 화면으로 이동합니다.</div>
                 <div v-for="(item, index) in testDetail" :key="index" class="text-500 font-semibold px-3 py-1">
                     <div>{{ item.testItemNumber }}번 : {{ item.answerCode ? 'o' : 'x' }}</div>
                 </div>
                 <template #footer>
-                    <Button label="No" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
-                    <Button label="Yes" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
+                    <Button label="아니오" icon="pi pi-times" @click="closeConfirmation" class="p-button-text" />
+                    <Button label="예" icon="pi pi-check" @click="yesClick" class="p-button-text" autofocus />
                 </template>
             </Dialog>
         </div>
