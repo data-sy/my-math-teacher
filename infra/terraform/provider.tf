@@ -4,9 +4,10 @@
 #   Phase A (기본, use_localstack=true): LocalStack 타깃 — 무계정·무과금.
 #     학습 목표 = validate→plan→apply→destroy 사이클 + 리소스 그래프.
 #     AWS 정합이 목표가 아님 → LocalStack green ≠ AWS 기동.
-#   Phase B (use_localstack=false): 실제 AWS — mmt-admin 프로필(IAM role
-#     mmt-terraform-admin 을 MFA 로 assume 한 임시자격)로 real plan/apply(과금·MFA).
-#     자격은 ~/.aws 로컬 프로필에만 — provider 는 profile 이름만 참조(정적 키 커밋 0).
+#   Phase B (use_localstack=false): 실제 AWS — mmt-admin role 을 MFA 로 assume 한
+#     임시자격으로 real plan/apply(과금·MFA). Terraform 은 프로필의 MFA assume 를
+#     대화형 처리 못 하므로(aws-sdk 제약), `source infra/terraform/tf-assume.sh` 로
+#     임시자격을 AWS_* env 에 주입해 사용(장기 admin 키 커밋 0, 보안 모델 동일).
 
 terraform {
   required_version = ">= 1.6.0"
@@ -25,12 +26,13 @@ terraform {
 provider "aws" {
   region = "ap-northeast-2" # 실제 AWS 타깃 리전. LocalStack mock 에는 무의미
 
-  # Phase B(real): mmt-admin 프로필로 IAM role 을 MFA assume → 임시자격.
-  #   자격은 ~/.aws 에만, provider 는 이름만 참조(정적 키 커밋 0).
-  # Phase A(LocalStack): null → 아래 더미 access/secret key 로 fallback.
-  profile = var.use_localstack ? null : "mmt-admin"
-
-  # 더미 크리덴셜 — LocalStack 관례. Phase B 에서는 null → profile 로 자격 획득.
+  # Phase B(real): 자격은 ambient 자격 체인(환경변수)에서 온다 — provider 에
+  #   profile 을 박지 않는다. Terraform 은 shared-config 프로필의 MFA assume-role 를
+  #   대화형 처리 못 하기 때문("AssumeRoleTokenProvider session option not set").
+  #   대신 `source infra/terraform/tf-assume.sh` 로 mmt-admin role 을 MFA assume 해
+  #   AWS_ACCESS_KEY_ID/SECRET/SESSION_TOKEN 를 셸에 주입한 뒤 plan/apply.
+  #   보안 모델 동일: IAM user + MFA assume-role 임시자격, 장기 admin 키 0.
+  # Phase A(LocalStack): 아래 더미 access/secret key 로 fallback.
   access_key = var.use_localstack ? "test" : null
   secret_key = var.use_localstack ? "test" : null
 
