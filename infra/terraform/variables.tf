@@ -3,6 +3,17 @@
 # 원칙: "안 닿은 배선은 미리 선언 안 한다" — 슬라이스가 실제로 쓰는 변수만
 # 둔다. db_* 등 RDS 변수는 database.tf 가 들어올 때 추가한다.
 
+# --- provider 페이즈 토글 (spec-03 Phase A/B) -----------------------------
+# true  = Phase A: LocalStack mock(무계정·무과금) — 기존 기본 동작 보존.
+# false = Phase B: 실제 AWS(mmt-admin 프로필, MFA assume-role) — real plan/apply.
+# 기본을 true 로 둬 bare `terraform plan` 이 실 AWS·MFA·과금을 건드리지 않게 한다.
+# Phase B 는 명시적 opt-in: `-var use_localstack=false` 또는 비커밋 terraform.tfvars.
+variable "use_localstack" {
+  description = "true=LocalStack(Phase A), false=real AWS via mmt-admin profile(Phase B)"
+  type        = bool
+  default     = true
+}
+
 variable "my_ip" {
   description = <<-EOT
     SSH(22/tcp) 인바운드를 허용할 단일 출발지 IP (CIDR /32 로 조립).
