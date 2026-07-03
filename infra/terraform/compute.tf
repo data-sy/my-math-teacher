@@ -35,9 +35,16 @@ locals {
   EOT
 }
 
+# SSH 키페어: 공개키만 등록(개인키는 로컬 ~/.ssh/mmt-ec2). spec-04 C 의 EC2 초기화 SSH 용.
+resource "aws_key_pair" "app" {
+  key_name   = "mmt-ec2"
+  public_key = trimspace(file(pathexpand(var.ssh_public_key_path)))
+}
+
 resource "aws_instance" "app" {
   ami           = data.aws_ami.al2023.id
   instance_type = var.instance_type
+  key_name      = aws_key_pair.app.key_name
 
   vpc_security_group_ids = [aws_security_group.app.id]
   user_data              = local.user_data

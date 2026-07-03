@@ -65,8 +65,9 @@ terraform apply                      # ⚠️ 과금 시작. 승인(G3) 후에�
 terraform destroy                    # 안 쓸 땐 반드시 — 요금·크레딧 방어
 ```
 
-기대 리소스(9): `aws_instance.app` · `aws_eip.app`(+association) · `aws_security_group.app` +
-ingress 80/443/22(내 IP) · egress all · `aws_db_instance.app`(MySQL 8, db.t3.micro).
+기대 리소스(12): `aws_instance.app`(+`aws_key_pair.app`) · `aws_eip.app`(+association) ·
+`aws_security_group.app` + ingress 80/443/22(내 IP) · egress all · `aws_db_instance.app`(MySQL 8,
+db.t3.micro) + 전용 `aws_security_group.db` + 3306 ingress(app SG 출발지만).
 모든 리소스에 `Project=mmt`(default_tags).
 
 Phase A(LocalStack) 로 돌리려면: `terraform plan -var use_localstack=true`
@@ -87,10 +88,11 @@ Phase A(LocalStack) 로 돌리려면: `terraform plan -var use_localstack=true`
 
 ## 5. 알려진 후속 (apply 후 사용성까지 남은 것)
 
-- **EC2 키페어 미배선** — 현재 `compute.tf` 에 `key_name` 이 없어 apply 후 SSH 불가.
-  "EC2 초기화(2GB 스왑·Docker/compose, spec-04 C)" 전에 `aws_key_pair` + `key_name` 배선 필요.
-- **RDS 3306 SG 룰 미배선** — `database.tf` 주석대로, app SG 출발지로만 3306 여는 db SG 가 아직 없다.
-  EC2→RDS 접속 전에 추가 필요.
+- ~~EC2 키페어~~ · ~~RDS 3306 SG 룰~~ — **배선 완료**(`aws_key_pair.app`, 전용 `aws_security_group.db` + 3306).
+  개인키는 로컬 `~/.ssh/mmt-ec2`. apply 후 `ssh -i ~/.ssh/mmt-ec2 ec2-user@<EIP>` 로 접속.
+- **EC2 초기화** — apply 후 EC2 는 bare AL2023(Docker/compose·2GB 스왑 미설치, user_data 는 env 파일만).
+  SSH 로 초기화 필요(spec-04 C).
+- **RDS 스키마·시드(R4)** — apply 후 RDS 는 빈 상태. M2 스키마·인덱스·시드 적재해야 CTE 정상.
 - **HTTPS(R2)** — 무중단 검증은 HTTP 80 으로. 도메인·인증서는 후속(범위 밖).
 
-이 셋은 apply 자체를 막지 않지만, apply=완성이 아니라는 점을 명시해 둔다.
+apply=인프라 생성이지 서비스 기동이 아니다.

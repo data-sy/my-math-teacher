@@ -27,6 +27,14 @@ variable "my_ip" {
 
 # --- compute.tf 슬라이스 (EC2 + EIP, spec-01 §9.2) ------------------------
 
+# SSH 공개키 경로. aws_key_pair 가 공개키만 등록(개인키는 로컬 ~/.ssh 에 남는다).
+# 파일 부재 시 plan/validate 에러 → 먼저 `ssh-keygen -t ed25519 -f ~/.ssh/mmt-ec2`.
+variable "ssh_public_key_path" {
+  description = "EC2 키페어로 등록할 SSH 공개키 경로"
+  type        = string
+  default     = "~/.ssh/mmt-ec2.pub"
+}
+
 variable "instance_type" {
   description = "EC2 인스턴스 타입 (spec-01 §9.2: 프리티어 t3.micro)"
   type        = string

@@ -24,8 +24,8 @@ resource "aws_db_instance" "app" {
   skip_final_snapshot = true  # 학습/일회성 — 삭제 시 스냅샷 강제 안 함
   publicly_accessible = false # 앱(EC2)에서만 접근, 공인 노출 안 함
 
-  # 3306 인바운드 SG 배선은 이 슬라이스 범위 밖(§9.2 SG 는 80/443/22/8080).
-  # Phase B/§9 에서 app SG 출발지로만 3306 여는 별도 db SG 추가 예정.
+  # app SG 출발지로만 3306 을 여는 전용 db SG(아래)만 사용. 공인/기본SG 노출 안 함.
+  vpc_security_group_ids = [aws_security_group.db.id]
 
   tags = {
     Name      = "mmt-db"
@@ -33,6 +33,29 @@ resource "aws_db_instance" "app" {
     Milestone = "m4"
     ManagedBy = "terraform"
   }
+}
+
+# db SG: RDS 전용. app SG(network.tf) 출발지에서만 3306 허용(spec-01 §9.2 후속).
+resource "aws_security_group" "db" {
+  name        = "mmt-db-sg"
+  description = "MMT RDS SG - MySQL 3306 from app SG only"
+  vpc_id      = data.aws_vpc.default.id
+
+  tags = {
+    Project   = "mmt"
+    Milestone = "m4"
+    ManagedBy = "terraform"
+  }
+}
+
+# 출발지 = app SG(참조). CIDR 이 아니라 SG-to-SG 규칙이라 EC2 만 3306 도달.
+resource "aws_vpc_security_group_ingress_rule" "db_mysql" {
+  security_group_id            = aws_security_group.db.id
+  description                  = "MySQL 3306 from app SG only"
+  referenced_security_group_id = aws_security_group.app.id
+  from_port                    = 3306
+  to_port                      = 3306
+  ip_protocol                  = "tcp"
 }
 
 output "rds_endpoint" {
