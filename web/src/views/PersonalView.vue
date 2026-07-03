@@ -105,7 +105,7 @@ watch(listboxTest, (newValue) => {
 // 맞춤 학습지 조건 (Scope B — 출제 API 파라미터로 전달)
 //  radioValue1 = 맞춤 유형: 'wrong'(오답 위주=depth0) | 'prerequisite'(선수지식 위주=depth1~2)
 //  radioValue2 = 재출제: 'nothing' | 'wrong'(원래 오답 문항) | 'all'(원래 응시 문항 전체). null=재출제 없음
-//  inputNumberValue = 신규 문항 수(6~30)
+//  inputNumberValue = 신규 문항 수(6~20)
 const inputNumberValue = ref(10);
 const radioValue1 = ref(null);
 const radioValue2 = ref(null);
@@ -282,8 +282,8 @@ const yesClick = () => {
                     <p class="text-500 m-0">맞춤 유형을 선택하고 문항 수·재출제 조건을 설정해 출제하세요.</p>
                 </div>
                 <div class="mb-5">
-                    <label for="number" class="block t-subheading mb-3">문항 수 (6 ~ 30)</label>
-                    <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="30"></InputNumber>
+                    <label for="number" class="block t-subheading mb-3">문항 수 (6 ~ 20)</label>
+                    <InputNumber v-model="inputNumberValue" inputId="minmax-buttons" mode="decimal" showButtons :min="6" :max="20"></InputNumber>
                 </div>
                 <div class="mb-5">
                     <label class="block t-subheading mb-3">맞춤 유형</label>
