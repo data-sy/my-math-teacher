@@ -13,7 +13,7 @@ resource "aws_db_instance" "app" {
   identifier     = "mmt-db"
   engine         = "mysql"
   engine_version = var.db_engine_version
-  instance_class = "db.t3.micro" # 프리티어
+  instance_class = "db.t3.micro" # 최소 사양(RDS 최대 비용원 ~$21/월 24/7) — 신규 크레딧 모델, 크레딧 차감
 
   allocated_storage = var.db_allocated_storage
   db_name           = var.db_name

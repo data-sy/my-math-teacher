@@ -36,7 +36,7 @@ variable "ssh_public_key_path" {
 }
 
 variable "instance_type" {
-  description = "EC2 인스턴스 타입 (spec-01 §9.2: 프리티어 t3.micro)"
+  description = "EC2 인스턴스 타입 (spec-01 §9.2: 최소 사양 t3.micro — 신규 크레딧 모델이라 상시 무료 아님, 크레딧 차감)"
   type        = string
   default     = "t3.micro"
 }
