@@ -83,9 +83,9 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        # ⚠️ spec-01 §9.2: password → 키페어(key) 인증 전환 권장(GH Secret 에 private key).
-        #    프로비저닝(§9.6 step6) 시 EC2_SSH_KEY 로 교체 예정 — 현재는 기존 password 유지.
-        password: ${{ secrets.EC2_PASSWORD }}
+        # spec-01 §9.2: 키페어(key) 인증. EC2(AL2023)는 비밀번호 SSH 기본 비활성 →
+        # GH Secret EC2_SSH_KEY 에 private key(~/.ssh/mmt-ec2) 파일째 주입.
+        key: ${{ secrets.EC2_SSH_KEY }}
         port: ${{ secrets.EC2_PORT }}
         # IMAGE_REPO/COMPOSE_NET/NEW_TAG 를 원격 셸로 전달(switch-backend.sh 가 읽음).
         envs: IMAGE_REPO,COMPOSE_NET,NEW_TAG
