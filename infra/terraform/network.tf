@@ -18,7 +18,7 @@ data "aws_vpc" "default" {
 
 resource "aws_security_group" "app" {
   name        = "mmt-app-sg"
-  description = "MMT single-EC2 app SG (spec-01 §9.2)"
+  description = "MMT single-EC2 app SG (spec-01 sec 9.2)"
   vpc_id      = data.aws_vpc.default.id
 
   tags = {
