@@ -12,6 +12,14 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 결과 보고: `docs/reports/m2-cte-migration.md`
   - 점진 출시·관찰·폐기는 **M3** 로 분리 (포트폴리오 컨텍스트로 실제 폐기 수행은 보류 가능)
 
+- **[M4] 배포 무중단화 (Zero-Downtime Deployment) — 프로비저닝 진행 중 (Terraform Phase B `plan` 성공)**
+  - 단일 EC2 위에서 기존 nginx 를 전환 지점으로 재사용한 blue-green 으로 백엔드 재배포 무중단화 (K8s/ALB 없이 가장 기본 구성)
+  - 현행 다운타임 원인: 배포가 기존 컨테이너를 먼저 제거(겹침 0) + 이미지 태그 고정 + nginx upstream 하드코딩 + container_name 고정 + 헬스 신호 부재
+  - EC2 미생성 → **AWS 프리티어(t3.micro 1 GiB) 프로비저닝 포함**: MySQL=RDS 분리, Neo4j 미구동(CTE-only), Redis 로컬, 스왑+mem_limit
+  - **M3 와의 관계 (M4 → M3, 비차단)**: M4 단일 인스턴스 bring-up 이 "MySQL/CTE-only 실서버 정상 동작"을 검증 → M3 의 Neo4j 폐기 go/no-go 근거가 됨. Neo4j 코드·인프라 실제 삭제는 M3 잔여 작업
+  - 현재: 설계 3건(spec-01/02/03)·기반 코드(A·A.5·R1·B·C·D)·Terraform IaC 완료. **G1 사람 핸드오프 완료(2026-07-03: 계정·root MFA·빌링 경보·IAM assume-role B_IAM)** + **Terraform Phase B `plan` 성공(12 리소스, 키페어·RDS SG 배선)**. 남은 것 = G2 시크릿·G3 `apply`(과금)·유실률 검증 — 👤 spec-04, 실행 절차 `infra/terraform/README.md`
+  - [milestone](milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](specs/m4/spec-01-zero-downtime-deployment.md) · [02](specs/m4/spec-02-harness-handoff-gates.md) · [03](specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04 사람용](specs/m4/spec-04-human-aws-provisioning-handoff.md)
+
 ---
 
 ## Next — 다음 분기 (착수 예정)
@@ -49,6 +57,14 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - `application-prod.yml` · `application-local.yml` 도입으로 4 프로파일 (default/local/test/prod) 체계 완성
   - `application.yml` 의 공통 `com.mmt` · `springframework.data.neo4j` · `springframework.security` DEBUG 로거를 프로덕션에서 INFO 로 하향 (M1 Spec 03 Task 3.3 에서 관찰)
   - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
+- **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)**
+  - M4 §9 인프라(EC2 1 + RDS 1 + EIP + SG)는 한 번 깔고 마는 솔로 규모라 효율만 보면 콘솔이 빠르지만, IaC "경험" 목적이면 적당한 첫 소재 — spec-02 §5 **G3**(infra apply 게이트)가 이미 Terraform 을 가정. `plan`-only 는 무과금으로 지금 시작 가능, `apply`(과금)는 G1 준비 후. M4 본류와 병행 가능
+  - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](backlog/terraform-iac-for-m4-provisioning.md)
+- **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ⏸ **role 생성 후에만 가능**(편집 항목이 상세 페이지에 그때 열림 → 지금 실행 불가)
+  - 목적: assume 한 admin 세션이 Terraform 작업 중 만료돼 재-MFA 하는 성가심 축소. **편의 최적화 — 배포 파이프라인 동작엔 비필수·급하지 않음**(가역).
+  - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).
+  - 작업: ① IAM 콘솔 → 역할 → `mmt-terraform-admin` → 요약의 **최대 세션 기간(Maximum session duration)** 편집 → 8h (CLI: `aws iam update-role --role-name mmt-terraform-admin --max-session-duration 28800`) ② 로컬 `~/.aws/config` `[profile mmt-admin]` 의 `duration_seconds` 3600→28800 (role max ≥ config duration) ③ 검증 `aws sts get-caller-identity --profile mmt-admin`(MFA 입력 → assumed-role 신원).
+  - 상한: **8h(28800) 채택**. 최대 12h(43200) 가능하나 세션 길수록 노출 창도 커져 8h 로.
 - DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
 - 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
 - CI/CD 파이프라인 정비 및 배포 자동화

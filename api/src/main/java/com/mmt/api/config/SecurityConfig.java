@@ -10,6 +10,7 @@ import com.mmt.api.service.user.CustomOAuth2UserService;
 import com.mmt.api.util.RedisUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -76,6 +77,9 @@ public class SecurityConfig {
 //                                .requestMatchers("/api/v1/**").permitAll()
                                 // 인증 없이 접근 가능
                                 .requestMatchers("/", "/favicon.ico", "/api/v1/hello/**").permitAll()
+                                // M4 spec-01: 무중단 배포 전환 게이트. 하위 리소스 없는 단일 GET 이므로
+                                // 와일드카드 없이 정확 매칭 + GET-only 로 표면 최소화 (G6)
+                                .requestMatchers(HttpMethod.GET, "/api/v1/health").permitAll()
                                 .requestMatchers("/login.html", "/oauth2/**", "/login/**").permitAll()
                                 // 인증 진입점만 공개. (#4) /api/v1/auth/validation 은 현재 비밀번호 확인
                                 // 오라클이므로 의도적으로 제외 → anyRequest().authenticated() 로 보호.
