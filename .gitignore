@@ -25,3 +25,5 @@ ai/oauth2_test.py
 *.tfvars
 !*.tfvars.example
 # .terraform.lock.hcl 은 커밋 (provider 버전 잠금 공유)
+# M4 런 텔레메트리 raw 로그 (EIP/endpoint 평문 → tfstate 와 동일 사유로 비커밋)
+infra/terraform/run-logs/
