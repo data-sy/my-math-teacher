@@ -6,7 +6,28 @@
 > **spec-03**(terraform plan-only IaC 샌드박스) 참조 — 여기 복붙 안 함.
 > 시작 시 **`git log --oneline -12` 로 커밋 상태 재확인** 권장.
 
-## 🟢 2026-07-05 상태 (재배포·§4 측정 세션 완료 — 인프라 DESTROYED — 다음 = 캐시버그 수정→After 재측정) — 새 세션 정본
+## 🟢 2026-07-05 (최신) 상태 (Redis 캐시버그 = 수정 완료, 별도 브랜치 — 다음 = 그 PR 머지→M4 After 재측정) — 새 세션 정본
+
+**최신 한 줄:** §4 After 를 오염시킨 **Redis 크로스인스턴스 캐시 역직렬화 버그를 코드로 수정 완료**(별도 브랜치 `fix/redis-cross-instance-cache-serializer`, off `origin/main`, 커밋 `72d70f7`). 사용자 결정으로 M4 배포 PR 과 분리(백엔드/auth 위험 변경 → 단독). 고강도 코드리뷰(워크플로) 반영해 **무중단 배포 오버랩 안전**까지 강화. **AWS 불필요한 작업은 여기서 끝** — 다음 = 이 fix PR 머지 → M4 브랜치가 픽업 → **§4 After 재측정(= AWS 재-apply 필요, 사람 MFA 게이트)**.
+
+### ✅ 이번 세션 완료 (2026-07-05 캐시버그 수정)
+- **근본원인**: `RedisUtil.set()` 이 write 마다 공유 싱글턴 RedisTemplate 의 value serializer 를 `o.getClass()` 기반 Jackson 으로 갈아끼움 → write 이력 없는 인스턴스는 기본 `StringRedisSerializer` 로 남아 캐시 List/Map 을 String 으로 읽음 → 소비측 캐스트 ClassCastException → 401. (`redisBlackListTemplate` 은 별도 @Bean 없어 같은 싱글턴 주입 → 인증경로까지 오염 증폭.)
+- **핵심 수정**: `RedisConfig` value serializer 를 `GenericJackson2JsonRedisSerializer`(@class 타입내장) 로 **한 번만 고정**, `RedisUtil` per-write 뮤테이션 2곳 제거.
+- **잠복버그 2건 동반 수정**(리뷰/테스트로 발견): ① ids 캐시가 불변 `Stream.toList()` 저장 → 인스턴스간 read 시 `InvalidTypeIdException` → **ArrayList 정규화**. ② depthmap `Map<Integer,Integer>` 직접 캐시 → JSON object 키 String 뭉갬 → `ProbabilityService` 가 int 키로 소비 시 캐시히트마다 터짐(**M2부터 잠복**, 기존 테스트가 Redis mock 이라 은폐) → **`List<ConceptDepth>` 저장 후 read 에서 Map 재구성**.
+- **무중단 배포 안전(코드리뷰 반영, 중요)**: 배포 오버랩엔 구·신 인스턴스가 같은 Redis 공유 → 포맷 변경이 크로스버전 read 를 깸. ⇒ ① **그래프 캐시 키 버전 네임스페이스 `graph:v2:`** 도입해 keyspace 분리(구 인스턴스가 신 포맷 안 읽음 — 구 코드엔 fallback 없어 필수). ② `RedisUtil.get()`/`getBlackList()` 가 `SerializationException` 삼키고 **null 반환(fail-closed)** → 오버랩 잔여 구포맷/레거시값을 캐시 miss·값부재로 안전 강등(500 아님).
+- **⚠️ 배포 스토리 정정(이전 🟡🟢 블록의 "flush" 전제 폐기)**: 키 버전닝으로 **flush 불필요**(구 `graph:*` 는 24h TTL 자연만료). 이전에 상정했던 "재배포 시 FLUSHALL" 은 **하면 안 됨** — 로그아웃 blacklist 를 지워 이미 로그아웃한 토큰을 재검증(auth 우회, 리뷰 F4). `deleteByPrefix("graph:")` 는 prefix 매치라 v2 도 포함(운영 수동 무효화 유지).
+- **검증**: `RedisCrossInstanceSerializerTest`(Testcontainers 실 Redis, 독립 템플릿 2개=blue/green) — 신↔신 round-trip 4종(ArrayList<ConceptResponse>·<Integer>·<ConceptDepth>record·String)·구↔신 레거시 null 강등·불변리스트 null 강등. `ConceptServiceCacheTest`(키 v2·ids ArrayList 타입 가드·depthmap List 저장) 갱신·통과. (`BfsDepthMapEquivalenceTest` 는 실 Redis 연결 필요 — 로컬 redis 부재로 미실행, 내 변경과 무관한 선재 인프라 갭.)
+- **정리 커밋(M4 브랜치)**: `6c0abe9`(neo4j 스냅샷 20260622), `59e0100`(개인 M4 운영문서·scheduled_tasks.lock gitignore).
+
+### 🔴 다음 세션 = fix PR 머지 → M4 After 재측정
+1. **[사람/AI]** fix 브랜치 push → **PR 생성**(base main). 리뷰 findings 이미 반영. 머지 시 main 에 캐시수정 안착.
+2. **[AI]** M4 브랜치가 main 픽업(rebase/merge) → After 재측정 시 새 코드 사용.
+3. **[사람 MFA 게이트]** §4 After 재측정 = AWS 재-apply 필요: `source infra/terraform/tf-assume.sh`(MFA) → apply → 재시드 → 재프로비저닝 → 배포 → `green→blue2` 컷오버에서 concepts 유실 0(`status_502+transport_err==0`). **flush 하지 말 것**(위 정정). 끝나면 destroy.
+4. **[별개, 문서]** `api/CLAUDE.md` stale 정정(아래 이전 블록 기록): `Optional<MysqlConceptRepository> 스텁` 서술 틀림(그 클래스 없음). 실제 CTE = `JdbcTemplateConceptRepository.findPrerequisitesWithDepth/findPrerequisiteConcepts`.
+
+---
+
+## 🟢 2026-07-05 상태 (재배포·§4 측정 세션 완료 — 인프라 DESTROYED — 다음 = 캐시버그 수정→After 재측정) — ⚠️ 캐시버그·flush 부분은 위 블록으로 대체됨
 
 **최신 한 줄:** 전체 재배포 완주(apply→재시드→재프로비저닝→**SSM 배포 성공**→smoke). **SSM→runuser 무중단 배포 라이브 첫 검증 통과.** 배포 중 nginx Host 헤더 버그 발견·수정·커밋(`8dc97eb`). CTE 마이그레이션 정확성 라이브 증명. §4 Before(구식 in-place)=유실 60% 측정. **§4 After 는 Redis 크로스컨테이너 캐시 역직렬화 버그(green이 blue 캐시를 String으로 읽어 ClassCastException→401)로 오염 — 컷오버 자체는 깨끗(전송 갭 0), 클린 0% 숫자는 이 앱 버그 수정에 종속.** 인프라 `terraform destroy` 완료(과금 정지). 계정 471934607256·region ap-northeast-2 불변. **다음 = 캐시 버그 수정(로컬 Testcontainers, AWS 불필요)→After 재측정→PR #45 ready.**
 
