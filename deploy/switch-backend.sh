@@ -52,6 +52,12 @@ BACKEND_ENV_FILE="${BACKEND_ENV_FILE:-/home/ec2-user/mmt-backend.env}"
 MEM_LIMIT="${MEM_LIMIT:-350m}"
 JVM_OPTS="${JVM_OPTS:--XX:MaxRAMPercentage=70}"   # JAVA_TOOL_OPTIONS 로 주입 (CMD 미오버라이드)
 
+# 부팅 중 신규 JVM 이 단일 vCPU 를 독점해 서빙 중인 구버전을 굶기는 것을 막는 선택적 CPU 상한.
+# §4 측정에서 t3.micro(1 vCPU) co-located JVM 부팅이 서빙 JVM 지연을 클라 타임아웃까지 밀어내
+# 컷오버 창에서 요청 타임아웃이 발생함을 확인(502 아님, 전송갭 아님 — 순수 CPU 경합).
+# 빈 값(기본)=무제한(기존 동작 보존). 예: CPU_LIMIT=0.5 → 부팅 컨테이너를 반 코어로 제한.
+CPU_LIMIT="${CPU_LIMIT:-}"
+
 # graceful 드레인(spec-01 §2.2-5 / A.5): timeout-per-shutdown-phase(30s) 이상이어야
 # docker 가 SIGKILL 로 graceful 을 자르지 않는다. 30 은 하한.
 STOP_TIMEOUT="${STOP_TIMEOUT:-30}"
@@ -99,6 +105,7 @@ docker run -d \
   --network "$COMPOSE_NET" \
   --restart unless-stopped \
   --memory "$MEM_LIMIT" \
+  ${CPU_LIMIT:+--cpus="$CPU_LIMIT"} \
   --env-file "$BACKEND_ENV_FILE" \
   -e SPRING_PROFILES_ACTIVE="$SPRING_PROFILES_ACTIVE" \
   -e MMT_MIGRATION_USE_MYSQL_CTE_FOR_GRAPH=true \
