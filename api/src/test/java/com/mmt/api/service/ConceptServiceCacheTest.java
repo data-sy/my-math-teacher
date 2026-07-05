@@ -17,10 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -55,7 +57,7 @@ class ConceptServiceCacheTest {
 
         @Test
         void idMethod_cacheMiss_callsRepoAndStores() {
-            String key = "graph:prerequisites:ids:300:3";
+            String key = "graph:v2:prerequisites:ids:300:3";
             when(redisUtil.get(key)).thenReturn(null);
             when(jdbcTemplateConceptRepository.findPrerequisitesWithDepth(300, 3))
                 .thenReturn(List.of(
@@ -67,12 +69,17 @@ class ConceptServiceCacheTest {
 
             assertThat(result).containsExactly(300, 310);
             verify(jdbcTemplateConceptRepository).findPrerequisitesWithDepth(300, 3);
-            verify(redisUtil).set(eq(key), eq(List.of(300, 310)), anyLong());
+            // 캐시 저장 타입은 반드시 mutable ArrayList 여야 한다: 불변 Stream.toList()
+            // 로 되돌리면 GenericJackson2Json 이 인스턴스 간 read 시 역직렬화 실패.
+            // 내용뿐 아니라 구체 타입까지 가드(회귀 방지).
+            verify(redisUtil).set(eq(key),
+                argThat(v -> v instanceof ArrayList && v.equals(List.of(300, 310))),
+                anyLong());
         }
 
         @Test
         void idMethod_cacheHit_skipsRepo() {
-            String key = "graph:prerequisites:ids:300:3";
+            String key = "graph:v2:prerequisites:ids:300:3";
             when(redisUtil.get(key)).thenReturn(List.of(300, 310, 320, 330));
 
             List<Integer> result = service.findNodesIdByConceptIdDepth3(300)
@@ -87,8 +94,8 @@ class ConceptServiceCacheTest {
         @Test
         void idMethod_depthIncludedInKey() {
             // depth 2 와 5 는 서로 다른 키로 저장되어야 함 (오인 매칭 회귀 가드).
-            when(redisUtil.get("graph:prerequisites:ids:300:2")).thenReturn(null);
-            when(redisUtil.get("graph:prerequisites:ids:300:5")).thenReturn(null);
+            when(redisUtil.get("graph:v2:prerequisites:ids:300:2")).thenReturn(null);
+            when(redisUtil.get("graph:v2:prerequisites:ids:300:5")).thenReturn(null);
             when(jdbcTemplateConceptRepository.findPrerequisitesWithDepth(300, 2))
                 .thenReturn(List.of(new ConceptDepth(300, 0)));
             when(jdbcTemplateConceptRepository.findPrerequisitesWithDepth(300, 5))
@@ -97,13 +104,13 @@ class ConceptServiceCacheTest {
             service.findNodesIdByConceptIdDepth2(300).collectList().block();
             service.findNodesIdByConceptIdDepth5(300).collectList().block();
 
-            verify(redisUtil).get("graph:prerequisites:ids:300:2");
-            verify(redisUtil).get("graph:prerequisites:ids:300:5");
+            verify(redisUtil).get("graph:v2:prerequisites:ids:300:2");
+            verify(redisUtil).get("graph:v2:prerequisites:ids:300:5");
         }
 
         @Test
         void findToConcepts_usesToConceptsPrefix() {
-            String key = "graph:to-concepts:5";
+            String key = "graph:v2:to-concepts:5";
             when(redisUtil.get(key)).thenReturn(null);
             Concept c = new Concept();
             c.setConceptId(7);
@@ -122,7 +129,7 @@ class ConceptServiceCacheTest {
         @Test
         void findNodesByConceptId_elementaryUsesObjsPrefixDepth3() {
             when(jdbcTemplateConceptRepository.findSchoolLevelByConceptId(11)).thenReturn("초등");
-            String key = "graph:prerequisites:objs:11:3";
+            String key = "graph:v2:prerequisites:objs:11:3";
             when(redisUtil.get(key)).thenReturn(null);
             when(jdbcTemplateConceptRepository.findPrerequisiteConcepts(11, 3))
                 .thenReturn(List.of());
@@ -137,7 +144,7 @@ class ConceptServiceCacheTest {
         @Test
         void findNodesByConceptId_nonElementaryUsesObjsPrefixDepth5() {
             when(jdbcTemplateConceptRepository.findSchoolLevelByConceptId(11)).thenReturn("중등");
-            String key = "graph:prerequisites:objs:11:5";
+            String key = "graph:v2:prerequisites:objs:11:5";
             when(redisUtil.get(key)).thenReturn(null);
             when(jdbcTemplateConceptRepository.findPrerequisiteConcepts(11, 5))
                 .thenReturn(List.of());
@@ -151,7 +158,7 @@ class ConceptServiceCacheTest {
 
         @Test
         void findPrerequisitesAsDepthMap_cacheMiss_storesUnderDepthmapPrefix() {
-            String key = "graph:prerequisites:depthmap:5:3";
+            String key = "graph:v2:prerequisites:depthmap:5:3";
             when(redisUtil.get(key)).thenReturn(null);
             when(jdbcTemplateConceptRepository.findPrerequisitesWithDepth(5, 3))
                 .thenReturn(List.of(
@@ -164,13 +171,20 @@ class ConceptServiceCacheTest {
 
             assertThat(result).containsExactlyInAnyOrderEntriesOf(
                 java.util.Map.of(5, 0, 3, 1, 2, 2));
-            verify(redisUtil).set(eq(key), eq(java.util.Map.of(5, 0, 3, 1, 2, 2)), anyLong());
+            // 캐시에는 Map 이 아니라 List<ConceptDepth> 로 저장한다(JSON object 키가
+            // String 으로 뭉개져 Integer 키가 유실되는 것을 회피 — read 후 Map 재구성).
+            verify(redisUtil).set(eq(key), eq(List.of(
+                new ConceptDepth(5, 0),
+                new ConceptDepth(3, 1),
+                new ConceptDepth(2, 2))), anyLong());
         }
 
         @Test
         void findPrerequisitesAsDepthMap_cacheHit_skipsRepo() {
-            String key = "graph:prerequisites:depthmap:5:3";
-            when(redisUtil.get(key)).thenReturn(java.util.Map.of(5, 0, 3, 1));
+            String key = "graph:v2:prerequisites:depthmap:5:3";
+            when(redisUtil.get(key)).thenReturn(new ArrayList<>(List.of(
+                new ConceptDepth(5, 0),
+                new ConceptDepth(3, 1))));
 
             java.util.Map<Integer, Integer> result =
                 service.findPrerequisitesAsDepthMap(5, 3);

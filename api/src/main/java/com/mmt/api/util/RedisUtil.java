@@ -1,16 +1,18 @@
 package com.mmt.api.util;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RedisUtil {
@@ -19,12 +21,30 @@ public class RedisUtil {
     private final RedisTemplate<String, Object> redisBlackListTemplate;
 
     public void set(String key, Object o, long duration) {
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(o.getClass()));
+        // value serializer 는 RedisConfig 에서 GenericJackson2JsonRedisSerializer 로
+        // 고정. 여기서 갈아끼우지 않는다(과거 per-write 뮤테이션이 인스턴스 간
+        // 캐시 역직렬화를 깨뜨린 원인 — RedisConfig 주석 참조).
         redisTemplate.opsForValue().set(key, o, duration, TimeUnit.MILLISECONDS);
     }
 
     public Object get(String key) {
-        return redisTemplate.opsForValue().get(key);
+        return getOrNullOnFormatMismatch(redisTemplate, key);
+    }
+
+    /**
+     * 값의 on-wire 포맷이 현재 value serializer 와 호환되지 않으면(예: 무중단
+     * 배포 오버랩 중 남은 구 포맷 엔트리, 레거시 값) 예외를 던지지 않고 null 을
+     * 반환한다 — fail-closed. 호출측은 이를 캐시 miss(재계산) 또는 값 부재
+     * (재로그인)로 안전하게 강등한다. 연결 오류(RedisConnectionFailureException
+     * 등)는 잡지 않고 전파해 진짜 장애를 가리지 않는다.
+     */
+    private Object getOrNullOnFormatMismatch(RedisTemplate<String, Object> template, String key) {
+        try {
+            return template.opsForValue().get(key);
+        } catch (SerializationException e) {
+            log.warn("[redis] value deserialization failed, treating key as absent. key={}", key, e);
+            return null;
+        }
     }
 
     public boolean delete(String key) {
@@ -52,12 +72,11 @@ public class RedisUtil {
     }
 
     public void setBlackList(String key, Object o, long duration) {
-        redisBlackListTemplate.setValueSerializer(new Jackson2JsonRedisSerializer(o.getClass()));
         redisBlackListTemplate.opsForValue().set(key, o, duration, TimeUnit.MILLISECONDS);
     }
 
     public Object getBlackList(String key) {
-        return redisBlackListTemplate.opsForValue().get(key);
+        return getOrNullOnFormatMismatch(redisBlackListTemplate, key);
     }
 
     public boolean deleteBlackList(String key) {
