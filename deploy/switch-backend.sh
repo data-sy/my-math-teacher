@@ -8,8 +8,15 @@
 #
 # 어느 순간에도 트래픽을 받는 정상 백엔드가 최소 1개 존재 = 다운타임 0 (spec-01 §2.2).
 #
-# 호출(워크플로 deploy job, spec-01 §3.5):
+# 호출(워크플로 deploy job, spec-01 §3.5 / ADR 0008):
 #   deploy/switch-backend.sh <new-image-tag>     # 예: github.sha (immutable)
+#
+#   배포 채널은 SSM Run Command(SSH 아님, ADR 0008). SSM 명령은 기본 root 로
+#   실행되나 이 스크립트는 ec2-user 홈의 파일(compose·deploy·env-file)·상대경로·
+#   docker 그룹에 의존한다 → 워크플로가 `runuser -l ec2-user -c 'cd ~ && … bash
+#   deploy/switch-backend.sh <sha>'` 로 ec2-user 정체성·작업디렉토리·그룹을 태워
+#   호출한다. 따라서 이 스크립트는 "cwd=ec2-user 홈, 실행자=ec2-user(docker 그룹)"를
+#   전제한다 — root 로 직접 돌리지 말 것.
 #
 # ⚠️ 동작 검증은 배포 시점에 한다(EC2 미생성). 본 스크립트는 *형태*를 고정하며,
 #    문법은 `bash -n` / shellcheck 로 검증한다.
