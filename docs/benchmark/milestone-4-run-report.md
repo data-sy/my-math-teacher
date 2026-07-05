@@ -106,7 +106,7 @@ RATE=10 근거: 30rps 는 t3.micro(1 vCPU)에서 붕괴 → steady 실패 0 인 
 
 ## 후속 (backlog / docs)
 
-- **[backlog]** 배포 워크플로에 `CPU_LIMIT=0.5` 기본 배선 → `docs/backlog/cpu-limit-workflow-wiring.md`. (현재 노브만 있고 워크플로가 안 넘겨줘 실배포는 무제한.)
+- **[backlog]** 배포 워크플로에 `CPU_LIMIT=0.5` 기본 배선(현재 노브만 있고 워크플로가 안 넘겨줘 실배포는 무제한) → 상세·정본 = 루트 `m4-worklog.md` 남은작업 ①.
 - **[대안]** t3.small(2 vCPU) 승격 시 CPU 캡 없이 경합 소멸 — 비용 vs 배포속도 트레이드오프.
 - **[docs]** `api/CLAUDE.md` 의 `Optional<MysqlConceptRepository> 스텁` 서술 stale 정정.
 - **[관측]** `/health` smoke 는 데이터경로(캐시결함) 미검증 — smoke grader 를 대표 데이터 엔드포인트로 강화(spec-02 G4).
