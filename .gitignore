@@ -18,6 +18,13 @@ api/src/main/resources/application-securelocal.yml
 # Test scripts
 ai/oauth2_test.py
 
+# M4 개인 운영 문서 (시크릿 템플릿 "커밋 금지" 표기 + 운영 계정 신원 정보 → 로컬 전용)
+m4-secrets-and-env-template.md
+m4-account-setup-checklist.md
+
+# Claude Code 런타임 아티팩트
+.claude/scheduled_tasks.lock
+
 # Terraform (M4 spec-03 — state/tfvars 는 자격·실 리소스 ID 를 평문 저장 → 커밋 금지)
 *.tfstate
 *.tfstate.*
