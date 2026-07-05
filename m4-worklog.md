@@ -6,7 +6,31 @@
 > **spec-03**(terraform plan-only IaC 샌드박스) 참조 — 여기 복붙 안 함.
 > 시작 시 **`git log --oneline -12` 로 커밋 상태 재확인** 권장.
 
-## 🟢 2026-07-05 (최신) 상태 (Redis 캐시버그 = 수정·머지·M4픽업 완료 — 다음 = §4 After 재측정, AWS 사람 MFA 게이트) — 새 세션 정본
+## 🟢 2026-07-05 (최신) 상태 (§4 After 측정 완료 — 무중단 3단 결론 확정 + CPU_LIMIT 완화책 확증·커밋 — 인프라 DESTROYED) — 새 세션 정본
+
+**최신 한 줄:** §4 After 재측정 **완주**. 재-apply(18)→재시드(647·1631·3446 유실0)→재프로비저닝→**SSM 배포 성공**(캐시픽스 포함 이미지 `mmt2024/mmt-backend:1944230c2fdb148...`)→smoke(`/nodes/7925` 20520자 non-empty)→**컷오버 유실 측정 3런**→`terraform destroy`(과금 0). **결론: 전송/프록시 레이어 무중단은 증명(502=0 전 런), 단 t3.micro 1vCPU 에서 신규 JVM 부팅이 코어 독점(148%)→서빙 JVM 굶겨 지연 타임아웃 → CPU_LIMIT 로 완화 확증.**
+
+### ✅ §4 After 3단 결론 (측정 정본)
+1. **Before**(in-place `docker restart`): **60.33% 하드 유실**(502) — 이전 세션.
+2. **After**(blue-green, CPU 무제한): 502=0(전송갭 0)이나 부팅 JVM CPU 독점 → 지속부하 시 **최대 11.4% 지연 타임아웃**. 런1(180s, 컷오버가 창끝에 얹힘)=0%·런2(120s, 넉넉마진)=**transport_err 133/1162, p95≈10s(타임아웃), max 9997ms**. 비결정적(타이밍·워밍 민감) = **용량 아티팩트, 메커니즘 결함 아님**.
+3. **After + CPU_LIMIT=0.5**(부팅 컨테이너 반코어 캡): **완전 무중단 0%**(transport_err 0·502 0), p95 9984→**3108ms**, max→7427ms, 부팅 CPU 148%→**55%**. 트레이드오프: 부팅 ~2배 느림(헬스 12/30=60s).
+
+### ✅ 이번 세션 완료
+- **완화책 확증·커밋** `12f6931`: `switch-backend.sh` 에 옵트인 `CPU_LIMIT` 노브(기본 무제한=기존동작 보존, `${CPU_LIMIT:+--cpus=...}`). 측정으로 원인(부팅 CPU 경합)·해결 결정적 증명.
+- **인프라 DESTROYED**(과금 정지). apply 값(EIP `43.200.95.42`·RDS `mmt-db.c7qu444ug8bf...`·instance `i-002f120619bda9323`)은 destroy 로 전부 무효. 계정 471934607256·region ap-northeast-2 불변. **role ARN `mmt-ci-deploy-role` 은 고정명 → GH Secret `AWS_DEPLOY_ROLE_ARN` 재주입 불필요**(재apply 시에도 동일).
+- 텔레메트리 `infra/terraform/run-logs/2026-07-05T08-30-49Z/`: apply·cutover{,2,3-cpulimited} 스냅샷·after{,2,3}-summary.json.
+
+### 🔴 다음 세션 = M4 마무리 (AWS 무관 대부분)
+1. **[backlog]** 배포 워크플로에 `CPU_LIMIT=0.5` 기본 배선 → `docs/backlog/cpu-limit-workflow-wiring.md`(신설). 실배포 경로에 완화책 살리기(라이브 재검증은 다음 apply 세션).
+2. **[docs]** `api/CLAUDE.md` stale 정정: `Optional<MysqlConceptRepository> 스텁` 서술 틀림(클래스 없음). 실제 CTE = `JdbcTemplateConceptRepository.findPrerequisitesWithDepth/findPrerequisiteConcepts`.
+3. **[PR]** PR #45(SSM) — SSM·nginx·CPU_LIMIT 라이브 검증 통과 → Ready→머지 판단. §4 결과를 `docs/benchmark/milestone-4-run-report.md` 로 큐레이션.
+4. **[teardown 확인]** settings.local.json 에 ssh/scp allow 룰 있었으면 회수(이번 세션엔 파일에 부재 확인). 스크래치패드 임시자격 자동소멸.
+
+> ⚠️ 재-apply 필요 시: `source infra/terraform/tf-assume.sh`(사람 MFA) 또는 스크래치패드 `tf-creds-to-file.sh`(파일경유, 어시스턴트가 명령마다 source). my_ip 재확인. Redis FLUSHALL 금지(키 버전닝).
+
+---
+
+## 🟢 2026-07-05 상태 (Redis 캐시버그 = 수정·머지·M4픽업 완료 — 다음 = §4 After 재측정, AWS 사람 MFA 게이트) — ⚠️ §4 After 는 위 블록에서 완료됨
 
 **최신 한 줄:** §4 After 를 오염시킨 **Redis 크로스인스턴스 캐시 역직렬화 버그 = 수정 완료·`main` 머지(PR #46)·이 M4 브랜치로 픽업(merge origin/main)까지 완료.** 별도 브랜치(`fix/redis-cross-instance-cache-serializer`, off main)에서 작업 후 머지(사용자 결정: 백엔드/auth 위험 변경 → 단독 PR). 고강도 코드리뷰(워크플로 17에이전트) 반영해 **무중단 배포 오버랩 안전**(키 버전닝+fail-closed)까지 강화. **이제 M4 브랜치는 수정된 코드를 포함** → AWS 무관 코드작업 전부 종료. **다음 = §4 After 재측정 = AWS 재-apply 필요(사람 MFA 게이트)** — 아래 "다음 세션" 순서대로. ⚠️ 재배포 시 **Redis FLUSHALL 금지**(키 버전닝으로 불필요, flush 는 로그아웃 blacklist 를 지워 auth 우회).
 
