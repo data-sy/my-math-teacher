@@ -17,7 +17,8 @@
 
 ### ✅ 이번 세션 완료
 - **완화책 확증·커밋** `12f6931`: `switch-backend.sh` 에 옵트인 `CPU_LIMIT` 노브(기본 무제한=기존동작 보존, `${CPU_LIMIT:+--cpus=...}`). 측정으로 원인(부팅 CPU 경합)·해결 결정적 증명.
-- **인프라 DESTROYED**(과금 정지). apply 값(EIP `43.200.95.42`·RDS `mmt-db.c7qu444ug8bf...`·instance `i-002f120619bda9323`)은 destroy 로 전부 무효. 계정 471934607256·region ap-northeast-2 불변. **role ARN `mmt-ci-deploy-role` 은 고정명 → GH Secret `AWS_DEPLOY_ROLE_ARN` 재주입 불필요**(재apply 시에도 동일).
+- **인프라 DESTROYED**(과금 정지, 최종검증 EC2 0·RDS 0·EIP 0·SG 0·state 0). apply 값(EIP `43.200.95.42`·RDS `mmt-db.c7qu444ug8bf...`·instance `i-002f120619bda9323`)은 destroy 로 전부 무효. 계정 471934607256·region ap-northeast-2 불변. **role ARN `mmt-ci-deploy-role` 은 고정명 → GH Secret `AWS_DEPLOY_ROLE_ARN` 재주입 불필요**(재apply 시에도 동일).
+  - ⚠️ **destroy 사고·교훈**: 1차 destroy 가 **MFA 임시자격(1h TTL) 만료를 중간에 물어** EC2 종료 확인 단계에서 20분 매달림. `run-log.sh tf-destroy` 의 `tee` 파이프 때문에 **배경 exit 0 이 terraform 실패를 가림**(state 에 10개 잔여). 실제 AWS 는 EC2/RDS/EIP terminate 콜이 만료 전 나가 **과금 리소스는 사라진 상태**였고, **새 MFA 로 재-destroy(멱등)** 하니 state refresh 가 없어진 것 정리 + 무과금 잔여(SG·IAM·keypair) 5개 destroy → 0. **교훈: 긴 destroy(RDS~5min+EC2) 전 자격 TTL 여유 확인, exit code 말고 실제 AWS/state 로 검증.**
 - 텔레메트리 `infra/terraform/run-logs/2026-07-05T08-30-49Z/`: apply·cutover{,2,3-cpulimited} 스냅샷·after{,2,3}-summary.json.
 
 ### 🔴 다음 세션 = M4 마무리 (AWS 무관 대부분)
