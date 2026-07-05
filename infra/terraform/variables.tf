@@ -14,6 +14,15 @@ variable "use_localstack" {
   default     = true
 }
 
+# --- iam.tf 슬라이스 (SSM 배포 채널, ADR 0008) ---------------------------
+# GitHub OIDC role trust 의 sub 스코프에 들어갈 repo 슬러그(<owner>/<repo>).
+# 노출돼도 무해(공개 repo 식별자) → 커밋 가능. 다른 repo 로 포크 시 override.
+variable "github_repo" {
+  description = "GitHub Actions OIDC role trust 스코프용 repo 슬러그 (owner/repo)"
+  type        = string
+  default     = "data-sy/my-math-teacher"
+}
+
 variable "my_ip" {
   description = <<-EOT
     SSH(22/tcp) 인바운드를 허용할 단일 출발지 IP (CIDR /32 로 조립).
