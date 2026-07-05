@@ -22,6 +22,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -40,6 +42,17 @@ public class ConceptService {
     // RedisUtil.set(key, o, duration) 의 duration 은 MILLISECONDS 단위.
     // toSeconds() 사용 시 86.4 초만 캐싱되어 의도(24h)와 불일치하므로 .toMillis() 필수.
     private static final long TTL_24H = Duration.ofHours(24).toMillis();
+
+    // 그래프 캐시 키 네임스페이스(버전 포함). value serializer 를
+    // GenericJackson2JsonRedisSerializer 로 바꾸면서 캐시 값의 on-wire 포맷이
+    // 이전(StringRedisSerializer/타입미지정 Jackson)과 호환되지 않는다. blue/green
+    // 무중단 배포의 오버랩 구간에는 구·신 인스턴스가 같은 Redis 를 공유하므로,
+    // 키 prefix 에 버전을 넣어 keyspace 를 분리한다 → 구 인스턴스는 절대 신 포맷
+    // 값을 읽지 않고(구 코드엔 fallback 이 없음), 신 인스턴스는 v2 만 읽는다.
+    // 구 "graph:*" 엔트리는 24h TTL 로 자연 만료(flush 불필요 → 로그아웃 blacklist
+    // 등 비-graph 키 보존). deleteByPrefix("graph:") 는 prefix 매치라 v2 도 포함.
+    // 포맷을 다시 바꿀 때만 이 버전을 올린다.
+    private static final String GRAPH_NS = "graph:v2:";
 
     @Value("${mmt.migration.use-mysql-cte-for-graph:false}")
     private boolean useMysqlCte;
@@ -76,19 +89,6 @@ public class ConceptService {
         return result;
     }
 
-    private <K, V> Map<K, V> cachedOrComputeMap(String key, Supplier<Map<K, V>> compute) {
-        @SuppressWarnings("unchecked")
-        Map<K, V> cached = (Map<K, V>) redisUtil.get(key);
-        if (cached != null) {
-            log.info("[cache] hit key={}", key);
-            return cached;
-        }
-        log.info("[cache] miss key={}", key);
-        Map<K, V> result = compute.get();
-        redisUtil.set(key, result, TTL_24H);
-        return result;
-    }
-
     @Transactional(readOnly = true)
     public ConceptResponse findOne(int conceptId){
         return ConceptConverter.convertToConceptResponse(jdbcTemplateConceptRepository.findOneByConceptId(conceptId));
@@ -97,7 +97,7 @@ public class ConceptService {
     @Transactional(readOnly = true)
     public Flux<ConceptResponse> findToConcepts(int conceptId){
         if (useMysqlCte) {
-            String key = "graph:to-concepts:" + conceptId;
+            String key = GRAPH_NS + "to-concepts:" + conceptId;
             List<ConceptResponse> result = cachedOrCompute(key, () ->
                 ConceptConverter.convertListToConceptResponseList(
                     jdbcTemplateConceptRepository.findPrerequisiteConcepts(conceptId, 1)));
@@ -112,7 +112,7 @@ public class ConceptService {
         String schoolLevel = jdbcTemplateConceptRepository.findSchoolLevelByConceptId(conceptId);
         int depth = schoolLevel.equals("초등") ? 3 : 5;
         if (useMysqlCte) {
-            String key = "graph:prerequisites:objs:" + conceptId + ":" + depth;
+            String key = GRAPH_NS + "prerequisites:objs:" + conceptId + ":" + depth;
             List<ConceptResponse> result = cachedOrCompute(key, () ->
                 ConceptConverter.convertListToConceptResponseList(
                     jdbcTemplateConceptRepository.findPrerequisiteConcepts(conceptId, depth)));
@@ -148,10 +148,15 @@ public class ConceptService {
 
     // ID 반환 그래프 메서드 3종이 공유하는 캐시 wrap. depth 만 다름.
     private List<Integer> cachedPrerequisiteIds(int conceptId, int depth) {
-        String key = "graph:prerequisites:ids:" + conceptId + ":" + depth;
+        String key = GRAPH_NS + "prerequisites:ids:" + conceptId + ":" + depth;
+        // 캐시 저장 타입은 표준 mutable JDK 컬렉션(ArrayList)으로 고정한다.
+        // Stream.toList() 가 반환하는 불변 리스트(ImmutableCollections$ListN)는
+        // GenericJackson2JsonRedisSerializer 의 @class 타입 정보로 역직렬화되지
+        // 않아 인스턴스 간 read 시 InvalidTypeIdException 을 낸다(RedisConfig 주석 참조).
         return cachedOrCompute(key, () ->
             jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, depth)
-                .stream().map(ConceptDepth::conceptId).toList());
+                .stream().map(ConceptDepth::conceptId)
+                .collect(Collectors.toCollection(ArrayList::new)));
     }
 
     /**
@@ -165,11 +170,19 @@ public class ConceptService {
     @Transactional(readOnly = true)
     public Map<Integer, Integer> findPrerequisitesAsDepthMap(int conceptId, int maxDepth) {
         if (useMysqlCte) {
-            String key = "graph:prerequisites:depthmap:" + conceptId + ":" + maxDepth;
-            return cachedOrComputeMap(key, () -> jdbcTemplateConceptRepository
-                .findPrerequisitesWithDepth(conceptId, maxDepth)
-                .stream()
-                .collect(Collectors.toMap(ConceptDepth::conceptId, ConceptDepth::depth)));
+            String key = GRAPH_NS + "prerequisites:depthmap:" + conceptId + ":" + maxDepth;
+            // 캐시는 List<ConceptDepth>(ArrayList) 로 저장하고 Integer 키 Map 은 read
+            // 후 재구성한다. Map<Integer,Integer> 를 그대로 JSON 캐시하면 객체 키가
+            // String 으로 뭉개져(JSON object 키 규칙상) Integer 키 조회가 깨진다 —
+            // ProbabilityService 가 entry.getKey() 를 int 로 소비하므로 치명적이고,
+            // 이는 serializer 뮤테이션 버그와 별개로 depthmap 경로에 잠복해 있었다.
+            List<ConceptDepth> pairs = cachedOrCompute(key, () -> new ArrayList<>(
+                jdbcTemplateConceptRepository.findPrerequisitesWithDepth(conceptId, maxDepth)));
+            Map<Integer, Integer> depthMap = new HashMap<>();
+            for (ConceptDepth cd : pairs) {
+                depthMap.put(cd.conceptId(), cd.depth());
+            }
+            return depthMap;
         }
         Flux<Integer> idsFlux = switch (maxDepth) {
             case 2 -> conceptRepository.findNodesIdByConceptIdDepth2(conceptId);
