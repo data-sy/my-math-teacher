@@ -76,7 +76,7 @@ cmd_tf_apply() {
   cmd_mark apply-start
   printf 'launch_epoch=%s\nlaunch_utc=%s\n' "$(epoch)" "$(ts)" >> "$d/cost-ledger.txt"
   # time 을 파일로 — apply 출력은 tee 로 로그+화면 동시.
-  { time terraform apply ; } 2> "$d/tf-apply.time" | tee "$d/tf-apply.log"
+  { time terraform apply -auto-approve ; } 2> "$d/tf-apply.time" | tee "$d/tf-apply.log"
   cmd_mark apply-end
   terraform output -json         > "$d/tf-outputs.json"  2>/dev/null || echo "run-log: outputs 캡처 실패(무시)"
   terraform state list           > "$d/tf-state.txt"     2>/dev/null || true
@@ -86,7 +86,7 @@ cmd_tf_apply() {
 cmd_tf_destroy() {
   local d; d="$(curdir)"
   cmd_mark destroy-start
-  { time terraform destroy ; } 2> "$d/tf-destroy.time" | tee "$d/tf-destroy.log"
+  { time terraform destroy -auto-approve ; } 2> "$d/tf-destroy.time" | tee "$d/tf-destroy.log"
   printf 'destroy_epoch=%s\ndestroy_utc=%s\n' "$(epoch)" "$(ts)" >> "$d/cost-ledger.txt"
   cmd_mark destroy-end
   echo "run-log: destroy 캡처 완료 — 비용 창 닫힘. './run-log.sh cost' 로 추정치 확인."
