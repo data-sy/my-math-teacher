@@ -23,9 +23,10 @@
 
 ### 🔴 다음 세션 = M4 마무리 (AWS 무관 대부분)
 1. **[backlog]** 배포 워크플로에 `CPU_LIMIT=0.5` 기본 배선 → `docs/backlog/cpu-limit-workflow-wiring.md`(신설). 실배포 경로에 완화책 살리기(라이브 재검증은 다음 apply 세션).
-2. **[docs]** `api/CLAUDE.md` stale 정정: `Optional<MysqlConceptRepository> 스텁` 서술 틀림(클래스 없음). 실제 CTE = `JdbcTemplateConceptRepository.findPrerequisitesWithDepth/findPrerequisiteConcepts`.
-3. **[PR]** PR #45(SSM) — SSM·nginx·CPU_LIMIT 라이브 검증 통과 → Ready→머지 판단. §4 결과를 `docs/benchmark/milestone-4-run-report.md` 로 큐레이션.
-4. **[teardown 확인]** settings.local.json 에 ssh/scp allow 룰 있었으면 회수(이번 세션엔 파일에 부재 확인). 스크래치패드 임시자격 자동소멸.
+2. ~~**[docs]** `api/CLAUDE.md` stale 정정~~ ✅ **완료**(이번 세션): `Optional<MysqlConceptRepository> 스텁`(존재X) → 실제 4종(+`RedisUtil`) + `@Value useMysqlCte` 메서드분기 + CTE = `JdbcTemplateConceptRepository.findPrerequisitesWithDepth/findPrerequisiteConcepts` + `graph:v2:` 네임스페이스로 정정.
+3. **[backlog]** smoke grader 데이터경로 강화 → `docs/backlog/smoke-grader-data-path.md`(신설). `/health` 만 보는 게이트가 캐시결함(401) 놓친 사각지대. spec-02 G4 정합.
+4. **[PR]** PR #45(SSM) — SSM·nginx·CPU_LIMIT 라이브 검증 통과 → Ready→머지 판단. §4 결과 = `docs/benchmark/milestone-4-run-report.md` 큐레이션 완료.
+5. **[teardown 확인]** settings.local.json 에 ssh/scp allow 룰 있었으면 회수(이번 세션엔 파일에 부재 확인). 스크래치패드 임시자격 자동소멸.
 
 > ⚠️ 재-apply 필요 시: `source infra/terraform/tf-assume.sh`(사람 MFA) 또는 스크래치패드 `tf-creds-to-file.sh`(파일경유, 어시스턴트가 명령마다 source). my_ip 재확인. Redis FLUSHALL 금지(키 버전닝).
 

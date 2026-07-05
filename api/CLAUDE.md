@@ -47,7 +47,7 @@
 ## 주요 도메인 객체 및 유틸 (M1에서 확인됨)
 
 - `ConceptRepository`: Neo4j Reactive (`ReactiveNeo4jRepository<Concept, Integer>`)
-- `ConceptService` 생성자 주입 4종: `ConceptRepository` + `KnowledgeSpaceRepository` + `JdbcTemplateConceptRepository` + `Optional<MysqlConceptRepository>` (피처 플래그 `mmt.migration.use-mysql-cte-for-graph=true` 시에만 bean 등록되는 스텁)
+- `ConceptService` 생성자 주입 4종: `ConceptRepository`(Neo4j Reactive) + `KnowledgeSpaceRepository` + `JdbcTemplateConceptRepository`(CTE) + `RedisUtil`. CTE 전환은 `@Value` 불리언 `useMysqlCte`(플래그 `mmt.migration.use-mysql-cte-for-graph`, 기본 false)로 **각 그래프 메서드 내에서 분기**(bean 등록 아님) — true 면 `JdbcTemplateConceptRepository.findPrerequisitesWithDepth`/`findPrerequisiteConcepts`(WITH RECURSIVE) 경로, false 면 Neo4j 경로. 그래프 캐시 키 네임스페이스는 `graph:v2:`(크로스인스턴스 직렬화 안전, 2026-07 캐시픽스). *(구 서술의 `Optional<MysqlConceptRepository> 스텁`은 존재하지 않는 클래스였음 — 정정)*
 - `ConceptService` 그래프 메서드: `findNodesByConceptId`, `findNodesIdByConceptIdDepth2`, `findNodesIdByConceptIdDepth3`, `findNodesIdByConceptIdDepth5`, `findToConcepts`
 - `LogicUtil.bfs(int start, List<Integer> integerList)`: `Map<Integer, Integer>` 반환 (시작 노드로부터 거리 맵)
 - `ProbabilityService`의 `.block()` 호출 위치: `createAndPredict` 류 메서드 (`ProbabilityService.java:66` 근방)
