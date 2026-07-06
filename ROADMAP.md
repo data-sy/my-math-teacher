@@ -52,6 +52,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
 - **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)** — ✅ **완료(M4 에서 소진)**: Phase A(LocalStack plan-only 4슬라이스)·Phase B(real AWS plan) 구현 후 M4 라이브에서 `apply→destroy` 사이클 수 회 실행(2026-07-05·07-06). 최종 apply 18 리소스, destroy 후 잔여 0(state+AWS 이중검증). G3 게이트가 실제 `terraform apply` 로 동작함.
   - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](docs/backlog/terraform-iac-for-m4-provisioning.md)
+- **[Infra/Tooling] M4 텔레메트리 하네스(`run-log.sh`) → 재사용 하네스 레포 이관** (2026-07-06)
+  - M4 라이브 측정에 쓴 `infra/terraform/run-log.sh`(init/mark · tf-apply/tf-destroy · ec2 메모리/디스크/docker-stats 스냅샷 · cost 원장, 151줄 · 시크릿 0)는 이 프로젝트에 국한되지 않는 **재사용 가능한 배포·측정 하네스**라, 별도 하네스 레포로 추출하기로 결정.
+  - **실제 이관은 외부 하네스 레포 대상 → 이 repo 안에서 완결 불가**(cross-repo). 그 레포 셋업 시 진행하고, 이관 후 여기엔 M4 전용 얇은 래퍼만 남기거나 레포 참조로 대체.
 - **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ▶ **착수 가능**(role 생성·사용 확인됨, M4 세션들에서 assume). 매 apply 세션 1h TTL 재-MFA 성가심이 실제로 발생(2026-07-05 destroy 중 만료 사고) → 연장 이득 확인됨. 편의 최적화(가역), 급하지 않음
   - 목적: assume 한 admin 세션이 Terraform 작업 중 만료돼 재-MFA 하는 성가심 축소. **편의 최적화 — 배포 파이프라인 동작엔 비필수·급하지 않음**(가역).
   - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).

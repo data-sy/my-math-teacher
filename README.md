@@ -38,6 +38,22 @@
 - [0003 — 캐싱 패턴: Spring Cache 추상화 미도입](docs/adr/0003-m2-caching-pattern.md) (사용처 5개 → 직접 호출이 더 명확)
 - [0005 — CTE 객체 매핑 정책](docs/adr/0005-cte-object-mapping.md) (사용처 기반 정합화)
 
+### v2 인프라 작업: 배포 무중단화 (마일스톤 4, 2026-07 완료)
+
+단일 EC2(t3.micro · 1 GiB) 위에서 Spring Boot 백엔드를 재배포할 때 발생하던 다운타임(502 · 요청 유실)을 **blue-green** 으로 제거. 쿠버네티스 · ECS · ALB 같은 큰 전환 없이 기존 프론트 nginx 를 전환 지점으로 재사용했다.
+
+- **재배포 중 요청 유실 60.3% → 0%** — 부하(k6 constant-arrival-rate)를 계속 쏘며 배포. 측정 대상은 `permitAll` + DB 왕복이 있는 **대표 GET**(sub-ms `/health` 단독 측정은 드레인 경계의 502 를 못 드러내는 거짓 확신이라 배제). in-place stop→run 대조군 60.3% vs blue-green 502·transport_err **0**.
+- **원자적 전환**: 신버전 health 통과 → `nginx -s reload` 로 upstream 을 한 번에 넘김 → 구버전 graceful drain(`server.shutdown=graceful`, 30s). "어느 순간에도 트래픽 받는 정상 백엔드 최소 1개"를 보장.
+- **핵심 병목은 메모리가 아니라 CPU 였다** — 전환 구간 JVM 2개 공존 시 신버전 부팅이 1 vCPU 를 148%까지 점유해 구버전 응답이 밀림(blue-green 만으로도 컷오버에서 잔여 **11.3% 유실**). `docker run --cpus=0.5` 로 부팅 CPU 를 55%로 억제해 잔여 유실까지 제거(11.3% → **0%**).
+- **배포 채널을 SSH-from-runner → AWS SSM Run Command** 로 전환 — 러너에 SSH 인바운드를 열지 않고 **GitHub OIDC 단기 자격**으로 배포(장기 AWS 키 폐기).
+- **프로비저닝을 Terraform IaC 로** — EC2/RDS/EIP/SG 18 리소스를 `apply → 측정 → destroy` 사이클로 짧게 열고 닫음(크레딧 방어). 비가역 지점(계정·MFA·`apply`)만 사람 게이트, flip-back 판정도 사람 직감이 아닌 **유실 grader**(계측 게이트).
+
+**결과:** [실측 리포트](docs/benchmark/milestone-4-run-report.md) · 시각 원페이저 [KO](docs/benchmark/milestone-4-zero-downtime-report-ko.html) / [EN](docs/benchmark/milestone-4-zero-downtime-report-eng.html)
+
+**핵심 의사결정 기록 (ADR):**
+- [0007 — blue-green 무중단 배포](docs/adr/0007-blue-green-zero-downtime-deployment.md) (프론트 nginx 재사용 · 원자적 reload · graceful drain)
+- [0008 — 배포 채널 SSH → SSM Run Command](docs/adr/0008-m4-ci-deploy-channel-ssh-to-ssm-run-command.md) (러너 SSH 제거 · GitHub OIDC 단기 자격)
+
 <br/>
 
 <a name="Overview"> </a>
