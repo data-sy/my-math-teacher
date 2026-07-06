@@ -21,17 +21,17 @@
   - ⚠️ **destroy 사고·교훈**: 1차 destroy 가 **MFA 임시자격(1h TTL) 만료를 중간에 물어** EC2 종료 확인 단계에서 20분 매달림. `run-log.sh tf-destroy` 의 `tee` 파이프 때문에 **배경 exit 0 이 terraform 실패를 가림**(state 에 10개 잔여). 실제 AWS 는 EC2/RDS/EIP terminate 콜이 만료 전 나가 **과금 리소스는 사라진 상태**였고, **새 MFA 로 재-destroy(멱등)** 하니 state refresh 가 없어진 것 정리 + 무과금 잔여(SG·IAM·keypair) 5개 destroy → 0. **교훈: 긴 destroy(RDS~5min+EC2) 전 자격 TTL 여유 확인, exit code 말고 실제 AWS/state 로 검증.**
 - 텔레메트리 `infra/terraform/run-logs/2026-07-05T08-30-49Z/`: apply·cutover{,2,3-cpulimited} 스냅샷·after{,2,3}-summary.json.
 
-### 🔴 남은 M4 실작업 = 1개 코드 + ① 라이브재검증 (AWS 무관 코드는 종료, 재검증만 다음 apply 세션)
+### 🟢 남은 M4 실작업 = ①② 코드 완료, 남은 건 라이브 재검증만 (AWS 무관 코드 전부 종료 — 다음 apply 세션에서 ①②를 §4 재측정과 함께 검증)
 
 **① ✅ 배포 워크플로에 `CPU_LIMIT=0.5` 기본 배선 — 코드 완료(커밋 `adc1d12`).**
 - `switch-backend.sh` 의 `CPU_LIMIT` 노브(커밋 `12f6931`, 옵트인·기본 무제한)를 워크플로가 안 넘겨줘 실배포가 여전히 무제한이던 갭 해소. `api-ci-cd-with-ec2.yml` deploy job env 에 `CPU_LIMIT: ${{ vars.CPU_LIMIT || '0.5' }}` 추가(COMPOSE_NET 패턴 — GitHub Variables 로 튜닝 가능, 빈 값이면 기존 무제한 폴백) + SSM `REMOTE` 인라인 env 로 전달. YAML 검증 통과.
 - 값 튜닝 여지(미결, 다음 측정 시): 0.5 는 §4 3단 결론의 완전 무중단 0% 달성값이나 1회 측정. 0.6/0.75 로 최적점(부팅속도 vs 서빙보호) 재측정 가능. **대안**: t3.small(2 vCPU) 승격 시 캡 없이 경합 소멸(비용 vs 배포속도).
 - 🔴 **남은 것 = 라이브 재검증만** — 다음 apply 세션에서 실배포가 `CPU_LIMIT=0.5` 로 컷오버 유실 0% 재현하는지 확인(재배포 필요).
 
-**② smoke grader 를 데이터경로까지 검증하도록 강화 (spec-02 G4).**
-- §4 1차에서 `/health`(200, 의존성 미검사)만 본 smoke 가 **Redis 캐시결함으로 데이터 엔드포인트 401 을 놓침**(헬스게이트 사각지대). 캐시결함 자체는 `72d70f7` 로 수정됐으나 **게이트 구조는 그대로**.
-- 할 일: 배포 smoke 를 대표 데이터 엔드포인트 `GET /api/v1/concepts/nodes/7925` **non-empty**(단순 200 아님, R4) 검증으로 강화(permitAll→JWT 불필요). `switch-backend.sh` 컷오버 헬스폴(`HEALTH_PATH`)도 데이터경로로 승격할지 검토(부팅 직후 캐시워밍 지연 vs HEALTH_RETRIES=30×5s 여유).
-- spec-02 §4 G4 smoke grader 정의와 정합(검수자 2층: R1 기동 + R4 데이터).
+**② ✅ smoke grader 를 데이터경로까지 검증하도록 강화 (spec-02 G4) — 코드 완료(커밋 `dfc22ea`).**
+- `/health`(200, 의존성 미검사)만 보던 컷오버 게이트가 §4 1차에 캐시결함으로 데이터 엔드포인트 401 을 놓친 사각지대 해소. `switch-backend.sh` 에 **3b 데이터 smoke 단계** 추가 — 헬스폴(R1 기동) 직후·fragment 재작성 *전* 에 대표 데이터 엔드포인트 `GET /api/v1/concepts/nodes/7925`(permitAll) 를 폴링해 **non-empty 기대 shape**(빈 배열/객체/null 거부, 단순 200 아님) 단정. RED 면 컷오버 abort(구버전 유지·영향 0 = spec-02 §5.2 smoke RED abort no-op). `SMOKE_PATH/SMOKE_TIMEOUT/SMOKE_RETRIES` env 오버라이드 가능. `bash -n` 통과.
+- **설계 결정(spec-02 가 이미 답함)**: `HEALTH_PATH` 를 교체하지 않고 헬스=R1 liveness 유지 + 데이터 smoke=R4 게이트 추가 → smoke grader = R1+R4 2층(spec-02 §4/§5.2/§73/§97, `❌ /health 단독 아님`). 워크플로는 SSM non-Success 에 이미 실패하므로 smoke RED → `exit 1` 자동 전파, 워크플로 변경 불필요.
+- 🔴 **남은 것 = 라이브 검증만** — 다음 apply 세션에서 정상배포 시 데이터 smoke green·시드 미적재/데이터결함 주입 시 컷오버 abort 되는지 확인(EC2·시드 RDS 필요).
 
 **절차(실작업 아님):** PR #45(SSM·nginx·CPU_LIMIT) — 라이브 검증 통과 → Ready→머지 판단. §4 결과 = `docs/benchmark/milestone-4-run-report.md` 큐레이션 완료. 커밋 5개 origin 미푸시(PR 올릴 때 push).
 
