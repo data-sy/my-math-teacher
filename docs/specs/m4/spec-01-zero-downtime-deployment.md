@@ -219,9 +219,11 @@ docker system prune -f
 
 - `build-and-push`: 태그를 **`${{ github.sha }}`** (immutable)로 변경(필요 시 `latest` 병행 push).
   롤백은 이전 sha 로 재지정.
-- `deploy`: 기존 `docker rm -f → rmi → compose up → prune` 제거. 대신 SSH 로
-  `deploy/switch-backend.sh <new-sha>` 호출. `docker rmi`/`prune` 의 무차별 삭제는 제거하거나
-  전환 완료 **이후** 단계로 이동.
+- `deploy`: 기존 `docker rm -f → rmi → compose up → prune` 제거. 대신 **SSM Run Command**
+  (SSH 아님 — ADR 0008)로 `deploy/switch-backend.sh <new-sha>` 를 호출. OIDC 로 단기 AWS
+  자격을 얻어 `aws ssm send-command`(태그 `Project=mmt` 타겟) → `runuser -l ec2-user` 로
+  스크립트 실행 → 비동기라 상태 폴링·stdout 회수로 성패 판정. `docker rmi`/`prune` 의 무차별
+  삭제는 제거하거나 전환 완료 **이후** 단계로 이동.
 
 ### 3.6 변경 파일 요약
 
@@ -438,8 +440,12 @@ graceful shutdown/드레인(§2.2-5) 미적용 상태로 한 번, 적용 후 한
   - inbound **80** 0.0.0.0/0, **443**(HTTPS, 후속) 0.0.0.0/0
   - **22(SSH)** 내 IP 만
   - **8080(백엔드) 공개 금지** — Docker 내부 네트워크로만, 외부 노출은 nginx(80/443)만.
-- SSH 인증: 현행 워크플로의 **password 인증 → 키페어(key) 인증으로 전환 권장**(GH Secret 에 private
-  key 저장). 공용 파일에 자격 미포함.
+- **CI 배포 채널 = SSM Run Command(SSH 아님, ADR 0008).** 러너는 EC2 로 SSH 하지 않는다 →
+  SSH 인바운드를 러너에 열지 않는다. EC2 는 IAM instance profile(`AmazonSSMManagedInstanceCore`)로
+  SSM 에 등록되고, CI 는 GitHub OIDC 로 얻은 단기 자격의 `ssm:SendCommand` 로만 배포를 트리거한다.
+- **22(SSH) 내 IP 만 = 존치(ADR 0008 D4).** 수동 재시드·긴급 운영용으로 남긴다(CI 채널은 SSM).
+  키페어 인증(로컬 `~/.ssh/mmt-ec2`), 공용 파일에 자격 미포함. (관리 접근까지 100% SSM Session
+  Manager 로 옮기는 것은 실험 종료 시 후속.)
 
 ### 9.3 상태 저장소 배치 (RAM 확보의 핵심)
 
@@ -495,7 +501,9 @@ graceful shutdown/드레인(§2.2-5) 미적용 상태로 한 번, 적용 후 한
    **더미 `GDB_*`**(§3.3·R1), `use-mysql-cte-for-graph=true`, 백엔드 `mem_limit`(§9.4),
    front fragment 볼륨 마운트.
 5. `deploy/active-backend.conf`(§3.2) + `deploy/switch-backend.sh`(§3.4) 배치.
-6. **GH Secrets**: `EC2_HOST`=EIP, SSH key, `DOCKERHUB_*` (RDS 자격은 compose env/비커밋).
+6. **GH Secrets**: `AWS_DEPLOY_ROLE_ARN`=terraform 출력 `ci_deploy_role_arn`, `DOCKERHUB_*`
+   (RDS 자격은 compose env/비커밋). EC2 SSM 등록은 terraform instance profile 이 담당 →
+   `EC2_HOST`/`EC2_SSH_KEY`/`EC2_PORT`/`EC2_USERNAME` 은 배포 채널에서 폐기(ADR 0008 D5).
 7. 최초 1회 수동 배포(`workflow_dispatch`) → **§4 부하 검증**으로 유실률 0% 확인.
 
 ### 9.7 비용 주의

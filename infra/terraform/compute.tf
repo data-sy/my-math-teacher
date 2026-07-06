@@ -67,6 +67,9 @@ resource "aws_instance" "app" {
   instance_type = var.instance_type
   key_name      = aws_key_pair.app.key_name
 
+  # ADR 0008: SSM 등록용 instance profile. attach 는 in-place 업데이트(교체 아님).
+  iam_instance_profile = aws_iam_instance_profile.ec2_ssm.name
+
   vpc_security_group_ids = [aws_security_group.app.id]
   user_data              = local.user_data
 

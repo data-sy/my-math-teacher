@@ -1,0 +1,364 @@
+<title>무중단 배포 — Milestone 4 검증</title>
+<style>
+  :root {
+    --bg: #eef1f4;
+    --panel: #ffffff;
+    --panel-2: #f6f8fa;
+    --ink: #17222d;
+    --ink-2: #48586a;
+    --muted: #6d7d8d;
+    --border: #d9e0e7;
+    --border-strong: #c3ccd6;
+    --blue: #2f6fb0;
+    --green: #1f9d6b;
+    --red: #cf4b43;
+    --blue-soft: #2f6fb01a;
+    --green-soft: #1f9d6b1a;
+    --red-soft: #cf4b431a;
+    --shadow: 0 1px 2px #1722330d, 0 8px 24px -12px #17223318;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c141d;
+      --panel: #141e28;
+      --panel-2: #101922;
+      --ink: #e6edf3;
+      --ink-2: #b3c1cf;
+      --muted: #8496a6;
+      --border: #26333f;
+      --border-strong: #33434f;
+      --blue: #3f86cf;
+      --green: #2ba875;
+      --red: #d9564d;
+      --blue-soft: #3f86cf24;
+      --green-soft: #2ba87524;
+      --red-soft: #d9564d24;
+      --shadow: 0 1px 2px #00000040, 0 10px 30px -14px #00000070;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f4; --panel: #ffffff; --panel-2: #f6f8fa;
+    --ink: #17222d; --ink-2: #48586a; --muted: #6d7d8d;
+    --border: #d9e0e7; --border-strong: #c3ccd6;
+    --blue: #2f6fb0; --green: #1f9d6b; --red: #cf4b43;
+    --blue-soft: #2f6fb01a; --green-soft: #1f9d6b1a; --red-soft: #cf4b431a;
+    --shadow: 0 1px 2px #1722330d, 0 8px 24px -12px #17223318;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c141d; --panel: #141e28; --panel-2: #101922;
+    --ink: #e6edf3; --ink-2: #b3c1cf; --muted: #8496a6;
+    --border: #26333f; --border-strong: #33434f;
+    --blue: #3f86cf; --green: #2ba875; --red: #d9564d;
+    --blue-soft: #3f86cf24; --green-soft: #2ba87524; --red-soft: #d9564d24;
+    --shadow: 0 1px 2px #00000040, 0 10px 30px -14px #00000070;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6; font-size: 16px;
+    -webkit-font-smoothing: antialiased; word-break: keep-all;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; padding: clamp(20px, 4vw, 56px) clamp(16px, 4vw, 40px) 72px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--blue); font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--blue); display: inline-block; }
+
+  h1 {
+    font-size: clamp(27px, 5vw, 44px); line-height: 1.15; letter-spacing: -0.02em;
+    font-weight: 800; margin: 18px 0 0; text-wrap: balance; color: var(--ink);
+  }
+  .thesis {
+    margin: 16px 0 0; font-size: clamp(16px, 2.2vw, 19px); color: var(--ink-2);
+    max-width: 46ch; text-wrap: pretty;
+  }
+  .thesis b { color: var(--ink); font-weight: 650; }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px;
+    font-family: var(--mono); font-size: 12.5px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 11px; border: 1px solid var(--border);
+    border-radius: 999px; background: var(--panel); color: var(--ink-2);
+    box-shadow: var(--shadow);
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot.g { background: var(--green); } .dot.b { background: var(--blue); } .dot.r { background: var(--red); }
+
+  section { margin-top: clamp(40px, 6vw, 64px); }
+  .kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600;
+  }
+  h2 {
+    font-size: clamp(21px, 3vw, 27px); letter-spacing: -0.015em; font-weight: 750;
+    margin: 8px 0 0; text-wrap: balance; line-height: 1.3;
+  }
+  .lead { margin: 12px 0 0; color: var(--ink-2); max-width: 52ch; }
+
+  /* ---- hero contrast ---- */
+  .hero {
+    margin-top: 30px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+    align-items: stretch;
+  }
+  .statcard {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px 22px 20px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .statcard::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  }
+  .statcard.bad::before { background: var(--red); }
+  .statcard.good::before { background: var(--green); }
+  .statcard .lbl { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; color: var(--muted); text-transform: uppercase; }
+  .statcard .big {
+    font-family: var(--mono); font-weight: 700; letter-spacing: -0.03em;
+    font-size: clamp(40px, 8vw, 62px); line-height: 1; margin-top: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .statcard.bad .big { color: var(--red); }
+  .statcard.good .big { color: var(--green); }
+  .statcard .sub { margin-top: 8px; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+  .statcard .sub code { font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .arrow {
+    align-self: center; font-family: var(--mono); color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; text-align: center;
+  }
+  .arrow .glyph { font-size: 26px; color: var(--green); line-height: 1; }
+
+  /* ---- bar chart ---- */
+  .chart {
+    margin-top: 24px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px 24px 18px; box-shadow: var(--shadow);
+  }
+  .chart h3 { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .chart .axisnote { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .rows { margin-top: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: grid; grid-template-columns: 176px 1fr; gap: 14px; align-items: center; }
+  .row .name { font-size: 13px; color: var(--ink-2); }
+  .row .name .tag { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; margin-top: 1px; }
+  .track { position: relative; height: 30px; background: var(--panel-2); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 5px 5px 0; min-width: 3px;
+          display: flex; align-items: center; justify-content: flex-end; padding-right: 9px; }
+  .fill.b { background: var(--blue); }
+  .fill.g { background: var(--green); }
+  .fill.r { background: var(--red); }
+  .fill .v { font-family: var(--mono); font-size: 12px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+  .fill.tiny .v { color: var(--ink); position: absolute; left: calc(100% + 8px); padding: 0; }
+  .fill.g.tiny .v { color: var(--green); }
+  .gridline { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed var(--border-strong); }
+
+  .caption { font-size: 13px; color: var(--muted); margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); line-height: 1.6; }
+  .caption b { color: var(--ink-2); font-weight: 650; }
+
+  /* ---- verification cards ---- */
+  .cards { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .vcard {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 18px 16px; box-shadow: var(--shadow);
+  }
+  .vcard .head { display: flex; align-items: baseline; gap: 9px; }
+  .vcard .id { font-family: var(--mono); font-weight: 700; font-size: 14px; color: var(--blue); }
+  .vcard .ttl { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; line-height: 1.3; }
+  .vcard .desc { margin-top: 8px; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+  .checks { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .check { display: flex; gap: 9px; align-items: flex-start; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+  .check .mk {
+    flex: none; width: 17px; height: 17px; border-radius: 5px; margin-top: 2px;
+    background: var(--green-soft); color: var(--green); display: grid; place-items: center;
+    font-size: 11px; font-weight: 800;
+  }
+  .check code { font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--panel-2); padding: 1px 5px; border-radius: 4px; border: 1px solid var(--border); }
+
+  /* ---- data rows (facts strip) ---- */
+  .facts { margin-top: 22px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .fact { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 15px 15px 13px; box-shadow: var(--shadow); }
+  .fact .n { font-family: var(--mono); font-size: clamp(18px, 3vw, 23px); font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .fact .n.g { color: var(--green); }
+  .fact .k { margin-top: 5px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  /* ---- caveats ---- */
+  .caveats { margin-top: 22px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+  .caveats ul { margin: 12px 0 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 11px; }
+  .caveats li { display: flex; gap: 11px; font-size: 13.5px; color: var(--ink-2); line-height: 1.6; }
+  .caveats li::before { content: "▪"; color: var(--muted); flex: none; }
+  .caveats b { color: var(--ink); font-weight: 650; }
+
+  footer { margin-top: 56px; padding-top: 22px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  footer .prov { display: flex; flex-wrap: wrap; gap: 6px 18px; line-height: 1.7; }
+  footer code { color: var(--ink-2); }
+
+  a { color: var(--blue); }
+  @media (max-width: 720px) {
+    .hero { grid-template-columns: 1fr; }
+    .arrow { flex-direction: row; padding: 4px 0; }
+    .arrow .glyph { transform: rotate(90deg); }
+    .cards { grid-template-columns: 1fr; }
+    .facts { grid-template-columns: 1fr 1fr; }
+    .row { grid-template-columns: 120px 1fr; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">Milestone 4 · Blue-Green 배포</span>
+    <h1>단일 EC2 배포가 실트래픽을 버티게 만들기</h1>
+    <p class="thesis">포트폴리오 백엔드를 컨테이너 하나를 제자리에서 재시작해 배포하던 방식은 배포 때마다 <b>요청의 60.3%가 실패</b>했다. 이것은 그 구조를 nginx blue-green 컷오버로 다시 짠 실측 결과이며, <b>진짜 0% 유실</b>에 도달하는 조건의 정직한 경계다.</p>
+    <div class="meta">
+      <span class="chip"><span class="dot g"></span>2026-07-06 라이브 검증</span>
+      <span class="chip"><span class="dot b"></span>EC2 t3.micro · 1 vCPU</span>
+      <span class="chip"><span class="dot b"></span>nginx blue-green · SSM/OIDC</span>
+      <span class="chip"><span class="dot g"></span>apply→측정→destroy</span>
+    </div>
+  </header>
+
+  <section>
+    <span class="kicker">헤드라인</span>
+    <h2>같은 부하, 전후 비교</h2>
+    <p class="lead">DB+CTE 엔드포인트에 동일한 k6 부하(10 req/s)를 걸고 배포를 관통시켰다. 구식 제자리 재시작은 서비스를 떨어뜨리고, blue-green 컷오버는 붙잡는다.</p>
+    <div class="hero">
+      <div class="statcard bad">
+        <div class="lbl">Before · 제자리 재시작</div>
+        <div class="big">60.3%</div>
+        <div class="sub">하드 요청 유실 — 단일 백엔드가 내려간 동안 900건 중 543건이 <code>502</code> 반환.</div>
+      </div>
+      <div class="arrow"><span class="glyph">→</span><span>blue-green<br>컷오버</span></div>
+      <div class="statcard good">
+        <div class="lbl">After · blue-green + CPU 캡</div>
+        <div class="big">0.0%</div>
+        <div class="sub">컷오버 전 구간 전송 유실 0 — 1,973건에서 <code>502=0</code>, <code>transport_err=0</code>, <code>401=0</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">숨은 뉘앙스</span>
+    <h2>0% 유실은 공짜가 아니었다 — 1-vCPU 함정</h2>
+    <p class="lead">전송 레이어는 요청을 한 건도 떨어뜨리지 않았다(전 런 502=0). 하지만 단일 vCPU에서는 캡 없는 컷오버에 <em>숨은</em> 실패모드가 있다 — 부팅 중인 JVM이 서빙 중인 JVM을 굶겨 요청이 타임아웃된다. 부팅 컨테이너의 CPU를 캡하면 사라진다.</p>
+
+    <div class="chart">
+      <h3>컷오버 중 요청 유실 — 세 가지 구성</h3>
+      <div class="axisnote">(502 + 전송 타임아웃) / 전체 · 축 0–15%</div>
+      <div class="rows" id="lossrows"></div>
+      <div class="caption"><b>해석:</b> 무제한 CPU는 한 번은 운으로 통과했지만(R1, 컷오버가 부하창 끝에 살짝 걸침) 넉넉한 마진 재측정(R2)에서 <b>11.4% 타임아웃</b>을 드러냈다. <code>--cpus=0.5</code> 캡(R3)이 이를 제거 — 같은 메커니즘, 굶김 없음.</div>
+    </div>
+
+    <div class="chart">
+      <h3>근본원인 — 1 vCPU 위 부팅 컨테이너 CPU</h3>
+      <div class="axisnote">컷오버 순간 docker stats · 축 0–160% · 점선 = 100%(1코어)</div>
+      <div class="rows" id="cpurows"></div>
+      <div class="caption"><b>해석:</b> 캡 없는 JVM 부팅(JIT + 클래스로딩 + Spring 컨텍스트)이 박스의 <b>148%</b>를 잡아 서빙 JVM을 굶긴다. 반코어 캡이 이를 <b>55%</b>로 눌러 서빙 컨테이너에 여유를 남긴다. 메모리는 한 번도 한계가 아니었다 — 2-JVM 공존 피크가 350 MiB 예산 중 ~247 MiB.</div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">이번 런 · 라이브 재검증</span>
+    <h2>두 안전장치를 end-to-end로 실행</h2>
+    <p class="lead">둘 다 이전 작업에서 코드완료 상태였고, 이번 런에서 실제 배포 파이프라인 — apply·시드·SSM 배포·의도적 결함주입 — 에 대고 증명했다.</p>
+    <div class="cards">
+      <div class="vcard">
+        <div class="head"><span class="id">① </span><span class="ttl">CPU 캡을 파이프라인에 배선</span></div>
+        <div class="desc">배포 워크플로가 이제 <code>CPU_LIMIT=0.5</code>를 SSM을 거쳐 컨테이너 run까지 넘긴다 — 안 쓰이던 노브가 아니라 실제로.</div>
+        <div class="checks">
+          <div class="check"><span class="mk">✓</span><span>워크플로 → <code>docker run --cpus=0.5</code>: green이 <code>NanoCpus=500000000</code>(½코어)으로 기동.</span></div>
+          <div class="check"><span class="mk">✓</span><span>캡 하의 컷오버: <code>502=0 · transport_err=0</code>, threshold PASS, p95 312 ms.</span></div>
+          <div class="check"><span class="mk">✓</span><span>갭 발견: <code>--ref</code> 디스패치는 <em>원격</em> 워크플로를 돌린다 — push 먼저 안 하면 캡이 조용히 무반영.</span></div>
+        </div>
+      </div>
+      <div class="vcard">
+        <div class="head"><span class="id">② </span><span class="ttl">smoke 게이트가 데이터경로까지 검사</span></div>
+        <div class="desc">컷오버가 더는 의존성 없는 <code>/health</code>를 믿지 않는다 — flip 전에 실제 데이터 엔드포인트의 non-empty 형태를 폴링한다.</div>
+        <div class="checks">
+          <div class="check"><span class="mk">✓</span><span>정상 경로: <code>/concepts/nodes/7925</code> non-empty 반환 → 컷오버 진행.</span></div>
+          <div class="check"><span class="mk">✓</span><span>결함 주입(엔드포인트 → 401): smoke RED → <b>컷오버 abort, 구버전 유지</b>, exit 1.</span></div>
+          <div class="check"><span class="mk">✓</span><span>abort는 완전 no-op: nginx는 여전히 green 서빙, 신규 컨테이너 폐기.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">뒷받침 사실</span>
+    <h2>정합성 &amp; teardown 확인</h2>
+    <div class="facts">
+      <div class="fact"><div class="n g">0</div><div class="k">컷오버 중 401 — Redis 캐시 수정이 blue/green 인스턴스 간 유지</div></div>
+      <div class="fact"><div class="n">30026 B</div><div class="k">캐시히트 == CTE 캐시미스, 바이트 동일(conceptId 36)</div></div>
+      <div class="fact"><div class="n g">647·1631·3446</div><div class="k">RDS 재시드 행(chapters·concepts·knowledge-space), 유실 0</div></div>
+      <div class="fact"><div class="n g">18 → 0</div><div class="k">terraform destroy, state + AWS 이중검증(잔여 과금 0)</div></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="kicker">정직하게</span>
+    <h2>이 리포트가 <em>주장하지 않는</em> 것</h2>
+    <div class="caveats">
+      <ul>
+        <li><b>2,000회 중 27회는 부하 생성기가 못 보낸 것</b>이지 서버가 떨어뜨린 게 아니다. CPU 캡 부팅 스파이크(max 7.4 s) 동안 k6의 VU가 포화돼 아예 발사되지 않았다 — 클라이언트측 천장이지 서빙된 요청의 실패가 아니다. 발사된 요청은 전부 200.</li>
+        <li><b>0% 유실은 부팅 CPU 캡을 전제</b>로 한다(t3.micro의 단일 vCPU). 대안 — 2-vCPU 인스턴스 — 은 캡 없이 경합을 없앤다. 비용 vs 배포속도 트레이드오프.</li>
+        <li><b>캡은 부팅을 ~2배 느리게</b> 한다(헬스 12/30 ≈ 60 s vs. ~25 s). 백그라운드 컷오버엔 수용 가능 — 숨기지 않고 명시.</li>
+        <li><b>0.5는 1회 측정값</b>이다. 0.6 / 0.75가 부팅속도 vs 서빙보호 곡선에서 더 나을 수 있어 튜닝 후속으로 남긴다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="prov">
+      <span>스택: <code>nginx blue-green</code> · <code>SSM Run Command (OIDC)</code> · <code>MySQL CTE</code>(Neo4j에서 이관)</span>
+    </div>
+    <div class="prov" style="margin-top:8px">
+      <span>부하: <code>k6 · constant-arrival-rate 10rps</code></span>
+      <span>프로브 지표: <code>status_502 + transport_err == 0</code></span>
+      <span>텔레메트리: <code>run-logs/2026-07-06T01-35-41Z</code></span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // 컷오버 중 유실 — 축 0..15%
+  const LOSS_MAX = 15;
+  const lossData = [
+    { name: "After · 무제한", tag: "R1 · 창끝 걸침", v: 0.0, cls: "g", note: "운 좋은 통과" },
+    { name: "After · 무제한", tag: "R2 · 넉넉 마진", v: 11.4, cls: "r", note: "타임아웃 굶김" },
+    { name: "After · CPU_LIMIT=0.5", tag: "R3 · 반코어 캡", v: 0.0, cls: "g", note: "클린" },
+  ];
+  // 컷오버 순간 CPU — 축 0..160%
+  const CPU_MAX = 160;
+  const cpuData = [
+    { name: "부팅 JVM · 무제한", tag: "R2 · docker stats", v: 148.72, cls: "r" },
+    { name: "부팅 JVM · 캡 0.5", tag: "R3 · docker stats", v: 55.39, cls: "g" },
+    { name: "서빙 JVM · 캡 하", tag: "R3 · 여유 남음", v: 15.50, cls: "b" },
+  ];
+
+  function renderBars(el, data, max, fmt, gridAt) {
+    const host = document.getElementById(el);
+    for (const d of data) {
+      const pct = Math.max(0, Math.min(100, (d.v / max) * 100));
+      const tiny = pct < 12;
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<div class="name">' + d.name + '<span class="tag">' + d.tag + '</span></div>' +
+        '<div class="track" title="' + d.name + ' — ' + fmt(d.v) + '">' +
+          gridAt.map(gp => '<span class="gridline" style="left:' + ((gp/max)*100) + '%"></span>').join('') +
+          '<div class="fill ' + d.cls + (tiny ? ' tiny' : '') + '" style="width:' + pct + '%">' +
+            '<span class="v">' + fmt(d.v) + '</span>' +
+          '</div>' +
+        '</div>';
+      host.appendChild(row);
+    }
+  }
+  renderBars("lossrows", lossData, LOSS_MAX, v => v.toFixed(1) + "%", [5, 10]);
+  renderBars("cpurows", cpuData, CPU_MAX, v => v.toFixed(0) + "%", [100]);
+</script>

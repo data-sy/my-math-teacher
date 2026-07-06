@@ -2,14 +2,23 @@
 #
 # switch-backend.sh — blue-green 무중단 전환 (M4 spec-01 §3.4 / Task C)
 #
-# 현재 활성 색을 감지 → 반대(idle) 색으로 신버전 컨테이너 기동 → 헬스 통과까지 폴링 →
+# 현재 활성 색을 감지 → 반대(idle) 색으로 신버전 컨테이너 기동 → 헬스(R1 기동) 통과까지 폴링 →
+# 데이터경로 smoke(R4, non-empty 기대 shape — spec-02 §4 G4) 통과까지 폴링 →
 # nginx upstream fragment 를 신버전 색으로 재작성 → `nginx -s reload`(무중단 컷오버) →
 # 구버전을 graceful 드레인(`docker stop -t`) 후 제거.
+# 헬스·smoke 는 모두 컷오버 *전* 게이트라 RED 면 fragment 미변경 = abort no-op(구버전 유지, 영향 0).
 #
 # 어느 순간에도 트래픽을 받는 정상 백엔드가 최소 1개 존재 = 다운타임 0 (spec-01 §2.2).
 #
-# 호출(워크플로 deploy job, spec-01 §3.5):
+# 호출(워크플로 deploy job, spec-01 §3.5 / ADR 0008):
 #   deploy/switch-backend.sh <new-image-tag>     # 예: github.sha (immutable)
+#
+#   배포 채널은 SSM Run Command(SSH 아님, ADR 0008). SSM 명령은 기본 root 로
+#   실행되나 이 스크립트는 ec2-user 홈의 파일(compose·deploy·env-file)·상대경로·
+#   docker 그룹에 의존한다 → 워크플로가 `runuser -l ec2-user -c 'cd ~ && … bash
+#   deploy/switch-backend.sh <sha>'` 로 ec2-user 정체성·작업디렉토리·그룹을 태워
+#   호출한다. 따라서 이 스크립트는 "cwd=ec2-user 홈, 실행자=ec2-user(docker 그룹)"를
+#   전제한다 — root 로 직접 돌리지 말 것.
 #
 # ⚠️ 동작 검증은 배포 시점에 한다(EC2 미생성). 본 스크립트는 *형태*를 고정하며,
 #    문법은 `bash -n` / shellcheck 로 검증한다.
@@ -45,6 +54,12 @@ BACKEND_ENV_FILE="${BACKEND_ENV_FILE:-/home/ec2-user/mmt-backend.env}"
 MEM_LIMIT="${MEM_LIMIT:-350m}"
 JVM_OPTS="${JVM_OPTS:--XX:MaxRAMPercentage=70}"   # JAVA_TOOL_OPTIONS 로 주입 (CMD 미오버라이드)
 
+# 부팅 중 신규 JVM 이 단일 vCPU 를 독점해 서빙 중인 구버전을 굶기는 것을 막는 선택적 CPU 상한.
+# §4 측정에서 t3.micro(1 vCPU) co-located JVM 부팅이 서빙 JVM 지연을 클라 타임아웃까지 밀어내
+# 컷오버 창에서 요청 타임아웃이 발생함을 확인(502 아님, 전송갭 아님 — 순수 CPU 경합).
+# 빈 값(기본)=무제한(기존 동작 보존). 예: CPU_LIMIT=0.5 → 부팅 컨테이너를 반 코어로 제한.
+CPU_LIMIT="${CPU_LIMIT:-}"
+
 # graceful 드레인(spec-01 §2.2-5 / A.5): timeout-per-shutdown-phase(30s) 이상이어야
 # docker 가 SIGKILL 로 graceful 을 자르지 않는다. 30 은 하한.
 STOP_TIMEOUT="${STOP_TIMEOUT:-30}"
@@ -54,6 +69,15 @@ HEALTH_RETRIES="${HEALTH_RETRIES:-30}"     # 시도 횟수
 HEALTH_INTERVAL="${HEALTH_INTERVAL:-5}"    # 시도 간격(초) → 기본 ~150s 윈도우
 HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-3}"      # 개별 요청 타임아웃(초)
 PROBE_IMAGE="${PROBE_IMAGE:-curlimages/curl:8.11.0}"   # 앱 이미지에 curl 가정 안 함 → 일회용 프로브
+
+# 데이터경로 smoke (spec-02 §4 G4 / R4). /health 200 만으로는 시드 미적재(빈 그래프)나
+# 캐시 역직렬화 결함으로 데이터 엔드포인트가 401/빈응답이어도 컷오버가 진행되는 사각지대가 있다
+# (§4 1차: /health 통과했으나 캐시결함으로 데이터경로 401 을 놓침). 컷오버 *전* 대표 데이터
+# 엔드포인트가 non-empty 기대 shape 를 반환하는지까지 확인 — RED 면 전환 abort(구버전 유지,
+# 영향 0, spec-02 §5.2 "smoke grader RED = abort no-op"). smoke grader 는 "200"만 보면 안 됨(§4 주석).
+SMOKE_PATH="${SMOKE_PATH:-/api/v1/concepts/nodes/7925}"   # permitAll(JWT 불필요), CTE→Redis 데이터경로
+SMOKE_TIMEOUT="${SMOKE_TIMEOUT:-10}"       # CTE 첫 히트(캐시 miss)·CPU 캡 부팅 고려해 넉넉히
+SMOKE_RETRIES="${SMOKE_RETRIES:-6}"        # 데이터경로 준비 지연(커넥션풀 워밍) 흡수
 
 SPRING_PROFILES_ACTIVE="${SPRING_PROFILES_ACTIVE:-secure}"
 
@@ -92,6 +116,7 @@ docker run -d \
   --network "$COMPOSE_NET" \
   --restart unless-stopped \
   --memory "$MEM_LIMIT" \
+  ${CPU_LIMIT:+--cpus="$CPU_LIMIT"} \
   --env-file "$BACKEND_ENV_FILE" \
   -e SPRING_PROFILES_ACTIVE="$SPRING_PROFILES_ACTIVE" \
   -e MMT_MIGRATION_USE_MYSQL_CTE_FOR_GRAPH=true \
@@ -119,6 +144,36 @@ done
 if [[ "$healthy" != true ]]; then
   # 전환 *전* 실패 → fragment 미변경, 구버전 그대로 서비스(영향 0, spec-01 §4.4).
   log "헬스 실패 — 신버전 폐기, 구버전 유지. 최근 로그:" >&2
+  docker logs --tail 50 "$NEW_CONTAINER" >&2 2>&1 || true
+  docker rm -f "$NEW_CONTAINER" >/dev/null 2>&1 || true
+  exit 1
+fi
+
+# ── 3b. 데이터경로 smoke (컷오버 게이트, spec-02 §4 G4 / R4) ─────────────────
+# 위 헬스폴은 R1(기동)만 본다. 여기서 R4(시드 적재 + 그 코드가 거기서 돎)를 대표 데이터
+# 엔드포인트로 확인한다 — 단순 200 이 아니라 non-empty(빈 배열/객체/null 거부). 빈 그래프
+# (시드 실패)·캐시 역직렬화 결함(401)·빈응답이면 RED → 컷오버 abort. 아직 fragment 미변경이라
+# 트래픽은 구버전이 계속 받는다(영향 0). ⇒ smoke grader = R1(헬스) + R4(데이터) 2층(spec-02 §4).
+SMOKE_URL="http://$NEW_CONTAINER:$BACKEND_PORT$SMOKE_PATH"
+log "데이터 smoke: $SMOKE_URL (non-empty 기대, 최대 $SMOKE_RETRIES회 × ${HEALTH_INTERVAL}s)"
+
+smoke_ok=false
+for ((i = 1; i <= SMOKE_RETRIES; i++)); do
+  # -fsS: 비200(401 등)이면 실패 종료코드 → body 빈 문자열. body 를 stdout 으로 받아 non-empty 판정.
+  body="$(docker run --rm --network "$COMPOSE_NET" "$PROBE_IMAGE" \
+            -fsS --max-time "$SMOKE_TIMEOUT" "$SMOKE_URL" 2>/dev/null || true)"
+  # non-empty 기대 shape: 빈 응답·빈 배열·빈 객체·null 은 R4 실패(시드 미적재)로 간주해 거부.
+  if [[ -n "$body" && "$body" != "[]" && "$body" != "{}" && "$body" != "null" ]]; then
+    smoke_ok=true
+    log "데이터 smoke OK ($i/$SMOKE_RETRIES, ${#body} bytes)"
+    break
+  fi
+  sleep "$HEALTH_INTERVAL"
+done
+
+if [[ "$smoke_ok" != true ]]; then
+  # 컷오버 *전* 실패 → fragment 미변경, 구버전 그대로(영향 0, spec-02 §5.2 smoke RED = abort no-op).
+  log "데이터 smoke 실패(빈/비200 응답 — 시드 미적재 or 데이터경로 결함) — 신버전 폐기, 구버전 유지. 최근 로그:" >&2
   docker logs --tail 50 "$NEW_CONTAINER" >&2 2>&1 || true
   docker rm -f "$NEW_CONTAINER" >/dev/null 2>&1 || true
   exit 1

@@ -18,6 +18,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - EC2 미생성 → **AWS 프리티어(t3.micro 1 GiB) 프로비저닝 포함**: MySQL=RDS 분리, Neo4j 미구동(CTE-only), Redis 로컬, 스왑+mem_limit
   - **M3 와의 관계 (M4 → M3, 비차단)**: M4 단일 인스턴스 bring-up 이 "MySQL/CTE-only 실서버 정상 동작"을 검증 → M3 의 Neo4j 폐기 go/no-go 근거가 됨. Neo4j 코드·인프라 실제 삭제는 M3 잔여 작업
   - 현재: 설계 3건(spec-01/02/03)·기반 코드(A·A.5·R1·B·C·D)·Terraform IaC 완료. **G1 사람 핸드오프 완료(2026-07-03: 계정·root MFA·빌링 경보·IAM assume-role B_IAM)** + **Terraform Phase B `plan` 성공(12 리소스, 키페어·RDS SG 배선)**. 남은 것 = G2 시크릿·G3 `apply`(과금)·유실률 검증 — 👤 spec-04, 실행 절차 `infra/terraform/README.md`
+  - **CI 배포 채널: SSH-from-runner → SSM Run Command (ADR 0008, 2026-07-05)**: 첫 배포서 deploy job SSH 가 SG(my_ip/32) vs 러너 IP 로 실패 → SSH 인바운드를 러너에 안 열고 SSM 으로 전환. EC2 IAM instance profile(SSM 등록) + GitHub OIDC role(단기 자격) + deploy job `aws ssm send-command`. 내 IP SSH 존치(수동 운영). 코드·ADR·spec §9.2 갱신 완료(무과금·validate 통과), 실 apply·SSM 배포 검증은 다음 세션
   - [milestone](milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](specs/m4/spec-01-zero-downtime-deployment.md) · [02](specs/m4/spec-02-harness-handoff-gates.md) · [03](specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04 사람용](specs/m4/spec-04-human-aws-provisioning-handoff.md)
 
 ---
