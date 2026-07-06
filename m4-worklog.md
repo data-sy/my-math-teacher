@@ -6,7 +6,24 @@
 > **spec-03**(terraform plan-only IaC 샌드박스) 참조 — 여기 복붙 안 함.
 > 시작 시 **`git log --oneline -12` 로 커밋 상태 재확인** 권장.
 
-## 🟢 2026-07-05 (최신) 상태 (§4 After 측정 완료 — 무중단 3단 결론 확정 + CPU_LIMIT 완화책 확증·커밋 — 인프라 DESTROYED) — 새 세션 정본
+## 🟢 2026-07-06 (최신) 상태 (backlog ①② 라이브 재검증 완주 — 인프라 DESTROYED — M4 실작업 코드+검증 모두 종료, 남은 건 PR 절차뿐) — 새 세션 정본
+
+**최신 한 줄:** 코드완료 상태였던 backlog **①(워크플로 CPU_LIMIT=0.5 배선)·②(데이터 smoke 게이트)를 실배포로 e2e 라이브 검증 완주.** 재-apply(18)→재시드(647·1631·3446 유실0)→**커밋 push**(⚠️ 원격 feat ref 가 stale 하면 `gh workflow run --ref` 가 구 워크플로를 돌려 ① 미반영 = 이번 세션 발견·해소)→SSM 배포×2→§4 After 재측정→destroy(state+AWS 이중검증 0). **AWS 무관·라이브 검증 모두 종료 → M4 실작업 끝. 남은 건 PR #45 Ready→머지(사람) 절차.**
+
+### ✅ 이번 세션(2026-07-06) 완료 — ①② 라이브 확증
+- **① CPU_LIMIT 배선 e2e**: 워크플로 deploy job env `CPU_LIMIT=0.5` → SSM → `docker run --cpus=0.5`. green `NanoCpus=500000000`(=0.5코어) 확인. 컷오버 유실 = k6 RATE=10·200s → **`status_502=0`·`transport_err=0`·`401=0`**, http_req_failed 0%, p95 312ms, threshold PASS. (dropped_iter 27 = 부하기 VU 포화, 서버측 유실 아님.)
+- **② 데이터 smoke**: 정상배포 green(`/nodes/7925` non-empty 통과) + **결함주입 abort**(`SMOKE_PATH=/nodes/999999`=401 → smoke RED → "신버전 폐기, 구버전 유지"·exit1 · active fragment=green 불변 · blue 폐기 · nginx 무영향).
+- **§4 After 클린 재확인**: 401=0(캐시픽스 크로스인스턴스 유지)·5xx=0. 캐시히트==CTE캐시미스 응답 바이트 동일(30026·conceptId 36).
+- **커밋 origin push 완료**: feat 브랜치 10커밋(1944230→fe8064d) push. **origin 이제 최신** → 이후 `gh workflow run --ref feat/...` 가 ① 포함 워크플로 실행.
+- **인프라 DESTROYED**(18 destroyed, state 0·EC2 0·RDS not-found·EIP 0·SG 0). 계정 471934607256·region ap-northeast-2 불변. role `mmt-ci-deploy-role` 고정명 → GH Secret 재주입 불필요.
+- **텔레메트리** `infra/terraform/run-logs/2026-07-06T01-35-41Z/`. **큐레이션** = `docs/benchmark/milestone-4-run-report.md` "3차 재검증" 섹션.
+- **teardown**: 사용자 추가 ssh/scp allow 룰 2개 회수 완료.
+
+> **다음(사람 절차):** PR #45 Ready→머지(G6 permitAll 보안승인 포함). 값 튜닝(CPU_LIMIT 0.6/0.75) 재측정은 선택. skip_tests input+가드 제거는 측정 종료 후 후속.
+
+---
+
+## 🟢 2026-07-05 상태 (§4 After 측정 완료 — 무중단 3단 결론 확정 + CPU_LIMIT 완화책 확증·커밋 — 인프라 DESTROYED)
 
 **최신 한 줄:** §4 After 재측정 **완주**. 재-apply(18)→재시드(647·1631·3446 유실0)→재프로비저닝→**SSM 배포 성공**(캐시픽스 포함 이미지 `mmt2024/mmt-backend:1944230c2fdb148...`)→smoke(`/nodes/7925` 20520자 non-empty)→**컷오버 유실 측정 3런**→`terraform destroy`(과금 0). **결론: 전송/프록시 레이어 무중단은 증명(502=0 전 런), 단 t3.micro 1vCPU 에서 신규 JVM 부팅이 코어 독점(148%)→서빙 JVM 굶겨 지연 타임아웃 → CPU_LIMIT 로 완화 확증.**
 

@@ -10,6 +10,7 @@
 |---|---|---|
 | 2026-07-05T05:35:20Z | 1차 라이브(SSM 첫 검증, §4 Before 실측) | After 는 **Redis 캐시 결함으로 오염** — 아래 §5 로 대체 |
 | **2026-07-05T08:30:49Z** | **2차 = §4 확정 측정**(캐시픽스 반영, After 3단 규명) | ✅ **본 리포트 정본** |
+| 2026-07-06T01:35:41Z | 3차 = **backlog ①② 라이브 재검증**(워크플로 CPU_LIMIT 배선·데이터 smoke 게이트) | ✅ 아래 "3차 재검증" |
 
 두 런 모두 인프라는 apply→측정→destroy 로 짧게 닫았다(크레딧 방어). **Before(60.3%)는 1차에서 실측·유효**,
 **After 클린 수치는 2차에서 확정.** 아래 수치는 2차(08:30) 기준이며, Before 만 1차 실측을 재인용한다.
@@ -96,6 +97,21 @@ RATE=10 근거: 30rps 는 t3.micro(1 vCPU)에서 붕괴 → steady 실패 0 인 
 - **R1=0% 는 운**: 컷오버가 부하창 끝(reload 09:08:57, 창 종료 ~09:09:0X)에 얹혀 경합 구간에 걸린 요청이 적었다. 넉넉마진 R2 가 진실(11.4%)을 드러냄.
 - **R3 이 완화 확증**: 부팅 컨테이너를 반코어로 캡하니 서빙 JVM 이 안 굶겨져 `transport_err 133→0`, p95 `9984→3108ms`. 트레이드오프 = 부팅 ~2배 느림(헬스 5/30→12/30, ~25s→~60s).
 
+## 3차 재검증 (2026-07-06, backlog ①② — 코드완료분의 라이브 확증)
+
+2차에서 남긴 backlog 두 항목(①워크플로 `CPU_LIMIT=0.5` 배선 커밋 `adc1d12`, ②데이터경로 smoke 게이트 커밋 `dfc22ea`)을 실배포로 e2e 검증. 재-apply(18)→재시드(647·1631·3446 유실0)→**커밋 push**(원격 feat ref 가 stale 하면 디스패치가 구 워크플로를 돌려 ① 미반영 — 이번에 발견·해소)→SSM 배포×2→destroy(state+AWS 이중검증 0). 이미지 `mmt2024/mmt-backend:fe8064d…`.
+
+| 검증 | 방법 | 결과 |
+|---|---|---|
+| **① CPU_LIMIT 배선 (워크플로→--cpus)** | deploy job env `CPU_LIMIT=0.5` → SSM → `docker run --cpus=0.5` | green `NanoCpus=500000000`(=0.5코어) ✅ e2e |
+| **① 컷오버 유실 (CPU캡)** | k6 RATE=10·200s, blue→green 워크플로 컷오버 | `status_502=0`·`transport_err=0`·`401=0`, http_req_failed 0%, p95 312ms, threshold PASS ✅ |
+| **② 데이터 smoke GREEN** | 정상배포 시 `/nodes/7925` non-empty 폴 | `데이터 smoke OK` → 컷오버 진행 ✅ |
+| **② 데이터 smoke RED→abort** | 결함주입 `SMOKE_PATH=/nodes/999999`(401) | smoke RED → **"신버전 폐기, 구버전 유지"·exit 1**, active fragment=green 불변·blue 폐기·nginx 무영향 ✅ |
+| 데이터경로 정합 | cache-hit vs 캐시키 DEL 후 cache-miss(CTE) | 응답 **바이트 동일**(30026·conceptId 36) ✅ |
+
+- dropped_iterations 27/2000 = green 부팅(0.5코어) 지연 스파이크(max 7367ms) 때 k6 VU 포화 = **부하기 한계, 서버측 유실 아님**(1973 전부 200).
+- **결론: 2차의 3단 규명이 실배포 파이프라인에서 재현됨.** ①은 이제 노브만이 아니라 **워크플로가 실제로 캡을 적용**하고, ②는 데이터 결함을 컷오버 전에 **abort 로 차단**(구버전 무영향).
+
 ## 결론 / 클레임
 
 1. **전송/프록시 레이어 무중단 = 증명됨.** SSM→runuser→blue-green 컷오버가 라이브에서 완주, **502·연결드롭 0(전 런).** 구식 in-place 재배포는 같은 부하에서 **60.3% 하드 유실(502)** → 무중단 방식의 이득 명확.
@@ -106,7 +122,7 @@ RATE=10 근거: 30rps 는 t3.micro(1 vCPU)에서 붕괴 → steady 실패 0 인 
 
 ## 후속 (backlog / docs)
 
-- **[backlog]** 배포 워크플로에 `CPU_LIMIT=0.5` 기본 배선(현재 노브만 있고 워크플로가 안 넘겨줘 실배포는 무제한) → 상세·정본 = 루트 `m4-worklog.md` 남은작업 ①.
-- **[대안]** t3.small(2 vCPU) 승격 시 CPU 캡 없이 경합 소멸 — 비용 vs 배포속도 트레이드오프.
-- **[docs]** `api/CLAUDE.md` 의 `Optional<MysqlConceptRepository> 스텁` 서술 stale 정정.
-- **[관측]** `/health` smoke 는 데이터경로(캐시결함) 미검증 — smoke grader 를 대표 데이터 엔드포인트로 강화(spec-02 G4).
+- **[✅ 완료]** 배포 워크플로 `CPU_LIMIT=0.5` 기본 배선 — 커밋 `adc1d12`, **3차(2026-07-06) 라이브 e2e 확증**(green `--cpus=0.5`·컷오버 0%).
+- **[대안]** t3.small(2 vCPU) 승격 시 CPU 캡 없이 경합 소멸 — 비용 vs 배포속도 트레이드오프. **값 튜닝(0.6/0.75) 재측정 여지**(3차는 0.5 1회).
+- **[✅ 완료]** `api/CLAUDE.md` 의 `Optional<MysqlConceptRepository> 스텁` 서술 stale 정정 — 커밋 `2801c2c`.
+- **[✅ 완료]** `/health` smoke 데이터경로 미검증 → smoke grader 를 대표 데이터 엔드포인트로 강화(spec-02 G4) — 커밋 `dfc22ea`, **3차 라이브 확증**(green 통과·결함주입 abort).
