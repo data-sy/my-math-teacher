@@ -6,20 +6,12 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Now — 진행 중
 
-- **[M2] Neo4j → MySQL CTE 마이그레이션 — 검증 단계 완료** (PR [#22](https://github.com/data-sy/my-math-teacher/pull/22))
-  - 그래프 탐색 쿼리를 MySQL 재귀 CTE로 이전, 결과 동등성·성능·시각화·거리 맵 의미 보존 검증 완료
-  - 회수: depth 3 p95 14.034ms (Neo4j) → 0.556ms (CTE), 약 25배 개선
-  - 결과 보고: `docs/reports/m2-cte-migration.md`
-  - 점진 출시·관찰·폐기는 **M3** 로 분리 (포트폴리오 컨텍스트로 실제 폐기 수행은 보류 가능)
+- **[M5] 관측성 — Grafana/Prometheus 로 무중단 컷오버 재계측 (착수 대기)**
+  - M4 무중단 배포를 로그(k6+`docker stats`) 기반으로 증명 완료 → 같은 컷오버를 Prometheus 스크레이프 + Grafana 상관 시각화로 재계측(nginx upstream·JVM CPU·컨테이너 CPU·k6 5xx 한 타임축 + 복합인덱스 EXPLAIN 스크린샷). **관측성·학습 목적, 무중단 증명의 차단 요소 아님.**
+  - 상태: **브랜치 `feat/m5-spec-01-observability-grafana-prometheus` 생성(파킹) — spec 미작성, 착수 대기.** 착수 시 milestone-5 + spec-01 문서를 spec-first 로 작성.
+  - 백로그 정본: [`docs/backlog/observability-grafana-prometheus-for-zero-downtime.md`](backlog/observability-grafana-prometheus-for-zero-downtime.md) (k6 web dashboard 접힘, actuator+micrometer-registry-prometheus 도입=ADR감, 인프라 사이클 1회 추가)
 
-- **[M4] 배포 무중단화 (Zero-Downtime Deployment) — 프로비저닝 진행 중 (Terraform Phase B `plan` 성공)**
-  - 단일 EC2 위에서 기존 nginx 를 전환 지점으로 재사용한 blue-green 으로 백엔드 재배포 무중단화 (K8s/ALB 없이 가장 기본 구성)
-  - 현행 다운타임 원인: 배포가 기존 컨테이너를 먼저 제거(겹침 0) + 이미지 태그 고정 + nginx upstream 하드코딩 + container_name 고정 + 헬스 신호 부재
-  - EC2 미생성 → **AWS 프리티어(t3.micro 1 GiB) 프로비저닝 포함**: MySQL=RDS 분리, Neo4j 미구동(CTE-only), Redis 로컬, 스왑+mem_limit
-  - **M3 와의 관계 (M4 → M3, 비차단)**: M4 단일 인스턴스 bring-up 이 "MySQL/CTE-only 실서버 정상 동작"을 검증 → M3 의 Neo4j 폐기 go/no-go 근거가 됨. Neo4j 코드·인프라 실제 삭제는 M3 잔여 작업
-  - 현재: 설계 3건(spec-01/02/03)·기반 코드(A·A.5·R1·B·C·D)·Terraform IaC 완료. **G1 사람 핸드오프 완료(2026-07-03: 계정·root MFA·빌링 경보·IAM assume-role B_IAM)** + **Terraform Phase B `plan` 성공(12 리소스, 키페어·RDS SG 배선)**. 남은 것 = G2 시크릿·G3 `apply`(과금)·유실률 검증 — 👤 spec-04, 실행 절차 `infra/terraform/README.md`
-  - **CI 배포 채널: SSH-from-runner → SSM Run Command (ADR 0008, 2026-07-05)**: 첫 배포서 deploy job SSH 가 SG(my_ip/32) vs 러너 IP 로 실패 → SSH 인바운드를 러너에 안 열고 SSM 으로 전환. EC2 IAM instance profile(SSM 등록) + GitHub OIDC role(단기 자격) + deploy job `aws ssm send-command`. 내 IP SSH 존치(수동 운영). 코드·ADR·spec §9.2 갱신 완료(무과금·validate 통과), 실 apply·SSM 배포 검증은 다음 세션
-  - [milestone](milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](specs/m4/spec-01-zero-downtime-deployment.md) · [02](specs/m4/spec-02-harness-handoff-gates.md) · [03](specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04 사람용](specs/m4/spec-04-human-aws-provisioning-handoff.md)
+> M4 종료(2026-07-06). M3(Neo4j 폐기)는 Next 로 예약. 현재 코드상 진행 중인 마일스톤 구현은 없음(M5 브랜치는 파킹 상태).
 
 ---
 
@@ -58,10 +50,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - `application-prod.yml` · `application-local.yml` 도입으로 4 프로파일 (default/local/test/prod) 체계 완성
   - `application.yml` 의 공통 `com.mmt` · `springframework.data.neo4j` · `springframework.security` DEBUG 로거를 프로덕션에서 INFO 로 하향 (M1 Spec 03 Task 3.3 에서 관찰)
   - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
-- **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)**
-  - M4 §9 인프라(EC2 1 + RDS 1 + EIP + SG)는 한 번 깔고 마는 솔로 규모라 효율만 보면 콘솔이 빠르지만, IaC "경험" 목적이면 적당한 첫 소재 — spec-02 §5 **G3**(infra apply 게이트)가 이미 Terraform 을 가정. `plan`-only 는 무과금으로 지금 시작 가능, `apply`(과금)는 G1 준비 후. M4 본류와 병행 가능
+- **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)** — ✅ **완료(M4 에서 소진)**: Phase A(LocalStack plan-only 4슬라이스)·Phase B(real AWS plan) 구현 후 M4 라이브에서 `apply→destroy` 사이클 수 회 실행(2026-07-05·07-06). 최종 apply 18 리소스, destroy 후 잔여 0(state+AWS 이중검증). G3 게이트가 실제 `terraform apply` 로 동작함.
   - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](backlog/terraform-iac-for-m4-provisioning.md)
-- **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ⏸ **role 생성 후에만 가능**(편집 항목이 상세 페이지에 그때 열림 → 지금 실행 불가)
+- **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ▶ **착수 가능**(role 생성·사용 확인됨, M4 세션들에서 assume). 매 apply 세션 1h TTL 재-MFA 성가심이 실제로 발생(2026-07-05 destroy 중 만료 사고) → 연장 이득 확인됨. 편의 최적화(가역), 급하지 않음
   - 목적: assume 한 admin 세션이 Terraform 작업 중 만료돼 재-MFA 하는 성가심 축소. **편의 최적화 — 배포 파이프라인 동작엔 비필수·급하지 않음**(가역).
   - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).
   - 작업: ① IAM 콘솔 → 역할 → `mmt-terraform-admin` → 요약의 **최대 세션 기간(Maximum session duration)** 편집 → 8h (CLI: `aws iam update-role --role-name mmt-terraform-admin --max-session-duration 28800`) ② 로컬 `~/.aws/config` `[profile mmt-admin]` 의 `duration_seconds` 3600→28800 (role max ≥ config duration) ③ 검증 `aws sts get-caller-identity --profile mmt-admin`(MFA 입력 → assumed-role 신원).
@@ -69,7 +60,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 - DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
 - 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
 - CI/CD 파이프라인 정비 및 배포 자동화
-- 모니터링·알림 체계 구축 (현재 Grafana+Prometheus 기반 확장)
+- 모니터링·알림 체계 구축 (Grafana+Prometheus) — 1차 착수분 = **[M5] 무중단 컷오버 재계측**(Now·[백로그](backlog/observability-grafana-prometheus-for-zero-downtime.md)). 프로덕션 상시 모니터링·알림은 그 이후 확장
 - `shared/` 내부 구조 정리 (`diagrams/`, `scripts/`, `data/` 분리 — 필요시)
 - **[Product] 맞춤학습지 비율 배분 출제** (Scope B 후속, 2026-06-23) — count 를 맞춤유형/재출제 비율(예 선수지식:일반 7:3)로 자리 배분하고 버킷별 상한·보충. 현재는 우선순위 tier+spill 우회안으로 출시됨. Scope B spec §향후 개선 참조.
 - **[Design/UX] PersonalView 문항 수 상한 30→20** (2026-06-25, 사용자 아이디어) — ✅ **완료(2026-07-03, 브랜치 `feat/prelaunch-ux-backlog`, 커밋 `8bd5627`)**: `inputNumberValue` `:max="30"`→20, 라벨 "(6 ~ 30)"→"(6 ~ 20)" + 주석 정정. 백엔드 계약 무변경(클라이언트 상한만). 빌드 PASS·`npx eslint` 신규에러 0(선재 노이즈만). 사용자 `/personal` 확인.
@@ -105,6 +96,15 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Done — 완료
 
+- **[M4] 배포 무중단화 (Zero-Downtime Deployment)** — 2026-07-06 완료 (PR [#45](https://github.com/data-sy/my-math-teacher/pull/45) 머지, main `4706398`)
+  - 단일 EC2 위에서 기존 nginx 를 전환 지점으로 재사용한 blue-green 으로 백엔드 재배포 무중단화(K8s/ALB 없이). CI 배포 채널 = SSM Run Command(OIDC, ADR 0008). MySQL=RDS 분리·Neo4j 미구동(CTE-only)·Redis 로컬·스왑+mem_limit.
+  - **라이브 실측 결론(apply→측정→destroy):** 구식 in-place 재배포 **60.3% 유실**(502) → blue-green **0% 유실**. 단 전송 레이어는 무결(502=0)하되, t3.micro(1 vCPU)에서 부팅 JVM CPU 독점(148%)이 서빙을 굶겨 지연 타임아웃 → **부팅 컨테이너 `CPU_LIMIT=0.5` 캡으로 완전 무중단 0% 확증**(부팅 55%).
+  - 안전장치 라이브 검증: ① 워크플로 `CPU_LIMIT=0.5` → `--cpus=0.5` e2e · ② 데이터경로 smoke 게이트(green 통과 + 결함주입 시 컷오버 abort). Redis 크로스인스턴스 캐시 직렬화 버그 수정(PR #46) 포함해 오버랩 401=0.
+  - 리포트: `docs/benchmark/milestone-4-run-report.md`(3차 재검증 포함) · 시각 리포트 `milestone-4-zero-downtime-report-{eng,ko}.html`. 후속(M5): Grafana/Prometheus 재계측(Now).
+  - [milestone](milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](specs/m4/spec-01-zero-downtime-deployment.md) · [02](specs/m4/spec-02-harness-handoff-gates.md) · [03](specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04](specs/m4/spec-04-human-aws-provisioning-handoff.md)
+- **[M2] Neo4j → MySQL CTE 마이그레이션** — 검증 완료 (PR [#22](https://github.com/data-sy/my-math-teacher/pull/22)) · 실서버 CTE-only 정상동작은 **M4 라이브에서 확증(2026-07-06, unique 집합 대조 3/3 일치·복합인덱스 커버링)**
+  - 그래프 탐색 쿼리를 MySQL 재귀 CTE로 이전, 결과 동등성·성능·시각화·거리 맵 의미 보존 검증 완료. 회수: depth 3 p95 14.034ms (Neo4j) → 0.556ms (CTE), 약 25배.
+  - 결과 보고: `docs/reports/m2-cte-migration.md`. **점진 출시·관찰·Neo4j 실폐기는 M3 로 분리**(Next).
 - **[Product] 맞춤학습지 조건부 출제 (Scope B)** — 2026-06-23 완료 (브랜치 `feat/personalview-conditional-items-scope-b`, PR 진행)
   - PersonalView 맞춤 유형(오답/선수지식 위주)·재출제(없음/오답/전체)·문항수 라디오가 `ItemService.findPersonalItems` 를 제어. (Scope A 기본 정책은 PR #24 `5623ffc` 출시 완료.)
   - 알고리즘: 맞춤유형="위주"=**우선순위 tier**(오답위주 depth0→depth1~2 spill / 선수지식위주 depth1~2→depth0 spill), 재출제=원본 응시문항 재포함, **count=목표 총 문항수**(6~30) — 원본 → tier 순서 round-robin 으로 count 까지 채움(depth≤2 전체 소진 시 미달 허용), 파라미터 옵셔널=레거시 하위호환.

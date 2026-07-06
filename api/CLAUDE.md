@@ -8,7 +8,7 @@
 - Spring Boot 3.1.6 (Gradle)
 - JPA + Hibernate (주 영속성)
 - JdbcTemplate (레거시 — JPA로 점진 전환 중, 일부 리포지토리 병행 중)
-- Spring Data Neo4j Reactive (MySQL로의 마이그레이션 예정 — Milestone 2)
+- Spring Data Neo4j Reactive (그래프 탐색은 **M2에서 MySQL 재귀 CTE로 이전 완료** — 플래그 `mmt.migration.use-mysql-cte-for-graph`로 분기, Neo4j 코드·인프라 실폐기는 M3)
 - MySQL 8, Redis
 - Spring Security + OAuth2 Client (Google / Naver / Kakao)
 - JWT (`io.jsonwebtoken:jjwt` 0.11.5)
@@ -61,7 +61,7 @@
   - 구조적 변경이 필요하면 JPA 전환을 함께 제안하되 반드시 ADR 작성 (`docs/adr/`)
 - 현재 `repository/concept/`에는 `ConceptRepository`(Spring Data Neo4j Reactive, 그래프 탐색용)와 `JdbcTemplateConceptRepository`(MySQL `concepts`/`chapters` 조회용)가 공존 — JPA 리포지토리는 아직 이 패키지에 없으며, JPA 전환은 Epic: JdbcTemplate → JPA 전환의 대상
 - 배치 삽입은 `BatchPreparedStatementSetter` 또는 JPA `batch_size` 설정 사용
-- Neo4j 쿼리는 Milestone 2에서 MySQL로 단계적 이전 예정 — 신규 그래프 쿼리 추가 전 로드맵 확인
+- Neo4j 그래프 쿼리는 **M2에서 MySQL 재귀 CTE로 이전 완료**(플래그 분기, `JdbcTemplateConceptRepository.findPrerequisitesWithDepth/findPrerequisiteConcepts`) — 신규 그래프 쿼리 추가 전 로드맵 확인, Neo4j 실폐기는 M3
 
 ## 테스트 규칙
 
