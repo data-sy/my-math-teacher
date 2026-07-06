@@ -209,7 +209,7 @@ $ARGUMENTS는 공백으로 구분된 하나 이상의 문서 경로일 수 있�
 - `docs/adr/` → ADR
 - 루트 또는 하위 디렉토리의 `CLAUDE.md` → AI 컨텍스트 문서
 - 루트 또는 하위 디렉토리의 `README.md` → 프로젝트 개요 문서
-- `docs/roadmap.md` → Roadmap
+- `ROADMAP.md` → Roadmap
 - `docs/benchmark/` → 벤치마크 리포트
 
 위 규칙에 해당하는 경로는 **사용자 확인 없이** 해당 타입으로 확정하고 바로 1단계로 진행. 배치 감사 효율을 위해 매번 확인하지 않는다.

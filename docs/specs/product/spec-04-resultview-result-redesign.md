@@ -1,6 +1,6 @@
 # spec-04 · ResultView 결과 재설계 (헤드라인 요약 → 우선순위 카드 → 근거 강등)
 
-> 트랙: [Design] 실배포 전 리디자인 — 리포트 B 시리즈 화면 재설계 (B-3). 정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`
+> 트랙: [Design] 실배포 전 리디자인 — 리포트 B 시리즈 화면 재설계 (B-3). 정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`
 > 작업 브랜치: `feat/resultview-result-redesign` · Task 단위 커밋
 > 상태: spec 합의 대기 → 합의 후 코드 단계(`/analyze-before-change` → 구현)
 > 선행: spec-03(그래프 접근성) 완료 — ResultView 그래프는 `composables/useConceptGraph.js` 공유. 본 spec은 그래프 레이어를 건드리지 않고 **표현·정보위계**만 재설계.

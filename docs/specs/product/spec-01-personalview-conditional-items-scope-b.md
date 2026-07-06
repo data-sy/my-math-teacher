@@ -1,7 +1,7 @@
 # Spec 01: 맞춤학습지 조건부 출제 (Scope B)
 
 **분류:** Product (그래프 인프라 무의존 — M2/M3와 독립)
-**정본 로드맵 항목:** `docs/roadmap.md` → Later 백로그 → [Product] 맞춤학습지 조건부 출제 (Scope B)
+**정본 로드맵 항목:** `ROADMAP.md` → Later 백로그 → [Product] 맞춤학습지 조건부 출제 (Scope B)
 **선행:** Scope A(기본 정책 자동 출제) 출시 완료 (PR #24, `5623ffc`)
 **작성일:** 2026-06-23
 

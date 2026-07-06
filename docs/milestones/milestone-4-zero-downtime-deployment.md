@@ -83,7 +83,7 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 | **§9 프로비저닝** | EC2 / RDS / EIP / SG + 더미 `GDB_*` + RDS 시드 | 🟢 G1 완료·Phase B `plan` 성공(12 리소스), `apply`(G3) 대기 |
 | **Terraform Phase A/B** | LocalStack plan-only(A) → real AWS `plan`(B) | ✅ A 4슬라이스 완주 · **B `plan` 성공(2026-07-03, 12 리소스)**: provider 실 AWS 전환·키페어·RDS 3306 SG(커밋 `dec0139`→`f4e5c56`), 런북 `infra/terraform/README.md` |
 
-> 재개 메모는 비커밋 `m4-worklog.md` 에 있다(Carry-forward 결정 포함: R1 종결 · 더미 GDB 면 기동 → 폴백 불필요 · **AI 트레일러 제거(2026-07-03 정책 override)** · Terraform D1~D3 잠금).
+> 재개 메모는 `docs/specs/m4/m4-worklog.md` 에 있다(Carry-forward 결정 포함: R1 종결 · 더미 GDB 면 기동 → 폴백 불필요 · **AI 트레일러 제거(2026-07-03 정책 override)** · Terraform D1~D3 잠금).
 
 ---
 

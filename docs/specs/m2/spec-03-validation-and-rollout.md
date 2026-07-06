@@ -226,7 +226,7 @@ ADR 0004에 따라 production 메트릭 dashboard·alerting은 비범위. 본 ta
 
 - [ ] **ADR 0007 통합본 작성** (`docs/adr/0007-neo4j-deprecation.md`): Neo4j 도입 배경(v1) + 폐기 사유(M2) + docker-compose `mmt-neo4j` 제거를 한 ADR에 통합
 - [ ] 루트 CLAUDE.md 업데이트: 모노레포 구조에서 `neo4j/` 디렉토리의 위상 변경 (또는 디렉토리 삭제)
-- [ ] `docs/roadmap.md`에서 M2 완료 표시
+- [ ] `ROADMAP.md`에서 M2 완료 표시
 
 ### 롤백 안전망
 

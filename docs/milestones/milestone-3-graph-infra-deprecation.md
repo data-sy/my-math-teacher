@@ -62,7 +62,7 @@ M2 에서 검증된 MySQL 재귀 CTE 경로를 운영 환경에 점진 적용하
 **문서**
 - ADR 0007 통합본 작성: Neo4j 도입 배경(v1) + 폐기 사유(M2) + docker-compose 변경을 한 ADR 에
 - 루트 CLAUDE.md / api/CLAUDE.md 갱신 (Neo4j 언급 제거)
-- `docs/roadmap.md` 에 M2 / M3 완료 표시
+- `ROADMAP.md` 에 M2 / M3 완료 표시
 
 ---
 

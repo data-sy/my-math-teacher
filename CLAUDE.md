@@ -28,7 +28,7 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 
 ## 작업 규칙 (전역)
 
-- 모든 작업은 `docs/roadmap.md`의 활성 마일스톤 컨텍스트 안에서 진행
+- 모든 작업은 `ROADMAP.md`의 활성 마일스톤 컨텍스트 안에서 진행
 - 스키마 변경·마이그레이션·레이어 간 리팩토링은 반드시 **Analyze-Before-Change** 패턴 준수 (`/analyze-before-change` 커맨드)
 - 중요한 의사결정은 ADR 작성. 위치: `docs/adr/`, 템플릿: `docs/adr/_template.md`
 - 커밋은 Task 단위로 분리. 여러 Task를 하나의 커밋에 묶지 말 것
@@ -55,8 +55,8 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 
 ## 현재 활성 작업
 
-- [Roadmap](docs/roadmap.md)
-- M2(Neo4j→MySQL CTE)·M4(무중단 배포) 완료(2026-07-06, PR #45). 현재 = M5 관측성(Grafana/Prometheus) 착수 대기 / M3(Neo4j 폐기) Next. 정본은 항상 `docs/roadmap.md`.
+- [Roadmap](ROADMAP.md)
+- M2(Neo4j→MySQL CTE)·M4(무중단 배포) 완료(2026-07-06, PR #45). 현재 = M5 관측성(Grafana/Prometheus) 착수 대기 / M3(Neo4j 폐기) Next. 정본은 항상 `ROADMAP.md`.
 
 ## 금지 사항
 

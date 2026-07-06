@@ -57,14 +57,14 @@
 
 ## 작업 규칙 (전역)
 
-- 모든 작업은 `docs/roadmap.md`의 활성 마일스톤 컨텍스트 안에서 진행
+- 모든 작업은 `ROADMAP.md`의 활성 마일스톤 컨텍스트 안에서 진행
 - 스키마 변경·마이그레이션·레이어 간 리팩토링은 반드시 **Analyze-Before-Change** 패턴 준수 (/analyze-before-change 커맨드)
 - 중요한 의사결정은 ADR 작성. 위치: `docs/adr/`, 템플릿: `docs/adr/_template.md`
 - 커밋은 Task 단위로 분리. 여러 Task를 하나의 커밋에 묶지 말 것
 
 ## 현재 활성 작업
 
-- [Roadmap](docs/roadmap.md)
+- [Roadmap](ROADMAP.md)
 - 현재 진행 중: @docs/milestones/milestone-0-claude-code-integration.md
 
 ## 금지 사항

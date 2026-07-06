@@ -9,7 +9,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 - **[M5] 관측성 — Grafana/Prometheus 로 무중단 컷오버 재계측 (착수 대기)**
   - M4 무중단 배포를 로그(k6+`docker stats`) 기반으로 증명 완료 → 같은 컷오버를 Prometheus 스크레이프 + Grafana 상관 시각화로 재계측(nginx upstream·JVM CPU·컨테이너 CPU·k6 5xx 한 타임축 + 복합인덱스 EXPLAIN 스크린샷). **관측성·학습 목적, 무중단 증명의 차단 요소 아님.**
   - 상태: **브랜치 `feat/m5-spec-01-observability-grafana-prometheus` 생성(파킹) — spec 미작성, 착수 대기.** 착수 시 milestone-5 + spec-01 문서를 spec-first 로 작성.
-  - 백로그 정본: [`docs/backlog/observability-grafana-prometheus-for-zero-downtime.md`](backlog/observability-grafana-prometheus-for-zero-downtime.md) (k6 web dashboard 접힘, actuator+micrometer-registry-prometheus 도입=ADR감, 인프라 사이클 1회 추가)
+  - 백로그 정본: [`docs/backlog/observability-grafana-prometheus-for-zero-downtime.md`](docs/backlog/observability-grafana-prometheus-for-zero-downtime.md) (k6 web dashboard 접힘, actuator+micrometer-registry-prometheus 도입=ADR감, 인프라 사이클 1회 추가)
 
 > M4 종료(2026-07-06). M3(Neo4j 폐기)는 Next 로 예약. 현재 코드상 진행 중인 마일스톤 구현은 없음(M5 브랜치는 파킹 상태).
 
@@ -21,7 +21,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - M2 검증된 CTE 경로를 피처 플래그 ON 으로 점진 출시, 관찰 후 Neo4j 인프라·코드 일괄 폐기
   - ADR 0006 (점진 전환 정책) + ADR 0007 (Neo4j 폐기 통합본) 작성
   - 본 프로젝트는 운영 서비스가 아니므로 실제 수행은 선택적 — 마일스톤 문서로 의사결정·체크리스트만 정의 완료
-  - 문서: [`docs/milestones/milestone-3-graph-infra-deprecation.md`](milestones/milestone-3-graph-infra-deprecation.md)
+  - 문서: [`docs/milestones/milestone-3-graph-infra-deprecation.md`](docs/milestones/milestone-3-graph-infra-deprecation.md)
 
 - **[Epic] JdbcTemplate → JPA 전환**
   - 레거시 JdbcTemplate 기반 코드를 JPA로 점진적 마이그레이션
@@ -51,7 +51,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - `application.yml` 의 공통 `com.mmt` · `springframework.data.neo4j` · `springframework.security` DEBUG 로거를 프로덕션에서 INFO 로 하향 (M1 Spec 03 Task 3.3 에서 관찰)
   - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
 - **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)** — ✅ **완료(M4 에서 소진)**: Phase A(LocalStack plan-only 4슬라이스)·Phase B(real AWS plan) 구현 후 M4 라이브에서 `apply→destroy` 사이클 수 회 실행(2026-07-05·07-06). 최종 apply 18 리소스, destroy 후 잔여 0(state+AWS 이중검증). G3 게이트가 실제 `terraform apply` 로 동작함.
-  - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](backlog/terraform-iac-for-m4-provisioning.md)
+  - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](docs/backlog/terraform-iac-for-m4-provisioning.md)
 - **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ▶ **착수 가능**(role 생성·사용 확인됨, M4 세션들에서 assume). 매 apply 세션 1h TTL 재-MFA 성가심이 실제로 발생(2026-07-05 destroy 중 만료 사고) → 연장 이득 확인됨. 편의 최적화(가역), 급하지 않음
   - 목적: assume 한 admin 세션이 Terraform 작업 중 만료돼 재-MFA 하는 성가심 축소. **편의 최적화 — 배포 파이프라인 동작엔 비필수·급하지 않음**(가역).
   - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).
@@ -60,7 +60,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 - DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
 - 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
 - CI/CD 파이프라인 정비 및 배포 자동화
-- 모니터링·알림 체계 구축 (Grafana+Prometheus) — 1차 착수분 = **[M5] 무중단 컷오버 재계측**(Now·[백로그](backlog/observability-grafana-prometheus-for-zero-downtime.md)). 프로덕션 상시 모니터링·알림은 그 이후 확장
+- 모니터링·알림 체계 구축 (Grafana+Prometheus) — 1차 착수분 = **[M5] 무중단 컷오버 재계측**(Now·[백로그](docs/backlog/observability-grafana-prometheus-for-zero-downtime.md)). 프로덕션 상시 모니터링·알림은 그 이후 확장
 - `shared/` 내부 구조 정리 (`diagrams/`, `scripts/`, `data/` 분리 — 필요시)
 - **[Product] 맞춤학습지 비율 배분 출제** (Scope B 후속, 2026-06-23) — count 를 맞춤유형/재출제 비율(예 선수지식:일반 7:3)로 자리 배분하고 버킷별 상한·보충. 현재는 우선순위 tier+spill 우회안으로 출시됨. Scope B spec §향후 개선 참조.
 - **[Design/UX] PersonalView 문항 수 상한 30→20** (2026-06-25, 사용자 아이디어) — ✅ **완료(2026-07-03, 브랜치 `feat/prelaunch-ux-backlog`, 커밋 `8bd5627`)**: `inputNumberValue` `:max="30"`→20, 라벨 "(6 ~ 30)"→"(6 ~ 20)" + 주석 정정. 백엔드 계약 무변경(클라이언트 상한만). 빌드 PASS·`npx eslint` 신규에러 0(선재 노이즈만). 사용자 `/personal` 확인.
@@ -101,7 +101,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - **라이브 실측 결론(apply→측정→destroy):** 구식 in-place 재배포 **60.3% 유실**(502) → blue-green **0% 유실**. 단 전송 레이어는 무결(502=0)하되, t3.micro(1 vCPU)에서 부팅 JVM CPU 독점(148%)이 서빙을 굶겨 지연 타임아웃 → **부팅 컨테이너 `CPU_LIMIT=0.5` 캡으로 완전 무중단 0% 확증**(부팅 55%).
   - 안전장치 라이브 검증: ① 워크플로 `CPU_LIMIT=0.5` → `--cpus=0.5` e2e · ② 데이터경로 smoke 게이트(green 통과 + 결함주입 시 컷오버 abort). Redis 크로스인스턴스 캐시 직렬화 버그 수정(PR #46) 포함해 오버랩 401=0.
   - 리포트: `docs/benchmark/milestone-4-run-report.md`(3차 재검증 포함) · 시각 리포트 `milestone-4-zero-downtime-report-{eng,ko}.html`. 후속(M5): Grafana/Prometheus 재계측(Now).
-  - [milestone](milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](specs/m4/spec-01-zero-downtime-deployment.md) · [02](specs/m4/spec-02-harness-handoff-gates.md) · [03](specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04](specs/m4/spec-04-human-aws-provisioning-handoff.md)
+  - [milestone](docs/milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](docs/specs/m4/spec-01-zero-downtime-deployment.md) · [02](docs/specs/m4/spec-02-harness-handoff-gates.md) · [03](docs/specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04](docs/specs/m4/spec-04-human-aws-provisioning-handoff.md)
 - **[M2] Neo4j → MySQL CTE 마이그레이션** — 검증 완료 (PR [#22](https://github.com/data-sy/my-math-teacher/pull/22)) · 실서버 CTE-only 정상동작은 **M4 라이브에서 확증(2026-07-06, unique 집합 대조 3/3 일치·복합인덱스 커버링)**
   - 그래프 탐색 쿼리를 MySQL 재귀 CTE로 이전, 결과 동등성·성능·시각화·거리 맵 의미 보존 검증 완료. 회수: depth 3 p95 14.034ms (Neo4j) → 0.556ms (CTE), 약 25배.
   - 결과 보고: `docs/reports/m2-cte-migration.md`. **점진 출시·관찰·Neo4j 실폐기는 M3 로 분리**(Next).
@@ -110,9 +110,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 알고리즘: 맞춤유형="위주"=**우선순위 tier**(오답위주 depth0→depth1~2 spill / 선수지식위주 depth1~2→depth0 spill), 재출제=원본 응시문항 재포함, **count=목표 총 문항수**(6~30) — 원본 → tier 순서 round-robin 으로 count 까지 채움(depth≤2 전체 소진 시 미달 허용), 파라미터 옵셔널=레거시 하위호환.
   - **그래프 무의존**: `probabilities.to_concept_depth`(사전계산)만 사용 → Neo4j/CTE 직접 의존 0, M3 비차단.
   - 검증: 단위테스트(tier·spill·dedup·clamp·원본 산입·하위호환·IDOR) + 풀스택 런타임(브라우저 UI 포함) 통과.
-  - spec: [`docs/specs/product/spec-01-personalview-conditional-items-scope-b.md`](specs/product/spec-01-personalview-conditional-items-scope-b.md). 후속: 비율 배분 출제·맞춤 출제 알고리즘 조사(Later 백로그).
+  - spec: [`docs/specs/product/spec-01-personalview-conditional-items-scope-b.md`](docs/specs/product/spec-01-personalview-conditional-items-scope-b.md). 후속: 비율 배분 출제·맞춤 출제 알고리즘 조사(Later 백로그).
 - **[M1] 테스트 인프라 및 기준선 구축** — 2026-04-24 완료 (PR [#11](https://github.com/data-sy/my-math-teacher/pull/11), [#12](https://github.com/data-sy/my-math-teacher/pull/12))
-  - [milestone](milestones/milestone-1-test-infrastructure.md)
+  - [milestone](docs/milestones/milestone-1-test-infrastructure.md)
   - Testcontainers 기반 통합 테스트 (MySQL 8 + Neo4j 5.12), 테스트 전용 `application-test.yml` 프로파일, JPA N+1 감지 (Hibernate Statistics)
   - 성능 기준선 실측 (warmup 3 + 측정 100 회, avg/p95/p99) — 7 개 연산을 `docs/benchmark/milestone-1-baseline.md` 에 기록
   - Neo4j 그래프 결과 sha256 스냅샷 (`shared/benchmark/neo4j-snapshot-20260424.json`) — M2 동치성 비교용
@@ -121,7 +121,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - `MysqlConceptRepository` 스텁 + `ConceptService.findNodesIdByConceptIdDepth3` 조건 분기 (M2 롤백 구조)
   - `QueryTimingAspect` + Micrometer `SimpleMeterRegistry` — 리포지토리 쿼리 시간 · 슬로우 쿼리 WARN
 - **[M0] Claude Code 통합 환경 구축** — 2026-04-24 완료 (머지 `710167c`)
-  - [milestone](milestones/milestone-0-claude-code-integration.md)
+  - [milestone](docs/milestones/milestone-0-claude-code-integration.md)
   - 계층형 CLAUDE.md (루트 + `api/` + `web/`), 슬래시 커맨드 3종(`/analyze-before-change`, `/write-adr`, `/review-pr`), Analyze-Before-Change·피처 플래그 가드레일 명시, ADR 템플릿
 
 ---

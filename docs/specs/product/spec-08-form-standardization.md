@@ -1,6 +1,6 @@
 # spec-08 · 폼 표준화 — 가입/회원수정 토큰 채택 + 중복 검증 컴포넌트화 (P1)
 
-> 트랙: [Design] 실배포 전 리디자인 — 폼 표준화(리포트 P1 §235 #9). 정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`
+> 트랙: [Design] 실배포 전 리디자인 — 폼 표준화(리포트 P1 §235 #9). 정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`
 > 작업 브랜치: `feat/form-standardization` (셸 브랜치 `feat/shell-global-nav` 위 스택 — 토큰+셸 채택). Task 단위 커밋.
 > 상태: spec 합의 대기 → 합의 후 코드 단계
 > 무게: 중복 검증 로직 추출(거동 리팩토링)을 포함하므로 경량~중간 spec + **`/analyze-before-change`**(§3.1, 참조 스캔 완료). 단 양 폼 검증자가 코드상 동일 정의라 발산 위험 0.

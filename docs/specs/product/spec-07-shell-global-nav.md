@@ -1,6 +1,6 @@
 # spec-07 · 셸 전환 Phase 1 — 좌측 사이드바 → 상단 글로벌 내비 (P1)
 
-> 트랙: [Design] 실배포 전 리디자인 — 셸 전환(리포트 P1 #5, §129·§231·§248 #2). 정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`
+> 트랙: [Design] 실배포 전 리디자인 — 셸 전환(리포트 P1 #5, §129·§231·§248 #2). 정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`
 > 작업 브랜치: `feat/shell-global-nav` (토큰 브랜치 `feat/design-tokens-typography` 위 스택 — 토큰 채택 위함). Task 단위 커밋.
 > 상태: spec 합의 대기 → 합의 후 코드 단계
 > 무게: 전역 프레임·다층(레이아웃/CSS/컴포넌트) 변경·가역성 낮음 → **정식 spec + `/analyze-before-change`**(§3.1 참조 스캔 완료). 단 PrimeVue `Menubar` 재사용으로 신규 위젯 자작 없이 범위 축소.

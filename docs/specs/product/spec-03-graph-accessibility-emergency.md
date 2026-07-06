@@ -1,6 +1,6 @@
 # spec-03 · 그래프 응급 접근성 (ConceptView · ResultView 공통)
 
-> 트랙: [Design] 실배포 전 리디자인 — 이월 UI 마지막 항목 (정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`)
+> 트랙: [Design] 실배포 전 리디자인 — 이월 UI 마지막 항목 (정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`)
 > 작업 브랜치: `feat/pre-launch-redesign` · Task 단위 커밋
 > 상태: spec 합의 대기 → 합의 후 코드 단계(`/analyze-before-change` → 구현)
 
@@ -25,7 +25,7 @@
 4. **색 체계 12색 → 학교급 3색 + 명도 3단계** — 노란색 퇴출, 흰 배경 비텍스트 대비 ≥3:1 보장. 범례(template `<ul>`)도 동일 색으로 동기화.
 
 ### Out (이번 범위 밖 — 재확인됨)
-- B-2 "단일 캔버스(검색/필터 한 줄 + 그래프 상시 표시)" 진입 재설계 → 별도 로드맵 항목(`docs/roadmap.md` Later, 리포트 §234). 4단계 선행 입력 UI는 **이번에 건드리지 않는다.**
+- B-2 "단일 캔버스(검색/필터 한 줄 + 그래프 상시 표시)" 진입 재설계 → 별도 로드맵 항목(`ROADMAP.md` Later, 리포트 §234). 4단계 선행 입력 UI는 **이번에 건드리지 않는다.**
 - 줌 컨트롤·미니맵·검색·"현재 보고 있는 개념" 표식 (리포트 §60) → Later.
 - 색 토큰을 전역 `tokens.css`로 끌어올리는 디자인시스템 작업(C안) → Later. 이번엔 컴포저블 내부 상수로 1곳 집약까지만(토큰화의 발판).
 - ResultView의 표/요약 서사 재설계(B-3) → 별도.
