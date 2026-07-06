@@ -20,6 +20,8 @@
 - **teardown**: 사용자 추가 ssh/scp allow 룰 2개 회수 완료.
 
 > **다음(사람 절차):** PR #45 Ready→머지(G6 permitAll 보안승인 포함). 값 튜닝(CPU_LIMIT 0.6/0.75) 재측정은 선택. skip_tests input+가드 제거는 측정 종료 후 후속.
+> **관측성 백로그(신설):** `docs/backlog/observability-grafana-prometheus-for-zero-downtime.md` — Grafana/Prometheus 로 무중단 컷오버 재계측(측정가능한 것 다 모으기: nginx/JVM/컨테이너 상관 + 복합인덱스 EXPLAIN 스크린샷). k6 web dashboard(구 A)는 여기 접힘. 인프라 사이클 1회 추가.
+> **시각 리포트 산출물:** `docs/benchmark/milestone-4-zero-downtime-report-{eng,ko}.html`(self-contained, Before 60.3%→After 0% + CPU 캡 경계 + ①② 검증).
 
 ---
 
