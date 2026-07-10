@@ -5,9 +5,9 @@
 **선행 spec:** M4 spec-01(무중단 배포 기반, 완료) — 본 spec 은 그 메커니즘을 *소비*한다
 **후속:** spec-02(👤 사람 핸드오프 — 도메인 DNS·상시 결제·수명주기)
 
-> ⚠️ **상태: 설계 뼈대(skeleton) — 구현 미착수.** 섹션 골격과 확정된 사실만 채웠고, 실파일
-> 대조가 필요한 부분(§1)·아키텍처 상세(§2)는 `[TODO: 착수 시 채움]` 으로 표시했다. §결정(§7)
-> 사인오프 이전에는 코드/인프라를 변경하지 않는다.
+> ⚠️ **상태: 설계 확정 — 구현 미착수.** §1(현재 상태, 실파일 대조 2026-07-11)·§2(아키텍처)·§7(결정)
+> 채움 완료. **D1·D2·D3 사인오프됨(2026-07-11)** — 잔여 결정은 D4(x86/ARM, ~$6/월)뿐, apply 착수 시
+> 인스턴스 타입과 함께 확정. 사인오프 게이트 통과 → 코드/인프라 변경 착수 가능. §3 셋업·§8 Analyze-Before-Change 는 착수 시 진행.
 
 ---
 
@@ -29,19 +29,19 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
 
 | 자산 | 경로 | M6 에서의 처지 |
 |---|---|---|
-| Terraform IaC | `infra/terraform/{compute,database,network,iam,provider,variables}.tf` | 상시용으로 조정(destroy 안 함, EIP 고정) — `[TODO: 상시화 diff]` |
-| tfvars/state | `infra/terraform/terraform.tfvars` · `terraform.tfstate` | `[TODO: 현재 state 가 살아있는지/빈지 확인 — destroy 후 잔여 0 이었음]` |
+| Terraform IaC | `infra/terraform/{compute,database,network,iam,provider,variables}.tf` | 상시용으로 조정(destroy 안 함, EIP 고정). 리전 `ap-northeast-2`(`provider.tf:27`), 루트볼륨 gp3 30GB(`variables.tf:53`). 상시화 diff = 인스턴스 타입 bump(§5-1)·apply 착수 시 |
+| tfvars/state | `infra/terraform/terraform.tfvars` · `terraform.tfstate` | **현재 state 빈 껍데기**(`resources: []`, serial 237) = M4 destroy 후 잔여 0 검증됨. `tfstate.backup` 에 직전 M4 세대 전체(`aws_instance`·`aws_db_instance` db.t3.micro·`aws_eip` 등) 잔존 = 참조 인벤토리. tfvars 3줄: `use_localstack=false`·`my_ip=27.1.27.65`·`db_password` |
 | 배포 스크립트 | `deploy/switch-backend.sh` | 그대로 재사용(blue-green 컷오버) |
-| 측정 하네스 | `infra/terraform/run-log.sh` | destroy 단계 스킵하고 상시 측정에 재사용 |
-| 프론트 nginx | `web/nginx.conf` | TLS(443) 추가 지점 — `[TODO: 443/인증서 블록 설계]` |
-| 헬스 | `api/.../controller/HealthController.java` | 그대로(컷오버 게이트) |
+| 측정 하네스 | `infra/terraform/run-log.sh` | destroy 단계 스킵하고 상시 측정에 재사용. destroy 는 `cmd_tf_destroy()`(라인 86-93) → `tf-destroy` 서브커맨드로만 발동(자동 훅 아님) = 상시 모드 = tf-destroy 미호출로 충분, 코드 제거 불필요 |
+| 프론트 nginx | `web/nginx.conf` | 현재 **80 단독 listen, TLS 없음**. SPA try_files·blue-green upstream 프록시 존재 → 443 listen + Let's Encrypt 인증서 블록 신규 추가 지점 |
+| 헬스 | `api/.../controller/HealthController.java` | 그대로(컷오버 게이트). permitAll = `GET /api/v1/health`(정확매칭, `SecurityConfig.java:82`) |
 | CI 워크플로 | `.github/workflows/api-ci-cd-with-ec2.yml` | 그대로(수동 dispatch) |
 
 ### 1.2 상시화가 바꾸는 전제
 
-- **destroy 규율 역전** — M4 는 측정 후 `terraform destroy` 가 안전이었다. M6 는 destroy = 링크 사망. `run-log.sh` 의 destroy 훅·SessionEnd teardown 류 금지. `[TODO: run-log.sh 의 destroy 경로 식별]`
-- **공개 노출 상시화** — SG·인증·시크릿·rate limit 표면이 상시 열림. `[TODO: SG 인그레스·SecurityConfig 공개 엔드포인트 재점검]`
-- **비용이 시간에 비례** — 원샷이 아니라 월 단위. `[TODO: 백로그 §2 스택별 월액 재확인]`
+- **destroy 규율 역전** — M4 는 측정 후 `terraform destroy` 가 안전이었다. M6 는 destroy = 링크 사망. `run-log.sh` 의 destroy 훅·SessionEnd teardown 류 금지. **경로 식별됨**: `cmd_tf_destroy()`(`run-log.sh:86-93`)가 `tf-destroy` 서브커맨드로만 발동(자동 훅 없음) → 상시 모드는 이 서브커맨드를 안 부르면 됨.
+- **공개 노출 상시화** — SG·인증·시크릿·rate limit 표면이 상시 열림. **재점검됨**: SG 인그레스 = 80·443 공개(0.0.0.0/0), 22 내IP만(`network.tf:33-58`), 8080 규칙 부재. permitAll 공개면 = catalog(chapters/concepts/tests, 정답 미포함)·sample 체험·auth·oauth2(`SecurityConfig.java:74-96`), 정답 포함 items/detail·validation 은 의도적 보호. R2 최소개방 전제 성립.
+- **비용이 시간에 비례** — 원샷이 아니라 월 단위. **확인됨**(백로그 §2): 린 스택 t3.medium 4GB ~$37/월(ARM t4g.medium ~$31), + Public IPv4 ~$3.6·EBS 30GB ~$2.4·Route53 $0.5. 신규계정 $200 크레딧+6개월 무료, 크레딧 남아도 6개월 자동종료(§3, R1).
 
 ---
 
@@ -55,12 +55,12 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
                             nginx(443 TLS 종단, 80→443 리다이렉트)
                               → blue/green 백엔드(switch-backend.sh 컷오버)
                               → 정적 SPA(web/dist)
-                            MySQL(RDS 또는 로컬=§7 D3) · Redis(로컬) · TF Serving(실서빙 유지=§7 D1 확정 a)
+                            MySQL(RDS db.t3.micro, EC2 밖 분리=§7 D3 확정 a) · Redis(로컬) · TF Serving(실서빙 유지=§7 D1 확정 a)
                             Neo4j 미구동(CTE-only, mmt.migration.use-mysql-cte-for-graph=true)
 ```
 
 - 도메인 등록은 **타 계정 유지**(이관 없음). DNS 위임만 — 등록/호스팅 영역이 다른 계정이어도 정상 동작.
-- TLS: `[TODO: Let's Encrypt(certbot, nginx 종단, 90일 자동갱신) vs ACM — §7 D2]`
+- TLS: **Let's Encrypt(certbot, nginx 443 종단, 90일 자동갱신) 확정(§7 D2 a)**. SG 443 이미 개방·nginx 현재 80 단독 → 443 listen + 인증서 블록 신규 추가.
 
 ---
 
@@ -106,11 +106,11 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
 | # | 결정 | 옵션 | 상태 |
 |---|---|---|---|
 | **D1** | 데모 스택 | (a) **TF Serving 실서빙 유지 = 4GB(t3.medium ~월 $37)** — 진단 확률까지 실기능 시연 / (b) 합성 확률 대체 = t4g.small ~월 $19 | ✅ **확정 (a) — 실서버 유지** (2026-07-11, 사용자). 이력서 데모에서 AI 진단이 실제로 도는 걸 보여주는 값어치 채택 |
-| **D2** | TLS 방식 | (a) Let's Encrypt+certbot(nginx 종단, 무료, 90일 자동갱신) / (b) ACM(단일 EC2엔 ALB 필요 → 비용↑) | ⏳ **다음** — a 유력(단일 EC2 nginx 종단) |
-| **D3** | MySQL 배치 | (a) RDS(M4 database.tf 재사용, 프리티어 db.t3.micro) / (b) EC2 로컬 MySQL(비용↓, 관리↑) | ⏳ |
-| **D4** | 인스턴스 아키 | x86 t3.medium(~월 $37) vs ARM t4g.medium(4GB 동일, ~월 $31, 재빌드 필요) | ⏳ — D1=a 로 **4GB 하한 고정**, 남은 건 x86/ARM 비용 ~$6/월 차이뿐 |
+| **D2** | TLS 방식 | (a) Let's Encrypt+certbot(nginx 종단, 무료, 90일 자동갱신) / (b) ACM(단일 EC2엔 ALB 필요 → 비용↑) | ✅ **확정 (a) — Let's Encrypt+certbot** (2026-07-11, 사용자). SG 443 이미 개방·nginx 80 단독 listen 확인 → 443 블록 신규 추가만 하면 M4 nginx 종단 blue-green 구조 그대로. ACM=ALB(~$16/월)는 그 컷오버 메커니즘을 갈아엎어 §0 "M4 재사용" 전제 위배 |
+| **D3** | MySQL 배치 | (a) RDS(M4 database.tf 재사용, 프리티어 db.t3.micro) / (b) EC2 로컬 MySQL(비용↓, 관리↑) | ✅ **확정 (a) — RDS** (2026-07-11, 사용자). M4 `tfstate.backup` 에 `aws_db_instance`(db.t3.micro) 실존 → `database.tf` 가 이미 RDS 프로비저닝 = 재사용. DB를 EC2 밖으로 빼 R7(4GB RAM 경합) 완화. 신규계정 6개월 종료(R1)가 RDS 프리티어 12개월보다 먼저 와 만료 비용 무의미 |
+| **D4** | 인스턴스 아키 | x86 t3.medium(~월 $37) vs ARM t4g.medium(4GB 동일, ~월 $31, 재빌드 필요) | ⏳ **유일 잔여** — D1=a 로 **4GB 하한 고정**, 남은 건 x86/ARM 비용 ~$6/월 차이뿐. 현 `variables.tf:47` 기본값은 M4 측정용 `t3.micro` → apply 전 4GB 타입으로 bump 필요(§5-1) |
 
-> **D1 확정(a·실서버 유지)** → RAM 4GB 하한 고정(JVM+MySQL+Redis+TF Serving 공존). 인스턴스는 t3.medium 기준선, D4(ARM 전환 ~$6/월 절감)만 남은 소소한 선택. **다음 = D2(TLS)·D3(RDS vs 로컬).**
+> **D1·D2·D3 확정** (2026-07-11) → 스택 골격 잠금: 단일 EC2(4GB, TF Serving 실서빙) + RDS(db.t3.micro, DB 분리로 R7 완화) + nginx 443 Let's Encrypt TLS 종단, blue-green 컷오버는 M4 그대로. **잔여 = D4(x86 t3.medium vs ARM t4g.medium, ~$6/월 차이)뿐** — apply 착수 시 인스턴스 타입 확정과 함께 결정. 사인오프 게이트 통과: 코드/인프라 변경 착수 가능.
 
 ---
 
