@@ -52,6 +52,8 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
 - **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)** — ✅ **완료(M4 에서 소진)**: Phase A(LocalStack plan-only 4슬라이스)·Phase B(real AWS plan) 구현 후 M4 라이브에서 `apply→destroy` 사이클 수 회 실행(2026-07-05·07-06). 최종 apply 18 리소스, destroy 후 잔여 0(state+AWS 이중검증). G3 게이트가 실제 `terraform apply` 로 동작함.
   - 상세·단계·비용 경계: [`docs/backlog/terraform-iac-for-m4-provisioning.md`](docs/backlog/terraform-iac-for-m4-provisioning.md)
+- **[Infra/GTM] 서버 올리기 — 프로덕션 상시 배포(이력서 라이브 링크)** (2026-07-10, 사용자 요청) — 📌 미착수. M4 프로비저닝 능력을 *상시(always-on)* 로 전환해 `my-math-teacher.com` 공개 데모 링크 확보. 린 스택(t3.medium/t4g.medium + Neo4j 끄고 CTE) ~월 $37, $200 크레딧으로 6개월 커버(신규 프리티어 계정 6개월 자동 종료가 상한 — 그 안에 취업 예정이라 수용). 도메인은 기존 계정 유지 + DNS 위임 권장(이관 불필요).
+  - 상세·비용표·6개월 종료 제약·도메인 결정: [`docs/backlog/production-deploy-live-resume-link.md`](docs/backlog/production-deploy-live-resume-link.md)
 - **[Infra/Tooling] M4 텔레메트리 하네스(`run-log.sh`) → 재사용 하네스 레포 이관** (2026-07-06)
   - M4 라이브 측정에 쓴 `infra/terraform/run-log.sh`(init/mark · tf-apply/tf-destroy · ec2 메모리/디스크/docker-stats 스냅샷 · cost 원장, 151줄 · 시크릿 0)는 이 프로젝트에 국한되지 않는 **재사용 가능한 배포·측정 하네스**라, 별도 하네스 레포로 추출하기로 결정.
   - **실제 이관은 외부 하네스 레포 대상 → 이 repo 안에서 완결 불가**(cross-repo). 그 레포 셋업 시 진행하고, 이관 후 여기엔 M4 전용 얇은 래퍼만 남기거나 레포 참조로 대체.
