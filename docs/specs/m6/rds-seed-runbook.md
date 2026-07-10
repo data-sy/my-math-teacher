@@ -73,6 +73,13 @@ aws ssm start-session \
 
 ---
 
+## 실행 결과 (2026-07-11, 어시스턴트가 SSH 터널 경유로 실행)
+
+- **접속:** 로컬 mysql 9.5 는 native-password 인증 불가 → `mysql-client@8.4` 설치로 해결. loopback SSH 터널(EC2 bastion)로 RDS 연결(SSM 플러그인 미설치라 SSH 키 경로 채택).
+- **적재:** drop→전체 순서 로드를 단일연결·autocommit off·FK off 로 가속(문장단위 로드가 5분 타임아웃 → 이 방식으로 재실행). 최종 카운트: chapters 647·concepts 1631·sections 9·knowledge_space 3446·items 13013(진단 8120+개인 4893)·tests 710·tests_items 8120·users 2.
+- ✅ **item_id 정합 리스크 해소 확인:** `orphan_refs=0` — tests_items 참조 item_id(1~8120) 전부 items 에 존재. 진단-문항-먼저 순서가 옳았음이 실증됨.
+- ⚠️ **LaTeX escaping 리스크는 실제 발생** — concepts.description 한정. `insert_concepts_latex.sql` 이 `\'`+`\n`(이스케이프 요구)와 `\begin`(리터럴 요구)를 섞어 단일 로드 모드로 불가. **임시 타깃 변환 적용**(n-제외 명령 백슬래시 이중화)으로 대다수 수식 복원, n-명령·`\\` 잔여 흠은 백로그 §7. 상세=[`../../backlog/production-deploy-live-resume-link.md`](../../backlog/production-deploy-live-resume-link.md).
+
 ## 롤백
 
 `api/sql/drop.sql`(FK 역순 DROP) → create.sql 부터 재실행. RDS 인스턴스 자체는 유지(destroy=링크 사망).

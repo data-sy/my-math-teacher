@@ -53,3 +53,23 @@ M4 의 라이브 배포는 **측정 후 destroy** 가 규율이었다(비용·�
 - **teardown 규율 역전:** M4 는 "측정 후 destroy" 가 안전이었지만 여기선 destroy 하면 링크가 죽는다. SessionEnd 훅 류의 무조건 teardown 금지(루트 CLAUDE.md 환경 토글 비대칭 규율과 정합).
 - 시크릿(RDS 비번·OAuth·JWT)은 HCL/state/커밋에 평문 금지 — 비커밋 `*.tfvars`/환경변수만.
 - 리전 ap-northeast-2(서울) 유지(M4 와 동일).
+
+## 7. 이월 — concepts LaTeX 시드 충실도 (임시 수정 적용됨, 제대로 된 수정 필요)
+
+**배경(2026-07-11):** RDS 시드 시 `api/sql/insert_concepts_latex.sql` 만 LaTeX 수식을 담는데, 이 파일은
+단일 백슬래시 LaTeX(`\begin`·`\frac`·`\to`)와 이스케이프-요구 시퀀스(`\'` 138건·`\n` 3453건)를
+**한 파일에 섞어** 어떤 단일 MySQL 로드 모드로도 온전히 안 들어간다(기본모드=LaTeX 깨짐, NO_BACKSLASH_ESCAPES=`\'` 문법에러).
+원본 운영 DB 는 앱/드라이버 파라미터 바인딩 경로로 적재됐을 가능성. → `mysql < file` 직로드는 근본적으로 불충분.
+
+**적용한 임시 수정:** n(소문자) 제외 문자로 시작하는 명령의 백슬래시만 이중화하는 sed 변환
+(`s/\\([a-mo-zA-Z])/\\\\\1/g`) 후 concepts 만 기본모드 재로드. → `\frac`·`\sqrt`·`\times`·`\to`·`\begin`
+등 대다수 명령 복원 확인(concept 5762·3 스팟체크). concepts 외 테이블·item_id 정합 무영향.
+
+**남은 흠(제대로 된 수정 대상):**
+- **n-시작 명령**(`\ne`≠ 124건·`\ni`·`\nabla` 류 ~150건)은 `\n`(줄바꿈)과 구분 불가라 미변환 → 여전히 깨짐.
+- cases 행 구분자 `\\`(원본 `\\\`)가 기본모드에서 단일 `\` 로 축약 → 줄바꿈 렌더 흠 가능.
+- **근본 해결 방향:** (a) 원본 운영 DB 덤프의 concepts.description ground-truth 확보, 또는
+  (b) 앱/스크립트 파라미터 바인딩으로 재적재(문자열 리터럴 보존), 또는 (c) 프론트 `VMarkdownView` 가
+  기대하는 정확한 인코딩 확인 후 그에 맞춘 결정적 변환 작성. 이력서 데모엔 그래프·진단이 핵심이라 현 임시본 수용,
+  실제 수식 렌더 품질이 문제되면 위 (a)~(c) 로 정식 수정.
+- 정본 절차·현 상태: [`../specs/m6/rds-seed-runbook.md`](../specs/m6/rds-seed-runbook.md).
