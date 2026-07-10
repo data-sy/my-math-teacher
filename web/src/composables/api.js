@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 export function useApi() {
-    const baseURL = 'http://localhost:8080';
+  // 로컬 dev(vite)는 프론트 5173·백엔드 8080 로 분리 → localhost:8080 유지.
+  // 프로덕션 빌드는 nginx 가 같은 오리진에서 SPA·/api·/oauth2 를 함께 서빙하므로
+  // window.location.origin(same-origin) 사용 → https 페이지의 localhost 호출(mixed-content)
+  // 방지 + refreshToken 쿠키 same-origin. (M6 spec-01 / ADR 0009)
+  const baseURL = import.meta.env.PROD ? window.location.origin : 'http://localhost:8080';
   // Axios 인스턴스 생성
   const api = axios.create({
     baseURL,
