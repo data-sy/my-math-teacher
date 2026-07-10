@@ -5,10 +5,12 @@
 **선행 spec:** M4 spec-01(무중단 배포 기반, 완료) — 본 spec 은 그 메커니즘을 *소비*한다
 **후속:** spec-02(👤 사람 핸드오프 — 도메인 DNS·상시 결제·수명주기)
 
-> ⚠️ **상태: 코드/IaC 변경 착수됨(2026-07-11).** §1·§2·§7 채움 완료. **D1·D2·D3·D4 전부 확정**
-> (D4=x86 t3.medium). §8 Analyze-Before-Change 완료 → 아래 3건 커밋: instance_type bump·
-> web api.js same-origin(ADR 0009)·nginx 443 TLS. **잔여 = 사람 핸드오프(spec-02): 실 apply·
-> 인증서 발급·DNS·RDS 시드.** 실비용·공개노출·데이터면 작업이라 사람이 트리거한다.
+> ⚠️ **상태: 인프라 apply 완료(2026-07-11).** §1·§2·§7 채움 완료. **D1·D2·D3·D4 전부 확정**
+> (D4=x86 t3.medium). §8 Analyze-Before-Change 완료 → 3건 커밋(instance_type bump·
+> web api.js same-origin(ADR 0009)·nginx 443 TLS). **`terraform apply` 완료: 18 added, 0 destroyed.**
+> EIP=`54.116.29.102`(association 완료·재기동해도 고정)·RDS=`mmt-db.c7qu444ug8bf.ap-northeast-2.rds.amazonaws.com:3306`·
+> EC2=`i-0eb170169ac70ee05`. **잔여 = 사람 핸드오프(spec-02): RDS 시드·인증서 발급·DNS.**
+> 실비용·공개노출·데이터면 작업이라 사람이 트리거한다.
 
 ---
 
@@ -79,13 +81,20 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
 
 1. `terraform apply`(destroy 없음, `use_localstack=false`) → EC2·EIP·RDS·SG 생성, EIP 고정 확인
    - ⚠️ apply 전 `terraform.tfvars` 의 `my_ip`(SSH 22 인바운드) 현재 IP 로 갱신 — stale 시 SSH 잠김
-2. **RDS 시드** — 신규 RDS 는 빈 DB. 기존 운영 MySQL 덤프를 새 RDS 로 이관(`mysqldump`→import).
-   `shared/data/csv/*`(concepts·knowledge_space)는 부분 자산일 뿐 전체 스키마 덤프 아님 → 운영 덤프 필요.
+   - **plan 사전검증 완료(2026-07-11): `Plan: 18 to add, 0 to change, 0 to destroy`.** instance_type=`t3.medium`(A1)·AMI al2023 x86_64(D4)·`aws_eip`+association(EIP 고정)·RDS `db.t3.micro`(D3)·SG 80/443 공개+3306 app-SG 한정+22 단일IP(R2) 전부 plan 상 확인. `my_ip`=27.1.27.65 는 apply 시점 실 공인 IP 와 일치 확인(갱신 불요)
+   - ✅ **apply 완료(2026-07-11): `18 added, 0 changed, 0 destroyed`(RDS 5m17s).** EIP=`54.116.29.102`(assoc `eipassoc-082cf1b65b0c6e1e0`)·EC2=`i-0eb170169ac70ee05`·RDS=`mmt-db.c7qu444ug8bf.ap-northeast-2.rds.amazonaws.com:3306`. tfstate/tfvars gitignore 확인(RDS 비번 비유출)
+2. **RDS 시드** — 신규 RDS 는 빈 DB. **시드 소스 = (b) in-repo `api/sql/` 스크립트로 확정**(2026-07-11):
+   `ddl-auto: none` 이라 `create.sql` 이 스키마 정본이고, concepts(`_latex`)·chapters·knowledge_space·items·
+   diag·인덱스가 전부 in-repo → 운영 덤프(PII·외부접근) 불요. 접속=SSM 포트포워딩(RDS 비공개 유지·SSH 키 불요).
+   **FK-safe 로드 순서·item_id 정합 리스크·실증 절차는 별도 런북**: [`rds-seed-runbook.md`](rds-seed-runbook.md).
    이게 없으면 §4 "그래프·진단 라이브"가 빈 DB 로 실패.
-3. **인증서 선발급** — `certbot certonly --webroot -w /var/www/certbot -d www.my-math-teacher.com`
-   (nginx.conf 443 블록이 인증서 파일을 참조하므로 config 적용 *전에* 발급해야 `nginx -t` 통과)
-4. 타 계정 호스팅 영역에 `www` A → EIP (낮은 TTL 로 시작, R4)
-5. 컨테이너에 443 포트 노출 + `/etc/letsencrypt`·`/var/www/certbot` 볼륨 마운트 → nginx.conf 적용·reload
+3. **DNS 먼저** — 타 계정 호스팅 영역에 `www` A → EIP `54.116.29.102` (낮은 TTL 로 시작, R4) → `dig` 전파 확인.
+   ⚠️ **원안 순서 3(인증서)↔4(DNS) 역전 정정(2026-07-11):** certbot HTTP-01 은 도메인→EIP 해석에 의존하므로
+   인증서 발급보다 **선행**해야 검증이 통과한다.
+4. **인증서 발급** — DNS 전파 후. 닭-달걀 주의: 전체 nginx.conf(80+443)는 인증서 파일 부재 시 `nginx -t` 실패 →
+   (a) `certbot certonly --standalone -d www.my-math-teacher.com`(nginx 잠깐 내리고 발급) 또는
+   (b) 80-only 임시 conf 로 `/var/www/certbot` 서빙 후 `--webroot` 발급.
+5. 발급 성공 후 전체 nginx.conf(80+443) 적용 + 443 포트 노출 + `/etc/letsencrypt`·`/var/www/certbot` 볼륨 마운트 → reload
 6. `run-log.sh` 상시 모드(`tf-destroy` 미호출)로 기동 측정
 7. AWS Budgets 예산 알림 + 크레딧 만료일 관리(R1·R6)
 
