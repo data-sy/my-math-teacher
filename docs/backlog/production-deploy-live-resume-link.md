@@ -73,3 +73,14 @@ M4 의 라이브 배포는 **측정 후 destroy** 가 규율이었다(비용·�
   기대하는 정확한 인코딩 확인 후 그에 맞춘 결정적 변환 작성. 이력서 데모엔 그래프·진단이 핵심이라 현 임시본 수용,
   실제 수식 렌더 품질이 문제되면 위 (a)~(c) 로 정식 수정.
 - 정본 절차·현 상태: [`../specs/m6/rds-seed-runbook.md`](../specs/m6/rds-seed-runbook.md).
+
+## 8. 이월 — OAuth redirect-uri 프로덕션 콘솔 등록 (소셜 로그인 활성화용)
+
+**배경(2026-07-11):** 최초배포 시 백엔드 `application-secure.yml` 은 OAuth redirect-uri 를
+`https://www.my-math-teacher.com/login/oauth2/code/{google,naver,kakao}` 로 고정한다. 이 URI 가
+각 provider **개발자 콘솔에 등록**돼 있어야 소셜 로그인이 실제로 성공한다.
+
+- **사이트 기동엔 무영향** — 카탈로그·개념 그래프(CTE)·진단(TF Serving)·페이지 서빙은 OAuth 등록과 무관하게 동작한다. 영향 범위는 **사용자가 소셜 로그인 버튼을 클릭한 그 순간의 인증 플로우뿐**(미등록 시 provider 가 redirect_uri mismatch 로 그 로그인만 거부).
+- **왜 이월:** provider 콘솔(Google Cloud·Naver Developers·Kakao Developers)은 외부 계정 로그인이 필요해 어시스턴트가 대신 못 함 = 👤 사람 전용. 이력서 데모 핵심(그래프·진단)이 아니라 비차단으로 이월.
+- **할 일(👤):** 세 콘솔 각각에 위 3개 redirect-uri 등록(또는 v1 프로드 도메인과 동일하면 확인만). 등록 후 재배포 불요 — 런타임 검증이라 즉시 반영.
+- 연관: [`../specs/m6/first-deploy-runbook.md`](../specs/m6/first-deploy-runbook.md) 시크릿·env-file 절.

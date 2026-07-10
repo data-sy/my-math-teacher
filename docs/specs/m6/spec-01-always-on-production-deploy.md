@@ -9,8 +9,10 @@
 > (D4=x86 t3.medium). §8 Analyze-Before-Change 완료 → 3건 커밋(instance_type bump·
 > web api.js same-origin(ADR 0009)·nginx 443 TLS). **`terraform apply` 완료: 18 added, 0 destroyed.**
 > EIP=`54.116.29.102`(association 완료·재기동해도 고정)·RDS=`mmt-db.c7qu444ug8bf.ap-northeast-2.rds.amazonaws.com:3306`·
-> EC2=`i-0eb170169ac70ee05`. **잔여 = 사람 핸드오프(spec-02): RDS 시드·인증서 발급·DNS.**
-> 실비용·공개노출·데이터면 작업이라 사람이 트리거한다.
+> EC2=`i-0eb170169ac70ee05`. **✅ 라이브(2026-07-11): RDS 시드·DNS·인증서·앱 콜드스타트(step5) 완주 →
+> `https://www.my-math-teacher.com` 외부 200·CTE·SPA·cert 검증 통과, cert 자동갱신 타이머 등록.**
+> 실행 결과·편차 정본=[`first-deploy-runbook.md`](first-deploy-runbook.md) §실행 결과.
+> **잔여(비차단) = step6 측정·step7 Budgets · TF Serving 진단 시각검증 · OAuth 콘솔 · CI 정상배포 정합.**
 
 ---
 
@@ -94,7 +96,10 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
 4. **인증서 발급** — DNS 전파 후. 닭-달걀 주의: 전체 nginx.conf(80+443)는 인증서 파일 부재 시 `nginx -t` 실패 →
    (a) `certbot certonly --standalone -d www.my-math-teacher.com`(nginx 잠깐 내리고 발급) 또는
    (b) 80-only 임시 conf 로 `/var/www/certbot` 서빙 후 `--webroot` 발급.
-5. 발급 성공 후 전체 nginx.conf(80+443) 적용 + 443 포트 노출 + `/etc/letsencrypt`·`/var/www/certbot` 볼륨 마운트 → reload
+   - ✅ **완료(2026-07-11):** front 미기동이라 80 완전 비어 있어 **(a) standalone 이 가장 깨끗**(nginx 저글링 불요). 컨테이너 certbot 으로 **dry-run 선검증→실발급**(레이트리밋 안전, 호스트 clean). `www.my-math-teacher.com`(SAN 단일, ECDSA/Let's Encrypt YE1), 유효 2026-07-10→**2026-10-08**. 파일 = `/etc/letsencrypt/live/www.my-math-teacher.com/{fullchain,privkey}.pem`(nginx.conf 참조와 일치). DNS(step3)도 `www→54.116.29.102` 실증.
+   - ⚠️ **step4 중 발견:** 이 신규 인스턴스는 user_data 부트스트랩만 돌고 **앱 스택 미배포**(컨테이너 0). step5 는 단순 "적용+reload" 가 아니라 **앱 콜드스타트**다 → 별도 런북: [`first-deploy-runbook.md`](first-deploy-runbook.md). (`switch-backend.sh` 는 전환용이라 front↔backend 해석 순환·구 이미지 재빌드로 최초 기동을 스크립트만으론 못 함.)
+5. **앱 최초 기동 + 전체 nginx.conf(80+443) 적용** — [`first-deploy-runbook.md`](first-deploy-runbook.md) 참조. 네트워크(`mmt-net`)+redis+mmt-ai+backend-blue 손기동 후 front(443·`/etc/letsencrypt`·`/var/www/certbot`·active-backend.conf 마운트) 빌드/기동 → 이후 GH Actions→switch-backend.sh 가 blue↔green 소유
+   - ✅ **완료(2026-07-11): 라이브.** 백엔드 이미지=`mmt2024/mmt-backend:47063986…`(CI), front 는 로컬빌드 dist→최소 nginx 이미지로 우회(박스 `npm install` vue3-markdown export 이슈). cert 자동갱신 systemd 타이머 등록·webroot dry-run 실증. 편차·잔여=런북 §실행 결과.
 6. `run-log.sh` 상시 모드(`tf-destroy` 미호출)로 기동 측정
 7. AWS Budgets 예산 알림 + 크레딧 만료일 관리(R1·R6)
 
