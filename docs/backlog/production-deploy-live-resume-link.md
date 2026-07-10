@@ -84,3 +84,16 @@ M4 의 라이브 배포는 **측정 후 destroy** 가 규율이었다(비용·�
 - **왜 이월:** provider 콘솔(Google Cloud·Naver Developers·Kakao Developers)은 외부 계정 로그인이 필요해 어시스턴트가 대신 못 함 = 👤 사람 전용. 이력서 데모 핵심(그래프·진단)이 아니라 비차단으로 이월.
 - **할 일(👤):** 세 콘솔 각각에 위 3개 redirect-uri 등록(또는 v1 프로드 도메인과 동일하면 확인만). 등록 후 재배포 불요 — 런타임 검증이라 즉시 반영.
 - 연관: [`../specs/m6/first-deploy-runbook.md`](../specs/m6/first-deploy-runbook.md) 시크릿·env-file 절.
+
+## 9. 이월 — 라이브 후 잔여 (2026-07-11, 링크 라이브 완료 시점의 비차단 항목)
+
+`https://www.my-math-teacher.com` 는 라이브(step4·5 완주). 아래는 링크를 막지 않는 후속 — 정본 맥락은 [`../specs/m6/first-deploy-runbook.md`](../specs/m6/first-deploy-runbook.md) §실행 결과.
+
+- **TF Serving 진단 플로우 시각검증** — 개념 그래프(CTE)·SPA·API 는 실증됐으나 **진단 결과(AI 확률, D1 "실서빙 유지" 값어치)**는 아직 end-to-end 미검증. 진단은 로그인 소유자 한정이라 **§8 OAuth 콘솔 등록 선행** 필요. 등록 후 실브라우저로 진단 1회 돌려 `mmt-ai:8501` 왕복 확인.
+- **CI 정상 무중단배포 정합** — 최초는 손기동이라 무관하나, `switch-backend.sh`(blue↔green) 쓰기 전:
+  ① 레포 변수 `COMPOSE_NET` = `ec2-user_default` → **`mmt-net`** 으로 변경(현 손기동 네트워크와 일치),
+  ② 박스에 `deploy/switch-backend.sh`·`active-backend.conf`(rw 마운트) 배치,
+  ③ 백엔드 이미지 계정 = **`mmt2024`**(org 아님) 인지 IMAGE_REPO 정합 확인.
+- **front Dockerfile `npm ci` 전환** — 박스 `npm install`+node:14 가 vue3-markdown 최신본(`dist/style.css` export 제거)을 끌어와 `vite build` 실패했음. lockfile(1.1.9) 준수하도록 `web/Dockerfile` 을 `npm install`→`npm ci`(주석 이미 존재) 로 바꾸거나 front CI 로 빌드. (현 라이브 front 는 로컬빌드 dist→최소 nginx 이미지로 우회 중.)
+- **step 6 상시 측정** — `run-log.sh` 상시 모드(`tf-destroy` 미호출)로 기동·docker-stats 스냅샷, 크레딧 소진 기준선.
+- **step 7 AWS Budgets** — 예산 알림(50/25/10%) + 신규계정 6개월 자동종료(R1)·크레딧 만료 캘린더. 비용 안전상 우선순위 높음.
