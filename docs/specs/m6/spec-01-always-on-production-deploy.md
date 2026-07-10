@@ -5,9 +5,10 @@
 **선행 spec:** M4 spec-01(무중단 배포 기반, 완료) — 본 spec 은 그 메커니즘을 *소비*한다
 **후속:** spec-02(👤 사람 핸드오프 — 도메인 DNS·상시 결제·수명주기)
 
-> ⚠️ **상태: 설계 확정 — 구현 미착수.** §1(현재 상태, 실파일 대조 2026-07-11)·§2(아키텍처)·§7(결정)
-> 채움 완료. **D1·D2·D3 사인오프됨(2026-07-11)** — 잔여 결정은 D4(x86/ARM, ~$6/월)뿐, apply 착수 시
-> 인스턴스 타입과 함께 확정. 사인오프 게이트 통과 → 코드/인프라 변경 착수 가능. §3 셋업·§8 Analyze-Before-Change 는 착수 시 진행.
+> ⚠️ **상태: 코드/IaC 변경 착수됨(2026-07-11).** §1·§2·§7 채움 완료. **D1·D2·D3·D4 전부 확정**
+> (D4=x86 t3.medium). §8 Analyze-Before-Change 완료 → 아래 3건 커밋: instance_type bump·
+> web api.js same-origin(ADR 0009)·nginx 443 TLS. **잔여 = 사람 핸드오프(spec-02): 실 apply·
+> 인증서 발급·DNS·RDS 시드.** 실비용·공개노출·데이터면 작업이라 사람이 트리거한다.
 
 ---
 
@@ -66,14 +67,27 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
 
 ## 3. 변경할 파일과 셋업 단계
 
-> `[TODO: §7 결정 확정 후 구체화]`. 큰 단계:
+**A. 코드/IaC 변경 (완료 — 2026-07-11 커밋)**
 
-1. 스택 확정(§7 D1) → terraform `variables`/인스턴스 타입 반영
-2. 상시 `apply`(destroy 없음) → EIP 할당·고정 확인
-3. 타 계정 호스팅 영역에 `www` A → EIP (spec-02 사람 작업)
-4. nginx 443/TLS 블록 + 80→443 리다이렉트, 인증서 발급(spec-02 사람 작업)
-5. `run-log.sh` 상시 모드(destroy 스킵)로 기동 측정
-6. AWS Budgets 예산 알림(spec-02)
+| # | 변경 | 파일 | 커밋 |
+|---|---|---|---|
+| A1 | instance_type 기본값 `t3.micro`→`t3.medium`(D4=x86, 4GB 하한 R7) | `infra/terraform/variables.tf` | `b765ee0` |
+| A2 | web API baseURL prod=same-origin(`window.location.origin`), dev=localhost 유지 + ADR 0009 | `web/src/composables/api.js`·`docs/adr/0009-*` | `07254da` |
+| A3 | nginx 443 TLS 종단 + 80→443 리다이렉트(ACME 챌린지 예외) | `web/nginx.conf` | `119c870` |
+
+**B. 사람 핸드오프 (spec-02 — 실비용·공개노출·데이터면, 순서 중요)**
+
+1. `terraform apply`(destroy 없음, `use_localstack=false`) → EC2·EIP·RDS·SG 생성, EIP 고정 확인
+   - ⚠️ apply 전 `terraform.tfvars` 의 `my_ip`(SSH 22 인바운드) 현재 IP 로 갱신 — stale 시 SSH 잠김
+2. **RDS 시드** — 신규 RDS 는 빈 DB. 기존 운영 MySQL 덤프를 새 RDS 로 이관(`mysqldump`→import).
+   `shared/data/csv/*`(concepts·knowledge_space)는 부분 자산일 뿐 전체 스키마 덤프 아님 → 운영 덤프 필요.
+   이게 없으면 §4 "그래프·진단 라이브"가 빈 DB 로 실패.
+3. **인증서 선발급** — `certbot certonly --webroot -w /var/www/certbot -d www.my-math-teacher.com`
+   (nginx.conf 443 블록이 인증서 파일을 참조하므로 config 적용 *전에* 발급해야 `nginx -t` 통과)
+4. 타 계정 호스팅 영역에 `www` A → EIP (낮은 TTL 로 시작, R4)
+5. 컨테이너에 443 포트 노출 + `/etc/letsencrypt`·`/var/www/certbot` 볼륨 마운트 → nginx.conf 적용·reload
+6. `run-log.sh` 상시 모드(`tf-destroy` 미호출)로 기동 측정
+7. AWS Budgets 예산 알림 + 크레딧 만료일 관리(R1·R6)
 
 ---
 
@@ -108,19 +122,33 @@ M4 blue-green 배포 메커니즘을 **상시(always-on) 공개 프로덕션**�
 | **D1** | 데모 스택 | (a) **TF Serving 실서빙 유지 = 4GB(t3.medium ~월 $37)** — 진단 확률까지 실기능 시연 / (b) 합성 확률 대체 = t4g.small ~월 $19 | ✅ **확정 (a) — 실서버 유지** (2026-07-11, 사용자). 이력서 데모에서 AI 진단이 실제로 도는 걸 보여주는 값어치 채택 |
 | **D2** | TLS 방식 | (a) Let's Encrypt+certbot(nginx 종단, 무료, 90일 자동갱신) / (b) ACM(단일 EC2엔 ALB 필요 → 비용↑) | ✅ **확정 (a) — Let's Encrypt+certbot** (2026-07-11, 사용자). SG 443 이미 개방·nginx 80 단독 listen 확인 → 443 블록 신규 추가만 하면 M4 nginx 종단 blue-green 구조 그대로. ACM=ALB(~$16/월)는 그 컷오버 메커니즘을 갈아엎어 §0 "M4 재사용" 전제 위배 |
 | **D3** | MySQL 배치 | (a) RDS(M4 database.tf 재사용, 프리티어 db.t3.micro) / (b) EC2 로컬 MySQL(비용↓, 관리↑) | ✅ **확정 (a) — RDS** (2026-07-11, 사용자). M4 `tfstate.backup` 에 `aws_db_instance`(db.t3.micro) 실존 → `database.tf` 가 이미 RDS 프로비저닝 = 재사용. DB를 EC2 밖으로 빼 R7(4GB RAM 경합) 완화. 신규계정 6개월 종료(R1)가 RDS 프리티어 12개월보다 먼저 와 만료 비용 무의미 |
-| **D4** | 인스턴스 아키 | x86 t3.medium(~월 $37) vs ARM t4g.medium(4GB 동일, ~월 $31, 재빌드 필요) | ⏳ **유일 잔여** — D1=a 로 **4GB 하한 고정**, 남은 건 x86/ARM 비용 ~$6/월 차이뿐. 현 `variables.tf:47` 기본값은 M4 측정용 `t3.micro` → apply 전 4GB 타입으로 bump 필요(§5-1) |
+| **D4** | 인스턴스 아키 | x86 t3.medium(~월 $37) vs ARM t4g.medium(4GB 동일, ~월 $31, 재빌드 필요) | ✅ **확정 (a) — x86 t3.medium** (2026-07-11, 사용자 "진행해"). §8 분석에서 ARM 은 비용 -$6/월이나 `compute.tf` AMI 필터(`al2023-ami-*-x86_64`)·compose 플러그인 URL(`docker-compose-linux-x86_64`) 2곳 재배선 리스크 확인 → x86 은 IaC 재배선 0. $6/월 < 재배선 리스크로 x86 채택. `variables.tf` 기본값 bump 완료(커밋 `b765ee0`) |
 
-> **D1·D2·D3 확정** (2026-07-11) → 스택 골격 잠금: 단일 EC2(4GB, TF Serving 실서빙) + RDS(db.t3.micro, DB 분리로 R7 완화) + nginx 443 Let's Encrypt TLS 종단, blue-green 컷오버는 M4 그대로. **잔여 = D4(x86 t3.medium vs ARM t4g.medium, ~$6/월 차이)뿐** — apply 착수 시 인스턴스 타입 확정과 함께 결정. 사인오프 게이트 통과: 코드/인프라 변경 착수 가능.
+> **D1·D2·D3·D4 전부 확정** (2026-07-11) → 스택 골격 잠금: 단일 EC2(**x86 t3.medium 4GB**, TF Serving 실서빙) + RDS(db.t3.micro, DB 분리로 R7 완화) + nginx 443 Let's Encrypt TLS 종단, blue-green 컷오버는 M4 그대로. **잔여 결정 없음** — §8 Analyze-Before-Change 완료, 코드/IaC 3건 커밋. 실 apply·인증서·DNS·RDS 시드는 사람 핸드오프(spec-02).
 
 ---
 
-## 8. 분석 메모 (Analyze-Before-Change)
+## 8. 분석 메모 (Analyze-Before-Change) — 완료 2026-07-11
 
-`[TODO: 착수 시 /analyze-before-change]`. 예비 점검 대상:
-- `infra/terraform/*` 상시화 diff 의 참조 지점(EIP·SG·인스턴스 타입 변경 영향)
-- `web/nginx.conf` 443 블록 추가가 기존 80 서빙·SPA 라우팅에 미치는 영향
-- 상시 공개로 `SecurityConfig` 공개 엔드포인트(permitAll)·시크릿 주입 재점검
-- 롤백 시나리오(§상위 마일스톤 롤백 안전망 표)
+**영향받는 테스트:** 없음. 변경 대상(terraform HCL·nginx.conf·api.js 상수)을 커버하는 테스트 부재
+(web 테스트 프레임워크 없음, terraform 테스트 없음). SecurityConfig 무변경.
+**스키마·마이그레이션:** 스키마 변경 0. 단 신규 RDS 는 빈 DB → *데이터 이관*(§3-B2) 필요(스키마 아님).
+
+- **`infra/terraform/*`** — 현 `tfstate` 빈 껍데기 → apply 는 diff 가 아니라 M4 스택 from-scratch 재생성.
+  EIP 는 이미 `compute.tf`(`aws_eip.app`+association)에 존재 → "고정"은 destroy 안 하면 자동 달성(추가 코드 0).
+  변경은 instance_type bump 1건뿐(A1). ARM 미채택 근거=위 D4. `my_ip` stale 주의(§3-B1).
+- **`web/nginx.conf` 443** — 기존 80 단독을 80(ACME+리다이렉트)/443(TLS+프록시)로 분리. 보존 확인:
+  upstream include(blue-green 컷오버 핵심)·3 proxy location·Host 헤더·SPA try_files 그대로 이전(A3).
+  certbot 순서 함정 2건 문서화(인증서 선발급 / 갱신 경로 80 보존) → §3-B3·nginx.conf 주석.
+- **`SecurityConfig` 재점검 — 코드 변경 불필요.** permitAll 표면(catalog·sample·auth 진입·oauth2·health)은
+  정답 미포함, 정답 포함(items/tests-detail/validation)은 `anyRequest().authenticated()` 보호 → R2 최소개방 성립.
+  CORS origins=`${EC2_DOMAIN_NAME1/2}` env → 배포 시 주입(코드 아님). 백엔드는 이미 prod 도메인 정렬
+  (`application-secure.yml` redirect-uri·OAuth success handler).
+- **교차 워크스페이스 블로커(스펙 원안 §8 범위 밖, 분석서 발굴):**
+  ① `api.js` baseURL=`localhost:8080` 하드코딩 → https 에서 mixed-content 로 §4 라이브 플로우 차단.
+     → prod same-origin 전환으로 해소(A2/ADR 0009). ② 신규 RDS 빈 DB → 시드 필요(§3-B2, 사람).
+- **롤백:** 상위 마일스톤 안전망 표 그대로. 개별: A1→직전 타입 재apply / A2·A3→git revert 후 재빌드 /
+  컷오버 실패→`switch-backend.sh` flip-back(1분) / TLS 실패→80 임시 유지. 전면 철회 destroy=링크 사망(신중).
 
 ---
 

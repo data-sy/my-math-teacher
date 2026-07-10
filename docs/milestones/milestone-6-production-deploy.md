@@ -78,7 +78,8 @@ M4 에서 증명한 무중단 배포 능력을 **한 번 띄우고 내리는 측
 ## 완료 기준 (초안)
 
 - [ ] spec-01/02 설계 작성·커밋
-- [x] 스택 확정(§결정 D1) — ✅ **TF Serving 실서빙 유지 = 4GB(t3.medium 기준선)** (2026-07-11)
+- [x] 스택 확정(§결정 D1~D4) — ✅ **x86 t3.medium 4GB · TF Serving 실서빙 · RDS 분리 · Let's Encrypt TLS** (2026-07-11)
+- [x] 코드/IaC 준비 — ✅ **instance_type bump·web api.js same-origin(ADR 0009)·nginx 443 TLS** 커밋(2026-07-11). §8 Analyze-Before-Change 완료. 실 apply·인증서·DNS·RDS 시드는 spec-02 사람 핸드오프
 - [ ] 상시 프로비저닝(destroy 없는 apply) + EIP 고정
 - [ ] 도메인 DNS 연결(타 계정 `www` A → EIP) — 외부 해석 확인
 - [ ] TLS/HTTPS 적용 — `https://www.my-math-teacher.com` 접속
