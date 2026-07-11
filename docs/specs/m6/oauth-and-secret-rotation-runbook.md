@@ -35,6 +35,40 @@
 
 ---
 
+## 1-B. 실행 진행상태 (2026-07-11 세션) — resume 정본
+
+**방침:** 라이브 secret은 공개 히스토리에 없음(§0-A 3중 검증) → **긴급 아님, 방어심화(위생)로 전면 로테이션**.
+
+**운영 메커니즘(중요):** 라이브 앱은 `application-secure.yml`(=`${ENV}` 플레이스홀더)이 아니라 **박스 `~/mmt-backend.env`** 를 읽는다(`docker run --env-file`, `SPRING_PROFILES_ACTIVE=secure`). 로테이션 = **박스 env-file + 로컬 `docker-compose.yml`(compose env 블록=source-of-truth) 양쪽 갱신 → 백엔드 컨테이너 재생성(⚠️`restart` 아님 — `docker rm -f`+`docker run --env-file`) → 검증.**
+
+| 단위 | 상태 | 메모 |
+|---|---|---|
+| **Google** (2-1) | ✅ **완료 2026-07-11** | **재발급 아니라 새 계정+프로젝트+클라이언트** 신규. env-file/compose 새 client-id·secret 반영 → 재생성 → 헬스 200 → 브라우저 로그인 성립. **옛 클라이언트 삭제 미완(비긴급).** |
+| **Naver** (2-1) | ⬜ 대기 | 콘솔 재발급. 옛 secret 아직 유효 → 라이브 안 깨짐(여유) |
+| **Kakao** (2-1) | ⬜ 대기 | 콘솔 재발급. 동상 |
+| **JWT** (2-2) | ⬜ 대기 | 박스 `openssl rand -base64 64`. 재생성 시 전원 재로그인 1회 |
+| **Redis** (2-4) | ⬜ 대기 | `requirepass`+env-file **동시** 변경 |
+| **RDS** (2-3) | ⬜ 대기 | AWS 비번 변경+env-file. 다운타임 여지(가장 조심) |
+
+**재생성 명령(이번에 검증됨):**
+```bash
+IMG=$(docker inspect mmt-backend-blue --format '{{.Config.Image}}')
+docker rm -f mmt-backend-blue
+docker run -d --name mmt-backend-blue --network mmt-net --restart unless-stopped \
+  --memory 350m --env-file ~/mmt-backend.env \
+  -e SPRING_PROFILES_ACTIVE=secure -e MMT_MIGRATION_USE_MYSQL_CTE_FOR_GRAPH=true \
+  -e GDB_URL=localhost -e GDB_PORT=7687 -e GDB_USERNAME=neo4j -e GDB_PASSWORD=dummy \
+  -e JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=70" "$IMG"
+# 헬스(부팅 ~17s; curl connrefused 재시도엔 --retry-connrefused 필요)
+docker run --rm --network mmt-net curlimages/curl:8.11.0 -fsS --max-time 5 \
+  http://mmt-backend-blue:8080/api/v1/health
+```
+- **SSH:** `ssh -i ~/.ssh/mmt-ec2 ec2-user@$(dig +short www.my-math-teacher.com | tail -1)`
+- **env-file 값 검증은 해시로만:** `grep '^KEY=' ~/mmt-backend.env | cut -d= -f2- | sha256sum | cut -c1-12` (로컬 compose와 대조해 동기화·오타 확인). client-id는 비밀 아님(콘솔 대조 가능).
+- ⚠️ **권한:** 프로덕션 호스트 SSH **재배포**(`docker rm -f`+run)는 auto-mode 분류기가 차단 → **사람이 박스에서 직접 실행**하거나 명시 승인 필요. 읽기 전용 SSH 진단(ps·logs·hash)은 통과.
+
+---
+
 ## 2. 👤 시크릿 로테이션 (다음 세션 — 콘솔/AWS 접근)
 
 각 항목: **새 값 발급 → 박스의 비커밋 `application-secure.yml`(또는 env-file) 갱신 → 재배포(§4) → 검증(§5).**

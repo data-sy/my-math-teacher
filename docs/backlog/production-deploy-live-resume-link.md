@@ -7,6 +7,8 @@
 > 목적: 채용용 라이브 데모 링크 확보. `https://www.my-math-teacher.com` 을 신규 AWS 계정의 EC2 한 대에 상시 서빙.
 
 > 🟡 **[2026-07-11 발견→추가검증] 시크릿 유출 프레이밍 하향.** 초기엔 `application-secure.yml`이 라이브 OAuth/JWT/DB/Redis를 유출한 것으로 봤으나, 3중 검증(플레이스홀더 판별·해시 대조·전체 히스토리 피카axe)으로 **현재 라이브 시크릿은 공개 히스토리에 없음** 확인 — 추적되던 파일은 `${ENV}` 플레이스홀더였고 실제 값은 gitignored `docker-compose.yml`/박스 env-file에만 존재(커밋 0). 공개된 건 이미 대체된 옛 리터럴 3종뿐. 🤖 추적 해제·gitignore 완료(`f7d26ee`). **결정: 방어심화로 전면 로테이션 진행(👤, 긴급도=위생 수준).** 운영 소스는 `application-secure.yml`이 아니라 env-file/compose임에 유의. 절차 정본: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md) — §8 OAuth redirect-uri 등록과 통합.
+>
+> **진행(2026-07-11):** **Google ✅ 완료**(새 계정·프로젝트·클라이언트 신규 → env-file/compose 반영 → 백엔드 재생성 → 브라우저 로그인 검증). **Naver·Kakao·JWT·Redis·RDS 대기.** resume 정본·재생성 명령·운영 메커니즘 = 런북 **§1-B**.
 
 ---
 
