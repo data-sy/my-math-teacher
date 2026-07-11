@@ -13,8 +13,7 @@ CLAUDE.local.md
 docker-compose.yml
 
 # Auth / Secrets
-api/src/main/resources/application-securelocal.yml
-api/src/main/resources/application-secure.yml
+api/src/main/resources/application-secure*.yml
 
 # Test scripts
 ai/oauth2_test.py
