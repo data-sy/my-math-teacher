@@ -6,6 +6,8 @@
 
 > 목적: 채용용 라이브 데모 링크 확보. `https://www.my-math-teacher.com` 을 신규 AWS 계정의 EC2 한 대에 상시 서빙.
 
+> 🔴 **[2026-07-11 발견 · 다음 세션 최우선] 프로덕션 시크릿 공개 유출.** `application-secure.yml`(OAuth client-secret 3·JWT·DB/Redis 비번)이 PUBLIC 리포 히스토리에 커밋돼 있었음(gitignore 가 securelocal 만 덮음). 🤖 추적 해제·gitignore 완료(커밋 `f7d26ee`), 🔴 **실질 해결 = 시크릿 전면 로테이션(👤)**. 절차 정본: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md) — §8 OAuth redirect-uri 등록과 통합.
+
 ---
 
 ## 1. 왜 백로그인가
