@@ -47,7 +47,7 @@
 | **Naver** (2-1) | ✅ **완료 2026-07-11** | 콘솔 Client Secret 재발급(ID 불변). 박스 env-file+로컬 compose 갱신(해시 `658aaa13` 동기 확인, 옛값 `10310f0a` 불일치) → 재생성 → 헬스 OK → 브라우저 Naver 로그인 성립. ⚠️Naver 재발급은 옛 secret 즉시 무효라 재발급~재생성 창 최소화 원칙 확인됨. |
 | **Kakao** (2-1) | ✅ **완료 2026-07-11** | 보안→Client Secret 코드 재발급+활성화 ON(OIDC는 미사용·불건드림). 박스+로컬 갱신(해시 `0504e4c7` 동기, 옛값 `8bafdcbdba12` 불일치) → 재생성 → 헬스 OK → 브라우저 Kakao 로그인 성립. |
 | **JWT** (2-2) | ✅ **완료 2026-07-11** | 박스에서 `openssl rand -base64 64 \| tr -d '\n'` 생성(⚠️개행 제거 필수, §2-2 참조) → env-file+compose 동기(해시 `1e2c4de1`, 옛값 `c8b4a7ab` 불일치) → 재생성 → 헬스 OK, 새 로그인 정상. **옛 토큰 거부는 미관측**(로그인된 탭 부재) — 해시로 로테이션 확증. |
-| **Redis** (2-4) | ⬜ 대기 | `requirepass`+env-file **동시** 변경 |
+| **Redis** (2-4) | ✅ **완료 2026-07-11** | 박스 `openssl rand -hex 32` → env-file `REDIS_PASSWORD` + `mmt-redis` 컨테이너 `--requirepass`(비번이 Cmd에 박혀 CONFIG SET 불충분 → 재생성, 동일 볼륨 재부착) + 로컬 compose 2곳 동기(해시 `a72f327c`, 옛 `mmt2024jwt` 불일치) → redis+백엔드 재생성 → PING(새 비번)=PONG·헬스 OK. |
 | **RDS** (2-3) | ⬜ 대기 | AWS 비번 변경+env-file. 다운타임 여지(가장 조심) |
 
 **재생성 명령(이번에 검증됨):**
