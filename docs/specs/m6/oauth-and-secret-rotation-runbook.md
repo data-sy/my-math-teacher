@@ -50,10 +50,10 @@
 | **Redis** (2-4) | ✅ **완료 2026-07-11** | 박스 `openssl rand -hex 32` → env-file `REDIS_PASSWORD` + `mmt-redis` 컨테이너 `--requirepass`(비번이 Cmd에 박혀 CONFIG SET 불충분 → 재생성, 동일 볼륨 재부착) + 로컬 compose 2곳 동기(해시 `a72f327c`, 옛 `mmt2024jwt` 불일치) → redis+백엔드 재생성 → PING(새 비번)=PONG·헬스 OK. |
 | **RDS** (2-3) | ✅ **완료 2026-07-11** | 마스터 유저 `mmtadmin`(app이 마스터로 직결). AWS 콘솔 `modify-db-instance`(즉시적용)로 비번 변경 → 박스 env-file `RDS_PASSWORD`**만** 갱신(해시 `dd3bba5c`, 옛 `f8b10042` 불일치) → 백엔드 재생성 → HikariPool 연결 성공·`Started ApiApplication`·헬스 OK로 DB 인증 확증. **로컬 compose는 로컬 mysql용이라 동기 안 함**(박스=RDS/로컬=mysql 정당한 divergence). |
 
-**✅ 2026-07-11 — 전 6단위 로테이션 완료(방어심화).** 잔여(비긴급):
-- **Google 옛 OAuth 클라이언트 삭제** 미완(2-1).
-- **RDS least-privilege 앱 유저** 도입(현재 app이 마스터 `mmtadmin` 직결 — 위생 후속, 마스터 로테이션과는 별개).
-- **로컬 compose 40–44행 stale RDS 주석 블록** 정리(죽은 값).
+**✅ 2026-07-11 — 전 6단위 로테이션 완료(방어심화).** 잔여(비긴급, 정본은 백로그 §10):
+- **Google 옛 OAuth 클라이언트 삭제**(👤 콘솔) — 백로그 §10.
+- **RDS least-privilege 앱 유저** 도입(현재 app이 마스터 `mmtadmin` 직결 — 마스터 로테이션과는 별개) — 백로그 §10.
+- 로컬 compose stale RDS 주석 블록 → **이미 없음(확인 완료, 조치 불요)**.
 - §6 히스토리 스크럽은 결정대로 유보.
 
 **재생성 명령(이번에 검증됨):**

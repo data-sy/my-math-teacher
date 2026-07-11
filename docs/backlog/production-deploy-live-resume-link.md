@@ -8,7 +8,7 @@
 
 > 🟡 **[2026-07-11 발견→추가검증] 시크릿 유출 프레이밍 하향.** 초기엔 `application-secure.yml`이 라이브 OAuth/JWT/DB/Redis를 유출한 것으로 봤으나, 3중 검증(플레이스홀더 판별·해시 대조·전체 히스토리 피카axe)으로 **현재 라이브 시크릿은 공개 히스토리에 없음** 확인 — 추적되던 파일은 `${ENV}` 플레이스홀더였고 실제 값은 gitignored `docker-compose.yml`/박스 env-file에만 존재(커밋 0). 공개된 건 이미 대체된 옛 리터럴 3종뿐. 🤖 추적 해제·gitignore 완료(`f7d26ee`). **결정: 방어심화로 전면 로테이션 진행(👤, 긴급도=위생 수준).** 운영 소스는 `application-secure.yml`이 아니라 env-file/compose임에 유의. 절차 정본: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md) — §8 OAuth redirect-uri 등록과 통합.
 >
-> **진행(2026-07-11):** **Google ✅ 완료**(새 계정·프로젝트·클라이언트 신규 → env-file/compose 반영 → 백엔드 재생성 → 브라우저 로그인 검증). **Naver·Kakao·JWT·Redis·RDS 대기.** resume 정본·재생성 명령·운영 메커니즘 = 런북 **§1-B**.
+> **진행(2026-07-11):** **전 6단위(Google·Naver·Kakao·JWT·Redis·RDS) ✅ 완료.** 각 단위 새 값 발급 → 박스 env-file 주입(값 무노출, 해시 대조) → 백엔드(및 Redis) 재생성 → 검증(브라우저 로그인·PING·HikariPool 연결) 완주. 상세·잔여·재생성 명령 = 런북 **§1-B**.
 
 ---
 
@@ -101,3 +101,10 @@ M4 의 라이브 배포는 **측정 후 destroy** 가 규율이었다(비용·�
 - **front Dockerfile `npm ci` 전환** — 박스 `npm install`+node:14 가 vue3-markdown 최신본(`dist/style.css` export 제거)을 끌어와 `vite build` 실패했음. lockfile(1.1.9) 준수하도록 `web/Dockerfile` 을 `npm install`→`npm ci`(주석 이미 존재) 로 바꾸거나 front CI 로 빌드. (현 라이브 front 는 로컬빌드 dist→최소 nginx 이미지로 우회 중.)
 - **step 6 상시 측정** — `run-log.sh` 상시 모드(`tf-destroy` 미호출)로 기동·docker-stats 스냅샷, 크레딧 소진 기준선.
 - **step 7 AWS Budgets** — 예산 알림(50/25/10%) + 신규계정 6개월 자동종료(R1)·크레딧 만료 캘린더. 비용 안전상 우선순위 높음.
+
+## 10. 이월 — 시크릿 로테이션 후속 위생 (2026-07-11, 로테이션 완주 후 비긴급)
+
+전 6단위 로테이션(런북 §1-B)은 완료. 아래는 방어심화 후속 — 라이브·차단 아님, 👤 콘솔/판단 필요.
+
+- **Google 옛 OAuth 클라이언트 삭제(👤)** — Google 로테이션은 *새 계정·프로젝트·클라이언트 신규*로 했으므로 **옛 클라이언트가 여전히 존재·유효**. Google Cloud Console → 옛 프로젝트 → 사용자 인증 정보 → 해당 OAuth 클라이언트 삭제. (앱은 새 클라이언트를 쓰므로 삭제해도 무영향.)
+- **RDS least-privilege 앱 유저 도입** — 현재 앱이 RDS **마스터 유저 `mmtadmin`으로 직결**. 최소권한 앱 전용 유저(필요 DB/테이블 GRANT만) 생성 후 앱 전환이 정석. **마스터 비번 로테이션과는 별개**(로테이션은 완료). 스키마/권한 변경이라 착수 시 `/analyze-before-change` + 롤백 시나리오 필수.
