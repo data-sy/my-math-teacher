@@ -105,6 +105,6 @@
 
 ## 보안
 
-- `api/src/main/resources/application-securelocal.yml`은 자격증명을 포함 → `.gitignore` 대상
+- `api/src/main/resources/application-securelocal.yml`(로컬)·`application-secure.yml`(프로덕션)은 자격증명을 포함 → **둘 다** `.gitignore` 대상. 시크릿-보유 프로파일은 변형별 전수 확인 (2026-07 유출: `securelocal`만 ignore하고 `secure` 누락이 원인)
 - JWT 시크릿·OAuth 클라이언트 시크릿을 코드·테스트·로그에 노출 금지
 - 컨트롤러 계층 전수에 Spring Security 설정이 적용되는지 확인 후 신규 엔드포인트 추가

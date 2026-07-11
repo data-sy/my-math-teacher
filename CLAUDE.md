@@ -24,7 +24,7 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 - 프론트 실행: `cd web && npm install && npm run dev`
 - 접근 포트: API `8080`, Web `5173`, MySQL `3306`, Neo4j `7474/7687`, Redis `6379`
 
-`docker-compose.yml`과 `api/src/main/resources/application-securelocal.yml`은 자격증명을 포함하므로 `.gitignore` 대상이다. 이 파일들은 별도 경로로 공유받거나 기존 환경에서 복사한다.
+`docker-compose.yml`과 `api/src/main/resources/application-securelocal.yml`(로컬)·`application-secure.yml`(프로덕션)은 자격증명을 포함하므로 `.gitignore` 대상이다. 이 파일들은 별도 경로로 공유받거나 기존 환경에서 복사한다.
 
 ## 작업 규칙 (전역)
 
@@ -64,3 +64,4 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 - `docker-compose.yml`의 서비스 구성은 ADR 없이 변경하지 말 것
 - 공용 CLAUDE.md·문서·커밋에 민감 정보(비밀번호, OAuth 시크릿, JWT 시크릿, API 키) 포함 금지
 - 로컬 절대경로(예: `/Users/...`)는 공용 CLAUDE.md에 포함 금지 — 개인 환경 기술은 `CLAUDE.local.md`로
+- 시크릿을 담는 프로파일 파일(`application-secure*.yml` 계열)은 변형별로 전수 `.gitignore` 확인 — 로컬 변형만 덮고 프로덕션 변형을 누락하지 말 것
