@@ -1,8 +1,9 @@
 # Milestone 6: 프로덕션 상시 배포 (Always-On Production Deploy — 이력서 라이브 링크)
 
-> **상태: 📝 설계 초안 — 구현 미착수.** M4 의 blue-green 배포 메커니즘을 *상시(always-on)* 로
-> 전환해 `my-math-teacher.com` 공개 데모 링크를 세우는 마일스톤. 본 문서·구성 spec 은 방향을
-> 정돈하는 설계 단계이며, 코드/인프라 변경은 §결정 사인오프 이후 별도 Task 로 진행한다.
+> **상태: 🟢 라이브 — `https://www.my-math-teacher.com` 상시 서빙(step4·5 완주, 2026-07-11).**
+> M4 의 blue-green 배포 메커니즘을 *상시(always-on)* 로 전환해 공개 데모 링크를 세웠다. 스택 확정·코드/IaC·
+> DNS·TLS·시크릿 로테이션 6단위·OAuth 콘솔 등록·AWS Budgets 완료. 잔여 = 진단(TF Serving) end-to-end
+> 시각검증 + 백로그 §9/§10 비차단 후속. 정본 진행상태는 백로그 [§9](../backlog/production-deploy-live-resume-link.md).
 
 **브랜치 정책:** spec 단위 분할(M2·M4 관습). 현재 진행 브랜치 `feat/m6-spec-01-production-deploy`.
 첫 커밋 = 백로그·roadmap docs(`2e6fecd`). 이후 설계(spec-01/02) → 구현을 이 브랜치에서 이어가되,
@@ -80,13 +81,14 @@ M4 에서 증명한 무중단 배포 능력을 **한 번 띄우고 내리는 측
 - [ ] spec-01/02 설계 작성·커밋
 - [x] 스택 확정(§결정 D1~D4) — ✅ **x86 t3.medium 4GB · TF Serving 실서빙 · RDS 분리 · Let's Encrypt TLS** (2026-07-11)
 - [x] 코드/IaC 준비 — ✅ **instance_type bump·web api.js same-origin(ADR 0009)·nginx 443 TLS** 커밋(2026-07-11). §8 Analyze-Before-Change 완료. 실 apply·인증서·DNS·RDS 시드는 spec-02 사람 핸드오프
-- [ ] 상시 프로비저닝(destroy 없는 apply) + EIP 고정
-- [ ] 도메인 DNS 연결(타 계정 `www` A → EIP) — 외부 해석 확인
-- [ ] TLS/HTTPS 적용 — `https://www.my-math-teacher.com` 접속
-- [ ] 공개 링크 검증 — 외부 브라우저에서 핵심 플로우(그래프·진단) 동작
-- [ ] AWS Budgets 예산 알림 + 크레딧 만료일 관리
-- [ ] 필요 시 ADR(상시화·TLS 방식) 작성
-- [ ] roadmap 에 M6 상태 갱신
+- [x] 상시 프로비저닝(destroy 없는 apply) + EIP 고정 — ✅ step4·5 완주(2026-07-11)
+- [x] 도메인 DNS 연결(타 계정 `www` A → EIP) — ✅ 외부 해석 확인(라이브)
+- [x] TLS/HTTPS 적용 — ✅ `https://www.my-math-teacher.com` 접속
+- [~] 공개 링크 검증 — 그래프(CTE)·SPA·API ✅ 실증 / **진단(TF Serving) end-to-end 미검증** (OAuth 등록 완료로 unblock, 백로그 §9)
+- [x] AWS Budgets 예산 알림 — ✅ 완료(2026-07-11). 크레딧 만료일 관리 잔여(§9)
+- [x] OAuth redirect-uri 3콘솔 등록(§8) — ✅ 소셜 로그인 연동 완료(2026-07-11)
+- [ ] 필요 시 ADR(상시화·TLS 방식) 작성 — same-origin 은 ADR 0009
+- [x] roadmap 에 M6 상태 갱신 — ✅ 라이브+로테이션 반영
 
 ---
 
