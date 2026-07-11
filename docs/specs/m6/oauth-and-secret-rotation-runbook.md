@@ -48,7 +48,13 @@
 | **Kakao** (2-1) | ✅ **완료 2026-07-11** | 보안→Client Secret 코드 재발급+활성화 ON(OIDC는 미사용·불건드림). 박스+로컬 갱신(해시 `0504e4c7` 동기, 옛값 `8bafdcbdba12` 불일치) → 재생성 → 헬스 OK → 브라우저 Kakao 로그인 성립. |
 | **JWT** (2-2) | ✅ **완료 2026-07-11** | 박스에서 `openssl rand -base64 64 \| tr -d '\n'` 생성(⚠️개행 제거 필수, §2-2 참조) → env-file+compose 동기(해시 `1e2c4de1`, 옛값 `c8b4a7ab` 불일치) → 재생성 → 헬스 OK, 새 로그인 정상. **옛 토큰 거부는 미관측**(로그인된 탭 부재) — 해시로 로테이션 확증. |
 | **Redis** (2-4) | ✅ **완료 2026-07-11** | 박스 `openssl rand -hex 32` → env-file `REDIS_PASSWORD` + `mmt-redis` 컨테이너 `--requirepass`(비번이 Cmd에 박혀 CONFIG SET 불충분 → 재생성, 동일 볼륨 재부착) + 로컬 compose 2곳 동기(해시 `a72f327c`, 옛 `mmt2024jwt` 불일치) → redis+백엔드 재생성 → PING(새 비번)=PONG·헬스 OK. |
-| **RDS** (2-3) | ⬜ 대기 | AWS 비번 변경+env-file. 다운타임 여지(가장 조심) |
+| **RDS** (2-3) | ✅ **완료 2026-07-11** | 마스터 유저 `mmtadmin`(app이 마스터로 직결). AWS 콘솔 `modify-db-instance`(즉시적용)로 비번 변경 → 박스 env-file `RDS_PASSWORD`**만** 갱신(해시 `dd3bba5c`, 옛 `f8b10042` 불일치) → 백엔드 재생성 → HikariPool 연결 성공·`Started ApiApplication`·헬스 OK로 DB 인증 확증. **로컬 compose는 로컬 mysql용이라 동기 안 함**(박스=RDS/로컬=mysql 정당한 divergence). |
+
+**✅ 2026-07-11 — 전 6단위 로테이션 완료(방어심화).** 잔여(비긴급):
+- **Google 옛 OAuth 클라이언트 삭제** 미완(2-1).
+- **RDS least-privilege 앱 유저** 도입(현재 app이 마스터 `mmtadmin` 직결 — 위생 후속, 마스터 로테이션과는 별개).
+- **로컬 compose 40–44행 stale RDS 주석 블록** 정리(죽은 값).
+- §6 히스토리 스크럽은 결정대로 유보.
 
 **재생성 명령(이번에 검증됨):**
 ```bash
