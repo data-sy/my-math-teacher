@@ -6,7 +6,7 @@
 
 > 목적: 채용용 라이브 데모 링크 확보. `https://www.my-math-teacher.com` 을 신규 AWS 계정의 EC2 한 대에 상시 서빙.
 
-> 🔴 **[2026-07-11 발견 · 다음 세션 최우선] 프로덕션 시크릿 공개 유출.** `application-secure.yml`(OAuth client-secret 3·JWT·DB/Redis 비번)이 PUBLIC 리포 히스토리에 커밋돼 있었음(gitignore 가 securelocal 만 덮음). 🤖 추적 해제·gitignore 완료(커밋 `f7d26ee`), 🔴 **실질 해결 = 시크릿 전면 로테이션(👤)**. 절차 정본: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md) — §8 OAuth redirect-uri 등록과 통합.
+> 🟡 **[2026-07-11 발견→추가검증] 시크릿 유출 프레이밍 하향.** 초기엔 `application-secure.yml`이 라이브 OAuth/JWT/DB/Redis를 유출한 것으로 봤으나, 3중 검증(플레이스홀더 판별·해시 대조·전체 히스토리 피카axe)으로 **현재 라이브 시크릿은 공개 히스토리에 없음** 확인 — 추적되던 파일은 `${ENV}` 플레이스홀더였고 실제 값은 gitignored `docker-compose.yml`/박스 env-file에만 존재(커밋 0). 공개된 건 이미 대체된 옛 리터럴 3종뿐. 🤖 추적 해제·gitignore 완료(`f7d26ee`). **결정: 방어심화로 전면 로테이션 진행(👤, 긴급도=위생 수준).** 운영 소스는 `application-secure.yml`이 아니라 env-file/compose임에 유의. 절차 정본: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md) — §8 OAuth redirect-uri 등록과 통합.
 
 ---
 

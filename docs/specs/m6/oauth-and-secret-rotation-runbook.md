@@ -9,6 +9,16 @@
 
 ## 0. 🔴 사고 요약 (2026-07-11 발견)
 
+> 🟡 **정정 (2026-07-11, 로테이션 착수 전 추가검증).** 아래 최초 진단은 **과대평가로 판명**. 3중 검증:
+> - ① 추적되던 `application-secure.yml`의 시크릿 키는 전부 `${ENV}` **플레이스홀더**(리터럴 값 아님).
+> - ② 라이브 시크릿 6종 해시 vs 히스토리 리터럴 3종 해시 = **교집합 0**.
+> - ③ 전체 히스토리 피카axe(`git log --all -S`): 라이브 값 6종 모두 **0커밋**. `docker-compose.yml`도 커밋 이력 0.
+>
+> → **현재 라이브 시크릿은 공개 히스토리에 유출된 적 없음.** 아래 JWT 위조·계정탈취 위험은 **현재 값 기준 성립 안 함**. 공개된 건 초기 커밋의 옛 리터럴 3종(예: 구 Naver client-secret)뿐이며 **현재 라이브 값과 불일치 → 이미 대체됨**.
+>
+> **결정(2026-07-11):** 그럼에도 **방어심화로 전면 로테이션 진행**. 긴급도 = "라이브 사고" → "위생"으로 하향.
+> **메커니즘 정정:** 운영 시크릿 소스는 `application-secure.yml`(플레이스홀더)이 **아니라** 박스 `~/mmt-backend.env` + 로컬 `docker-compose.yml` env 블록. §2·§4의 "`application-secure.yml` 갱신"은 이 둘 갱신으로 대체해 읽을 것 — 로테이션 = 두 곳 값 갱신 후 백엔드 재기동.
+
 - **유출물:** `api/src/main/resources/application-secure.yml`(프로덕션 프로파일)이 **PUBLIC 리포**(`github.com/data-sy/my-math-teacher`)에 **커밋**됨. `main` 포함, **최초 커밋부터 19개 커밋**에 걸쳐 히스토리에 존재.
 - **포함 시크릿:** OAuth **client-secret 3**(Google·Naver·Kakao) · **JWT 시크릿** · **DB/Redis 비밀번호**.
 - **원인:** `.gitignore`가 `application-securelocal.yml`(로컬)만 덮고 **프로덕션 `application-secure.yml`을 누락**.
