@@ -24,11 +24,11 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 - 프론트 실행: `cd web && npm install && npm run dev`
 - 접근 포트: API `8080`, Web `5173`, MySQL `3306`, Neo4j `7474/7687`, Redis `6379`
 
-`docker-compose.yml`과 `api/src/main/resources/application-securelocal.yml`은 자격증명을 포함하므로 `.gitignore` 대상이다. 이 파일들은 별도 경로로 공유받거나 기존 환경에서 복사한다.
+`docker-compose.yml`과 `api/src/main/resources/application-securelocal.yml`(로컬)·`application-secure.yml`(프로덕션)은 자격증명을 포함하므로 `.gitignore` 대상이다. 이 파일들은 별도 경로로 공유받거나 기존 환경에서 복사한다.
 
 ## 작업 규칙 (전역)
 
-- 모든 작업은 `docs/roadmap.md`의 활성 마일스톤 컨텍스트 안에서 진행
+- 모든 작업은 `ROADMAP.md`의 활성 마일스톤 컨텍스트 안에서 진행
 - 스키마 변경·마이그레이션·레이어 간 리팩토링은 반드시 **Analyze-Before-Change** 패턴 준수 (`/analyze-before-change` 커맨드)
 - 중요한 의사결정은 ADR 작성. 위치: `docs/adr/`, 템플릿: `docs/adr/_template.md`
 - 커밋은 Task 단위로 분리. 여러 Task를 하나의 커밋에 묶지 말 것
@@ -55,8 +55,8 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 
 ## 현재 활성 작업
 
-- [Roadmap](docs/roadmap.md)
-- 현재 진행 중: M2 — Neo4j → MySQL CTE 마이그레이션 (마일스톤 문서 작성 예정)
+- [Roadmap](ROADMAP.md)
+- M2(Neo4j→MySQL CTE)·M4(무중단 배포) 완료(2026-07-06, PR #45). 현재 = M5 관측성(Grafana/Prometheus) 착수 대기 / M3(Neo4j 폐기) Next. 정본은 항상 `ROADMAP.md`.
 
 ## 금지 사항
 
@@ -64,3 +64,4 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 - `docker-compose.yml`의 서비스 구성은 ADR 없이 변경하지 말 것
 - 공용 CLAUDE.md·문서·커밋에 민감 정보(비밀번호, OAuth 시크릿, JWT 시크릿, API 키) 포함 금지
 - 로컬 절대경로(예: `/Users/...`)는 공용 CLAUDE.md에 포함 금지 — 개인 환경 기술은 `CLAUDE.local.md`로
+- 시크릿을 담는 프로파일 파일(`application-secure*.yml` 계열)은 변형별로 전수 `.gitignore` 확인 — 로컬 변형만 덮고 프로덕션 변형을 누락하지 말 것

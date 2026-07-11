@@ -83,5 +83,5 @@ CI 는 SSM(포트 0개)로 가되, `network.tf` 의 `aws_vpc_security_group_ingr
 - 선행 ADR: ADR 0007(blue-green 무중단 배포 메커니즘 — 본 ADR 은 그 배포 채널만 교체), ADR 0006(동일 호스트 nginx 토폴로지)
 - 적용 spec: `docs/specs/m4/spec-01-zero-downtime-deployment.md` §9.2(SG·SSH 인증 전제 → SSM 으로 갱신), §3.5(deploy job)
 - 핵심 파일: `.github/workflows/api-ci-cd-with-ec2.yml`(deploy job), `infra/terraform/network.tf`(SG), `infra/terraform/compute.tf`(instance profile 참조), `deploy/switch-backend.sh`(root/ec2-user 실행 규약)
-- 핸드오프: 루트 `m4-ssm-handoff.md`(설계·순서), `m4-resume-prompt.md`(재배포·§4 측정 재개 정본)
+- 핸드오프: `docs/specs/m4/m4-worklog.md`(재배포·§4 측정 재개 정본 — 구 `m4-ssm-handoff.md`·`m4-resume-prompt.md` 는 여기로 통합). SSM 설계·순서는 본 ADR 결정부 + spec-01 §9.2/§3.5
 - 관련 규칙: 루트 `CLAUDE.md` ADR·마이그레이션·피처플래그 규칙

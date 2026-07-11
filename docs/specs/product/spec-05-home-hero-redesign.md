@@ -1,6 +1,6 @@
 # spec-05 · HomeView 가치제안 히어로 + 작동방식 스텝 (B-1)
 
-> 트랙: [Design] 실배포 전 리디자인 — 리포트 B 시리즈 화면 재설계 (B-1, P0). 정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`
+> 트랙: [Design] 실배포 전 리디자인 — 리포트 B 시리즈 화면 재설계 (B-1, P0). 정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`
 > 작업 브랜치: `feat/home-hero-redesign` (main 분기) · Task 단위 커밋
 > 상태: spec 합의 대기 → 합의 후 코드 단계(구현)
 > 무게: 순수 프레젠테이션·단일 정적 뷰·완전 가역 → 경량 spec(데이터/라우팅 배선 없음, `/analyze-before-change` 불요).

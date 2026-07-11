@@ -1,5 +1,7 @@
 # Milestone 4: 배포 무중단화 (Zero-Downtime Deployment)
 
+> **상태: ✅ 완료(2026-07-06) — PR [#45](https://github.com/data-sy/my-math-teacher/pull/45) 머지, main `4706398`.** 라이브 실측: in-place 재배포 60.3% 유실 → blue-green + `CPU_LIMIT=0.5` 0% 유실. 결과 정본 = `docs/benchmark/milestone-4-run-report.md`. 아래 설계·핸드오프 서술은 착수 당시 기준(이력 보존).
+
 **브랜치 정책:** spec 단위 분할(M2·M3 와 동일). 단, 현재 진행 브랜치 `feat/m4-spec-01-zero-downtime-deployment` 는
 설계 3건(spec-01/02/03)과 기반 코드 조각(A·A.5·R1·B)을 함께 담고 있다 — 첫 기반 작업이 spec-01 에서 출발해
 한 브랜치로 묶였기 때문. 후속 구현(switch-backend.sh, 워크플로, 프로비저닝)을 별 PR 로 쪼갤지는 착수 시 결정.
@@ -7,7 +9,7 @@
 **예상 소요:** 설계 ✅ 완료 · 기반 코드 일부 ✅ · 구현(스크립트·워크플로) 1~2일 · 프로비저닝(사람 핸드오프 후) 0.5~1일 · 검증 0.5일
 **의존성:** M2(Neo4j → MySQL CTE 검증 완료) — CTE-only 로 실서버를 구성하는 전제. M1(성능 측정 관습) — "유실률 N%→0%" 측정의 기반.
 **위험 수준:** 중간 — 인프라/배포 레이어 변경 + 신규 AWS 프로비저닝. 단 앱 로직 변경은 거의 없고(헬스 엔드포인트·graceful 설정뿐), blue-green 구조 자체가 즉시 롤백 안전망.
-**선행 조건:** 비가역 사람 핸드오프(아래 §사람 핸드오프 G1·G2). **G1 완료(2026-07-03: 계정·root MFA·빌링·IAM B_IAM), Terraform Phase B `plan` 성공(12 리소스) — 다음은 G2 시크릿·G3 `apply`.**
+**선행 조건:** 비가역 사람 핸드오프(아래 §사람 핸드오프 G1·G2). **G1~G3 전부 완료(2026-07-03 G1 계정·MFA·IAM → G2 시크릿·OIDC → G3 `apply`/SSM 배포/유실률 측정/destroy). 라이브 검증 종료·PR #45 머지.**
 
 ---
 
@@ -81,7 +83,7 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 | **§9 프로비저닝** | EC2 / RDS / EIP / SG + 더미 `GDB_*` + RDS 시드 | 🟢 G1 완료·Phase B `plan` 성공(12 리소스), `apply`(G3) 대기 |
 | **Terraform Phase A/B** | LocalStack plan-only(A) → real AWS `plan`(B) | ✅ A 4슬라이스 완주 · **B `plan` 성공(2026-07-03, 12 리소스)**: provider 실 AWS 전환·키페어·RDS 3306 SG(커밋 `dec0139`→`f4e5c56`), 런북 `infra/terraform/README.md` |
 
-> 재개 메모는 비커밋 `m4-resume-prompt.md` 에 있다(Carry-forward 결정 포함: R1 종결 · 더미 GDB 면 기동 → 폴백 불필요 · **AI 트레일러 제거(2026-07-03 정책 override)** · Terraform D1~D3 잠금).
+> 재개 메모는 `docs/specs/m4/m4-worklog.md` 에 있다(Carry-forward 결정 포함: R1 종결 · 더미 GDB 면 기동 → 폴백 불필요 · **AI 트레일러 제거(2026-07-03 정책 override)** · Terraform D1~D3 잠금).
 
 ---
 
@@ -116,11 +118,11 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 - [x] 헬스 엔드포인트(A) · graceful shutdown(A.5) · 기동 무결성 증명(R1) · nginx 전환 구조(B)
 - [x] `switch-backend.sh`(C) — 커밋 `ce3ccc7`(blue-green 전환 로직; 동작 검증은 배포 때)
 - [x] 워크플로(D) — 커밋 `abd08af`(`${github.sha}` immutable 태그 + 전환 스크립트 호출)
-- [ ] AWS 프로비저닝(§사람 핸드오프 G1~G3) 완료 — G1 ✅ · Phase B `plan` ✅ · **G3 `apply` 대기**
-- [ ] **§검증: 부하 도중 배포 → 대표 GET 엔드포인트 `http_req_failed==0`(유실률 0%)** — graceful drain 적용 상태에서
-- [ ] 배포 전략(blue-green) ADR 작성(착수 시점 디스크 다음 빈 번호)
-- [ ] spec-02 §6.1 개입 원장 M4 행 채움(첫 프로비저닝/배포 시)
-- [ ] roadmap.md 에 M4 완료 표시
+- [x] AWS 프로비저닝(§사람 핸드오프 G1~G3) 완료 — G1·G2·G3 전부(apply 18 리소스 → 측정 → destroy, 2026-07-05·07-06)
+- [x] **§검증: 부하 도중 배포 → `http_req_failed==0`(유실률 0%)** — blue-green + `CPU_LIMIT=0.5` 로 502=0·transport_err=0 확증(in-place 60.3% 대조). 정본 = `docs/benchmark/milestone-4-run-report.md`
+- [x] 배포 전략(blue-green) ADR 작성 — [ADR 0007](../adr/0007-blue-green-zero-downtime-deployment.md) (+ 배포 채널 [ADR 0008](../adr/0008-m4-ci-deploy-channel-ssh-to-ssm-run-command.md))
+- [x] spec-02 §6.1 개입 원장 M4 행 채움 — 커밋 `e32963e`
+- [x] roadmap.md 에 M4 완료 표시 — Done 섹션 이동(2026-07-06)
 
 ### 검증 (완료 기준의 핵심)
 

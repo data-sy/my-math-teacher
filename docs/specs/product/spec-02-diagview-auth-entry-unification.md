@@ -1,7 +1,7 @@
 # Spec 02: DiagView 로그인/회원가입 진입 동선 재설계 (#3)
 
 **분류:** Product / Web UX (그래프 인프라 무의존 — M2/M3와 독립)
-**정본 로드맵 항목:** `docs/roadmap.md` → Later 백로그 → [Design] 실배포 전 리디자인 → 이월 UI #3
+**정본 로드맵 항목:** `ROADMAP.md` → Later 백로그 → [Design] 실배포 전 리디자인 → 이월 UI #3
 **작업 브랜치:** `feat/pre-launch-redesign` (미푸시)
 **선행 리포트:** `docs/consulting/out/design-ux-report.md` (P1·토프바 인증 빈약 / B-1 글로벌 내비 [로그인/시작하기])
 **작성일:** 2026-06-24

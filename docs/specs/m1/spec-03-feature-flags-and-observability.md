@@ -427,6 +427,6 @@ cd api && ./gradlew test --tests "*RepositoryTest" --info 2>&1 | grep "느린 �
 ## Milestone 1 전체 완료 후
 
 - [ ] PR 머지
-- [ ] `docs/roadmap.md`에서 M1을 Now → Done으로 이동 (날짜·PR 번호 기록)
+- [ ] `ROADMAP.md`에서 M1을 Now → Done으로 이동 (날짜·PR 번호 기록)
 - [ ] M2 착수 준비: `/audit-doc docs/milestones/milestone-2-neo4j-to-mysql.md` (M2 문서가 준비되면)
 - [ ] M2 첫 작업은 반드시 `/analyze-before-change`로 시작 (이 Spec에서 준비한 피처 플래그가 실제 작동하는지 체감)

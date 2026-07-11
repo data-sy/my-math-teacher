@@ -45,9 +45,13 @@ variable "ssh_public_key_path" {
 }
 
 variable "instance_type" {
-  description = "EC2 인스턴스 타입 (spec-01 §9.2: 최소 사양 t3.micro — 신규 크레딧 모델이라 상시 무료 아님, 크레딧 차감)"
+  # M4(spec-01 §9.2)는 측정용 최소 사양 t3.micro 였다. M6(spec-01 D1=a, TF Serving
+  # 실서빙 유지)는 JVM+MySQL(RDS 분리)+Redis+TF Serving 공존으로 4GB 하한이 필요(R7)
+  # → 상시 프로덕션 기본을 x86 t3.medium(4GB)로 확정(D4=x86, ARM t4g 대비 IaC 재배선 0).
+  # 신규 크레딧 모델이라 상시 무료 아님 — 크레딧 차감.
+  description = "EC2 인스턴스 타입 (M6 상시 프로덕션: 4GB 하한, x86 t3.medium)"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.medium"
 }
 
 variable "root_volume_size" {

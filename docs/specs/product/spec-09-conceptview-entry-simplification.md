@@ -1,6 +1,6 @@
 # spec-09 · ConceptView 진입 단순화 — 검색 기반 2-pane 단일 캔버스 (B-2, P1)
 
-> 트랙: [Design] 실배포 전 리디자인 — ConceptView 진입 단순화(리포트 P0 §53-60·B-2 §161-174·§234 #8). 정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`
+> 트랙: [Design] 실배포 전 리디자인 — ConceptView 진입 단순화(리포트 P0 §53-60·B-2 §161-174·§234 #8). 정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`
 > 작업 브랜치: `feat/conceptview-entry-simplification` (main 분기). Task 단위 커밋.
 > 상태: spec 합의 + analyze-before-change 완료 → 코드 단계 승인됨(2026-06-24)
 > 무게: **헤비** — 핵심 화면 전면 재작성 + **백엔드 신규 엔드포인트**(디자인 트랙이 api/ 로 확장). 풀 워크플로 + `/analyze-before-change`(§4).

@@ -8,7 +8,7 @@
 
 ## 🟢 2026-07-06 (최신) 상태 (backlog ①② 라이브 재검증 완주 — 인프라 DESTROYED — M4 실작업 코드+검증 모두 종료, 남은 건 PR 절차뿐) — 새 세션 정본
 
-**최신 한 줄:** 코드완료 상태였던 backlog **①(워크플로 CPU_LIMIT=0.5 배선)·②(데이터 smoke 게이트)를 실배포로 e2e 라이브 검증 완주.** 재-apply(18)→재시드(647·1631·3446 유실0)→**커밋 push**(⚠️ 원격 feat ref 가 stale 하면 `gh workflow run --ref` 가 구 워크플로를 돌려 ① 미반영 = 이번 세션 발견·해소)→SSM 배포×2→§4 After 재측정→destroy(state+AWS 이중검증 0). **AWS 무관·라이브 검증 모두 종료 → M4 실작업 끝. 남은 건 PR #45 Ready→머지(사람) 절차.**
+**최신 한 줄:** 코드완료 상태였던 backlog **①(워크플로 CPU_LIMIT=0.5 배선)·②(데이터 smoke 게이트)를 실배포로 e2e 라이브 검증 완주.** 재-apply(18)→재시드(647·1631·3446 유실0)→**커밋 push**(⚠️ 원격 feat ref 가 stale 하면 `gh workflow run --ref` 가 구 워크플로를 돌려 ① 미반영 = 이번 세션 발견·해소)→SSM 배포×2→§4 After 재측정→destroy(state+AWS 이중검증 0). ✅ **PR #45 MERGED(main `4706398`, 2026-07-06) → M4 종료.** 현재 브랜치 = `feat/m5-spec-01-observability-grafana-prometheus`(파킹, 아래 관측성 백로그).
 
 ### ✅ 이번 세션(2026-07-06) 완료 — ①② 라이브 확증
 - **① CPU_LIMIT 배선 e2e**: 워크플로 deploy job env `CPU_LIMIT=0.5` → SSM → `docker run --cpus=0.5`. green `NanoCpus=500000000`(=0.5코어) 확인. 컷오버 유실 = k6 RATE=10·200s → **`status_502=0`·`transport_err=0`·`401=0`**, http_req_failed 0%, p95 312ms, threshold PASS. (dropped_iter 27 = 부하기 VU 포화, 서버측 유실 아님.)
@@ -19,7 +19,7 @@
 - **텔레메트리** `infra/terraform/run-logs/2026-07-06T01-35-41Z/`. **큐레이션** = `docs/benchmark/milestone-4-run-report.md` "3차 재검증" 섹션.
 - **teardown**: 사용자 추가 ssh/scp allow 룰 2개 회수 완료.
 
-> **다음(사람 절차):** PR #45 Ready→머지(G6 permitAll 보안승인 포함). 값 튜닝(CPU_LIMIT 0.6/0.75) 재측정은 선택. skip_tests input+가드 제거는 측정 종료 후 후속.
+> **M4 종료.** ✅ PR #45 머지됨(main `4706398`). 남은 후속(비차단): ⓐ `skip_tests` input+가드 제거(측정 종료됨 → 착수 가능, 단 test CI-비호환 선결 필요) ⓑ CPU_LIMIT 값 튜닝(0.6/0.75) 재측정=선택. 둘 다 [roadmap] 참조.
 > **관측성 백로그(신설):** `docs/backlog/observability-grafana-prometheus-for-zero-downtime.md` — Grafana/Prometheus 로 무중단 컷오버 재계측(측정가능한 것 다 모으기: nginx/JVM/컨테이너 상관 + 복합인덱스 EXPLAIN 스크린샷). k6 web dashboard(구 A)는 여기 접힘. 인프라 사이클 1회 추가.
 > **시각 리포트 산출물:** `docs/benchmark/milestone-4-zero-downtime-report-{eng,ko}.html`(self-contained, Before 60.3%→After 0% + CPU 캡 경계 + ①② 검증).
 

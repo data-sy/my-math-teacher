@@ -129,4 +129,4 @@ flush 불필요). 그리고 `RedisUtil.get()` 은 `SerializationException` 을 �
 - 수정: fix 브랜치 `fix/redis-cross-instance-cache-serializer` 커밋 `72d70f7` → **PR #46** → `main` 머지
 - 코드 위치: `api/.../config/RedisConfig.java`, `api/.../util/RedisUtil.java`, `api/.../service/ConceptService.java`(`GRAPH_NS`), `api/.../util/RedisCrossInstanceSerializerTest.java`
 - 진단 서술(전편): `docs/benchmark/milestone-4-troubleshooting-2026-07-05.md` §결함 2
-- 상태·다음 계획 정본: 루트 `m4-worklog.md`
+- 상태·다음 계획 정본: `docs/specs/m4/m4-worklog.md`

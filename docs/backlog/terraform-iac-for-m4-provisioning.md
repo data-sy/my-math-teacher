@@ -2,7 +2,7 @@
 
 **분류:** [Infra] / 학습(chosen) — 백로그
 **관련:** M4 spec-01 §9(프리티어 프로비저닝), spec-02 §5 **G3**(infra apply 게이트)
-**상태:** 미착수. `plan`-only 샌드박스는 **지금 무과금으로 시작 가능**, `apply`(과금)는 G1 준비 후.
+**상태:** ✅ **완료(M4 에서 소진, 2026-07-05·07-06).** Phase A(LocalStack plan-only 4슬라이스) → Phase B(real AWS plan) → M4 라이브에서 `apply(18 리소스)→측정→destroy` 사이클 수 회 실행. G3 게이트가 실제 `terraform apply` 로 동작함(사람 MFA + plan 승인). 이 문서는 배경·의사결정·경계 기록으로 보존.
 
 > roadmap "Later — 백로그" 의 한 줄 항목을 푼 상세 문서. 의사결정·경계·단계만 정의하고
 > 실제 HCL 작성/실행은 별도 Task 로 분리한다.

@@ -13,7 +13,7 @@ CLAUDE.local.md
 docker-compose.yml
 
 # Auth / Secrets
-api/src/main/resources/application-securelocal.yml
+api/src/main/resources/application-secure*.yml
 
 # Test scripts
 ai/oauth2_test.py
@@ -21,6 +21,7 @@ ai/oauth2_test.py
 # M4 개인 운영 문서 (시크릿 템플릿 "커밋 금지" 표기 + 운영 계정 신원 정보 → 로컬 전용)
 m4-secrets-and-env-template.md
 m4-account-setup-checklist.md
+m6-first-deploy-session-log.md
 
 # Claude Code 런타임 아티팩트
 .claude/scheduled_tasks.lock

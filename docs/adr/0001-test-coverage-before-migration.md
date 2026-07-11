@@ -91,5 +91,5 @@ MySQL CTE 쿼리를 병행 실행하여 결과를 Neo4j와 비교하는 방식.
 
 - Milestone 1 문서: `docs/milestones/milestone-1-test-infrastructure.md`
 - Milestone 2 문서 (예정): `docs/milestones/milestone-2-neo4j-to-mysql.md`
-- Roadmap의 해당 Epic 항목: `docs/roadmap.md`
+- Roadmap의 해당 Epic 항목: `ROADMAP.md`
 - 과거 성능 튜닝 경험에서 얻은 "기준선 확보가 최우선"이라는 교훈 적용

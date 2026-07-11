@@ -1,6 +1,6 @@
 # spec-06 · 디자인 토큰 1벌 + 타이포 스케일 (P1, C안 착수)
 
-> 트랙: [Design] 실배포 전 리디자인 — 디자인 시스템 토큰 레이어(C 권장). 정본 진행상태 = `docs/roadmap.md` + `design-redesign-handoff.md`
+> 트랙: [Design] 실배포 전 리디자인 — 디자인 시스템 토큰 레이어(C 권장). 정본 진행상태 = `ROADMAP.md` + `design-redesign-handoff.md`
 > 작업 브랜치: `feat/design-tokens-typography` (main 분기) · Task 단위 커밋
 > 상태: spec 합의 대기 → 합의 후 코드 단계(구현)
 > 무게: 토큰 레이어 신설은 전역 영향이나, **정의 + 단일 파일럿(HomeView)** 으로 범위를 좁혀 경량 spec. 전역 sweep·글꼴·base scale 변경은 Out(아래). 데이터/라우팅/마이그레이션 배선 없음 → `/analyze-before-change` 불요.
