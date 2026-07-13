@@ -5,7 +5,7 @@
 **작업 브랜치:** 착수 시 `feat/m7-spec-01-diagnosis` (본 설계 문서는 `feat/m7-product-pivot` 에 동반)
 **상태:** ✅ **spec 확정(2026-07-13)** — **S2 = C안·S3 = A안 확정(리뷰)**, S1·S4~S6 = **권장안 잠정 채택(착수 시 재검토 꼬리표)** → 코드 단계(`/analyze-before-change` → 구현) 진입 가능
 **선행:** M2(완료) — `knowledge_space` 재귀 CTE. PRD 사인오프(2026-07-13) — 특히 F-1(결과-시점 reverse gate)·F-2(localStorage answered-map)·F-3(스마트 default 진입)·F-4(통합 학습 큐·top-N '상' 등급).
-**Supersedes:** [구 spec-01](spec-01-diagnosis-engine-self-report.md) (DEPRECATED — 시급도=그래프 점수 전제. D3-R 로 역전되어 본 문서로 대체. §2 방향성 노트·D1-A 순회 골격은 승계).
+**Supersedes:** 구 spec-01 초안 `spec-01-diagnosis-engine-self-report.md`(2026-07-11, **삭제됨 — git 히스토리 보존**). 구 초안은 시급도=그래프 점수(blockedDescendants·depth·수렴도 가중합으로 DKT 대체) 전제였으나 D3-R(DKT 유지)로 역전되어 본 문서가 전면 대체. 구 초안에서 살릴 내용(§2 데이터 모델 방향성 노트, D1-A stateless 순회 골격과 대안 기각 근거 §4.3)은 본문에 흡수 완료 — **본 문서만으로 자기완결**.
 
 ---
 
@@ -101,9 +101,9 @@ ORDER BY c.concept_id
 - 고른 단원 = **시작점이지 경계가 아님** — "몰라요" drill-down 은 단원 밖 선수로 자유롭게 내려간다(F-3 관용 흡수).
 - "모르겠어 → 전체 훑기" escape(b) = 학교급 대표 단원들의 프론티어 합집합에서 시작(구체 목록은 착수 시 시드 데이터로 확정 — 콘텐츠성 값이라 spec 에 하드코딩하지 않음).
 
-### 4.3 적응형 순회 — 서버 주도 stateless (D1-A 승계)
+### 4.3 적응형 순회 — 서버 주도 stateless (D1-A)
 
-`POST /api/v1/diagnosis/next` — 매 요청에 전체 answered-map 을 실어 보내면 서버가 결정론적으로 재계산해 다음 1개를 반환(화면당 개념 1개, PRD ③):
+`POST /api/v1/diagnosis/next` — 매 요청에 전체 answered-map 을 실어 보내면 서버가 결정론적으로 재계산해 다음 1개를 반환(화면당 개념 1개, PRD ③). *진행 주체 대안 2종은 기각:* **서버 세션 순회**(Redis/userTest 에 진행 상태 저장)는 상태 수명주기·정합 부담, **클라이언트 순회**(subgraph 일괄 전달 후 프론트가 순회)는 순회 로직이 프론트로 새어 "엔진=백엔드" 정합이 깨짐 — PRD F-2(localStorage answered-map)가 stateless 전제를 확정하며 A 로 굳음.
 
 ```
 req  { entry: {chapterId | scope:"full", schoolLevel?}, answered: [{conceptId, known}] }
