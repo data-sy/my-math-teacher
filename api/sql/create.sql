@@ -157,3 +157,50 @@ CREATE TABLE probabilities (
 	FOREIGN KEY (answer_id) REFERENCES answers (answer_id),
 	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id)
 );
+
+-- ============================================================
+-- M7 spec-01: 자가진단(self-report→DKT) — 전부 additive (ADR-0010)
+-- 롤백: mmt.diagnosis.enabled=false. 구 경로 미참조라 방치 가능, 필요 시 DROP.
+-- ============================================================
+
+-- 자가진단 답안 테이블 (구 answers 무접촉 — S2=C)
+CREATE TABLE self_report_answers (
+	self_report_answer_id BIGINT auto_increment,
+	user_test_id BIGINT NOT NULL,
+	concept_id INT NOT NULL,
+	known BOOLEAN NOT NULL,  -- 안다=true / 모른다=false (정오답 변환은 DKT 시퀀스 생성 시)
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (self_report_answer_id),
+	FOREIGN KEY (user_test_id) REFERENCES users_tests (user_test_id),
+	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),
+	UNIQUE KEY uk_sra_session_concept (user_test_id, concept_id)  -- 세션 내 개념당 1답
+);
+
+-- probabilities 세션 스코프 컬럼 (신규 경로 전용 — 구 경로는 answer_id 로 무변경)
+ALTER TABLE probabilities ADD COLUMN user_test_id BIGINT NULL;
+ALTER TABLE probabilities ADD CONSTRAINT fk_prob_user_test FOREIGN KEY (user_test_id) REFERENCES users_tests (user_test_id);
+ALTER TABLE probabilities ADD INDEX idx_prob_user_test (user_test_id);
+
+-- 통합 학습 큐 (S5: 현재 위치 = 파생값, 포인터 컬럼 없음)
+CREATE TABLE learning_queues (
+	queue_id BIGINT auto_increment,
+	user_id BIGINT NOT NULL,
+	user_test_id BIGINT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (queue_id),
+	FOREIGN KEY (user_id) REFERENCES users (user_id),
+	FOREIGN KEY (user_test_id) REFERENCES users_tests (user_test_id)
+);
+
+CREATE TABLE learning_queue_items (
+	queue_item_id BIGINT auto_increment,
+	queue_id BIGINT NOT NULL,
+	position INT NOT NULL,
+	concept_id INT NOT NULL,
+	done BOOLEAN NOT NULL DEFAULT FALSE,
+	done_at TIMESTAMP NULL,
+	PRIMARY KEY (queue_item_id),
+	FOREIGN KEY (queue_id) REFERENCES learning_queues (queue_id),
+	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),
+	UNIQUE KEY uk_lqi_queue_position (queue_id, position)
+);
