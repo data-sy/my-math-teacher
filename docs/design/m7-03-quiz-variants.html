@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M7 ③ 자가진단 문답 — 시안 A/B/C 비교</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --sub:#555; --faint:#8a8a8a;
+    --line:#9a9a9a; --edge:#222;
+    --paper:#f4f4f5; --card:#fff; --ph:#e7e7ea;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    --good:#3c5a3c; --goodbg:#dfe9df; --warn:#7a5a2c; --warnbg:#efe4d2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 16px 56px}
+  header.head h1{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+  header.head p{margin:0;color:var(--sub);font-size:13px}
+
+  .grid{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;margin:24px 0 8px}
+  .col{width:320px}
+  .col h2{font-size:15px;margin:0 0 2px;text-align:center}
+  .col .axis{font:600 11px var(--mono);color:var(--faint);text-align:center;margin:0 0 10px}
+
+  /* phone */
+  .phone{width:320px;border:2px solid var(--edge);border-radius:28px;background:#fff;padding:9px}
+  .screen{border:1px solid #dcdce0;border-radius:18px;height:540px;display:flex;
+          flex-direction:column;overflow:hidden;position:relative;background:#fff}
+  .status{display:flex;justify-content:space-between;font:600 10px var(--mono);
+          color:var(--faint);padding:7px 14px 3px}
+  .prog{padding:4px 14px 8px}
+  .bar{height:7px;background:var(--ph);border-radius:20px;overflow:hidden}
+  .bar>i{display:block;height:100%;width:52%;background:var(--ink)}
+  .prog .n{font:600 10px var(--mono);color:var(--faint);margin-top:3px;display:block}
+
+  .stage{flex:1;display:flex;flex-direction:column;min-height:0}
+  .concept{font-size:20px;font-weight:700;text-align:center}
+  .example{background:var(--ph);border-radius:10px;color:#5c5c60;font-size:12.5px;
+           padding:14px 12px;text-align:center;margin:10px 14px}
+  .d5{font:600 9.5px var(--mono);color:var(--faint);text-align:center;margin-top:2px}
+
+  .btn{border-radius:11px;text-align:center;font-weight:600;font-size:15px}
+  .know{background:var(--ink);color:#fff}
+  .dunno{background:#fff;border:1.6px solid var(--edge);color:var(--ink)}
+
+  .cap{font-size:11px;color:var(--faint);text-align:center;margin-top:2px}
+  .notes{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:5px}
+  .notes li{font-size:11.5px;color:var(--sub);display:flex;gap:6px;align-items:baseline}
+  .notes .k{flex:none;font:600 10px var(--mono);color:var(--faint);width:64px}
+
+  /* ---- Variant A ---- */
+  .a-main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 4px}
+  .a-btns{display:flex;gap:10px;padding:12px 14px 16px}
+  .a-btns .btn{flex:1;padding:16px 0}
+  .thumb{position:absolute;left:0;right:0;bottom:0;height:96px;
+         border-top:1px dashed #d5d5da;pointer-events:none}
+  .thumb::after{content:"엄지존";position:absolute;right:10px;top:6px;
+                font:600 9px var(--mono);color:#c2c2c8}
+
+  /* ---- Variant B ---- */
+  .deck{flex:1;position:relative;margin:6px 10px}
+  .swipecard{position:absolute;inset:0;border:1.6px solid var(--edge);border-radius:14px;
+             background:#fff;display:flex;flex-direction:column;justify-content:center}
+  .swipecard.s2{transform:scale(.95) translateY(10px);border-color:#c7c7cd;z-index:1}
+  .swipecard.s3{transform:scale(.90) translateY(20px);border-color:#dedee2;z-index:0}
+  .swipecard.top{z-index:2;transform:rotate(-3deg)}
+  .arrows{display:flex;justify-content:space-between;padding:2px 12px 6px;
+          font:600 11px var(--mono);color:var(--faint)}
+  .b-foot{display:flex;justify-content:center;gap:8px;padding:0 14px 16px}
+  .undo{border:1.5px solid var(--line);border-radius:9px;color:var(--sub);
+        font-size:12px;font-weight:600;padding:9px 16px}
+
+  /* ---- Variant C ---- */
+  .c-head{padding:14px 14px 6px;border-bottom:1px dashed #dcdce0}
+  .c-zones{flex:1;display:flex;flex-direction:column}
+  .zone{flex:1;display:flex;align-items:center;justify-content:center;
+        font-size:20px;font-weight:700;position:relative}
+  .zone .hint{position:absolute;top:8px;left:12px;font:600 9px var(--mono);color:#b9b9c0}
+  .zone.know{background:var(--ink);color:#fff}
+  .zone.dunno{background:#fff;color:var(--ink);border-top:1.6px solid var(--edge)}
+
+  /* comparison table */
+  .cmp{margin:30px 0 10px}
+  .cmp h2{font-size:16px;margin:0 0 10px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;
+        border:1.5px solid var(--edge);border-radius:10px;overflow:hidden}
+  th,td{padding:9px 11px;text-align:left;border-bottom:1px solid #e4e4e8;vertical-align:top}
+  thead th{background:#efeff2;font-size:12px}
+  th.axis-h{width:120px;color:var(--sub)}
+  tbody th{font-weight:600;color:var(--sub)}
+  td.rec{background:#f6f8f6}
+  tr:last-child td,tr:last-child th{border-bottom:none}
+  .pill{display:inline-block;font:600 10px/1.4 var(--mono);border-radius:5px;padding:1px 6px}
+  .lo{background:var(--goodbg);color:var(--good)}
+  .mid{background:#e9e9ee;color:#555}
+  .hi{background:var(--warnbg);color:var(--warn)}
+  .cell-note{display:block;color:var(--faint);font-size:11px;margin-top:2px}
+
+  .rec{border:1.5px solid var(--edge);border-radius:10px;background:#fff;padding:14px 16px;margin-top:18px}
+  .rec h3{margin:0 0 6px;font-size:14px}
+  .rec p{margin:0;font-size:12.5px;color:var(--sub)}
+  .rec b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>③ 자가진단 문답 — 시안 A / B / C</h1>
+    <p>축 = self-report “알아요/몰라요” 인터랙션 패턴 (속도↔안전 스펙트럼) · 모바일 퍼스트 로우파이</p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ===== A ===== -->
+    <div class="col">
+      <h2>A · 정적 카드 + 2버튼</h2>
+      <p class="axis">탭 · 명시적</p>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>▓ 82%</span></div>
+        <div class="prog"><div class="bar"><i></i></div><span class="n">6 / 약 12 · 적응형</span></div>
+        <div class="a-main">
+          <div class="concept">인수분해</div>
+          <div class="example">예) x²−5x+6 을<br>(x−2)(x−3) 으로 바꾸기<div class="d5">대표 예시 (D5·이름만 오답 방지)</div></div>
+        </div>
+        <div class="a-btns">
+          <div class="btn dunno">몰라요</div>
+          <div class="btn know">알아요</div>
+        </div>
+        <div class="thumb"></div>
+      </div></div>
+      <ul class="notes">
+        <li><span class="k">예시(D5)</span> 카드 중앙, 공간 넉넉</li>
+        <li><span class="k">진척</span> 상단 바 + “n/약 12”</li>
+        <li><span class="k">skip체감</span> 탭 후 “선수 3개 건너뜀 ✓” 토스트 + 바 점프</li>
+        <li><span class="k">엄지</span> 하단 고정 2버튼 = 엄지존</li>
+      </ul>
+    </div>
+
+    <!-- ===== B ===== -->
+    <div class="col">
+      <h2>B · 스와이프 덱</h2>
+      <p class="axis">제스처 · 연속</p>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>▓ 82%</span></div>
+        <div class="prog"><div class="bar"><i></i></div><span class="n">덱 · 6장째 (남은 카드 스택)</span></div>
+        <div class="deck">
+          <div class="swipecard s3"></div>
+          <div class="swipecard s2"></div>
+          <div class="swipecard top">
+            <div class="concept">인수분해</div>
+            <div class="example">예) x²−5x+6 → (x−2)(x−3)<div class="d5">대표 예시 (D5)</div></div>
+          </div>
+        </div>
+        <div class="arrows"><span>← 몰라요</span><span>알아요 →</span></div>
+        <div class="b-foot"><span class="undo">↶ 되돌리기</span></div>
+      </div></div>
+      <ul class="notes">
+        <li><span class="k">예시(D5)</span> 카드 내 표시(스택이라 공간 보통)</li>
+        <li><span class="k">진척</span> 줄어드는 덱 스택으로 시각화</li>
+        <li><span class="k">skip체감</span> 스와이프 시 여러 장 날아가며 skip 연출</li>
+        <li><span class="k">엄지</span> 한 손 스와이프 · 단 우발입력↑ → undo 필수</li>
+      </ul>
+    </div>
+
+    <!-- ===== C ===== -->
+    <div class="col">
+      <h2>C · 풀스크린 2-존 탭</h2>
+      <p class="axis">대형 타깃 · 절충</p>
+      <div class="phone"><div class="screen">
+        <div class="status"><span>9:41</span><span>▓ 82%</span></div>
+        <div class="prog"><div class="bar"><i></i></div><span class="n">6 / 약 12 · 적응형</span></div>
+        <div class="c-head">
+          <div class="concept" style="font-size:18px">인수분해</div>
+          <div class="example" style="margin:8px 0 2px">예) x²−5x+6 → (x−2)(x−3)<div class="d5">대표 예시 (D5)</div></div>
+        </div>
+        <div class="c-zones">
+          <div class="zone know"><span class="hint">위 절반 = 탭</span>알아요</div>
+          <div class="zone dunno"><span class="hint">아래 절반 = 탭</span>몰라요</div>
+        </div>
+      </div></div>
+      <ul class="notes">
+        <li><span class="k">예시(D5)</span> 상단 고정 헤더(다소 압축)</li>
+        <li><span class="k">진척</span> 상단 바 + “n/약 12”</li>
+        <li><span class="k">skip체감</span> 탭 → 다음 즉시, “건너뜀 N” 고스트</li>
+        <li><span class="k">엄지</span> 화면 절반씩 초대형 타깃 = 최상</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- comparison -->
+  <section class="cmp">
+    <h2>비교표</h2>
+    <table>
+      <thead>
+        <tr><th class="axis-h">축</th><th class="rec">A · 2버튼 (권장)</th><th>B · 스와이프</th><th>C · 2-존 탭</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>마찰</th>
+          <td class="rec"><span class="pill lo">낮음</span></td>
+          <td><span class="pill lo">낮음</span></td>
+          <td><span class="pill lo">낮음</span></td></tr>
+        <tr><th>속도</th>
+          <td class="rec"><span class="pill mid">중</span></td>
+          <td><span class="pill lo">높음</span></td>
+          <td><span class="pill lo">높음</span></td></tr>
+        <tr><th>오답유발 (R1)</th>
+          <td class="rec"><span class="pill lo">낮음</span><span class="cell-note">명시 라벨·우발입력 적음</span></td>
+          <td><span class="pill hi">높음</span><span class="cell-note">방향 혼동·우발 스와이프 → 자기보고 오염</span></td>
+          <td><span class="pill mid">낮음~중</span><span class="cell-note">대형 존이라 오탭 적음, 경계 주의</span></td></tr>
+        <tr><th>구현부담</th>
+          <td class="rec"><span class="pill lo">낮음</span></td>
+          <td><span class="pill hi">중~높음</span><span class="cell-note">제스처·애니·undo</span></td>
+          <td><span class="pill mid">낮~중</span></td></tr>
+        <tr><th>게이미피케이션·톤 (P-1)</th>
+          <td class="rec"><span class="pill lo">절제 ✓</span></td>
+          <td><span class="pill hi">게임 느낌 충돌</span><span class="cell-note">“정직한 진단 가이드” 신뢰톤과 상충 (§2.3)</span></td>
+          <td><span class="pill lo">절제 ✓</span></td></tr>
+        <tr><th>엄지 도달성</th>
+          <td class="rec"><span class="pill lo">좋음</span><span class="cell-note">하단 고정존</span></td>
+          <td><span class="pill lo">좋음</span><span class="cell-note">한 손</span></td>
+          <td><span class="pill lo">최상</span><span class="cell-note">절반씩 대형</span></td></tr>
+        <tr><th>예시(D5) 공간</th>
+          <td class="rec"><span class="pill lo">넉넉</span></td>
+          <td><span class="pill mid">보통</span></td>
+          <td><span class="pill mid">다소 압축</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="rec">
+    <h3>권장 — A (정적 카드 + 2버튼)</h3>
+    <p>이 제품의 결정 변수는 속도가 아니라 <b>자기보고 정확도(R1)</b>와 <b>정직한 톤(P-1·§2.3)</b>이야. A는 오답유발이 가장 낮고, 게이미피케이션 없이 신뢰톤과 맞고, <b>대표 예시(D5)에 줄 공간이 가장 넉넉</b>해(R1 완화의 핵심). 구현부담도 최소.<br>
+    <b>러너업 = C</b>: 속도·엄지 도달성을 더 원하면. 단 예시 공간이 눌려 R1엔 A가 우위.<br>
+    <b>B는 least-aligned</b>: 가장 빠르고 재밌지만 우발 스와이프(R1)와 게임 톤 충돌 두 리스크가 이 제품 목표와 정면으로 부딪혀.</p>
+  </div>
+
+</div>
+</body>
+</html>

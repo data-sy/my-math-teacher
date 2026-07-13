@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M7 자가진단 — IA / 유저 플로우 맵</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --sub:#555; --faint:#8a8a8a;
+    --line:#9a9a9a; --edge:#222;
+    --paper:#f4f4f5; --card:#ffffff; --ph:#e7e7ea; --band:#ededf1;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+       line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:600px;margin:0 auto;padding:24px 16px 56px}
+
+  header.head{margin-bottom:18px}
+  .head h1{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+  .head p{margin:0;color:var(--sub);font-size:13px}
+
+  /* legend */
+  .legend{border:1.5px solid var(--edge);border-radius:10px;background:var(--card);
+          padding:12px 14px;margin:14px 0 22px}
+  .legend h2{font:600 12px/1.2 var(--sans);margin:0 0 8px;color:var(--faint);
+             text-transform:uppercase;letter-spacing:.08em}
+  .legend ul{list-style:none;margin:0;padding:0;display:grid;
+             grid-template-columns:1fr 1fr;gap:6px 14px}
+  .legend li{font-size:12px;color:var(--sub);display:flex;gap:7px;align-items:baseline}
+  .legend .m{flex:none}
+  .swatch{display:inline-block;width:13px;height:13px;border:1.5px solid var(--edge);
+          border-radius:3px;transform:translateY(2px)}
+  .swatch.gate{background:var(--band)}
+
+  /* node card */
+  .node{border:1.5px solid var(--edge);border-radius:10px;background:var(--card);
+        padding:14px 15px;position:relative}
+  .node .no{position:absolute;top:-13px;left:14px;background:var(--ink);color:#fff;
+            font:600 13px/22px var(--sans);width:26px;height:26px;text-align:center;
+            border-radius:50%;}
+  .node h3{margin:6px 0 2px;font-size:15px}
+  .node .role{font-size:11.5px;color:var(--faint);margin:0 0 10px}
+
+  /* placeholder elements inside a screen */
+  .ph{background:var(--ph);border-radius:6px;color:#6b6b6f;font-size:12px;
+      padding:8px 10px;margin:6px 0}
+  .ph.tall{padding:22px 10px;text-align:center}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+  .row .ph{margin:0;flex:1;text-align:center}
+
+  /* CTA weight = hierarchy */
+  .cta1{background:var(--ink);color:#fff;border-radius:7px;text-align:center;
+        font-weight:600;font-size:13px;padding:11px;margin:8px 0 2px}
+  .cta2{border:1.5px solid var(--line);color:var(--sub);border-radius:7px;
+        text-align:center;font-size:12px;padding:8px;margin:6px 0}
+  .tlink{font-size:12px;color:var(--sub);text-decoration:underline;
+         text-underline-offset:2px;margin:6px 0 2px}
+  .cap{font-size:11px;color:var(--faint);margin-top:6px}
+
+  /* connector between nodes */
+  .link{text-align:center;padding:3px 0}
+  .link .bar{display:block;width:0;height:26px;border-left:2px solid var(--line);margin:0 auto}
+  .link .tip{display:block;color:var(--line);font-size:15px;line-height:.6;margin-top:-2px}
+  .link .lbl{display:inline-block;margin-top:3px;font:600 10.5px var(--mono);
+             color:var(--faint);background:var(--paper);padding:0 6px}
+
+  /* branch / escape / loop callout */
+  .branch{border-left:3px dashed var(--line);margin:8px 0 8px 12px;padding:2px 0 2px 12px}
+  .branch .b{border:1.5px dashed var(--line);border-radius:8px;background:var(--card);
+             padding:9px 11px;margin:6px 0}
+  .tag{display:inline-block;font:600 10px/1.5 var(--mono);border:1.5px solid var(--edge);
+       border-radius:20px;padding:1px 8px;margin-bottom:5px}
+  .b .to{font:600 10.5px var(--mono);color:var(--faint)}
+  .b p{margin:3px 0 0;font-size:12px;color:var(--sub)}
+
+  /* free vs gated zone bands */
+  .zone-tag{display:inline-block;font:600 10px/1.5 var(--mono);border-radius:5px;
+            padding:1px 7px;margin-bottom:2px}
+  .zone-free{background:#dfe9df;color:#3c5a3c}
+  .zone-gate{background:var(--band);color:#444}
+  .gateband{border:1.5px solid var(--edge);border-radius:10px;background:var(--band);
+            padding:11px 14px;margin:3px 0;text-align:center}
+  .gateband .lk{font-size:13px;font-weight:600}
+  .gateband .sm{font-size:11px;color:var(--sub);margin-top:2px}
+  .queued{border-color:#777;background:var(--band)}
+
+  .divider{display:flex;align-items:center;gap:10px;margin:26px 0 12px;color:var(--faint)}
+  .divider::before,.divider::after{content:"";flex:1;border-top:1.5px dashed var(--line)}
+  .divider span{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.06em}
+
+  /* stair motif for queue */
+  .stair{display:flex;align-items:flex-end;gap:4px;margin:8px 0}
+  .stair i{flex:1;background:var(--ph);border:1px solid #cfcfd4;border-radius:4px;
+           font:600 10px/1 var(--mono);color:#6b6b6f;display:flex;align-items:flex-end;
+           justify-content:center;padding-bottom:4px;font-style:normal}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <h1>M7 자가진단 — IA / 유저 플로우 맵</h1>
+    <p>입구(홈) → 출구(재진입)까지 6화면. 모바일 퍼스트 · 로우파이 와이어프레임.</p>
+  </header>
+
+  <section class="legend" aria-label="범례">
+    <h2>범례</h2>
+    <ul>
+      <li><span class="m">🔒</span><span><b>게이트 (F-1)</b> — 로그인 지점</span></li>
+      <li><span class="m">⤴</span><span><b>escape (F-3)</b> — 이탈 방지 갈래</span></li>
+      <li><span class="m">🔁</span><span><b>루프 (F-4)</b> — 되돌아오는 흐름</span></li>
+      <li><span class="m">⇢</span><span><b>2차 링크</b> — 조용히 강등</span></li>
+      <li><span class="swatch"></span><span>무료 (로그인 불필요)</span></li>
+      <li><span class="swatch gate"></span><span>게이트 뒤 (독점 자산)</span></li>
+    </ul>
+  </section>
+
+  <main>
+
+    <!-- ① 홈 -->
+    <section class="node">
+      <span class="no">①</span>
+      <h3>홈 · 입구</h3>
+      <p class="role">가치제안 + 단일 1차 CTA</p>
+      <div class="ph">헤드라인 “수학은 계단이다. 3분 진단.”</div>
+      <div class="ph tall">지식그래프 · 히어로 비주얼 (미끼)</div>
+      <div class="cta1">무료 진단 시작</div>
+      <div class="tlink">⇢ 개념 그래프 둘러보기 <span style="color:var(--faint)">(조용한 2차 링크 → ⑥)</span></div>
+      <div class="row" style="margin-top:8px">
+        <div class="ph">작동 ①</div><div class="ph">작동 ②</div><div class="ph">작동 ③</div>
+      </div>
+    </section>
+
+    <div class="link"><span class="bar"></span><span class="tip">▼</span><span class="lbl">탭 · 무료 진단 시작</span></div>
+
+    <!-- ② 영역 진입 -->
+    <section class="node">
+      <span class="no">②</span>
+      <h3>영역 진입 · 스마트 default</h3>
+      <p class="role">진단 시작 프론티어 좁히기 &nbsp;·&nbsp; 카피 “지금 어디쯤이야?”</p>
+      <div class="ph">소프트 default(추정): <b>이차방정식</b></div>
+      <div class="cap" style="margin:0 0 4px">± 후보 (선후=계단순, 원탭)</div>
+      <div class="row">
+        <div class="ph">다항식</div><div class="ph">인수분해</div>
+        <div class="ph" style="background:#d7d7dc;color:#333;font-weight:600">이차방정식</div>
+        <div class="ph">이차함수</div>
+      </div>
+
+      <div class="branch">
+        <div class="b">
+          <span class="tag">⤴ escape · F-3</span>
+          <div class="to">“여기 없음?” — 두 갈래 필수</div>
+          <p>(a) 다른 단원 직접 선택 &nbsp;→&nbsp; ② 내 재선택</p>
+          <p>(b) 모르겠어 → 전체 훑기 &nbsp;→&nbsp; ③ 전체 프론티어</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="link"><span class="bar"></span><span class="tip">▼</span><span class="lbl">원탭 · 시작 프론티어 지정</span></div>
+
+    <!-- ③ 문답 -->
+    <section class="node">
+      <span class="no">③</span>
+      <span class="zone-tag zone-free" style="position:absolute;top:-11px;right:14px">무료</span>
+      <h3>자가진단 문답</h3>
+      <p class="role">self-report 수집 · 화면당 개념 1개</p>
+      <div class="ph">진척 표시 ▓▓▓▓░░░ 60%</div>
+      <div class="ph tall">개념 이름 + 대표 예시 (D5 · 이름만 오답 방지)</div>
+      <div class="row">
+        <div class="ph" style="padding:12px">알아요</div>
+        <div class="ph" style="padding:12px">몰라요</div>
+      </div>
+      <div class="branch">
+        <div class="b">
+          <span class="tag">🔁 적응형 · self-loop</span>
+          <p>알아요 → 하위 선수 가지 skip &nbsp;·&nbsp; 몰라요 → 선수지식 drill-down</p>
+        </div>
+        <div class="b">
+          <span class="tag">F-2 진척 복구</span>
+          <p>익명 localStorage 저장 → 이탈해도 “이어서”, 로그인 시 계정 귀속</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="link"><span class="bar"></span><span class="tip">▼</span><span class="lbl">진단 완주</span></div>
+
+    <!-- ④ 결과 -->
+    <section class="node">
+      <span class="no">④</span>
+      <span class="zone-tag zone-free" style="position:absolute;top:-11px;right:14px">무료 존</span>
+      <h3>결과 · 취약점 + 다음 행동</h3>
+      <p class="role">개념·순서·자료를 <b>로그인 전</b> 충족 (§5.1)</p>
+      <div class="ph">헤드라인 “12개 중 3개 약점 · 가장 급한 ‘인수분해’”</div>
+      <div class="cap" style="margin:2px 0 4px">‘상’ 카드 3~5 (시급도순)</div>
+      <div class="ph" style="text-align:left">
+        <b>인수분해</b> · “이걸 모르면 위로 5개가 막혀요”<br>
+        <span style="color:#6b6b6f">🔗 무료 외부자료(EBS)</span> &nbsp;·&nbsp; <span style="color:#6b6b6f">경로 보기 (2차)</span>
+      </div>
+      <div class="ph" style="text-align:left">
+        <b>이차방정식</b> · “…” &nbsp; 🔗 자료 · 경로 보기(2차)
+      </div>
+      <div class="cta2">더 보기 (중/하)</div>
+      <div class="cta1">저장하고 학습 경로 시작하기</div>
+      <div class="cap">↑ 화면 단일 1차 CTA · 비로그인 시 여기서 로그인 트리거</div>
+    </section>
+
+    <div class="link"><span class="bar"></span><span class="tip">▼</span><span class="lbl">단일 1차 CTA 탭</span></div>
+
+    <!-- 🔒 gate -->
+    <div class="gateband">
+      <div class="lk">🔒 로그인 게이트 (F-1)</div>
+      <div class="sm">진단·결과는 이미 무료 통과 · 여기서만 로그인</div>
+    </div>
+
+    <!-- ⑤ 로그인 -->
+    <section class="node" style="margin-top:10px">
+      <span class="no">⑤</span>
+      <h3>로그인 / 에러 <span style="font-size:11px;color:var(--faint);font-weight:400">· 횡단</span></h3>
+      <p class="role">게이트 지점에서 호출되는 크로스컷</p>
+      <div class="row">
+        <div class="ph">구글</div><div class="ph">네이버</div><div class="ph">카카오</div>
+      </div>
+      <div class="ph">학생 친화 에러 카피 (무엇이·어떻게)</div>
+    </section>
+
+    <div class="link"><span class="bar"></span><span class="tip">▼</span><span class="lbl">로그인 성공</span></div>
+
+    <!-- 학습 큐 -->
+    <section class="node queued">
+      <span class="zone-tag zone-gate" style="position:absolute;top:-11px;right:14px">게이트 뒤 · 독점 자산</span>
+      <h3>학습 큐 · 하나의 계단 (F-4)</h3>
+      <p class="role">개념들의 공유 선수지식 병합 → 개별 경로 N개가 아니라 한 계단</p>
+      <div class="stair">
+        <i style="height:34px">1 인수분해</i>
+        <i style="height:50px">2 …</i>
+        <i style="height:66px">3 …</i>
+        <i style="height:82px">목표</i>
+      </div>
+      <div class="cap">⚠️ 정렬 = 위상순(선수 먼저) 지배 · 시급도 = 진입 우선순위 (spec-01)</div>
+
+      <div class="branch">
+        <div class="b">
+          <span class="tag">외부 자료 · 나들이</span>
+          <p>EBS 등으로 실제 공부하러 앱을 잠깐 나감</p>
+        </div>
+        <div class="b" style="border-style:solid;border-color:var(--edge)">
+          <span class="tag">🔁 재진입 · F-4</span>
+          <p>공부 후 “이어서: 다음 개념” &nbsp;→&nbsp; 학습 큐 복귀</p>
+          <p style="color:var(--faint)">계정에 (큐 순서·완료여부·현재 위치) 저장 · 완료 = 유저 self-mark</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⑥ parallel -->
+    <div class="divider"><span>병렬 경로 · 서비스 해자</span></div>
+
+    <section class="node">
+      <span class="no">⑥</span>
+      <h3>개념그래프 탐색</h3>
+      <p class="role">진단과 독립 진입 가능 · 상시 노출 (호버 의존 제거)</p>
+      <div class="ph">🔍 개념 검색 한 줄</div>
+      <div class="ph tall">지식그래프 · 상시 표시 (모바일 동작)</div>
+      <div class="cta1">내 약점 진단하기</div>
+      <div class="branch">
+        <div class="b">
+          <span class="tag">진입 ⇢</span>
+          <p>① 홈 “둘러보기” 조용한 링크에서 들어옴</p>
+        </div>
+        <div class="b" style="border-style:solid;border-color:var(--edge)">
+          <span class="tag">🔁 회수 → ②</span>
+          <p>상시 CTA로 탐색을 진단 퍼널로 되돌림 (누수 방지)</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>
