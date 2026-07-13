@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M7 ① 홈 — 와이어프레임</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --sub:#555; --faint:#8a8a8a;
+    --line:#9a9a9a; --edge:#222;
+    --paper:#f4f4f5; --card:#fff; --ph:#e7e7ea; --band:#ededf1;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:520px;margin:0 auto;padding:24px 16px 56px}
+  header.head h1{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+  header.head p{margin:0;color:var(--sub);font-size:13px}
+
+  .col{width:390px;max-width:100%;margin:24px auto 0}
+  .col>h2{font-size:15px;margin:0 0 10px;text-align:center}
+
+  /* phone frame */
+  .phone{border:2px solid var(--edge);border-radius:30px;background:#fff;padding:10px}
+  .screen{border:1px solid #dcdce0;border-radius:20px;background:#fff;overflow:hidden;
+          display:flex;flex-direction:column;min-height:760px;position:relative}
+  .status{display:flex;justify-content:space-between;font:600 10px var(--mono);
+          color:var(--faint);padding:8px 16px 4px}
+
+  button{font:inherit;cursor:default}
+  .cta1{display:block;width:100%;background:var(--ink);color:#fff;border:0;border-radius:12px;
+        font-weight:700;font-size:15.5px;padding:16px 12px;text-align:center}
+  .tlink{background:none;border:0;padding:0;color:var(--sub);font-size:12.5px;
+         text-decoration:underline;text-underline-offset:2px}
+  .cap{font-size:11px;color:var(--faint)}
+  .ph{background:var(--ph);border-radius:8px;color:#6b6b6f;font-size:12px;padding:10px}
+
+  .appbar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 4px}
+  .logo{font:700 13px var(--sans);letter-spacing:.02em}
+  .logo .sm{font:600 9.5px var(--mono);color:var(--faint);margin-left:6px}
+
+  .scroll{flex:1;padding:6px 18px 0}
+
+  .hero h1{font-size:26px;line-height:1.28;letter-spacing:-.4px;margin:16px 0 8px}
+  .hero p.sub{margin:0 0 10px;font-size:14px;color:var(--sub)}
+  .chip{display:inline-block;border:1.5px solid var(--line);border-radius:20px;
+        font:600 11px/1.6 var(--sans);color:var(--sub);padding:2px 10px}
+
+  .herograph{margin:14px 0 4px;border:1.5px dashed #c9c9cf;border-radius:14px;
+             background:#fafafb;padding:10px 8px 4px;text-align:center}
+  .herograph svg{width:100%;height:auto;display:block}
+  .herograph .cap{display:block;margin:2px 0 6px}
+
+  .fold{position:relative;border-top:1.5px dashed #c9c9cf;margin:20px -18px 16px;text-align:center}
+  .fold span{position:relative;top:-9px;background:#fff;font:600 9.5px var(--mono);
+             color:#b9b9c0;padding:0 8px}
+
+  .how h2{font-size:14px;margin:0 0 10px}
+  .step{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px}
+  .step .n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;
+           font:600 11.5px/22px var(--sans);text-align:center}
+  .step p{margin:0;font-size:13px}
+  .step p .cap{display:block}
+
+  .honest{border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:14px 0 8px}
+  .honest p{margin:0;font-size:11.5px;color:var(--sub)}
+
+  .browse{text-align:center;padding:10px 0 18px}
+
+  /* sticky bottom = thumb zone */
+  .bottom{border-top:1px solid #e4e4e8;padding:12px 16px 16px;background:#fff;position:relative}
+  .bottom::before{content:"엄지존 · 하단 고정";position:absolute;top:-8px;right:12px;
+                  font:600 9px var(--mono);color:#c2c2c8;background:#fff;padding:0 5px}
+  .bottom .cap{display:block;text-align:center;margin-top:6px}
+
+  .notes{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:5px}
+  .notes li{font-size:11.5px;color:var(--sub);display:flex;gap:6px;align-items:baseline}
+  .notes .k{flex:none;font:600 10px var(--mono);color:var(--faint);width:76px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>① 홈 · 입구 — 와이어프레임</h1>
+    <p>단일 1차 CTA "무료 진단 시작" 단독 압도 · 그래프 = 히어로 미끼 · 둘러보기 = 조용한 링크 (F-4)</p>
+  </header>
+
+  <div class="col">
+    <h2>단일 상태 · 스크롤 화면</h2>
+    <div class="phone"><div class="screen">
+
+      <div class="status"><span>9:41</span><span>▓ 82%</span></div>
+
+      <header class="appbar">
+        <span class="logo">MMT<span class="sm">로고 자리</span></span>
+        <span class="cap">비로그인</span>
+      </header>
+
+      <main class="scroll">
+
+        <section class="hero" aria-label="가치제안">
+          <h1>수학은 계단이야.<br>어디서 막혔는지<br>3분이면 알아.</h1>
+          <p class="sub">문제 안 풀어도 돼. "알아요 / 몰라요"로 답하면 AI가 급한 순서로 짚어줘.</p>
+          <span class="chip">무료 · 로그인 없이 시작</span>
+
+          <div class="herograph" aria-label="지식그래프 히어로 비주얼 (장식)">
+            <svg viewBox="0 0 340 150" role="img" aria-label="개념들이 계단처럼 연결된 지식그래프 일러스트">
+              <g stroke="#c7c7cd" stroke-width="1.5">
+                <line x1="50" y1="120" x2="120" y2="88"/><line x1="120" y1="88" x2="190" y2="60"/>
+                <line x1="190" y1="60" x2="265" y2="34"/><line x1="120" y1="88" x2="160" y2="120"/>
+                <line x1="190" y1="60" x2="240" y2="96"/><line x1="50" y1="120" x2="90" y2="140"/>
+                <line x1="265" y1="34" x2="300" y2="70"/>
+              </g>
+              <g fill="#e7e7ea" stroke="#9a9a9a" stroke-width="1.5">
+                <circle cx="50" cy="120" r="11"/><circle cx="160" cy="120" r="8"/>
+                <circle cx="240" cy="96" r="8"/><circle cx="90" cy="140" r="6"/>
+                <circle cx="300" cy="70" r="7"/><circle cx="265" cy="34" r="10"/>
+              </g>
+              <circle cx="120" cy="88" r="12" fill="#4a4a4f"/>
+              <circle cx="190" cy="60" r="13" fill="#1a1a1a"/>
+            </svg>
+            <span class="cap">지식그래프 · 히어로 비주얼 — 미끼 (버튼 아님, 탭 타깃 없음)</span>
+          </div>
+        </section>
+
+        <div class="fold"><span>▼ 폴드 · 아래는 스크롤</span></div>
+
+        <section class="how" aria-label="작동방식">
+          <h2>이렇게 돼</h2>
+          <div class="step"><span class="n">1</span><p>개념마다 "알아요 / 몰라요"로 답해.<span class="cap">아는 건 건너뛰니까 금방 끝나.</span></p></div>
+          <div class="step"><span class="n">2</span><p>AI가 무너진 토대를 찾아 급한 순서로 보여줘.<span class="cap">"이걸 모르면 위가 막혀" — 이유도 같이.</span></p></div>
+          <div class="step"><span class="n">3</span><p>계단 순서대로 채우면 돼.<span class="cap">개념마다 무료 강의 링크까지.</span></p></div>
+        </section>
+
+        <section class="honest" aria-label="정직 포지셔닝">
+          <p>이건 시험이 아니라 <b>자가진단 가이드</b>야. 네가 답한 걸 바탕으로 뭐부터 채울지 순서를 매겨 주는 거야.</p>
+        </section>
+
+        <nav class="browse" aria-label="2차 링크">
+          <button class="tlink">개념 그래프 둘러보기 → ⑥</button>
+        </nav>
+
+      </main>
+
+      <nav class="bottom" aria-label="1차 행동">
+        <button class="cta1">무료 진단 시작</button>
+        <span class="cap">3분 · 문제 풀이 없음 · 로그인 없이</span>
+      </nav>
+
+    </div></div>
+
+    <ul class="notes">
+      <li><span class="k">1차 CTA</span>"무료 진단 시작" 하나뿐 — 하단 고정(엄지존)이라 스크롤 위치와 무관하게 항상 도달 (F-4 홈 A안)</li>
+      <li><span class="k">히어로</span>그래프는 순수 비주얼 미끼. 탭 타깃 아님 — 1차 CTA와 경쟁 금지</li>
+      <li><span class="k">둘러보기</span>조용한 밑줄 링크로 강등, 본문 맨 끝 — ⑥ 그래프 탐색으로 (퍼널 누수 최소화)</li>
+      <li><span class="k">정직 병기</span>"자가진단 가이드" 프레이밍을 홈에서부터 (§2.3 · R1 완화)</li>
+      <li><span class="k">폴드</span>헤드라인 + 히어로 + 1차 CTA가 폴드 위에서 완결 — 스크롤 없이 전환 가능</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
