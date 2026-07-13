@@ -7,6 +7,8 @@
 
 Step 1 기획·Step 2 UX·Step 3 기술 설계 **완료**(spec-01·02·03 확정, 각각 분리 세션 리뷰 실체 대조 통과). **구현 0줄** — 코드는 아직 아무것도 안 짬. 다음 = Step 4 구현.
 
+> **실행 모드 확정(2026-07-13)**: spec-01 구현은 자율주행으로 — 착수 프롬프트·가드레일·사람 게이트 = [m7-spec01-autonomous-handoff](m7-spec01-autonomous-handoff.md) (새 세션에서 그 문서 첨부 + "실행").
+
 ## Step 4 착수 절차 (이 순서대로)
 
 1. **브랜치**: `feat/m7-product-pivot` 에서 분기 → `feat/m7-spec-01-diagnosis`. (스펙 3편이 로컬 전용 브랜치에만 있음 — 필요시 origin 푸시 여부 먼저 결정.)
