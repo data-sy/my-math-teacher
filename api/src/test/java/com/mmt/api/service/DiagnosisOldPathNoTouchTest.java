@@ -30,7 +30,11 @@ class DiagnosisOldPathNoTouchTest {
             MAIN.resolve("service/DiagnosisService.java"),
             MAIN.resolve("service/DiagnosisAnalysisService.java"),
             MAIN.resolve("service/DiagnosisDktClient.java"),
-            MAIN.resolve("controller/DiagnosisController.java"));
+            MAIN.resolve("service/DiagnosisResultAssembler.java"),
+            MAIN.resolve("service/DiagnosisRateLimiter.java"),
+            MAIN.resolve("service/LearningQueueService.java"),
+            MAIN.resolve("controller/DiagnosisController.java"),
+            MAIN.resolve("controller/LearningQueueController.java"));
 
     private static final List<Path> DIAGNOSIS_PACKAGES = List.of(
             MAIN.resolve("dto/diagnosis"),
@@ -59,6 +63,10 @@ class DiagnosisOldPathNoTouchTest {
     private static final Pattern STRING_LITERAL =
             Pattern.compile("\"\"\"(.*?)\"\"\"|\"((?:[^\"\\\\]|\\\\.)*)\"", Pattern.DOTALL);
 
+    /** 테이블 토큰은 SQL 로 보이는 리터럴에서만 검사 — URL 경로("/items/...")류 오탐 방지. */
+    private static final Pattern SQL_LIKE =
+            Pattern.compile("(?i)\\b(select|insert|update|delete|join|from|into)\\b");
+
     @Test
     @DisplayName("신규 진단 경로 소스는 구 경로 테이블·메서드를 참조하지 않는다")
     void diagnosisPathNeverReferencesOldPath() throws IOException {
@@ -74,6 +82,9 @@ class DiagnosisOldPathNoTouchTest {
             java.util.regex.Matcher literals = STRING_LITERAL.matcher(source);
             while (literals.find()) {
                 String literal = literals.group();
+                if (!SQL_LIKE.matcher(literal).find()) {
+                    continue;
+                }
                 for (Pattern forbidden : FORBIDDEN_TABLES) {
                     assertThat(forbidden.matcher(literal).find())
                             .as("%s 의 문자열 리터럴이 구 경로 테이블 '%s' 을 참조 — 무접촉 위반 (spec-01 §8): %s",
