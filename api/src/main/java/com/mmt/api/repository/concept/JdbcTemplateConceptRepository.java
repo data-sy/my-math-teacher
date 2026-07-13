@@ -240,6 +240,26 @@ public class JdbcTemplateConceptRepository {
         }
     }
 
+    /**
+     * skill_id 배치 조회 — DKT 시퀀스·시급도 인덱싱용. skill_id 가 NULL 인 행은
+     * 결과에서 제외한다: 반환 맵에 키가 없으면 "미매핑"이며, 호출측 가드가
+     * 해당 개념을 시퀀스/시급도에서 fail-soft 로 뺀다 (단건 findSkillIdByConceptId 의
+     * -1 반환은 행 미존재만 커버하고 NULL skill_id 는 NPE 라 신규 경로에서 미사용 —
+     * 2026-07-13 audit-doc 발견 흡수).
+     */
+    public java.util.Map<Integer, Integer> findSkillIdsByConceptIds(java.util.Collection<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return java.util.Map.of();
+        }
+        String placeholders = String.join(",", java.util.Collections.nCopies(conceptIds.size(), "?"));
+        String sql = "SELECT concept_id, skill_id FROM concepts WHERE skill_id IS NOT NULL AND concept_id IN (" + placeholders + ")";
+        java.util.Map<Integer, Integer> result = new java.util.HashMap<>();
+        jdbcTemplate.query(sql, rs -> {
+            result.put(rs.getInt("concept_id"), rs.getInt("skill_id"));
+        }, conceptIds.toArray());
+        return result;
+    }
+
     private RowMapper<ConceptSummary> conceptSummaryRowMapper() {
         return (rs, rowNum) -> new ConceptSummary(
                 rs.getInt("concept_id"),

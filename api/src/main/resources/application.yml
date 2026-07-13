@@ -53,3 +53,7 @@ mmt:
   # 배포 시 프로파일에서 true 로 오버라이드. 롤백 = false 재배포.
   diagnosis:
     enabled: false
+    # 진단 전용 TF Serving 클라이언트 (구 경로의 공유 RestTemplate 와 분리 — ADR-0010).
+    serving-url: "http://mmt-ai:8501/v1/models/my_model:predict"
+    serving-connect-timeout-ms: 2000
+    serving-read-timeout-ms: 5000
