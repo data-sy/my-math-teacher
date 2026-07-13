@@ -3,7 +3,7 @@
 **상위 마일스톤:** [Milestone 7](../../milestones/milestone-7-product-pivot.md) — 제품 피벗. 밀스톤 D4(맞춤 = 그래프 학습 경로 + 외부 링크)·PRD §4.3(결과 액션)·와이어프레임 ④ 상태 2(게이트 뒤 학습 큐)를 기술 설계로 구체화한다.
 **대상:** 링크 데이터 모델·시드·API 부착(백엔드) + 경로 노출 배선(프론트, spec-02 컴포넌트 계약 위). 큐 생성·위상정렬 자체는 [spec-01 §4.6](spec-01-diagnosis-self-report-dkt.md)(확정) 소관 — 본 spec 은 그 **출력을 채우고 보여주는** 층.
 **작업 브랜치:** 착수 시 `feat/m7-spec-03-links-path` (본 설계 문서는 `feat/m7-product-pivot` 에 동반)
-**상태:** 📝 **spec 합의 대기** — §7 결정(U1~U5) 사인오프 후 코드 단계
+**상태:** ✅ **spec 확정(2026-07-13)** — §7 결정 U1~U6 **사인오프 완료(전 항목 권장안 채택, U3 귀속 타이브레이크·U6 primary goal 규칙 포함)** → 코드 단계 진입 가능. 리뷰 실체 대조 통과(지문·diff 검증)
 **선행:** spec-01 확정(결과 계약 `cards[].links: []` 예약·학습 큐 스키마·S6 역방향 CTE) · spec-02 확정(④ 2상태 컴포넌트·⑥ Cytoscape hook·계약 SSOT).
 
 ---
@@ -122,10 +122,11 @@ GET /api/v1/learning-queues/me
 - **실측 확인:** `concepts.concept_id` 타입 정렬(spec-01 §6 과 동일 항목 공유) · 시드 대상 상위 개념의 실제 EBS 자료 존재 여부(콘텐츠 리스크 — 없으면 U2 의 N 하향).
 - **영향 테스트:** 결과 계약 스냅샷(links 필드 추가로 갱신), links 일괄 조회 `*N1Test`, 큐 응답 계약 테스트.
 - **롤백:** `concept_links` 테이블·additive 2컬럼 전부 additive — 구 경로 미참조, 방치 가능. 링크 비노출은 `alive=FALSE` 로 즉시(배포 불요).
+- **구현 감시 항목(리뷰 통과 시 지정 — 비블로커, Step 4 관문):** ① goal 의 "항상 정의" 불변식은 **source provenance 완전성에 종속** — 병합 경로 어디에서도 provenance 가 NULL 로 새지 않는지가 실질 관문(§8 property 테스트가 가드) ② `goal_concept_id`/`source_concept_id` 는 **스키마 nullable + 애플리케이션 레벨 non-null 강제**가 의도된 설계(additive 마이그레이션 안전 + 불변식 병행의 표준 패턴 — 혼선 방지용 명시).
 
 ---
 
-## 7. 결정 (사인오프 대기 — U1~U6)
+## 7. 결정 (✅ U1~U6 사인오프 완료, 2026-07-13 — 전 항목 권장안 채택)
 
 - **U1 — 링크 저장소:** **A(권장) DB 테이블 `concept_links`** — 결과·큐 API 가 조인 부착, 재배포 없이 갱신, R4 점검 상태(alive) 관리 가능 / B 정적 JSON(프론트 번들) — 갱신마다 재배포·preview(백엔드 계산)와 이원화.
 - **U2 — 시드 커버리지:** **A(권장) blockedDescendants 상위 30~50 개념 + 결측 허용 계약** — 구조적 병목부터, 링크 0 이면 섹션 생략 / B 진입 단원 프론티어 전 개념 — 커버리지 넓으나 콘텐츠 작업량 폭증.
