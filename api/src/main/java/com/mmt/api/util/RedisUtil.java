@@ -71,6 +71,20 @@ public class RedisUtil {
         return count == null ? 0 : count;
     }
 
+    /**
+     * M7 spec-01 §4.6 rate limit 용 원자적 INCR + 최초 증가 시 TTL 부여.
+     * get-then-set 은 레이스로 임계 초과 버스트를 허용하므로 INCR 를 쓴다
+     * (2026-07-13 design-review Note#4). 반환 = 증가 후 카운트.
+     */
+    public long incrementWithTtl(String key, long ttlSeconds) {
+        Long count = redisTemplate.opsForValue().increment(key);
+        long value = count == null ? 1 : count;
+        if (value == 1) {
+            redisTemplate.expire(key, ttlSeconds, TimeUnit.SECONDS);
+        }
+        return value;
+    }
+
     public void setBlackList(String key, Object o, long duration) {
         redisBlackListTemplate.opsForValue().set(key, o, duration, TimeUnit.MILLISECONDS);
     }

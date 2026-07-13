@@ -90,7 +90,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/tests/sample/**", "/api/v1/weakness-diagnosis/sample/**").permitAll()
                                 // M7 spec-01: 익명 자가진단 문답 (F-1 결과-시점 게이트 — 문답·preview 는
                                 // 비로그인 완주, 귀속 /api/v1/diagnosis·큐는 anyRequest().authenticated() 커버)
-                                .requestMatchers("/api/v1/diagnosis/frontier", "/api/v1/diagnosis/next").permitAll()
+                                .requestMatchers("/api/v1/diagnosis/frontier", "/api/v1/diagnosis/next", "/api/v1/diagnosis/preview").permitAll()
                                 // (#2/#3) 정답(item_answer) 포함 응답(items, tests/detail)과 perf-test 는
                                 // 인증 필수 → permitAll 제거. anyRequest().authenticated() 가 커버.
                                 .requestMatchers("/admin/**").hasRole("ADMIN")

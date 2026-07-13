@@ -47,6 +47,43 @@ public class JdbcTemplateProbabilityRepository implements ProbabilityRepository{
     }
 
     @Override
+    public void saveForUserTest(Long userTestId, List<DiagnosisProbabilityRow> rows) {
+        String sql = "INSERT INTO probabilities (user_test_id, concept_id, to_concept_depth, probability_percent) VALUES (?, ?, ?, ?)";
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+                DiagnosisProbabilityRow row = rows.get(i);
+                ps.setLong(1, userTestId);
+                ps.setInt(2, row.conceptId());
+                ps.setInt(3, row.toConceptDepth());
+                if (row.probabilityPercent() == null) {
+                    ps.setNull(4, java.sql.Types.DOUBLE);
+                } else {
+                    ps.setDouble(4, row.probabilityPercent());
+                }
+            }
+            @Override
+            public int getBatchSize() {
+                return rows.size();
+            }
+        });
+    }
+
+    @Override
+    public List<DiagnosisProbabilityRow> findDiagnosisRowsByUserTestId(Long userTestId) {
+        String sql = "SELECT concept_id, MIN(to_concept_depth) AS to_concept_depth, MIN(probability_percent) AS probability_percent " +
+                "FROM probabilities WHERE user_test_id = ? GROUP BY concept_id ORDER BY concept_id";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            double percent = rs.getDouble("probability_percent");
+            boolean percentNull = rs.wasNull(); // 직전 getDouble 기준 — 다른 getter 호출 전에 확정
+            return new DiagnosisProbabilityRow(
+                    rs.getInt("concept_id"),
+                    rs.getInt("to_concept_depth"),
+                    percentNull ? null : percent);
+        }, userTestId);
+    }
+
+    @Override
     public List<Result> findResults(Long userTestId) {
         String sql ="SELECT p.probability_id, ti.test_item_number, p.concept_id, p.to_concept_depth, p.probability_percent, c.concept_name, ch.school_level, ch.grade_level, ch.semester, ch.chapter_main, ch.chapter_sub, ch.chapter_name\n" +
                 "FROM chapters ch JOIN concepts c ON c.concept_chapter_id = ch.chapter_id\n" +

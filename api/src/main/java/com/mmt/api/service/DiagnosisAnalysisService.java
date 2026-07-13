@@ -41,6 +41,8 @@ public class DiagnosisAnalysisService {
     static final int AMPLIFICATION = 10;
     /** 취약 확장 깊이 — 구 경로 findPrerequisitesAsDepthMap(cId, 3) 승계. */
     static final int EXPANSION_DEPTH = 3;
+    /** blockedDescendants 역방향 CTE depth 상한 (S6 잠정 채택 — 정방향 확장과 대칭). */
+    static final int BLOCKED_DEPTH = 3;
 
     private final DiagnosisService diagnosisService;
     private final JdbcTemplateConceptRepository conceptRepository;
@@ -91,6 +93,68 @@ public class DiagnosisAnalysisService {
         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
         diagnosisService.toValidatedAnsweredMap(answers); // 중복 400 — 귀속과 대칭
         return compute(answers);
+    }
+
+    /** 익명 preview 결과 계약 (§4.4) — 무영속. */
+    @Transactional(readOnly = true)
+    public com.mmt.api.dto.diagnosis.DiagnosisResultResponse previewResult(List<AnsweredConcept> answered) {
+        return assemble(preview(answered));
+    }
+
+    /** 귀속 저장 + 결과 계약 — preview 와 동일 shape (결정론 계약). */
+    @Transactional
+    public SubmitOutcome submitResult(String userEmail, List<AnsweredConcept> answered) {
+        Long userTestId = submit(userEmail, answered);
+        return new SubmitOutcome(userTestId, getResultInternal(userTestId));
+    }
+
+    /** 귀속 결과 재조회 (GET /diagnosis/{userTestId}) — 소유권 검사 포함. */
+    @Transactional(readOnly = true)
+    public com.mmt.api.dto.diagnosis.DiagnosisResultResponse getResult(Long userTestId, String userEmail) {
+        assertOwnership(userTestId, userEmail);
+        return getResultInternal(userTestId);
+    }
+
+    public record SubmitOutcome(Long userTestId, com.mmt.api.dto.diagnosis.DiagnosisResultResponse result) {}
+
+    /**
+     * 영속분에서 computation 재구성 — probabilities.user_test_id 직조회(§6 실측 ③) +
+     * self_report_answers 로 headline. percent 전부 NULL(귀속 시점 서빙 실패)이면
+     * urgencyAvailable=false 로 degrade 유지.
+     */
+    private com.mmt.api.dto.diagnosis.DiagnosisResultResponse getResultInternal(Long userTestId) {
+        List<SelfReportAnswer> saved = selfReportAnswerRepository
+                .findByUserTestIdOrderBySelfReportAnswerIdAsc(userTestId);
+        List<Integer> unknown = saved.stream()
+                .filter(s -> !s.getKnown())
+                .map(SelfReportAnswer::getConceptId)
+                .collect(Collectors.toList());
+
+        Map<Integer, Integer> minDepthByConcept = new LinkedHashMap<>();
+        Map<Integer, Double> percentByConcept = new LinkedHashMap<>();
+        probabilityRepository.findDiagnosisRowsByUserTestId(userTestId).forEach(row -> {
+            minDepthByConcept.put(row.conceptId(), row.toConceptDepth());
+            if (row.probabilityPercent() != null) {
+                percentByConcept.put(row.conceptId(), row.probabilityPercent());
+            }
+        });
+        boolean servingOk = minDepthByConcept.isEmpty() || !percentByConcept.isEmpty();
+        return assemble(new DiagnosisComputation(saved.size(), unknown,
+                minDepthByConcept, percentByConcept, servingOk));
+    }
+
+    /** 카드 메타·blockedDescendants(S6 역방향 CTE depth 3) 조회 후 결과 조립. */
+    private com.mmt.api.dto.diagnosis.DiagnosisResultResponse assemble(DiagnosisComputation computation) {
+        Map<Integer, com.mmt.api.repository.concept.ConceptCardMeta> metaByConcept =
+                conceptRepository.findConceptCardMetas(computation.minDepthByConcept().keySet()).stream()
+                        .collect(Collectors.toMap(
+                                com.mmt.api.repository.concept.ConceptCardMeta::conceptId, m -> m));
+        Map<Integer, Integer> blockedByConcept = new LinkedHashMap<>();
+        for (int conceptId : computation.minDepthByConcept().keySet()) {
+            blockedByConcept.put(conceptId,
+                    conceptRepository.countBlockedDescendants(conceptId, BLOCKED_DEPTH));
+        }
+        return DiagnosisResultAssembler.assemble(computation, metaByConcept, blockedByConcept);
     }
 
     /**

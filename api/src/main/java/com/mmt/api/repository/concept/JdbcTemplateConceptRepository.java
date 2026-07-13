@@ -241,6 +241,52 @@ public class JdbcTemplateConceptRepository {
     }
 
     /**
+     * blockedDescendants (spec-01 §4.5, S6): 역방향 재귀 CTE — "이 개념을 모르면 위로
+     * 몇 개가 막히는가". findPrerequisitesWithDepth 의 미러 (to→from 방향), transitive
+     * distinct count, 자기 자신 제외. depth 3 은 cte_max_recursion_depth=10 내 안전.
+     */
+    public int countBlockedDescendants(int conceptId, int maxDepth) {
+        String sql = """
+            WITH RECURSIVE blocked_path AS (
+                SELECT concept_id, 0 AS depth
+                FROM concepts WHERE concept_id = ?
+
+                UNION ALL
+
+                SELECT c.concept_id, bp.depth + 1
+                FROM blocked_path bp
+                JOIN knowledge_space ks ON bp.concept_id = ks.to_concept_id
+                JOIN concepts c           ON ks.from_concept_id = c.concept_id
+                WHERE bp.depth < ?
+            )
+            SELECT COUNT(DISTINCT concept_id) - 1 FROM blocked_path
+            """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, conceptId, maxDepth);
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 카드 표시 메타 배치 조회 (spec-01 §4.4 결과 계약): level = "학교-학년-학기",
+     * chapter = "대-중-소" — 구 ResultResponse 표기 관례 승계.
+     */
+    public List<ConceptCardMeta> findConceptCardMetas(java.util.Collection<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return List.of();
+        }
+        String placeholders = String.join(",", java.util.Collections.nCopies(conceptIds.size(), "?"));
+        String sql = "SELECT c.concept_id, c.concept_name, ch.school_level, ch.grade_level, ch.semester, " +
+                "ch.chapter_main, ch.chapter_sub, ch.chapter_name " +
+                "FROM concepts c JOIN chapters ch ON ch.chapter_id = c.concept_chapter_id " +
+                "WHERE c.concept_id IN (" + placeholders + ")";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new ConceptCardMeta(
+                rs.getInt("concept_id"),
+                rs.getString("concept_name"),
+                rs.getString("school_level") + "-" + rs.getString("grade_level") + "-" + rs.getString("semester"),
+                rs.getString("chapter_main") + "-" + rs.getString("chapter_sub") + "-" + rs.getString("chapter_name")),
+                conceptIds.toArray());
+    }
+
+    /**
      * skill_id 배치 조회 — DKT 시퀀스·시급도 인덱싱용. skill_id 가 NULL 인 행은
      * 결과에서 제외한다: 반환 맵에 키가 없으면 "미매핑"이며, 호출측 가드가
      * 해당 개념을 시퀀스/시급도에서 fail-soft 로 뺀다 (단건 findSkillIdByConceptId 의

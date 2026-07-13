@@ -57,3 +57,5 @@ mmt:
     serving-url: "http://mmt-ai:8501/v1/models/my_model:predict"
     serving-connect-timeout-ms: 2000
     serving-read-timeout-ms: 5000
+    # 익명 preview IP 단위 분당 상한 (§4.6 남용 방어 — TF Serving 실호출 경로만)
+    preview-rate-limit-per-minute: 10
