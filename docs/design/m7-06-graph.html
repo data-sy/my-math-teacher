@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M7 ⑥ 개념그래프 탐색 — 와이어프레임</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --sub:#555; --faint:#8a8a8a;
+    --line:#9a9a9a; --edge:#222;
+    --paper:#f4f4f5; --card:#fff; --ph:#e7e7ea; --band:#ededf1;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:520px;margin:0 auto;padding:24px 16px 56px}
+  header.head h1{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+  header.head p{margin:0;color:var(--sub);font-size:13px}
+
+  .col{width:390px;max-width:100%;margin:24px auto 0}
+  .col>h2{font-size:15px;margin:0 0 10px;text-align:center}
+
+  .phone{border:2px solid var(--edge);border-radius:30px;background:#fff;padding:10px}
+  .screen{border:1px solid #dcdce0;border-radius:20px;background:#fff;overflow:hidden;
+          display:flex;flex-direction:column;min-height:760px}
+  .status{display:flex;justify-content:space-between;font:600 10px var(--mono);
+          color:var(--faint);padding:8px 16px 4px}
+
+  button{font:inherit;cursor:default}
+  .cap{font-size:11px;color:var(--faint)}
+  .cta1{display:block;width:100%;background:var(--ink);color:#fff;border:0;border-radius:12px;
+        font-weight:700;font-size:15px;padding:15px 12px;text-align:center}
+
+  .appbar{display:flex;align-items:center;gap:8px;padding:6px 16px 8px}
+  .back{background:none;border:0;padding:0;font-size:16px;color:var(--sub)}
+  .search{flex:1;display:flex;align-items:center;gap:8px;border:1.6px solid var(--edge);
+          border-radius:22px;background:#fff;padding:9px 14px;font-size:13px;color:var(--faint)}
+
+  /* 그래프 캔버스 — 상시 표시 */
+  .canvas{flex:1;position:relative;background:#fafafb;border-top:1px solid #eee;border-bottom:1px solid #eee}
+  .canvas svg{width:100%;height:100%;display:block;position:absolute;inset:0}
+  .gesture{position:absolute;top:8px;left:0;right:0;text-align:center}
+  .gesture span{font:600 9.5px var(--mono);color:#b9b9c0;background:#fafafbcc;padding:2px 8px;border-radius:10px}
+  .zoom{position:absolute;right:10px;top:40px;display:flex;flex-direction:column;gap:6px}
+  .zoom button{width:34px;height:34px;border:1.5px solid var(--line);border-radius:9px;
+               background:#fff;color:var(--sub);font-size:15px;font-weight:600}
+  .nodelabel{position:absolute;font:600 10.5px var(--sans);color:#6b6b6f;transform:translate(-50%,-50%)}
+  .nodelabel.sel{color:#fff;background:var(--ink);border-radius:10px;padding:1px 8px;font-weight:700}
+
+  /* 선택 개념 바텀시트 (탭 = 선택 · 호버 없음) */
+  .sheet{background:#fff;border-top:1.5px solid var(--edge);padding:14px 18px 10px;position:relative}
+  .sheet::before{content:"노드 탭 → 시트 갱신 (호버 의존 0)";position:absolute;top:-8px;left:12px;
+                 font:600 9px var(--mono);color:#c2c2c8;background:#fff;padding:0 5px}
+  .grab{width:36px;height:4px;border-radius:4px;background:#dcdce0;margin:0 auto 10px}
+  .sheet h3{margin:0 0 2px;font-size:16px}
+  .sheet p.desc{margin:0 0 8px;font-size:12.5px;color:var(--sub)}
+  .rel{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 4px}
+  .rel .cap{width:100%}
+  .rchip{border:1.5px solid var(--line);background:#fff;color:var(--sub);border-radius:20px;
+         font:600 11.5px/1.7 var(--sans);padding:2px 11px}
+
+  .bottom{padding:12px 16px 16px;background:#fff;position:relative}
+  .bottom::before{content:"엄지존 · 상시 고정";position:absolute;top:-8px;right:12px;
+                  font:600 9px var(--mono);color:#c2c2c8;background:#fff;padding:0 5px}
+  .bottom .cap{display:block;text-align:center;margin-top:6px}
+
+  .notes{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:5px}
+  .notes li{font-size:11.5px;color:var(--sub);display:flex;gap:6px;align-items:baseline}
+  .notes .k{flex:none;font:600 10px var(--mono);color:var(--faint);width:76px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>⑥ 개념그래프 탐색 — 와이어프레임</h1>
+    <p>검색 한 줄 + 상시 그래프(호버 의존 0 · 모바일 동작) + 상시 "내 약점 진단하기" CTA (F-4 루프)</p>
+  </header>
+
+  <div class="col">
+    <h2>단일 상태 · 노드 "인수분해" 선택 중</h2>
+    <div class="phone"><div class="screen">
+
+      <div class="status"><span>9:41</span><span>▓ 82%</span></div>
+
+      <header class="appbar">
+        <button class="back" aria-label="홈으로">←</button>
+        <div class="search" role="search">🔍 <span>개념 이름 검색 — 예: 인수분해</span></div>
+      </header>
+
+      <main class="canvas" aria-label="지식그래프 캔버스">
+        <svg viewBox="0 0 370 330" role="img" aria-label="개념 지식그래프 — 인수분해 선택됨">
+          <g stroke="#c7c7cd" stroke-width="1.5">
+            <line x1="70" y1="280" x2="140" y2="230"/><line x1="140" y1="230" x2="120" y2="160"/>
+            <line x1="140" y1="230" x2="210" y2="190"/><line x1="120" y1="160" x2="185" y2="110"/>
+            <line x1="210" y1="190" x2="185" y2="110"/><line x1="185" y1="110" x2="265" y2="80"/>
+            <line x1="185" y1="110" x2="140" y2="50"/><line x1="265" y1="80" x2="315" y2="150"/>
+            <line x1="210" y1="190" x2="300" y2="230"/><line x1="70" y1="280" x2="160" y2="300"/>
+            <line x1="40" y1="180" x2="120" y2="160"/>
+          </g>
+          <g fill="#e7e7ea" stroke="#9a9a9a" stroke-width="1.5">
+            <circle cx="70" cy="280" r="12"/><circle cx="140" cy="230" r="13"/>
+            <circle cx="120" cy="160" r="11"/><circle cx="210" cy="190" r="12"/>
+            <circle cx="265" cy="80" r="12"/><circle cx="140" cy="50" r="10"/>
+            <circle cx="315" cy="150" r="9"/><circle cx="300" cy="230" r="10"/>
+            <circle cx="160" cy="300" r="9"/><circle cx="40" cy="180" r="9"/>
+          </g>
+          <circle cx="185" cy="110" r="16" fill="#1a1a1a"/>
+        </svg>
+        <span class="nodelabel sel" style="left:50%;top:24%">인수분해</span>
+        <span class="nodelabel" style="left:38%;top:56%">곱셈 공식</span>
+        <span class="nodelabel" style="left:20%;top:74%">일차방정식</span>
+        <span class="nodelabel" style="left:72%;top:16%">이차방정식</span>
+        <div class="gesture"><span>핀치 = 줌 · 드래그 = 이동 · 탭 = 선택</span></div>
+        <nav class="zoom" aria-label="줌 컨트롤"><button>＋</button><button>－</button></nav>
+      </main>
+
+      <section class="sheet" aria-label="선택한 개념">
+        <div class="grab"></div>
+        <h3>인수분해</h3>
+        <p class="desc">다항식을 곱셈 꼴로 되돌리는 것 — 이차방정식 풀이의 열쇠야. <span class="cap">(한 줄 설명 플레이스홀더)</span></p>
+        <div class="rel">
+          <span class="cap">계단으로 이어진 개념 (탭하면 그래프 이동)</span>
+          <button class="rchip">↓ 이전: 곱셈 공식</button>
+          <button class="rchip">↓ 이전: 소인수분해</button>
+          <button class="rchip">↑ 다음: 이차방정식</button>
+        </div>
+      </section>
+
+      <nav class="bottom" aria-label="1차 행동 · 진단 루프">
+        <button class="cta1">내 약점 진단하기</button>
+        <span class="cap">여기 어딘가 막혀 있는지 3분이면 알아 → ②</span>
+      </nav>
+
+    </div></div>
+
+    <ul class="notes">
+      <li><span class="k">상시 그래프</span>진입 즉시 그래프 전면 표시 — 검색은 보조. 진단과 독립 진입 가능한 "서비스의 얼굴" (B-2 각색)</li>
+      <li><span class="k">호버 0</span>노드 정보는 <b>탭 → 바텀시트</b>로. 핀치/드래그/탭만 사용 — 모바일 동작 보장 (직전 리포트 지적 해소)</li>
+      <li><span class="k">상시 CTA</span>"내 약점 진단하기" 하단 고정 = 화면 단일 1차 — 탐색을 진단 퍼널(②)로 되돌리는 루프 (F-4, 누수 방지)</li>
+      <li><span class="k">선후 chip</span>시트의 이전/다음 chip 탭 = 그래프 포커스 이동 — 계단 멘탈모델을 탐색에서도 유지</li>
+      <li><span class="k">진입</span>① 홈 "둘러보기" 조용한 링크 · 결과 "근거 더보기"에서 유입. 뒤로 = 온 곳으로</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
