@@ -15,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import com.mmt.api.exception.DiagnosisException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class LearningQueueService {
     @Transactional
     public LearningQueueResponse create(String userEmail, Long userTestId) {
         if (userTestId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userTestId 는 필수입니다.");
+            throw new DiagnosisException(HttpStatus.BAD_REQUEST, "userTestId 는 필수입니다.");
         }
         Long userId = resolveUserId(userEmail);
         // 소유권 포함 결과 재조회 — top-N 카드가 큐의 목표(goal) 집합
@@ -116,7 +116,7 @@ public class LearningQueueService {
     public LearningQueueResponse getMyQueue(String userEmail) {
         Long userId = resolveUserId(userEmail);
         LearningQueue queue = queueRepository.findTopByUserIdOrderByQueueIdDesc(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "학습 큐가 없습니다."));
+                .orElseThrow(() -> new DiagnosisException(HttpStatus.NOT_FOUND, "학습 큐가 없습니다."));
         return toResponse(queue, queueItemRepository.findByQueueIdOrderByPositionAsc(queue.getQueueId()));
     }
 
@@ -125,12 +125,12 @@ public class LearningQueueService {
     public LearningQueueResponse markDone(String userEmail, Long queueId, Long queueItemId) {
         Long userId = resolveUserId(userEmail);
         LearningQueue queue = queueRepository.findById(queueId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "학습 큐가 없습니다."));
+                .orElseThrow(() -> new DiagnosisException(HttpStatus.NOT_FOUND, "학습 큐가 없습니다."));
         if (!queue.getUserId().equals(userId)) {
             throw new AccessDeniedException("본인의 학습 큐만 갱신할 수 있습니다.");
         }
         LearningQueueItem item = queueItemRepository.findByQueueItemIdAndQueueId(queueItemId, queueId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "큐 항목이 없습니다."));
+                .orElseThrow(() -> new DiagnosisException(HttpStatus.NOT_FOUND, "큐 항목이 없습니다."));
         if (!Boolean.TRUE.equals(item.getDone())) {
             item.setDone(Boolean.TRUE);
             item.setDoneAt(LocalDateTime.now());

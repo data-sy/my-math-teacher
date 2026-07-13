@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import com.mmt.api.exception.DiagnosisException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,8 +129,8 @@ class DiagnosisServiceTraversalTest {
         assertThatThrownBy(() -> service.next(chapter1(), List.of(
                 new AnsweredConcept(30, false),
                 new AnsweredConcept(30, true))))
-                .isInstanceOf(ResponseStatusException.class)
-                .satisfies(e -> assertThat(((ResponseStatusException) e).getStatusCode())
+                .isInstanceOf(DiagnosisException.class)
+                .satisfies(e -> assertThat(((DiagnosisException) e).getStatus())
                         .isEqualTo(HttpStatus.BAD_REQUEST));
     }
 
@@ -149,6 +149,6 @@ class DiagnosisServiceTraversalTest {
     @DisplayName("entry 미지정/모호 → 400")
     void invalidEntryRejected() {
         assertThatThrownBy(() -> service.next(new DiagnosisEntry(), List.of()))
-                .isInstanceOf(ResponseStatusException.class);
+                .isInstanceOf(DiagnosisException.class);
     }
 }

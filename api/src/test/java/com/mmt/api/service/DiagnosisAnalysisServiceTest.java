@@ -83,6 +83,9 @@ class DiagnosisAnalysisServiceTest {
             if (id == 20) return List.of(new ConceptDepth(20, 0), new ConceptDepth(10, 1));
             return List.of(new ConceptDepth(id, 0));
         });
+        // 존재 검증: 기본은 전 개념 존재로 취급
+        when(conceptRepo.findExistingConceptIds(anyCollection())).thenAnswer(inv ->
+                new java.util.HashSet<Integer>(inv.getArgument(0)));
         // skill_id = conceptId*100 (전 개념 매핑)
         when(conceptRepo.findSkillIdsByConceptIds(anyCollection())).thenAnswer(inv -> {
             java.util.Collection<Integer> ids = inv.getArgument(0);
@@ -135,6 +138,24 @@ class DiagnosisAnalysisServiceTest {
         assertThat(seq.get(9)).containsExactly(300, 0);
         assertThat(seq.get(10)).containsExactly(310, 1);
         assertThat(seq.get(19)).containsExactly(310, 1);
+    }
+
+    @Test
+    @DisplayName("미존재 conceptId → preview·귀속 동일하게 400 (FK 500 비대칭 방지)")
+    void missingConceptIdRejectedSymmetrically() {
+        when(conceptRepo.findExistingConceptIds(anyCollection())).thenAnswer(inv -> {
+            java.util.Set<Integer> s = new java.util.HashSet<>(inv.getArgument(0));
+            s.remove(9999);
+            return s;
+        });
+        List<AnsweredConcept> answered = List.of(new AnsweredConcept(9999, false));
+        for (Runnable call : new Runnable[]{
+                () -> service.preview(answered),
+                () -> service.submit("s@t.kr", answered)}) {
+            org.assertj.core.api.Assertions.assertThatThrownBy(call::run)
+                    .isInstanceOf(com.mmt.api.exception.DiagnosisException.class)
+                    .hasMessageContaining("9999");
+        }
     }
 
     @Test

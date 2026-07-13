@@ -91,8 +91,29 @@ public class DiagnosisAnalysisService {
     @Transactional(readOnly = true)
     public DiagnosisComputation preview(List<AnsweredConcept> answered) {
         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
-        diagnosisService.toValidatedAnsweredMap(answers); // 중복 400 — 귀속과 대칭
+        validateAnswers(answers); // 중복·미존재 400 — 귀속과 대칭
         return compute(answers);
+    }
+
+    /**
+     * preview·귀속 공통 사전 검증 — 결정론 계약을 에러 동작까지 확장:
+     * 중복 conceptId(귀속만 UNIQUE 500 방지) + 미존재 conceptId(귀속만 FK 500,
+     * preview 는 조용히 무시되는 비대칭 방지 — 2026-07-13 E2E 스모크 발견).
+     */
+    private void validateAnswers(List<AnsweredConcept> answers) {
+        Map<Integer, Boolean> answeredMap = diagnosisService.toValidatedAnsweredMap(answers);
+        if (answeredMap.isEmpty()) {
+            return;
+        }
+        Set<Integer> existing = conceptRepository.findExistingConceptIds(answeredMap.keySet());
+        List<Integer> missing = answeredMap.keySet().stream()
+                .filter(id -> !existing.contains(id))
+                .collect(Collectors.toList());
+        if (!missing.isEmpty()) {
+            throw new com.mmt.api.exception.DiagnosisException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "존재하지 않는 conceptId: " + missing);
+        }
     }
 
     /** 익명 preview 결과 계약 (§4.4) — 무영속. */
@@ -166,7 +187,7 @@ public class DiagnosisAnalysisService {
         Long userId = usersRepository.findUserIdByUserEmail(userEmail)
                 .orElseThrow(() -> new AccessDeniedException("인증 정보를 확인할 수 없습니다."));
         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
-        diagnosisService.toValidatedAnsweredMap(answers); // 중복 400 — preview 와 대칭 (UNIQUE 500 방지)
+        validateAnswers(answers); // 중복·미존재 400 — preview 와 대칭 (UNIQUE·FK 500 방지)
 
         Long userTestId = userTestRepository.saveDiagnosisSession(userId);
         for (AnsweredConcept a : answers) {

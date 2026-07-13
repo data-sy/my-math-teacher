@@ -306,6 +306,20 @@ public class JdbcTemplateConceptRepository {
         return result;
     }
 
+    /** 존재하는 concept_id 만 반환 — 진단 answered[] 사전 검증용 (미존재 = FK 500 대신 400). */
+    public java.util.Set<Integer> findExistingConceptIds(java.util.Collection<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return java.util.Set.of();
+        }
+        String placeholders = String.join(",", java.util.Collections.nCopies(conceptIds.size(), "?"));
+        String sql = "SELECT concept_id FROM concepts WHERE concept_id IN (" + placeholders + ")";
+        java.util.Set<Integer> result = new java.util.HashSet<>();
+        jdbcTemplate.query(sql, rs -> {
+            result.add(rs.getInt("concept_id"));
+        }, conceptIds.toArray());
+        return result;
+    }
+
     private RowMapper<ConceptSummary> conceptSummaryRowMapper() {
         return (rs, rowNum) -> new ConceptSummary(
                 rs.getInt("concept_id"),

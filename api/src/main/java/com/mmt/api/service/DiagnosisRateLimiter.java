@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import com.mmt.api.exception.DiagnosisException;
 
 /**
  * 익명 preview 남용 방어 (spec-01 §4.6): permitAll + TF Serving 실호출 경로에만
@@ -30,7 +30,7 @@ public class DiagnosisRateLimiter {
         String window = String.valueOf(System.currentTimeMillis() / 60_000);
         String key = KEY_PREFIX + clientIp(request) + ":" + window;
         if (redisUtil.incrementWithTtl(key, 120) > limitPerMinute) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+            throw new DiagnosisException(HttpStatus.TOO_MANY_REQUESTS,
                     "요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.");
         }
     }

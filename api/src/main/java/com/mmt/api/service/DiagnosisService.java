@@ -10,7 +10,7 @@ import com.mmt.api.repository.concept.KnowledgeEdge;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import com.mmt.api.exception.DiagnosisException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class DiagnosisService {
         Map<Integer, Boolean> map = new LinkedHashMap<>();
         for (AnsweredConcept a : answered) {
             if (map.putIfAbsent(a.getConceptId(), a.isKnown()) != null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                throw new DiagnosisException(HttpStatus.BAD_REQUEST,
                         "answered 에 같은 conceptId 가 두 번 올 수 없습니다: " + a.getConceptId());
             }
         }
@@ -117,7 +117,7 @@ public class DiagnosisService {
 
     private List<ConceptSummary> resolveFrontier(DiagnosisEntry entry) {
         if (entry == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "entry 는 필수입니다.");
+            throw new DiagnosisException(HttpStatus.BAD_REQUEST, "entry 는 필수입니다.");
         }
         boolean full = "full".equals(entry.getScope());
         if (full && entry.getSchoolLevel() != null && !entry.getSchoolLevel().isBlank()) {
@@ -126,7 +126,7 @@ public class DiagnosisService {
         if (!full && entry.getChapterId() != null) {
             return conceptRepository.findFrontierByChapterId(entry.getChapterId());
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        throw new DiagnosisException(HttpStatus.BAD_REQUEST,
                 "entry 는 chapterId 또는 scope=full+schoolLevel 중 하나여야 합니다.");
     }
 

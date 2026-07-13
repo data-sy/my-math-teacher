@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import com.mmt.api.exception.DiagnosisException;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -34,9 +34,9 @@ class DiagnosisRateLimiterTest {
             assertThatCode(() -> limiter.checkPreview(request)).doesNotThrowAnyException();
         }
         assertThatThrownBy(() -> limiter.checkPreview(request))
-                .isInstanceOf(ResponseStatusException.class)
+                .isInstanceOf(DiagnosisException.class)
                 .satisfies(e -> org.assertj.core.api.Assertions.assertThat(
-                        ((ResponseStatusException) e).getStatusCode())
+                        ((DiagnosisException) e).getStatus())
                         .isEqualTo(HttpStatus.TOO_MANY_REQUESTS));
     }
 }
