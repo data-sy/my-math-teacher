@@ -3,7 +3,7 @@
 **상위 마일스톤:** [Milestone 7](../../milestones/milestone-7-product-pivot.md) — 제품 피벗(자가진단 + 모바일 리디자인). 밀스톤 D3-R·PRD §0.1 F-1~F-4 를 기술 설계로 구체화한다.
 **대상:** 백엔드(서비스·리포지토리·API 계약). 프론트 React 구현은 spec-02, 외부 링크 데이터는 spec-03.
 **작업 브랜치:** 착수 시 `feat/m7-spec-01-diagnosis` (본 설계 문서는 `feat/m7-product-pivot` 에 동반)
-**상태:** 📝 **spec 합의 대기** — **S2 = ✅ C안 확정(2026-07-13 리뷰)**, 나머지 S1·S3~S6 사인오프 후 코드 단계(`/analyze-before-change` → 구현)
+**상태:** ✅ **spec 확정(2026-07-13)** — **S2 = C안·S3 = A안 확정(리뷰)**, S1·S4~S6 = **권장안 잠정 채택(착수 시 재검토 꼬리표)** → 코드 단계(`/analyze-before-change` → 구현) 진입 가능
 **선행:** M2(완료) — `knowledge_space` 재귀 CTE. PRD 사인오프(2026-07-13) — 특히 F-1(결과-시점 reverse gate)·F-2(localStorage answered-map)·F-3(스마트 default 진입)·F-4(통합 학습 큐·top-N '상' 등급).
 **Supersedes:** [구 spec-01](spec-01-diagnosis-engine-self-report.md) (DEPRECATED — 시급도=그래프 점수 전제. D3-R 로 역전되어 본 문서로 대체. §2 방향성 노트·D1-A 순회 골격은 승계).
 
@@ -126,9 +126,15 @@ res  { next: {conceptId, conceptName, description}, progress: {asked, estimatedR
 **매핑·저장** (`POST /diagnosis` 귀속 시 확정, preview 는 동일 계산의 무영속판):
 
 1. answered-map → `users_tests` 1행 + **`self_report_answers`** N행 저장(`known` BOOLEAN 그대로 저장 — 정오답 변환 **안다=1(맞음)/모른다=0(틀림)** 은 DKT 시퀀스 생성 시 조회 변환). 구 `answers` 는 읽지도 쓰지도 않음(S2=C).
-2. DKT 입력 = `self_report_answers`(preview 는 요청 answered-map)에서 `[skillId, answerCode]` 시퀀스 직접 생성(`skill_id = concepts.skill_id`, items 조인 불요) + **×10 증폭 유지**(입력 최소 크기 3 안정 통과 — 현행 근거 승계). **S3-A(현재 세션만) 유지** — 근거 = preview 와 귀속 결과의 **결정론 동치(F-1 "본 결과를 저장") 보장**.
+2. DKT 입력 = `self_report_answers`(preview 는 요청 answered-map)에서 `[skillId, answerCode]` 시퀀스 직접 생성(`skill_id = concepts.skill_id`, items 조인 불요) + **×10 증폭 유지**. **증폭은 시퀀스 생성 단계에만 적용 — 저장은 `UNIQUE(user_test_id, concept_id)` 대로 개념당 1행**(10행 저장 아님). ⚠️ 현행 "입력 최소 크기 3 안정" 근거는 **구 채점 입력 분포 기준이라 자동 승계 불가** — 얇은 세션 유효성은 아래 R2 엣지 케이스 실측으로 검증. **S3 = A(현재 세션만) 확정** — 근거 = preview 와 귀속 결과의 **결정론 동치(F-1 "본 결과를 저장") 보장**.
 3. `getPrediction` 재사용 → `probabilityList`. **가드 신설**: TF Serving null 응답, `skill_id = -1`(미매핑 개념), `skillId-1` 범위 초과 — 셋 다 현행엔 없음(§3).
 4. 취약 확장 재사용: depth0 = "몰라요" 개념들 → `findPrerequisitesAsDepthMap(cId, 3)` → `probabilities` 저장 — **`user_test_id` 스코프로 기록(answer_id = NULL)**. `probability_percent = probabilityList[skillId-1]` 인덱싱 유지.
+
+**R2 엣지 케이스 — 빈/얇은/단조 DKT 입력 (2026-07-13 S3 리뷰 반영):**
+
+- **"몰라요" 0개**(전부 알아요) → depth0 없음 → **DKT 호출 생략**, `cards: []` + "약점 없음" 헤드라인 = **정상 결과**(에러 아님).
+- **극소 세션**(1~2답 ×10)·**단조 시퀀스**(전답 동일값)에서 TF Serving 확률 분포가 유의미한지는 **미검증** — 착수 시 **대표 4 시나리오 실측**(1답만 / 전부 알아요 / 전부 몰라요 / 혼합, §8). 실측 분포는 등급 컷(S4) 보정의 입력이 된다.
+- 실측이 부실해도 **fail-soft**(§4.7): 시급도 등급만 결측되고 "몰라요" 목록 기반 결과는 성립 — 런치 차단 요소 아님.
 
 **신규 DDL** (권장안 — 타입은 analyze-before-change 에서 참조 PK 실측에 맞춰 확정, §6):
 
@@ -226,12 +232,12 @@ learning_queue_items  (queue_item_id PK AUTO, queue_id FK, position INT,
 
 ## 7. 결정 (사인오프 대기 — S1~S6)
 
-- **S1 — 익명 결과 산출:** **A(권장) 무영속 preview + 로그인 시 재제출 귀속** — `users_tests.user_id` FK 무변경, F-2 localStorage 와 정합, 서버에 익명 잔재 없음 / B 게스트 행 영속화 — user_id nullable 마이그레이션 + 고아 행 정리 배치 필요.
-- **S2 — self-report 답안 저장 스키마: ✅ C 확정(2026-07-13 리뷰).** **신규 `self_report_answers` 테이블(§4.4 DDL) + `probabilities.user_test_id` additive.** 구 A안(`answers.item_id` NOT NULL 완화)은 리뷰 **R1(공유 answers 테이블 오염)** 확정으로 기각 — 롤백용으로 살아있는 `findBefore` 가 NULL item_id 행을 전체 이력으로 긁어 items→concepts 조인이 깨짐. 신규 경로는 구 `answers` 를 **읽지도 쓰지도 않음** → R1 소멸. 유저 0명이라 마이그레이션·하위호환 부담 없음, 구 채점 진단은 "제2 진단 모드"로 되살릴 여지 보존. **임시답/가짜 item 매핑 금지** — 조인을 성공시켜 오염을 '조용한 오염'으로 은폐. 세션 단위는 기존 `users_tests` 재사용(별도 세션 테이블 신설 안 함).
-- **S3 — DKT 입력 구성:** **A(권장) 현재 세션 answered-map 만** ×10 — **preview 와 귀속 결과의 결정론 동치(F-1 "본 결과를 저장") 보장**, 스냅샷 설명가능 / B 계정 이력 포함(과거 self-report 세션 병합 — `findBefore` 는 무접촉이라 승계 아님) — preview(이력 없음)와 귀속(이력 있음) 결과가 달라져 F-1 기대 위반.
-- **S4 — 등급 컷 출발값:** HIGH < 40 ≤ MID < 65 ≤ LOW (구 ResultView 선례 승계). 실데이터 보정 백로그 전제.
-- **S5 — 큐 스키마:** §4.6 2테이블 + **현재 위치 = 파생값(권장)** / 별도 포인터 컬럼(불필요한 정합 부담).
-- **S6 — 카드 근거 수치:** blockedDescendants = **역방향 CTE transitive, depth 3(권장)** / 직계만(count 과소로 근거 문구 임팩트 약함) / 무제한 depth(상위 개념에서 수백 개로 과장 위험).
+- **S1 — 익명 결과 산출: ▶ 잠정 채택 A(무영속 preview + 로그인 시 재제출 귀속) — 착수 시 재검토.** `users_tests.user_id` FK 무변경, F-2 localStorage 와 정합, 서버에 익명 잔재 없음 / B 게스트 행 영속화 — user_id nullable 마이그레이션 + 고아 행 정리 배치 필요.
+- **S2 — self-report 답안 저장 스키마: ✅ C 확정(2026-07-13 리뷰).** **신규 `self_report_answers` 테이블(§4.4 DDL) + `probabilities.user_test_id` additive.** 구 A안(`answers.item_id` NOT NULL 완화)은 리뷰 **R1(공유 answers 테이블 오염)** 확정으로 기각 — 롤백용으로 살아있는 `findBefore` 가 NULL item_id 행을 전체 이력으로 긁어 items→concepts 조인이 깨짐. 신규 경로는 구 `answers` 를 **읽지도 쓰지도 않음** → R1 소멸. 유저 0명이라 마이그레이션·하위호환 부담 없음, 구 채점 진단은 "제2 진단 모드"로 되살릴 여지 보존. **임시답/가짜 item 매핑 금지** — 조인을 성공시켜 오염을 '조용한 오염'으로 은폐. 세션 단위는 기존 `users_tests` 재사용(별도 세션 테이블 신설 안 함). **단, 결과조회 배선(신규 `user_test_id` 직조회 쿼리)은 §6 실측 확인 ③ 통과 전제** — 실측에서 걸리면 S2 재오픈이 아니라 조회 쿼리 설계만 조정.
+- **S3 — DKT 입력 구성: ✅ A 확정(2026-07-13 리뷰 — R2 가드 전제).** 현재 세션 answered-map 만 ×10 — **preview 와 귀속 결과의 결정론 동치(F-1 "본 결과를 저장") 보장**, 스냅샷 설명가능. **R2(빈/얇은/단조 입력) 완화 = §4.4 엣지 케이스 3종**(몰라요 0개→DKT 생략 / 대표 4 시나리오 실측 / fail-soft — "최소 크기 3 안정"의 구 근거는 자동 승계 불가로 정정). B(과거 self-report 세션 병합)는 preview·귀속 결과 불일치로 F-1 위반 → 기각.
+- **S4 — 등급 컷 출발값: ▶ 잠정 채택(HIGH < 40 ≤ MID < 65 ≤ LOW) — 착수 시 재검토.** 구 ResultView 선례 승계이나 **self-report 매핑 입력의 percent 분포는 실채점과 다를 수 있어 승계가 출발값 이상을 의미하지 않음** — §4.4 R2 대표 시나리오 실측 분포와 함께 컷 재검토·실데이터 보정(백로그).
+- **S5 — 큐 스키마: ▶ 잠정 채택(§4.6 2테이블 + 현재 위치 = 파생값) — 착수 시 재검토.** 별도 포인터 컬럼은 불필요한 정합 부담.
+- **S6 — 카드 근거 수치: ▶ 잠정 채택(blockedDescendants = 역방향 CTE transitive, depth 3) — 착수 시 재검토.** 직계만은 count 과소로 근거 문구 임팩트 약함 / 무제한 depth 는 상위 개념에서 수백 개로 과장 위험.
 
 ---
 
@@ -239,7 +245,7 @@ learning_queue_items  (queue_item_id PK AUTO, queue_id FK, position INT,
 
 - **적응형 동작:** "알아요"가 선수 폐쇄를 실제로 skip 해 문답 수가 전 개념 나열 대비 유의미하게 주는지(단위 테스트 + 실시드 subgraph).
 - **결정론:** 동일 answered-map → `next` 순서·`preview` 결과·귀속 결과가 항상 동일(S1-A 계약의 핵심 — 스냅샷 테스트).
-- **DKT 정합:** self-report 매핑 시퀀스로 TF Serving 실응답이 오고 `probabilityList[skillId-1]` 시급도가 나오는지 + 신설 가드 3종(null 응답·skill_id=-1·범위 초과) 동작.
+- **DKT 정합:** self-report 매핑 시퀀스로 TF Serving 실응답이 오고 `probabilityList[skillId-1]` 시급도가 나오는지 + 신설 가드 3종(null 응답·skill_id=-1·범위 초과) 동작 + **R2 대표 4 시나리오 실측**(1답만 / 전부 알아요→DKT 생략 확인 / 전부 몰라요 / 혼합)의 확률 분포 기록 — S4 컷 보정의 입력.
 - **계단 불변식:** 생성된 큐의 모든 (선수, 후수) 쌍에서 선수 position < 후수 position (위상정렬 property 테스트). 시급도는 진입 순서에만 반영되는지.
 - **게이트 배선:** 비로그인으로 문답→preview 완주(무료 충족, §5.1 PRD) / 귀속·큐·done 은 인증+소유권 강제.
 - **구 경로 무접촉(R1 소멸 증명):** self-report 경로가 `answers`·`tests_items`·`items`·`findBefore`/`findAIInput` 을 **일절 참조하지 않고 완주**(property 테스트).
