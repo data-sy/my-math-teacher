@@ -181,4 +181,69 @@ public class JdbcTemplateConceptRepository {
             return concept;
         };
     }
+
+    // ===== M7 spec-01 자가진단 (ADR-0010) — 이하 신규 경로 전용, 구 경로 무접촉 =====
+
+    /**
+     * 시작 프론티어(spec-01 §4.2): 단원 내 후수-최상위 개념 — 같은 단원의 다른 개념이
+     * 자기를 선수로 요구하지 않는 개념. ORDER BY concept_id = 결정론 계약의 일부.
+     */
+    public List<ConceptSummary> findFrontierByChapterId(int chapterId) {
+        String sql = """
+            SELECT c.concept_id, c.concept_name, c.concept_description FROM concepts c
+            WHERE c.concept_chapter_id = ?
+              AND NOT EXISTS (SELECT 1 FROM knowledge_space ks
+                              JOIN concepts c2 ON c2.concept_id = ks.from_concept_id
+                              WHERE ks.to_concept_id = c.concept_id
+                                AND c2.concept_chapter_id = c.concept_chapter_id)
+            ORDER BY c.concept_id
+            """;
+        return jdbcTemplate.query(sql, conceptSummaryRowMapper(), chapterId);
+    }
+
+    /**
+     * 전체 훑기 escape(spec-01 §4.2-b): 학교급 전 단원 프론티어 합집합.
+     */
+    public List<ConceptSummary> findFrontierBySchoolLevel(String schoolLevel) {
+        String sql = """
+            SELECT c.concept_id, c.concept_name, c.concept_description FROM concepts c
+            JOIN chapters ch ON ch.chapter_id = c.concept_chapter_id
+            WHERE ch.school_level = ?
+              AND NOT EXISTS (SELECT 1 FROM knowledge_space ks
+                              JOIN concepts c2 ON c2.concept_id = ks.from_concept_id
+                              WHERE ks.to_concept_id = c.concept_id
+                                AND c2.concept_chapter_id = c.concept_chapter_id)
+            ORDER BY c.concept_id
+            """;
+        return jdbcTemplate.query(sql, conceptSummaryRowMapper(), schoolLevel);
+    }
+
+    /**
+     * knowledge_space 전체 간선(from=후수, to=선수). 신규 진단 경로의 앱 계층 BFS 용 —
+     * depth 10 CTE 는 세션 cte_max_recursion_depth=10 과 경계 충돌(ERROR 3636 실측,
+     * 실그래프 폐쇄 깊이 22)이라 선수 폐쇄 전체는 visited-set BFS 로 계산한다.
+     */
+    public List<KnowledgeEdge> findAllEdges() {
+        String sql = "SELECT from_concept_id, to_concept_id FROM knowledge_space " +
+                "WHERE from_concept_id IS NOT NULL AND to_concept_id IS NOT NULL";
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new KnowledgeEdge(rs.getInt("from_concept_id"), rs.getInt("to_concept_id")));
+    }
+
+    public java.util.Optional<ConceptSummary> findConceptSummaryById(int conceptId) {
+        String sql = "SELECT concept_id, concept_name, concept_description FROM concepts WHERE concept_id = ?";
+        try {
+            return java.util.Optional.ofNullable(
+                    jdbcTemplate.queryForObject(sql, conceptSummaryRowMapper(), conceptId));
+        } catch (EmptyResultDataAccessException e) {
+            return java.util.Optional.empty();
+        }
+    }
+
+    private RowMapper<ConceptSummary> conceptSummaryRowMapper() {
+        return (rs, rowNum) -> new ConceptSummary(
+                rs.getInt("concept_id"),
+                rs.getString("concept_name"),
+                rs.getString("concept_description"));
+    }
 }
