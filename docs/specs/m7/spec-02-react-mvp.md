@@ -142,7 +142,7 @@ val: { entry: {chapterId | scope:"full", schoolLevel?},
 ## 5. 왜 이 순서
 
 - spec-01 계약이 확정됐으므로 화면-계약 매핑(§4.1)이 고정점 — React 작업이 백엔드 구현(spec-01 코드 단계)과 **병렬 가능**(preview·next 는 계약 mock 으로 선개발).
-- **계약 SSOT(병렬 개발의 드리프트 방지):** spec-01 §4.1/§4.3/§4.4 의 요청·응답 shape 가 정본 — 프론트는 이를 **TS 계약 타입 모듈**(예: `src/api/contracts.ts`)로 옮겨 **mock 과 실클라이언트가 같은 타입 정의를 참조**한다(T1 TypeScript 의 실효 조건). 백엔드 DTO 와의 드리프트는 §6 게이트 결정론 스냅샷으로 감지.
+- **계약 SSOT(병렬 개발의 드리프트 방지):** spec-01 §4.1/§4.3/§4.4 의 요청·응답 shape 가 정본 — 프론트는 이를 **TS 계약 타입 모듈**(예: `src/api/contracts.ts`)로 옮겨 **mock 과 실클라이언트가 같은 타입 정의를 참조**한다(T1 TypeScript 의 실효 조건). 백엔드 DTO 와의 드리프트는 §6 게이트 결정론 스냅샷으로 감지. *(한계 인지: 이 SSOT 는 드리프트의 **사후 감지**까지다 — Java DTO↔TS 타입을 컴파일 타임에 강제하는 **예방**은 spec-01 스키마→TS 타입 codegen 이 필요하며 T1 범위 밖 → **백로그 후보**.)*
 - spec-03(링크·경로 노출)은 ④ 카드/큐 UI 위에 얹힘 — 본 spec 의 컴포넌트 계약이 선행.
 
 ---
@@ -174,9 +174,9 @@ val: { entry: {chapterId | scope:"full", schoolLevel?},
 
 React 19/Vite 최신은 node:14 에서 빌드 불가 → T1 의 전제 조건.
 
-- **(a) 승인 필요 여부 — 실측 완료:** 금지 규칙의 대상은 "docker-compose.yml 의 **서비스 구성**"인데, compose `mmt-front` 는 `image: mymathteacher/mmt-front:1.0.0` **이미지 참조뿐**(빌드 지시 없음) — Dockerfile 빌드 스테이지 교체는 compose 무변경이라 **그 자체로는 ADR 불요**. 단 런치 스왑 시 compose 의 이미지 참조를 신규 태그로 바꾸는 건 compose 변경 → 그 시점에 ADR 판단(React 도입 ADR 에 포함 가능).
+- **(a) 승인 필요 여부 — 실측 완료:** 규칙 **원문**(루트 CLAUDE.md 금지 사항, 2026-07-13 확인) = "`docker-compose.yml`의 서비스 구성은 ADR 없이 변경하지 말 것" — **스코프가 compose 파일의 서비스 구성으로 명시 한정**이며, 루트·api·web CLAUDE.md 에 "빌드/인프라 변경 일반" 류의 더 넓은 규칙은 없음(해석이 아니라 원문). compose `mmt-front` 는 `image: mymathteacher/mmt-front:1.0.0` **이미지 참조뿐**(빌드 지시 없음) — Dockerfile 빌드 스테이지 교체는 compose 무변경이라 **그 자체로는 ADR 불요**. 단 런치 스왑 시 compose 의 이미지 참조를 신규 태그로 바꾸는 건 compose 변경 → 그 시점에 ADR 판단(React 도입 ADR 에 포함 가능).
 - **(b) 런타임 무영향 — 실측 완료:** `web/Dockerfile` = 2-stage(`node:14 AS build` → `nginx:1.21.4-alpine` 런타임, dist 만 `COPY --from=build`) 확인 — 빌드 스테이지 교체는 **산출물(dist) 생성에만 관여**, 런타임 서빙 이미지·nginx.conf·blue-green 롤백 이미지(구 Vue 태그)와 무관.
-- **(잔여 — 착수 시 실측):** 프론트 이미지의 태그/색 전환이 M6 배포 스크립트에서 실행되는 구체 경로(§7 T5 "롤백 = 이미지 전환"의 실행 절차).
+- **(잔여 — 착수 시 실측):** 프론트 **이미지(태그) 전환**(§7 T5 와 동일 용어)이 M6 배포 스크립트에서 실행되는 구체 경로 — 롤백의 실행 절차를 실측 후 확정.
 
 ### Analyze-Before-Change (합의 후 착수 시)
 
