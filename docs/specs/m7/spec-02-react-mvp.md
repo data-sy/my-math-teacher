@@ -3,7 +3,7 @@
 **상위 마일스톤:** [Milestone 7](../../milestones/milestone-7-product-pivot.md) — 제품 피벗. 밀스톤 D6(React 새로 짜기)·D7(모바일 퍼스트)·PRD §3.2(MVP 6화면)·UX 와이어프레임 8종(`docs/design/m7-*.html`)을 기술 설계로 구체화한다.
 **대상:** 프론트엔드(스캐폴딩·크리티컬 패스·auth/API 레이어·그래프 포팅). 백엔드 계약은 [spec-01](spec-01-diagnosis-self-report-dkt.md)(확정), 링크 데이터는 spec-03.
 **작업 브랜치:** 착수 시 `feat/m7-spec-02-react-mvp` (본 설계 문서는 `feat/m7-product-pivot` 에 동반)
-**상태:** 📝 **spec 합의 대기** — §7 결정(T1~T5) 사인오프 후 코드 단계
+**상태:** ✅ **spec 확정(2026-07-13)** — §7 결정 T1~T5 **사인오프 완료(전 항목 권장안 채택)**: Vite+React19+TS / TanStack Query+Zustand / Tailwind(+Radix) / React Router v7 / `web-react/` 병행 → 코드 단계 진입 가능
 **선행:** spec-01 확정(2026-07-13) — 본 spec 의 화면들이 spec-01 API 계약을 소비. UX SSOT = `m7-flow-map.html`(전이) + 6화면 와이어프레임(③=A안 확정).
 
 ---
@@ -158,7 +158,7 @@ val: { entry: {chapterId | scope:"full", schoolLevel?},
 
 ---
 
-## 7. 결정 (사인오프 대기 — T1~T5)
+## 7. 결정 (✅ T1~T5 사인오프 완료, 2026-07-13 — 전 항목 권장안 채택)
 
 - **T1 — 빌드·언어:** **Vite + React 19 + TypeScript(권장)** — 커리어 수요·1인 개발 회귀 안전망·계약(spec-01 DTO) 타입화 / JS — 초기 속도는 빠르나 계약 드리프트를 런타임에야 발견. **사인오프 전제 = §8 선결 확인**(node 빌드 이미지 업그레이드 — React 19 는 node:14 빌드 불가; 실측 (a)(b) 완료, 잔여 1건).
 - **T2 — 상태관리:** **TanStack Query + Zustand(권장)** — 서버 상태 표준화가 에러 개선(§4.3)과 결합, 전역 상태 실측 극소(§2.2) / Redux Toolkit — 과대 / Context 만 — quiz 진행·auth 재렌더 제어 번거로움.
