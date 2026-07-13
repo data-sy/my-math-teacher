@@ -5,6 +5,7 @@
 > 정오답(안다=맞음/모른다=틀림)으로 매핑(D3-R)** 하기로 결정됨. 또한 착수 순서를 **기획(PRD) →
 > UX 설계 → 기술 설계(spec)** 로 재정의(마일스톤 §착수 프로세스). 이 문서는 히스토리로 보존하며,
 > **새 진단 엔진 spec 은 기획·UX 확정 후 재작성**한다. 정본: [milestone-7](../../milestones/milestone-7-product-pivot.md).
+> → **재작성 완료(2026-07-13): [spec-01-diagnosis-self-report-dkt.md](spec-01-diagnosis-self-report-dkt.md)** 가 본 문서를 대체한다.
 
 **상위 마일스톤:** [Milestone 7](../../milestones/milestone-7-product-pivot.md) — 제품 피벗(자가진단 + 모바일 리디자인)
 **대상:** 백엔드(서비스·리포지토리·API 계약). 프론트 React 구현은 spec-02, 링크 큐레이션 데이터는 spec-03.
