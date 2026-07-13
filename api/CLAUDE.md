@@ -96,6 +96,7 @@
 - `mmt.migration.*` — 마이그레이션 관련 (예: `use-mysql-cte-for-graph`, `use-jpa-for-tests`)
 - `mmt.observability.*` — 관측성 설정 (예: `slow-query-threshold-ms`)
 - `mmt.benchmark.baseline.*` — 벤치마크 기준선 값 (실측 후 주입)
+- `mmt.diagnosis.*` — M7 자가진단 경로 (예: `enabled` — 신규 `/api/v1/diagnosis/*`·`/learning-queues/*` 게이트, ADR-0010)
 
 새 영역 추가 시 ADR로 기록한 뒤 본 섹션에 영역명 추가.
 
