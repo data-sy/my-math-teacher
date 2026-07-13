@@ -2,6 +2,8 @@
 
 루트 규칙은 @/CLAUDE.md 참조. 이 문서는 `web/` 워크스페이스에만 적용되는 규칙이다.
 
+> **M7 참고:** 이 워크스페이스는 M7 에서 React 로 새로 짜여(`web-react/` 병행, spec-02) 런치 시 대체될 예정이다. 그 전까지 구 Vue 는 **롤백 대상으로 무변경 보존** — 본 문서 전면 재작성은 런치 스왑 시점(spec-02 §8).
+
 ## 기술 스택
 
 - Vue 3 (`^3.2.41`)
@@ -10,10 +12,10 @@
 - vue-router 4
 - PrimeVue 3.39.0 + PrimeFlex + PrimeIcons — UI 컴포넌트
 - **Cytoscape** (+ `cytoscape-klay`) — 개념 지식 그래프 시각화 (서비스 핵심 기능)
-- Chart.js 3.3.2 — 진단 결과 차트
-- html2pdf.js — 맞춤 학습지 PDF 출력
+- html2pdf.js — 학습지 PDF 다운로드 (DiagView·PersonalView — M7 D4 로 폐기 예정)
 - axios — HTTP 클라이언트
-- vue-cookies — refreshToken 쿠키 처리
+
+*(2026-07-13 정정: 구 서술의 Chart.js·vue-cookies 는 **미설치·미사용** — 결과 차트는 숫자+CSS 막대로 대체됐고, refreshToken 은 HttpOnly 쿠키라 JS 라이브러리 불요(`withCredentials` 만 사용).)*
 
 ## 개발 명령
 
@@ -30,7 +32,7 @@
 - `App.vue`, `main.js` — 엔트리
 - `assets/` — 정적 리소스
 - `views/` — 라우트 단위 페이지 (`HomeView`, `ConceptView`, `DiagView`, `ResultView`, `PersonalView`, `RecordView`, `SignUpView`, `UserEditView`, `OauthLogin`, `ErrorView`)
-- `layout/` — 공통 레이아웃 (`AppLayout`, `AppMenu`, `AppSidebar`, `AppTopbar`, `AppFooter`)
+- `layout/` — 공통 레이아웃 (`AppLayout`, `AppTopbar`, `AppLearningSteps`, `AppBottomTabs`, `AppFooter` + `composables/layout.js`) *(2026-07-13 정정: 구 서술의 `AppMenu`/`AppSidebar` 는 존재하지 않음. `AppBottomTabs` = 960px 미만 모바일 하단 탭바)*
 - `router/` — vue-router 설정 (`index.js`)
 - `store/` — Vuex 스토어 (`index.js`)
 - `service/` — 도메인별 서비스 모듈 (`AuthService`, `TitleService`)
