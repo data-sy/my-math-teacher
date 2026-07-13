@@ -6,7 +6,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Now — 진행 중
 
-- **[M7] 제품 피벗 — 자가진단 + 모바일 리디자인(React)** (2026-07-11 방향 합의) — 📝 **설계 초안, 구현 미착수.** 문제 풀 실부재로 진단·맞춤이 막혀 **제품 정의를 피벗**: ①진단 = self-report OX(문제풀이 대체)·그래프 적응형 문답 ②시급도 = DKT 퍼센트 → 그래프 기반 점수 ③맞춤 = 학습지 출제 → 개념별 외부 링크 큐레이션 ④프론트 Vue → **React 전면 재작성 + 모바일 퍼스트**. 백엔드·그래프 데이터·M6 배포는 무변경(프론트만 교체), DKT 는 재움(삭제 X). [Design] "React 는 launch 후" 결론을 supersede. **정본:** [`docs/milestones/milestone-7-product-pivot.md`](docs/milestones/milestone-7-product-pivot.md). **다음 = spec-first 착수**(spec-01 진단 엔진 / spec-02 React 크리티컬 패스 / spec-03 링크 큐레이션).
+- **[M7] 제품 피벗 — 자가진단 + 모바일 리디자인(React)** (2026-07-11 방향 합의 · **2026-07-13 범위·진단 재조정**) — 📝 **설계 초안, 구현 미착수.** 문제 풀 실부재로 진단·맞춤이 막혀 **제품 정의를 피벗**하되, "가장 시급한 것부터 하나씩 배포"로 범위를 좁힘: ①진단 = self-report OX(문제풀이 대체)·그래프 적응형 문답 ②시급도 = **DKT(TF Serving) 유지** — self-report OX 를 정오답으로 매핑(**안다=맞음/모른다=틀림**)해 입력(*2026-07-11 "그래프 점수"를 역전*) ③맞춤 = 학습지 출제 → **그래프 학습 경로 + 개념별 외부 링크** ④프론트 Vue → **React 새로 짜기(마이그레이션 아님) + 모바일 퍼스트**, 초기 = **최소 런치 MVP**(홈·문답·결과·맞춤·로그인/에러·개념그래프), 부가화면은 오픈 후. 백엔드·그래프 데이터·M6 배포 무변경(프론트만 교체), **"AI 진단" 포지셔닝 유지**. [Design] "React 는 launch 후" 결론을 supersede. **정본:** [`docs/milestones/milestone-7-product-pivot.md`](docs/milestones/milestone-7-product-pivot.md). **다음 = spec-first 착수**(spec-01 진단 엔진[self-report→DKT 매핑] / spec-02 React MVP / spec-03 학습경로+링크).
 
 - **[M5] 관측성 — Grafana/Prometheus 로 무중단 컷오버 재계측 (착수 대기)**
   - M4 무중단 배포를 로그(k6+`docker stats`) 기반으로 증명 완료 → 같은 컷오버를 Prometheus 스크레이프 + Grafana 상관 시각화로 재계측(nginx upstream·JVM CPU·컨테이너 CPU·k6 5xx 한 타임축 + 복합인덱스 EXPLAIN 스크린샷). **관측성·학습 목적, 무중단 증명의 차단 요소 아님.**
