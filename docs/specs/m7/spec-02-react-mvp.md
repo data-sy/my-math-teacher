@@ -42,7 +42,7 @@
 | 로그아웃 | `DELETE /api/v1/auth/authentication` |
 | accessToken | `localStorage` key `'accessToken'`, 요청 헤더 `Authorization: Bearer` (요청 인터셉터 주입) |
 | baseURL | dev `http://localhost:8080` 하드코딩 / prod same-origin (`import.meta.env.PROD` 분기) — 유일한 env 사용처 |
-| 배포 | nginx SPA fallback(`try_files … /index.html`) + `/api/v1/`·`/oauth2/` proxy, 2-stage Dockerfile(node build → nginx:alpine). **React 산출물도 동일 구조**(dist 교체만) |
+| 배포 | nginx SPA fallback(`try_files … /index.html`) + `/api/v1/`·`/oauth2/` proxy, 2-stage Dockerfile(node build → nginx:alpine). **React 산출물도 동일 배포 구조를 재사용**(2-stage Dockerfile·nginx 설정 동형) — 구 Vue 이미지를 덮어쓰는 dist 교체가 **아니라 별도 이미지**로 빌드(§7 T5: 공존·이미지 전환 롤백) |
 | 신규 소비 | spec-01 계약: `GET /chapters`(기존) · `POST /diagnosis/frontier`·`/next`·`/preview`(익명) · `POST /diagnosis`·`/learning-queues`·`PATCH …/done`(인증) |
 
 ### 2.2 승계하지 않는 현행 결함 (신규에서 개선)
@@ -142,6 +142,7 @@ val: { entry: {chapterId | scope:"full", schoolLevel?},
 ## 5. 왜 이 순서
 
 - spec-01 계약이 확정됐으므로 화면-계약 매핑(§4.1)이 고정점 — React 작업이 백엔드 구현(spec-01 코드 단계)과 **병렬 가능**(preview·next 는 계약 mock 으로 선개발).
+- **계약 SSOT(병렬 개발의 드리프트 방지):** spec-01 §4.1/§4.3/§4.4 의 요청·응답 shape 가 정본 — 프론트는 이를 **TS 계약 타입 모듈**(예: `src/api/contracts.ts`)로 옮겨 **mock 과 실클라이언트가 같은 타입 정의를 참조**한다(T1 TypeScript 의 실효 조건). 백엔드 DTO 와의 드리프트는 §6 게이트 결정론 스냅샷으로 감지.
 - spec-03(링크·경로 노출)은 ④ 카드/큐 UI 위에 얹힘 — 본 spec 의 컴포넌트 계약이 선행.
 
 ---
@@ -159,16 +160,26 @@ val: { entry: {chapterId | scope:"full", schoolLevel?},
 
 ## 7. 결정 (사인오프 대기 — T1~T5)
 
-- **T1 — 빌드·언어:** **Vite + React 19 + TypeScript(권장)** — 커리어 수요·1인 개발 회귀 안전망·계약(spec-01 DTO) 타입화 / JS — 초기 속도는 빠르나 계약 드리프트를 런타임에야 발견.
+- **T1 — 빌드·언어:** **Vite + React 19 + TypeScript(권장)** — 커리어 수요·1인 개발 회귀 안전망·계약(spec-01 DTO) 타입화 / JS — 초기 속도는 빠르나 계약 드리프트를 런타임에야 발견. **사인오프 전제 = §8 선결 확인**(node 빌드 이미지 업그레이드 — React 19 는 node:14 빌드 불가; 실측 (a)(b) 완료, 잔여 1건).
 - **T2 — 상태관리:** **TanStack Query + Zustand(권장)** — 서버 상태 표준화가 에러 개선(§4.3)과 결합, 전역 상태 실측 극소(§2.2) / Redux Toolkit — 과대 / Context 만 — quiz 진행·auth 재렌더 제어 번거로움.
 - **T3 — 스타일링:** **Tailwind(+Radix headless)(권장)** — 모바일 퍼스트·커스텀 와이어프레임 자유도·커리어 수요 / PrimeReact — 이식감은 빠르나 구 톤 승계·번들 무게 / CSS Modules — 토큰 체계를 손으로 재구축.
 - **T4 — 라우팅:** **React Router v7(권장)** / TanStack Router — 타입 안전하나 생태계 좁음.
-- **T5 — 디렉토리 전략:** **A(권장) 신규 `web-react/` 병행, 런치 시 스왑** — spec-01 롤백 전제(구 Vue 생존) 충족, 구 web/ 무변경 / B `web/` 내 직접 재작성 — 롤백 = git revert 뿐이라 blue-green 이미지 롤백과 어긋남. *(스왑·구 web 정리는 런치 후 별도 Task + 밀스톤 R5 서사 보존.)*
+- **T5 — 디렉토리 전략:** **A(권장) 신규 `web-react/` 병행, 런치 시 스왑** — spec-01 롤백 전제(구 Vue 생존) 충족, 구 web/ 무변경 / B `web/` 내 직접 재작성 — 롤백 = git revert 뿐이라 blue-green 이미지 롤백과 어긋남. **롤백 방식(§2.1 과 정합):** 구 Vue·신 React 는 **별도 이미지(태그)로 공존** — 롤백 = **이미지 전환**(재빌드·git revert 아님), spec-01 §4.7 롤백(`mmt.diagnosis.enabled=false` + 구 Vue 프론트)과 정합. *(스왑·구 web 정리는 런치 후 별도 Task + 밀스톤 R5 서사 보존.)*
 
 ---
 
-## 8. Analyze-Before-Change 예고 (합의 후 착수 시)
+## 8. 선결 확인 + Analyze-Before-Change 예고
 
-- 신규 디렉토리 생성이라 기존 코드 영향은 없음 — 분석 대상은 **경계면**: nginx.conf(빌드 산출물 경로·캐시 헤더)·Dockerfile(node 버전 — 현행 node:14 는 Vite5/React19 불가, 이미지 업그레이드 필요)·docker-compose `mmt-front`(ADR 필요 여부 확인 — 서비스 구성 변경 금지 규칙)·GA·OAuth 리다이렉트 URI(콜백 경로 유지로 무변경 예상, 실측).
-- **ADR: React 도입**(D6 사인오프 근거 정리 + T1~T5 확정 스택 기록) — 착수 시 `/write-adr`.
+### 선결 확인 — node 빌드 이미지 업그레이드 (T1 사인오프 전, 2026-07-13 실측)
+
+React 19/Vite 최신은 node:14 에서 빌드 불가 → T1 의 전제 조건.
+
+- **(a) 승인 필요 여부 — 실측 완료:** 금지 규칙의 대상은 "docker-compose.yml 의 **서비스 구성**"인데, compose `mmt-front` 는 `image: mymathteacher/mmt-front:1.0.0` **이미지 참조뿐**(빌드 지시 없음) — Dockerfile 빌드 스테이지 교체는 compose 무변경이라 **그 자체로는 ADR 불요**. 단 런치 스왑 시 compose 의 이미지 참조를 신규 태그로 바꾸는 건 compose 변경 → 그 시점에 ADR 판단(React 도입 ADR 에 포함 가능).
+- **(b) 런타임 무영향 — 실측 완료:** `web/Dockerfile` = 2-stage(`node:14 AS build` → `nginx:1.21.4-alpine` 런타임, dist 만 `COPY --from=build`) 확인 — 빌드 스테이지 교체는 **산출물(dist) 생성에만 관여**, 런타임 서빙 이미지·nginx.conf·blue-green 롤백 이미지(구 Vue 태그)와 무관.
+- **(잔여 — 착수 시 실측):** 프론트 이미지의 태그/색 전환이 M6 배포 스크립트에서 실행되는 구체 경로(§7 T5 "롤백 = 이미지 전환"의 실행 절차).
+
+### Analyze-Before-Change (합의 후 착수 시)
+
+- 신규 디렉토리 생성이라 기존 코드 영향은 없음 — 분석 대상은 **경계면**: nginx.conf(빌드 산출물 경로·캐시 헤더)·GA·OAuth 리다이렉트 URI(콜백 경로 유지로 무변경 예상, 실측).
+- **ADR: React 도입**(D6 사인오프 근거 정리 + T1~T5 확정 스택 기록 + 런치 스왑 compose 변경 판단) — 착수 시 `/write-adr`.
 - web/CLAUDE.md 는 런치 후 스왑 시점에 재작성(§2.3 stale 정정 포함) — 거버넌스 문서라 사용자 승인 경유.
