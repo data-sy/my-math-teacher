@@ -126,7 +126,7 @@ res  { next: {conceptId, conceptName, description}, progress: {asked, estimatedR
 **매핑·저장** (`POST /diagnosis` 귀속 시 확정, preview 는 동일 계산의 무영속판):
 
 1. answered-map → `users_tests` 1행 + **`self_report_answers`** N행 저장(`known` BOOLEAN 그대로 저장 — 정오답 변환 **안다=1(맞음)/모른다=0(틀림)** 은 DKT 시퀀스 생성 시 조회 변환). 구 `answers` 는 읽지도 쓰지도 않음(S2=C).
-2. DKT 입력 = `self_report_answers`(preview 는 요청 answered-map)에서 `[skillId, answerCode]` 시퀀스 직접 생성(`skill_id = concepts.skill_id`, items 조인 불요) + **×10 증폭 유지**. **증폭은 시퀀스 생성 단계에만 적용 — 저장은 `UNIQUE(user_test_id, concept_id)` 대로 개념당 1행**(10행 저장 아님). ⚠️ 현행 "입력 최소 크기 3 안정" 근거는 **구 채점 입력 분포 기준이라 자동 승계 불가** — 얇은 세션 유효성은 아래 R2 엣지 케이스 실측으로 검증. **S3 = A(현재 세션만) 확정** — 근거 = preview 와 귀속 결과의 **결정론 동치(F-1 "본 결과를 저장") 보장**.
+2. DKT 입력 = `self_report_answers`(preview 는 요청 answered-map)에서 `[skillId, answerCode]` 시퀀스 직접 생성(`skill_id = concepts.skill_id`, items 조인 불요) + **×10 증폭 유지**. **시퀀스 순서 = 답변 입력 순서** — 귀속 재조회는 `self_report_answer_id ASC`(= 저장 입력 순서), preview 는 요청 `answered[]` 배열 순서 그대로. **두 순서의 일치가 결정론의 필요조건**(DKT 는 RNN 계열이라 순서 민감 — 재조회 순서 ≠ 답변 순서면 preview ≠ 귀속 → F-1 "본 결과를 저장" 위반). **×10 증폭은 순서 확정 후 반복, 저장은 `UNIQUE(user_test_id, concept_id)` 대로 개념당 1행**(10행 저장 아님). ⚠️ 현행 "입력 최소 크기 3 안정" 근거는 **구 채점 입력 분포 기준이라 자동 승계 불가** — 얇은 세션 유효성은 아래 R2 엣지 케이스 실측으로 검증. **S3 = A(현재 세션만) 확정** — 근거 = preview 와 귀속 결과의 **결정론 동치(F-1 "본 결과를 저장") 보장**.
 3. `getPrediction` 재사용 → `probabilityList`. **가드 신설**: TF Serving null 응답, `skill_id = -1`(미매핑 개념), `skillId-1` 범위 초과 — 셋 다 현행엔 없음(§3).
 4. 취약 확장 재사용: depth0 = "몰라요" 개념들 → `findPrerequisitesAsDepthMap(cId, 3)` → `probabilities` 저장 — **`user_test_id` 스코프로 기록(answer_id = NULL)**. `probability_percent = probabilityList[skillId-1]` 인덱싱 유지.
 
@@ -245,6 +245,7 @@ learning_queue_items  (queue_item_id PK AUTO, queue_id FK, position INT,
 
 - **적응형 동작:** "알아요"가 선수 폐쇄를 실제로 skip 해 문답 수가 전 개념 나열 대비 유의미하게 주는지(단위 테스트 + 실시드 subgraph).
 - **결정론:** 동일 answered-map → `next` 순서·`preview` 결과·귀속 결과가 항상 동일(S1-A 계약의 핵심 — 스냅샷 테스트).
+- **시퀀스 순서 동치:** preview 시퀀스(요청 `answered[]` 순서) == 귀속 재구성 시퀀스(`self_report_answer_id ASC`) — **순서 포함** 동일 property 테스트(§4.4-2 필요조건 증명).
 - **DKT 정합:** self-report 매핑 시퀀스로 TF Serving 실응답이 오고 `probabilityList[skillId-1]` 시급도가 나오는지 + 신설 가드 3종(null 응답·skill_id=-1·범위 초과) 동작 + **R2 대표 4 시나리오 실측**(1답만 / 전부 알아요→DKT 생략 확인 / 전부 몰라요 / 혼합)의 확률 분포 기록 — S4 컷 보정의 입력.
 - **계단 불변식:** 생성된 큐의 모든 (선수, 후수) 쌍에서 선수 position < 후수 position (위상정렬 property 테스트). 시급도는 진입 순서에만 반영되는지.
 - **게이트 배선:** 비로그인으로 문답→preview 완주(무료 충족, §5.1 PRD) / 귀속·큐·done 은 인증+소유권 강제.
