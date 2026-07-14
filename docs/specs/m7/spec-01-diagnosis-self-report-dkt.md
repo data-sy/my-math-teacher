@@ -115,11 +115,11 @@ res  { next: {conceptId, conceptName, description}, progress: {asked, estimatedR
 
 1. 초기 프론티어 = §4.2 시작 프론티어.
 2. **"몰라요"(known=false)** → 그 개념의 **직계 선수**(`from_concept_id=C`의 `to_concept_id`)를 프론티어에 push. 무너진 토대의 바닥을 찾는 drill-down.
-3. **"알아요"(known=true)** → 그 개념의 **선수 폐쇄 전체를 inferred-known 마킹**(`findPrerequisitesWithDepth(C, 10)` 재사용, 세션 캐시 `graph:v2:` 적중) → 이후 질문 대상에서 제외. 화면 수 급감의 핵심.
+3. **"알아요"(known=true)** → 그 개념의 **선수 폐쇄 전체를 inferred-known 마킹** → 이후 질문 대상에서 제외. 화면 수 급감의 핵심. **폐쇄 계산 = `knowledge_space` 전체 간선(실측 3,446행) 1회 로드 + 앱 계층 visited-set BFS** *(구현 시 확정 2026-07-13, 사인오프 2026-07-14 — 당초 `findPrerequisitesWithDepth(C, 10)` 재사용안은 ① 실그래프 폐쇄 최대 깊이 22(개념 5294)로 세션 `cte_max_recursion_depth=10`과 경계 충돌 — maxDepth=10 실행 시 MySQL ERROR 3636 "Recursive query aborted after 11 iterations" 실측 ② 상호선수 2-사이클 26쌍(간선 52)이 depth 상한 없인 재귀 증식 요인 — 으로 기각. visited-set BFS 는 사이클 면역·깊이 무제한. 이 경로는 `graph:v2:` Redis 캐시를 타지 않고 요청당 간선을 직로드한다(1,631 개념·3,446 간선 규모에서 무해 — 캐시는 성능 실측 후 후속). §4.4 취약 확장·§4.5 blockedDescendants 의 CTE(depth 3)는 상한 10 안에 있어 유지.)*
 4. 다음 질문 = 프론티어에서 (이미 answered ∪ inferred-known) 제외 후 첫 개념. 소진 시 `done`.
 5. `description` = `concepts.concept_description` 을 D5 "대표 예시" 1차 소스로 사용(공란·부실 개념의 보강은 spec-03 콘텐츠 트랙과 접점 — 계약만 예약).
 
-무상태이므로 서버 세션·정합 부담 없음. 재계산 비용은 answered-map 크기에 선형 + 그래프 조회는 Redis 캐시 적중(24h TTL)으로 상쇄.
+무상태이므로 서버 세션·정합 부담 없음. 재계산 비용은 answered-map 크기에 선형 + 순회의 그래프 조회는 간선 직로드(무캐시, 위 3항)로 요청당 3,446행 — 현 규모에서 무해하며 캐시 도입은 성능 실측 후 후속.
 
 ### 4.4 self-report→DKT 매핑 + 결과 계약 (D3-R)
 
@@ -133,7 +133,7 @@ res  { next: {conceptId, conceptName, description}, progress: {asked, estimatedR
 **R2 엣지 케이스 — 빈/얇은/단조 DKT 입력 (2026-07-13 S3 리뷰 반영):**
 
 - **"몰라요" 0개**(전부 알아요) → depth0 없음 → **DKT 호출 생략**, `cards: []` + "약점 없음" 헤드라인 = **정상 결과**(에러 아님).
-- **극소 세션**(1~2답 ×10)·**단조 시퀀스**(전답 동일값)에서 TF Serving 확률 분포가 유의미한지는 **미검증** — 착수 시 **대표 4 시나리오 실측**(1답만 / 전부 알아요 / 전부 몰라요 / 혼합, §8). 실측 분포는 등급 컷(S4) 보정의 입력이 된다.
+- **극소 세션**(1~2답 ×10)·**단조 시퀀스**(전답 동일값) — ✅ **실측 완료(2026-07-14, 프로덕션 동일 이미지 로컬 서빙)**: 1답만도 유효 응답, 단조 ×10 입력에서도 스킬별 분포 생존, 전부 알아요는 DKT 생략 규격대로. **부수 발견 = percent 스케일 단위 불일치**(모델 출력 0~1 vs 컷 40/65 의 0~100 전제) → 신규 경로 ×100 정규화로 수정. 분포·판단 정본 = [`docs/benchmark/m7-r2-dkt-selfreport.md`](../../benchmark/m7-r2-dkt-selfreport.md).
 - 실측이 부실해도 **fail-soft**(§4.7): 시급도 등급만 결측되고 "몰라요" 목록 기반 결과는 성립 — 런치 차단 요소 아님.
 
 **신규 DDL** (권장안 — 타입은 analyze-before-change 에서 참조 PK 실측에 맞춰 확정, §6):
@@ -175,7 +175,7 @@ ALTER TABLE probabilities ADD COLUMN user_test_id BIGINT NULL;  -- FK users_test
 ### 4.5 등급 컷 · 근거 수치 (S4·S6)
 
 - `probability_percent` = DKT 의 정답(이해) 확률 → **낮을수록 시급**. 시급도 정렬 = percent 오름차순.
-- **등급 컷 출발값(S4):** `HIGH: p < 40` · `MID: 40 ≤ p < 65` · `LOW: p ≥ 65` — 구 ResultView 40/65 임계 선례 승계. **출발값일 뿐** — 실데이터 분포로 후속 보정(백로그, self-report 입력의 percent 분포는 실채점과 다를 수 있음).
+- **등급 컷 출발값(S4):** `HIGH: p < 40` · `MID: 40 ≤ p < 65` · `LOW: p ≥ 65` — 구 ResultView 40/65 임계 선례 승계. **전제 = percent 0~100 스케일**: 모델 원시 출력(0~1)은 신규 경로에서 ×100 정규화 후 컷 적용(2026-07-14 R2 실측이 잡은 단위 불일치 — 정규화 전엔 전 카드 HIGH 쏠림. [`m7-r2-dkt-selfreport.md`](../../benchmark/m7-r2-dkt-selfreport.md)). R2 실측에서 40/65 는 HIGH/MID 변별 확인(혼합 21/21), LOW 발생은 실사용자 데이터로 재관찰 — **컷 재보정은 백로그 유지**.
 - **blockedDescendants(S6):** 역방향 재귀 CTE 신규(`to_concept_id=P → from_concept_id` 방향, `findPrerequisitesWithDepth` 의 미러). depth 상한 3 출발(정방향 확장과 대칭·`cte_max_recursion_depth=10` 내), transitive distinct count. Redis 캐시 동일 네임스페이스(`graph:v2:blocked:{conceptId}:{depth}`).
 
 ### 4.6 통합 학습 큐 (F-4)
@@ -202,7 +202,9 @@ learning_queue_items  (queue_item_id PK AUTO, queue_id FK, position INT,
 - 유저당 활성 큐 1개(재진단→새 큐 생성 시 구 큐 대체 또는 보관 — 착수 시 확정, 계약엔 영향 없음). 재진단은 별개 액션.
 - 신규 리포지토리는 **JPA**(api/CLAUDE.md 영속성 규칙 — 신규는 JdbcTemplate 금지).
 
-**익명 엔드포인트 남용 방어:** `preview`·`next` 는 permitAll + TF Serving 실호출(preview) — 무거운 preview 에 IP 단위 rate limit(Redis 카운터, `RedisUtil` 재사용)을 두고, `next` 는 순수 DB/캐시 계산이라 완화. 구체 임계는 착수 시.
+**익명 엔드포인트 남용 방어:** `preview`·`next` 는 permitAll + TF Serving 실호출(preview) — 무거운 preview 에 IP 단위 rate limit(Redis 카운터, `RedisUtil` 재사용)을 두고, `next` 는 순수 DB/캐시 계산이라 완화. **임계 = 10회/분/IP 확정(2026-07-14 사인오프 — 정상 플로우는 완주당 preview 1회라 ~100배 여유, TF Serving 단일 인스턴스 보호 유효. 라이브 검증: 윈도우 내 11번째 호출에서 429)**. M5 관측성에서 실트래픽 재보정. 잔여 확인 1건 = 프로덕션 nginx 가 X-Forwarded-For 를 덮어쓰는지(스푸핑 우회 여부, 백로그).
+
+**에러 계약(2026-07-14 확정 — spec-02 프론트 소비 기준):** `400` 중복·미존재 conceptId(preview·귀속 대칭) · `401` 미인증(게이트) · `403` 소유권 위반(타인 진단 기록·학습 큐 — 401 마스킹 우회, 전용 `DiagnosisException` 핸들러) · `429` preview rate limit. 전부 학생 친화 메시지 바디 동반.
 
 ### 4.7 피처 플래그
 
