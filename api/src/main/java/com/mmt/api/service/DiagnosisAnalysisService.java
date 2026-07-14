@@ -212,13 +212,19 @@ public class DiagnosisAnalysisService {
         return userTestId;
     }
 
-    /** 소유권 검사 (ItemService.findPersonalItems IDOR 선례 승계). */
+    /**
+     * 소유권 검사 (ItemService.findPersonalItems IDOR 선례 승계).
+     * 위반은 DiagnosisException(403) — AccessDeniedException 은 /error 디스패치에서
+     * 401 로 마스킹된다(2026-07-13 E2E 실측, residual ④). 인증 정보 부재는 401 유지.
+     * 구 경로의 동일 마스킹은 무접촉 보존 — 신규 타입으로만 우회한다.
+     */
     @Transactional(readOnly = true)
     public void assertOwnership(Long userTestId, String userEmail) {
         Long userId = usersRepository.findUserIdByUserEmail(userEmail)
                 .orElseThrow(() -> new AccessDeniedException("인증 정보를 확인할 수 없습니다."));
         if (!userTestRepository.existsByUserTestIdAndUserId(userTestId, userId)) {
-            throw new AccessDeniedException("본인의 진단 기록만 조회할 수 있습니다.");
+            throw new com.mmt.api.exception.DiagnosisException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "본인의 진단 기록만 조회할 수 있습니다.");
         }
     }
 

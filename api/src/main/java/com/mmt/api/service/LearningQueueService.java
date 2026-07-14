@@ -127,7 +127,8 @@ public class LearningQueueService {
         LearningQueue queue = queueRepository.findById(queueId)
                 .orElseThrow(() -> new DiagnosisException(HttpStatus.NOT_FOUND, "학습 큐가 없습니다."));
         if (!queue.getUserId().equals(userId)) {
-            throw new AccessDeniedException("본인의 학습 큐만 갱신할 수 있습니다.");
+            // 소유권 위반 = 403 (AccessDeniedException 은 /error 디스패치에서 401 마스킹 — residual ④)
+            throw new DiagnosisException(HttpStatus.FORBIDDEN, "본인의 학습 큐만 갱신할 수 있습니다.");
         }
         LearningQueueItem item = queueItemRepository.findByQueueItemIdAndQueueId(queueItemId, queueId)
                 .orElseThrow(() -> new DiagnosisException(HttpStatus.NOT_FOUND, "큐 항목이 없습니다."));

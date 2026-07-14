@@ -215,6 +215,20 @@ class DiagnosisAnalysisServiceTest {
                 .containsExactlyInAnyOrder(30, 20, 10);
     }
 
+    @Test
+    @DisplayName("소유권 위반 = DiagnosisException 403 (401 마스킹 우회 — residual ④), 인증 부재 = 401 유지")
+    void ownershipViolationIsForbidden() {
+        when(userTestRepo.existsByUserTestIdAndUserId(99L, 7L)).thenReturn(false);
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.assertOwnership(99L, "s@t.kr"))
+                .isInstanceOf(com.mmt.api.exception.DiagnosisException.class)
+                .satisfies(e -> assertThat(((com.mmt.api.exception.DiagnosisException) e).getStatus())
+                        .isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN));
+
+        when(usersRepo.findUserIdByUserEmail("ghost@t.kr")).thenReturn(Optional.empty());
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.assertOwnership(99L, "ghost@t.kr"))
+                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class);
+    }
+
     private static List<List<Integer>> toIntLists(List<int[]> seq) {
         return seq.stream().map(p -> List.of(p[0], p[1])).collect(java.util.stream.Collectors.toList());
     }
