@@ -1,9 +1,9 @@
 # ADR 0010: self-report→DKT 매핑 채택 (D3-R) + `mmt.diagnosis.*` 피처 플래그 영역 등록
 
 ## Status
-Proposed
+Accepted (2026-07-14)
 
-*(2026-07-13, spec-01 자율주행 세션에서 작성 — Context 는 확정 스펙 [spec-01](../specs/m7/spec-01-diagnosis-self-report-dkt.md)·[milestone-7](../milestones/milestone-7-product-pivot.md) D3-R 에서 승계. 승인 시 Accepted 로 변경.)*
+*(2026-07-13, spec-01 자율주행 세션에서 작성 — Context 는 확정 스펙 [spec-01](../specs/m7/spec-01-diagnosis-self-report-dkt.md)·[milestone-7](../milestones/milestone-7-product-pivot.md) D3-R 에서 승계. 2026-07-14 검증 번들(`docs/handoff/spec-01-verification-bundle.txt`) 분리 세션 리뷰 사인오프로 Accepted 승격 — 승격 시 가드 표현을 실구현대로 정정: 구 "skill_id = -1" 서술 → "미매핑(NULL·행 부재)" 아래 Decision-1 참조.)*
 
 ## Context
 
@@ -23,7 +23,7 @@ M7 제품 피벗은 진단 입력을 "문제 풀이·정오답 채점" → "개�
    - answered-map → `[skill_id, answer_code]` 시퀀스 직접 생성(신규 `self_report_answers` 소스, 구 `answers`·`findAIInput`/`findBefore` 무접촉) + 기존 ×10 증폭 유지.
    - 시퀀스 순서 = 답변 입력 순서 (preview = 요청 배열 순서, 귀속 = `self_report_answer_id ASC`) — preview == 귀속 결정론의 필요조건 (property 테스트 강제).
    - DKT 입력은 현재 세션만 (S3=A 확정 — 과거 세션 병합은 preview·귀속 불일치로 F-1 위반).
-   - TF Serving 결합부 신설 가드 3종: null 응답·`skill_id = -1`·`skillId-1` 범위 초과 (현행 구 경로엔 없음 — 신규 경로만).
+   - TF Serving 결합부 신설 가드 3종: null 응답·**skill_id 미매핑**(NULL 또는 행 부재 — 배치 조회 `findSkillIdsByConceptIds` 의 맵 키 부재로 판정. 구경로 단건 `findSkillIdByConceptId` 의 -1 반환은 행 미존재만 커버하고 NULL 은 NPE 라 신규 경로 미사용)·`skillId-1` 범위 초과 (현행 구 경로엔 없음 — 신규 경로만). 현 데이터 실측(2026-07-13): skill_id NULL 개념 0개 — 미매핑 가드는 방어적 휴면.
 2. **`mmt.diagnosis.*` 피처 플래그 영역 등록.**
    - `mmt.diagnosis.enabled` (기본 `false`) — 신규 `/api/v1/diagnosis/*`·`/api/v1/learning-queues/*` 활성화 게이트.
    - 롤백 = 플래그 off (구 경로 무변경 보존이므로 즉시 롤백 성립).
