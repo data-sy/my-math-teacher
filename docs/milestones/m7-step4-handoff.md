@@ -5,7 +5,7 @@
 
 ## 현재 상태 (한 줄)
 
-Step 1 기획·Step 2 UX·Step 3 기술 설계 **완료**(spec-01·02·03 확정, 각각 분리 세션 리뷰 실체 대조 통과). **spec-01 백엔드 구현 완료(2026-07-13, 자율주행 — 브랜치 `feat/m7-spec-01-diagnosis`, 로컬 전용)** — 진행 상태·사람 게이트 정본 = [ROADMAP](../../ROADMAP.md) [M7] 항목. 다음 = 사람 게이트 처리 후 spec-02(React)·spec-03 층.
+Step 1 기획·Step 2 UX·Step 3 기술 설계 **완료**(spec-01·02·03 확정, 각각 분리 세션 리뷰 실체 대조 통과). **spec-01 백엔드 = 구현·사인오프·사람 게이트 4건 처리 후 ✅ 머지 완료(PR #48 → main `60ed317`, 2026-07-14** — R2 실측·percent 정규화·403 에러 계약 포함, 정본 = [ROADMAP](../../ROADMAP.md) [M7]). **다음 = spec-02(React) 착수 — 브랜치 `feat/m7-spec-02-react-mvp`(분기됨), 새 세션에서 아래 §착수 절차 4(spec-02 갈래)로 진행: `web-react/` 스캐폴딩 + ADR React 도입 + node:14 프론트 이미지 전환 경로 실측.**
 
 > **실행 모드 확정(2026-07-13)**: spec-01 구현은 자율주행으로 — 착수 프롬프트·가드레일·사람 게이트 = [m7-spec01-autonomous-handoff](m7-spec01-autonomous-handoff.md) (새 세션에서 그 문서 첨부 + "실행").
 
