@@ -216,6 +216,17 @@ class DiagnosisAnalysisServiceTest {
     }
 
     @Test
+    @DisplayName("percent 정규화: 모델 원시 출력(0~1) ×100 — 40/65 컷의 0~100 전제 복원 (R2 실측)")
+    void rawModelOutputIsNormalizedToPercent() {
+        double[] raw = new double[100];
+        raw[30 - 1] = 0.5; // skillId 30 → index 29
+        when(dktClient.predict(any())).thenReturn(raw);
+        DiagnosisAnalysisService.DiagnosisComputation c = service.preview(List.of(
+                new AnsweredConcept(30, false)));
+        assertThat(c.percentByConcept().get(30)).isEqualTo(50.0);
+    }
+
+    @Test
     @DisplayName("소유권 위반 = DiagnosisException 403 (401 마스킹 우회 — residual ④), 인증 부재 = 401 유지")
     void ownershipViolationIsForbidden() {
         when(userTestRepo.existsByUserTestIdAndUserId(99L, 7L)).thenReturn(false);

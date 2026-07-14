@@ -274,7 +274,11 @@ public class DiagnosisAnalysisService {
                             skillId, predictions.length);
                     continue;
                 }
-                percentByConcept.put(conceptId, predictions[index]);
+                // 모델 원시 출력은 0~1 확률 — percent(0~100)로 정규화 후 저장·등급 컷.
+                // 40/65 컷(구 ResultView 선례)은 0~100 전제인데 구 경로는 원시값을 그대로
+                // 저장해 전 카드 HIGH 쏠림 (2026-07-14 R2 실측: 실서빙 분포 0.06~0.59).
+                // 구 경로 무접촉 — 신규 경로만 정규화 (docs/benchmark/m7-r2-dkt-selfreport.md).
+                percentByConcept.put(conceptId, predictions[index] * 100.0);
             }
         }
         return new DiagnosisComputation(answers.size(), unknown, minDepthByConcept,
