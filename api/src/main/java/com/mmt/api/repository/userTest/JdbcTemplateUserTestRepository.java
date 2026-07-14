@@ -57,6 +57,25 @@ public class JdbcTemplateUserTestRepository implements UserTestRepository {
     }
 
     @Override
+    public Long saveDiagnosisSession(Long userId) {
+        // M7 spec-01: test_id NULL 행은 구 조회(findByUserId·findRecordedTests: JOIN tests /
+        // findUserTestIds: EXISTS answers)에 구조적으로 노출되지 않는다 (ADR-0010 분석).
+        org.springframework.jdbc.support.GeneratedKeyHolder keyHolder = new org.springframework.jdbc.support.GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            var ps = con.prepareStatement(
+                    "INSERT INTO users_tests (user_id, test_id) VALUES (?, NULL)",
+                    java.sql.Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, userId);
+            return ps;
+        }, keyHolder);
+        Number key = keyHolder.getKey();
+        if (key == null) {
+            throw new IllegalStateException("users_tests 생성 키를 얻지 못했습니다.");
+        }
+        return key.longValue();
+    }
+
+    @Override
     public boolean existsByUserTestIdAndUserId(Long userTestId, Long userId) {
         String sql = "SELECT EXISTS (SELECT 1 FROM users_tests WHERE user_test_id = ? AND user_id = ?)";
         Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, userTestId, userId);

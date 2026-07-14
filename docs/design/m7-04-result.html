@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M7 ④ 결과 — 와이어프레임</title>
+<style>
+  :root{
+    --ink:#1a1a1a; --sub:#555; --faint:#8a8a8a;
+    --line:#9a9a9a; --edge:#222;
+    --paper:#f4f4f5; --card:#fff; --ph:#e7e7ea; --band:#ededf1;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    --free:#dfe9df; --freetxt:#3c5a3c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.5}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 16px 56px}
+  header.head h1{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+  header.head p{margin:0;color:var(--sub);font-size:13px}
+
+  .frames{display:flex;gap:26px;flex-wrap:wrap;justify-content:center;margin:24px 0 8px}
+  .col{width:390px;max-width:100%}
+  .col>h2{font-size:15px;margin:0 0 2px;text-align:center}
+  .col .axis{font:600 11px var(--mono);color:var(--faint);text-align:center;margin:0 0 10px}
+
+  .phone{border:2px solid var(--edge);border-radius:30px;background:#fff;padding:10px}
+  .screen{border:1px solid #dcdce0;border-radius:20px;background:#fff;overflow:hidden;
+          display:flex;flex-direction:column;min-height:780px}
+  .status{display:flex;justify-content:space-between;font:600 10px var(--mono);
+          color:var(--faint);padding:8px 16px 4px}
+
+  button{font:inherit;cursor:default}
+  .cap{font-size:11px;color:var(--faint)}
+  .tlink{background:none;border:0;padding:0;color:var(--sub);font-size:12.5px;
+         text-decoration:underline;text-underline-offset:2px}
+  .cta1{display:block;width:100%;background:var(--ink);color:#fff;border:0;border-radius:12px;
+        font-weight:700;font-size:15px;padding:15px 12px;text-align:center}
+  .cta2{display:block;width:100%;background:#fff;border:1.6px solid var(--line);color:var(--sub);
+        border-radius:11px;font-weight:600;font-size:13px;padding:11px;text-align:center}
+
+  .zone{display:inline-block;font:600 10px/1.6 var(--mono);border-radius:5px;padding:1px 8px}
+  .zone.free{background:var(--free);color:var(--freetxt)}
+  .zone.gate{background:var(--band);color:#444}
+
+  .scroll{flex:1;padding:6px 18px 12px}
+
+  /* 헤드라인 */
+  .headline .over{font:600 10.5px var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+  .headline h1{font-size:21px;line-height:1.35;letter-spacing:-.3px;margin:6px 0 4px}
+  .headline p{margin:0 0 6px;font-size:13px;color:var(--sub)}
+  .honest{border-left:3px solid var(--line);padding:1px 0 1px 10px;margin:10px 0 14px}
+  .honest p{margin:0;font-size:11px;color:var(--sub)}
+
+  /* 개념 카드 */
+  .cards>.cap{display:block;margin-bottom:6px}
+  .card{border:1.6px solid var(--edge);border-radius:13px;background:#fff;padding:13px 14px;margin:0 0 10px}
+  .card .top{display:flex;align-items:center;gap:8px}
+  .rank{flex:none;font:700 10.5px var(--mono);background:var(--ink);color:#fff;border-radius:5px;padding:1px 7px}
+  .card h3{margin:0;font-size:16px;flex:1}
+  .grade-pill{flex:none;font:600 10px var(--mono);border:1.5px solid var(--edge);border-radius:20px;padding:0 8px}
+  .why{margin:7px 0 10px;font-size:12.5px;color:var(--sub)}
+  .card .acts{display:flex;gap:8px;align-items:center}
+  .ext{flex:1;background:#fff;border:1.5px solid var(--line);color:var(--sub);border-radius:9px;
+       font-size:12px;font-weight:600;padding:9px 8px;text-align:center}
+  .path2{flex:1;background:#fff;border:1.5px solid var(--line);color:var(--sub);border-radius:9px;
+       font-size:12px;font-weight:600;padding:9px 8px;text-align:center}
+  .card.dim{border-color:#cfcfd4}
+  .more{margin:2px 0 10px}
+
+  .fold{position:relative;border-top:1.5px dashed #c9c9cf;margin:14px -18px;text-align:center}
+  .fold span{position:relative;top:-9px;background:#fff;font:600 9.5px var(--mono);color:#b9b9c0;padding:0 8px}
+
+  .detail{text-align:center;margin:2px 0 6px}
+
+  .bottom{border-top:1px solid #e4e4e8;padding:12px 16px 16px;background:#fff;position:relative}
+  .bottom::before{content:"엄지존 · 하단 고정";position:absolute;top:-8px;right:12px;
+                  font:600 9px var(--mono);color:#c2c2c8;background:#fff;padding:0 5px}
+  .bottom .cap{display:block;text-align:center;margin-top:6px}
+
+  /* ===== 게이트 뒤 · 학습 큐 ===== */
+  .queuehead h1{font-size:20px;letter-spacing:-.3px;margin:8px 0 2px}
+  .queuehead p{margin:0 0 12px;font-size:12.5px;color:var(--sub)}
+
+  .pathviz{border:1.5px dashed #c9c9cf;border-radius:12px;background:#fafafb;padding:8px 8px 2px;
+           text-align:center;margin:0 0 14px}
+  .pathviz svg{width:100%;height:auto;display:block}
+  .pathviz .cap{display:block;margin:0 0 6px}
+
+  ol.queue{list-style:none;margin:0 0 4px;padding:0}
+  .qitem{display:flex;gap:10px;align-items:flex-start;border:1.5px solid #cfcfd4;border-radius:12px;
+         background:#fff;padding:11px 12px;margin:0 0 8px}
+  .qitem .chk{flex:none;width:22px;height:22px;border:1.6px solid var(--line);border-radius:50%;
+              font:700 13px/20px var(--sans);text-align:center;color:#fff}
+  .qitem.done .chk{background:var(--ink);border-color:var(--ink)}
+  .qitem.done h4{text-decoration:line-through;color:var(--faint)}
+  .qitem h4{margin:0;font-size:14px}
+  .qitem .meta{font-size:11px;color:var(--faint)}
+  .qitem .body{flex:1}
+  .qitem.now{border:1.8px solid var(--edge);background:#fafafb;position:relative}
+  .qitem.now .nowtag{position:absolute;top:-9px;right:10px;background:var(--ink);color:#fff;
+        font:600 9.5px var(--mono);border-radius:20px;padding:1px 8px}
+  .qitem .selfmark{display:inline-block;margin-top:6px;font-size:11px;color:var(--sub);
+        border:1.5px solid var(--line);border-radius:20px;padding:1px 9px;background:#fff}
+  .goal{border-style:dashed;background:#fafafb}
+  .goal h4{color:var(--sub)}
+
+  .requeue{text-align:center;margin:8px 0 4px}
+
+  .notes{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:5px}
+  .notes li{font-size:11.5px;color:var(--sub);display:flex;gap:6px;align-items:baseline}
+  .notes .k{flex:none;font:600 10px var(--mono);color:var(--faint);width:76px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <h1>④ 결과 — 와이어프레임</h1>
+    <p>무료 = 헤드라인 + '상' 카드(시급도순) + 외부링크 · 게이트 = 그래프 경로 + 저장 + 통합 학습 큐 (F-1 · F-4)</p>
+  </header>
+
+  <div class="frames">
+
+    <!-- ===== 상태 1 · 무료 존 (비로그인) ===== -->
+    <section class="col" aria-label="무료 존">
+      <h2>상태 1 · 무료 존 <span class="zone free">무료 · 비로그인</span></h2>
+      <p class="axis">개념·순서·자료가 로그인 전 충족 (§5.1)</p>
+      <div class="phone"><div class="screen">
+
+        <div class="status"><span>9:41</span><span>▓ 82%</span></div>
+
+        <main class="scroll">
+
+          <section class="headline" aria-label="헤드라인 요약">
+            <span class="over">자가진단 결과</span>
+            <h1>12개 개념 중 <b>3개</b>가 약해.<br>가장 급한 건 <b>인수분해</b>야.</h1>
+            <p>이차방정식까지 가는 계단에서 아래 3칸이 비어 있어.</p>
+          </section>
+
+          <div class="honest">
+            <p>네가 답한 "알아요/몰라요" 기준이야. 점수가 아니라 <b>뭐부터 채울지의 순서</b>야.</p>
+          </div>
+
+          <section class="cards" aria-label="시급한 약점 카드">
+            <span class="cap">급한 순서 · '상' 3개 (카드 수 = 네 심각한 약점 개수)</span>
+
+            <article class="card">
+              <div class="top"><span class="rank">1</span><h3>인수분해</h3><span class="grade-pill">상</span></div>
+              <p class="why">이걸 모르면 위로 <b>5개 개념</b>이 같이 막혀. 제일 먼저 채우자.</p>
+              <div class="acts">
+                <button class="ext">🔗 무료 강의 (EBS) ↗</button>
+                <button class="path2">경로 보기 🔒</button>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="top"><span class="rank">2</span><h3>곱셈 공식</h3><span class="grade-pill">상</span></div>
+              <p class="why">인수분해의 바로 아래 계단이야. 같이 막혀 있어.</p>
+              <div class="acts">
+                <button class="ext">🔗 무료 강의 ↗</button>
+                <button class="path2">경로 보기 🔒</button>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="top"><span class="rank">3</span><h3>일차방정식</h3><span class="grade-pill">상</span></div>
+              <p class="why">이차방정식 풀이가 여기서 자꾸 걸려.</p>
+              <div class="acts">
+                <button class="ext">🔗 무료 강의 ↗</button>
+                <button class="path2">경로 보기 🔒</button>
+              </div>
+            </article>
+
+            <button class="cta2 more">중·하 약점 4개 더 보기</button>
+          </section>
+
+          <div class="fold"><span>▼ 폴드 · 아래는 스크롤 (1차 CTA는 하단 고정이라 항상 보임)</span></div>
+
+          <nav class="detail" aria-label="상세 강등">
+            <button class="tlink">근거 더보기 — 내가 답한 내용 · 전체 그래프</button>
+          </nav>
+
+        </main>
+
+        <nav class="bottom" aria-label="1차 행동">
+          <button class="cta1">저장하고 학습 경로 시작하기</button>
+          <span class="cap">🔒 저장·그래프 학습 경로는 로그인하면 열려 — 위에 본 건 전부 무료야</span>
+        </nav>
+
+      </div></div>
+
+      <ul class="notes">
+        <li><span class="k">단일 1차</span>"저장하고 학습 경로 시작하기" 하나만 검은 채움(하단 고정) — 비로그인이면 ⑤ 로그인 트리거 (F-1)</li>
+        <li><span class="k">카드 2차</span>"경로 보기"는 외곽선 강등 + 🔒 (탭 시 동일 게이트). 외부링크는 무료·비로그인 노출 — 공짜 공공자료는 게이트 안 함(§2.3)</li>
+        <li><span class="k">top-N</span>'상'만 default 3~5장: '상'&lt;3이면 '중'에서 보충해 바닥 3, &gt;5면 5 캡. 나머지 "더 보기" (§4.1 컷 규칙 — 임계값은 spec-01)</li>
+        <li><span class="k">왜 급한가</span>카드마다 사람 언어 한 줄("위로 N개가 막혀" = blocked-descendants 근거). 내부용어·블랙박스 % 노출 금지 (§4.2)</li>
+        <li><span class="k">상세 강등</span>문항별·전체 그래프는 "근거 더보기" 링크 뒤로 접음 (§4.3)</li>
+      </ul>
+    </section>
+
+    <!-- ===== 상태 2 · 게이트 뒤 (로그인 후) ===== -->
+    <section class="col" aria-label="게이트 뒤 학습 큐">
+      <h2>상태 2 · 게이트 뒤 <span class="zone gate">🔒 독점 자산 · 로그인 후</span></h2>
+      <p class="axis">통합 학습 큐(하나의 계단) + 재진입 "이어서" (F-4)</p>
+      <div class="phone"><div class="screen">
+
+        <div class="status"><span>19:24</span><span>▓ 61%</span></div>
+
+        <main class="scroll">
+
+          <section class="queuehead">
+            <h1>내 학습 계단</h1>
+            <p>약점 3개의 선수지식을 <b>하나의 계단</b>으로 합쳤어. 아래 칸부터 차례로.</p>
+          </section>
+
+          <section class="pathviz" aria-label="그래프 위 학습 경로">
+            <svg viewBox="0 0 340 110" role="img" aria-label="지식그래프 위에 강조된 학습 경로">
+              <g stroke="#dcdce0" stroke-width="1.5">
+                <line x1="40" y1="86" x2="110" y2="96"/><line x1="180" y1="38" x2="240" y2="86"/>
+                <line x1="110" y1="60" x2="60" y2="30"/><line x1="250" y1="30" x2="300" y2="60"/>
+              </g>
+              <g stroke="#1a1a1a" stroke-width="2.5">
+                <line x1="40" y1="86" x2="110" y2="60"/><line x1="110" y1="60" x2="180" y2="38"/>
+                <line x1="180" y1="38" x2="250" y2="30"/>
+              </g>
+              <g fill="#e7e7ea" stroke="#c7c7cd" stroke-width="1.5">
+                <circle cx="110" cy="96" r="7"/><circle cx="60" cy="30" r="6"/>
+                <circle cx="240" cy="86" r="7"/><circle cx="300" cy="60" r="6"/>
+              </g>
+              <circle cx="40" cy="86" r="10" fill="#1a1a1a"/>
+              <circle cx="110" cy="60" r="11" fill="#fff" stroke="#1a1a1a" stroke-width="2.5"/>
+              <circle cx="180" cy="38" r="10" fill="#e7e7ea" stroke="#1a1a1a" stroke-width="1.8"/>
+              <circle cx="250" cy="30" r="10" fill="#fafafb" stroke="#9a9a9a" stroke-width="1.8" stroke-dasharray="3 3"/>
+            </svg>
+            <span class="cap">인터랙티브 그래프 경로 (게이트 자산) — 탭하면 ⑥ 그래프에서 내 경로 강조</span>
+          </section>
+
+          <section aria-label="통합 학습 큐">
+            <ol class="queue">
+              <li class="qitem done">
+                <span class="chk">✓</span>
+                <div class="body"><h4>1 · 일차방정식</h4><span class="meta">완료 — 내가 체크했어</span></div>
+              </li>
+              <li class="qitem now">
+                <span class="nowtag">지금 여기</span>
+                <span class="chk"></span>
+                <div class="body">
+                  <h4>2 · 곱셈 공식</h4>
+                  <span class="meta">🔗 무료 강의 (EBS) ↗ · 급한 이유: 인수분해로 가는 바로 아래 칸</span><br>
+                  <span class="selfmark">다 봤으면 여기 체크 — 표시는 내가 해</span>
+                </div>
+              </li>
+              <li class="qitem">
+                <span class="chk"></span>
+                <div class="body"><h4>3 · 인수분해</h4><span class="meta">🔗 무료 강의 ↗ · 가장 급했던 약점</span></div>
+              </li>
+              <li class="qitem goal">
+                <span class="chk"></span>
+                <div class="body"><h4>4 · 이차방정식</h4><span class="meta">목표 — 여기까지 올라가면 끝</span></div>
+              </li>
+            </ol>
+            <span class="cap">순서 = 계단순(선수지식 먼저). 어느 칸부터 들어갈지는 급한 정도로 정했어.</span>
+          </section>
+
+          <nav class="requeue" aria-label="재진단">
+            <button class="tlink">다시 진단하기 (새 결과로 갱신)</button>
+          </nav>
+
+        </main>
+
+        <nav class="bottom" aria-label="1차 행동 · 재진입">
+          <button class="cta1">이어서: 곱셈 공식 공부하기 ↗</button>
+          <span class="cap">나갔다 와도 이 계단 그대로 있어 — 진행은 계정에 저장돼</span>
+        </nav>
+
+      </div></div>
+
+      <ul class="notes">
+        <li><span class="k">하나의 계단</span>공유 선수지식 병합 = 큐 1개 (개별 경로 N개 아님). 정렬 = <b>위상순 지배</b>, 시급도 = 가지 진입 우선순위만 — 구체 알고리즘은 spec-01 (F-4 ⚠️)</li>
+        <li><span class="k">재진입 1차</span>"이어서: 다음 개념"이 이 상태의 단일 1차 CTA — 외부 학습 나들이 후 홈베이스 복귀 (출구 누수 방지)</li>
+        <li><span class="k">self-mark</span>완료 체크는 유저가 직접 — 앱이 외부 학습을 검증 안 함을 카피로 정직하게 ("표시는 내가 해")</li>
+        <li><span class="k">저장</span>계정에 (큐 순서 · 항목별 완료 · 현재 위치) — 스키마는 spec-01/03. 재진단은 조용한 링크로 별개 액션</li>
+        <li><span class="k">경로 맵</span>C안 미리보기는 백로그 — 여기선 그래프 경로 비주얼 1장으로만 (게이트 보상 체감)</li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+</body>
+</html>

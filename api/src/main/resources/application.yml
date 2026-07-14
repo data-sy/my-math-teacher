@@ -48,3 +48,14 @@ mmt:
     use-jpa-for-concepts: false      # JPA 전환 Epic 에서 사용
   observability:
     slow-query-threshold-ms: 100
+  # M7 spec-01: 자가진단(self-report→DKT) 신규 경로 게이트 (ADR-0010).
+  # false 면 신규 컨트롤러 빈 미등록 → /api/v1/diagnosis/*·/api/v1/learning-queues/* 404 — 구 동작 그대로.
+  # 배포 시 프로파일에서 true 로 오버라이드. 롤백 = false 재배포.
+  diagnosis:
+    enabled: false
+    # 진단 전용 TF Serving 클라이언트 (구 경로의 공유 RestTemplate 와 분리 — ADR-0010).
+    serving-url: "http://mmt-ai:8501/v1/models/my_model:predict"
+    serving-connect-timeout-ms: 2000
+    serving-read-timeout-ms: 5000
+    # 익명 preview IP 단위 분당 상한 (§4.6 남용 방어 — TF Serving 실호출 경로만)
+    preview-rate-limit-per-minute: 10

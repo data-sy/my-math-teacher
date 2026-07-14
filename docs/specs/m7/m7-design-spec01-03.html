@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 기술 설계 복습 — spec-01·02·03 (자가진단 피벗)</title>
+<style>
+  :root {
+    --ink: #1a1d23; --sub: #555b66; --line: #d9dce1; --bg: #ffffff;
+    --panel: #f6f7f9; --accent: #1f4e8c; --accent-bg: #eef3fa;
+    --ok: #1e6b3a; --ok-bg: #e9f4ec;
+    --warn: #8a5a00; --warn-bg: #fdf3dd;
+    --open: #7a2e2e; --open-bg: #faeceb;
+    --code-bg: #f0f1f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e6e8ec; --sub: #a3a9b5; --line: #3a3f48; --bg: #17191e;
+      --panel: #1f2229; --accent: #7aa7dd; --accent-bg: #1e2a3a;
+      --ok: #7fc79a; --ok-bg: #1c2f24;
+      --warn: #e0b464; --warn-bg: #33290f;
+      --open: #e09a94; --open-bg: #34201e;
+      --code-bg: #24272e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 2rem 1rem 4rem; background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+    line-height: 1.65; font-size: 15px;
+  }
+  main { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 1.7rem; line-height: 1.3; margin: 0 0 .4rem; }
+  h2 { font-size: 1.3rem; margin: 3rem 0 .8rem; padding-top: 1rem; border-top: 2px solid var(--line); }
+  h3 { font-size: 1.05rem; margin: 1.8rem 0 .5rem; color: var(--accent); }
+  h4 { font-size: .95rem; margin: 1.2rem 0 .4rem; }
+  p { margin: .5rem 0 .9rem; }
+  .meta { color: var(--sub); font-size: .85rem; margin-bottom: 1.5rem; }
+  .meta code { font-size: .8rem; }
+  nav.toc { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.4rem; font-size: .9rem; }
+  nav.toc ol { margin: .3rem 0 0; padding-left: 1.2rem; }
+  nav.toc a { color: var(--accent); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  .tablewrap { overflow-x: auto; margin: .8rem 0 1.4rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .87rem; }
+  th, td { border: 1px solid var(--line); padding: .5rem .65rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); font-weight: 600; white-space: nowrap; }
+  td:first-child { white-space: nowrap; font-weight: 600; }
+  code { background: var(--code-bg); border-radius: 3px; padding: .08em .35em; font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; font-size: .84em; }
+  pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: .9rem 1.1rem; overflow-x: auto; font-size: .8rem; line-height: 1.55; }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .badge { display: inline-block; font-size: .72rem; font-weight: 700; border-radius: 4px; padding: .1em .5em; vertical-align: middle; white-space: nowrap; }
+  .b-ok   { background: var(--ok-bg); color: var(--ok); }
+  .b-warn { background: var(--warn-bg); color: var(--warn); }
+  .b-open { background: var(--open-bg); color: var(--open); }
+  .card { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; background: var(--panel); padding: .9rem 1.2rem; margin: 1rem 0; }
+  .card h4 { margin: 0 0 .4rem; color: var(--accent); }
+  .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+  .col { border: 1px solid var(--line); border-radius: 6px; padding: .9rem 1.2rem; }
+  .col.decided { background: var(--ok-bg); border-color: var(--ok); }
+  .col.open    { background: var(--open-bg); border-color: var(--open); }
+  .col h4 { margin-top: 0; }
+  .col ul { padding-left: 1.2rem; margin: .3rem 0; }
+  .col li { margin: .35rem 0; }
+  ul { padding-left: 1.35rem; }
+  li { margin: .3rem 0; }
+  .ref { color: var(--sub); font-size: .82em; }
+  dl.gloss dt { font-weight: 700; margin-top: .8rem; }
+  dl.gloss dd { margin: .15rem 0 0 0; color: var(--sub); }
+  dl.gloss dd code, dl.gloss dt code { color: var(--ink); }
+  .flow { background: var(--accent-bg); border: 1px solid var(--line); }
+  .note { font-size: .85rem; color: var(--sub); border-left: 3px solid var(--line); padding-left: .8rem; margin: .8rem 0; }
+  ol.qs li { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>M7 기술 설계 복습 — 자가진단 피벗의 spec-01·02·03</h1>
+<p class="meta">
+근거 문서: <code>docs/specs/m7/spec-01-diagnosis-self-report-dkt.md</code> · <code>spec-02-react-mvp.md</code> · <code>spec-03-learning-path-links.md</code> · <code>docs/milestones/milestone-7-product-pivot.md</code> · <code>docs/prd/m7-prd.md</code> · <code>docs/milestones/m7-step4-handoff.md</code> · 와이어프레임 <code>docs/design/m7-*.html</code><br>
+기준 시점: 2026-07-13 (spec 3편 전부 확정, 구현 0줄 — 다음 = Step 4 구현 <code>feat/m7-spec-01-diagnosis</code>). 본 문서는 학습·복습용 요약이며 정본이 아니다 — 충돌 시 위 원본을 신뢰.
+</p>
+
+<nav class="toc">
+<strong>목차</strong>
+<ol>
+  <li><a href="#pivot">무엇이 왜 바뀌었나 (피벗 서사)</a></li>
+  <li><a href="#specs">3-spec 책임 분해</a></li>
+  <li><a href="#decisions">사인오프된 결정 표 (F · S · T · U)</a></li>
+  <li><a href="#invariants">교차 불변식 — spec을 가로지르는 계약</a></li>
+  <li><a href="#status">확정 vs 미결·백로그</a></li>
+  <li><a href="#glossary">용어·약어 키 + 핵심 인용</a></li>
+  <li><a href="#quiz">복습 질문</a></li>
+</ol>
+</nav>
+
+<!-- ============================================================ -->
+<h2 id="pivot">1. 무엇이 왜 바뀌었나 (피벗 서사)</h2>
+
+<h3>문제 정의 — 문제 풀(problem pool)의 실부재</h3>
+<p>MMT 3기둥 = ① 지식그래프 시각화 · ② 진단 · ③ 맞춤학습지. 이 중 ②③이 공통으로 <strong>서빙 가능한 실문항</strong>에 의존하는데, 기존 <code>items</code> 8,120건은 가라 이미지 + 저작권 제약으로 공개 서비스에 올릴 수 없다. ①만 이 병목과 무관하다. 두 갈래(1. AI로 문제 생성 / 2. 우회) 중 <strong>품질 보장 불가로 1을 버리고 2를 택한 것</strong>이 M7 피벗이다 <span class="ref">(밀스톤 §왜 피벗인가)</span>.</p>
+
+<h3>구 방식 → 신 방식</h3>
+<div class="tablewrap"><table>
+<tr><th></th><th>구 (v2 기존)</th><th>신 (M7)</th></tr>
+<tr><td>진단 입력</td><td>문제 풀이 → 정오답 채점 (<code>RecordView</code> o/x)</td><td><strong>개념 self-report OX</strong> — 화면당 개념 1개, "알아요/몰라요" 적응형 문답</td></tr>
+<tr><td>시급도 산출</td><td>DKT(TF Serving) <code>probabilityList</code></td><td><strong>DKT 유지 — 입력만 변경.</strong> self-report를 정오답으로 매핑(안다=맞음/모른다=틀림)해 기존 시퀀스에 주입 (D3-R)</td></tr>
+<tr><td>맞춤 출력</td><td>학습지 출제 + PDF(html2pdf)</td><td><strong>그래프 학습 경로(통합 학습 큐) + 개념별 무료 외부 링크(EBS 등)</strong></td></tr>
+<tr><td>프론트</td><td>Vue 3 (<code>web/</code>)</td><td><strong>React 새로 짜기</strong>(마이그레이션 아님) — <code>web-react/</code> 병행, 모바일 퍼스트, 최소 런치 MVP 6화면</td></tr>
+<tr><td>유지되는 것</td><td colspan="2">지식그래프 데이터(concepts 1,631 / knowledge_space 3,446 — 해자), 그래프 순회 엔진(M2 재귀 CTE), 백엔드·인증·인프라(blue-green·nginx), DKT/TF Serving</td></tr>
+</table></div>
+
+<h3>핵심 아이디어 두 개</h3>
+<div class="card">
+<h4>지식그래프를 테스트 엔진 자체로</h4>
+<p>MBTI식 "답에 따라 다음 화면이 갈리는" 흐름. "몰라요" → 그 개념의 선수지식으로 drill-down(무너진 토대의 바닥 찾기), "알아요" → 선수 폐쇄 전체를 inferred-known으로 skip. 개념 1,631개를 다 못 묻는 문제를 skip이 해소해 문답 수를 짧게 유지한다 <span class="ref">(밀스톤 D2, spec-01 §4.3)</span>.</p>
+</div>
+<div class="card">
+<h4>DKT 시급도 — "피벗의 피벗" (2026-07-13 개정)</h4>
+<p>2026-07-11 원안 D3은 "시급도 = 그래프 점수(blockedDescendants·depth 가중합), DKT 폐기"였다 — DKT에 self-report를 먹이면 garbage-in이라는 이유. 그러나 <strong>"가장 시급한 것부터 하나씩 배포" 전략상 진단 엔진 신규 구축을 보류</strong>하고 D3-R로 역전: 기존 DKT를 유지하되 self-report OX를 정오답으로 매핑해 입력. 트레이드오프(자기보고가 모델 출력을 왜곡하는 R1)는 감수하고, "AI 진단" 포지셔닝·자산을 보존하며 <strong>"인증"이 아니라 "자가진단 학습 가이드"로 정직 프레이밍</strong>해 방어한다. 이 개정으로 그래프 점수 전제의 구 spec-01 초안은 삭제(git 히스토리 보존)되고 현행 spec-01이 전면 대체했다 <span class="ref">(밀스톤 D3·D3-R, spec-01 Supersedes)</span>.</p>
+</div>
+
+<h3>밀스톤 결정 D1~D7 (2026-07-11 사인오프 + 07-13 개정)</h3>
+<ul>
+<li><strong>D1</strong> — 진단 = self-report OX. 문제 풀 부재 우회.</li>
+<li><strong>D2</strong> — 진단 엔진 = 그래프 적응형 문답(개념 나열형 기각).</li>
+<li><strong>D3 → D3-R</strong> — 시급도 = 그래프 점수(폐기) → <strong>DKT 유지 + 정오답 매핑</strong>(위 카드).</li>
+<li><strong>D4</strong> — 맞춤 = 그래프 학습 경로 + 외부 링크 큐레이션(07-13 확장 — 원안은 "링크만"). 학습지 출제 제거.</li>
+<li><strong>D5</strong> — 문답 카드 = 개념 이름 + 대표 예시("내용은 아는데 이름을 몰라" 오답 방지).</li>
+<li><strong>D6</strong> — React 새로 짜기 확정 + 범위 = 최소 런치 MVP 6화면(부가화면은 오픈 후 이식). 구 [Design] 트랙의 "React는 launch 후" 결론을 supersede.</li>
+<li><strong>D7</strong> — 모바일 퍼스트. 레포는 모노레포 유지(새 레포 X — M2/M4/M6 서사 보존).</li>
+</ul>
+
+<h3>새 제품 루프</h3>
+<pre class="flow"><code>① 홈 (단독 1차 CTA "무료 진단 시작", 그래프 = 히어로 미끼)
+ → ② 영역 진입 (스마트 default + ±후보 pick-list + escape 두 갈래)     [F-3]
+ → ③ 그래프 적응형 문답 (화면당 개념 1개, 알아요/몰라요, 진척 표시)      [D2·D5]
+     매 응답 후 localStorage answered-map 저장                        [F-2]
+ → ④ 결과 (무료: 헤드라인 + 개념 카드 top-N + 외부 링크
+           게이트 뒤: 통합 학습 큐 + 그래프 경로)                       [F-1·F-4]
+ → 재진입 (큐 이어가기 · 항목 self-mark 완료)                          [F-4]
+⑥ 개념그래프 탐색은 병렬 진입로 (상시 "내 약점 진단하기" CTA로 루프 회수)</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="specs">2. 3-spec 책임 분해</h2>
+
+<p>세 spec은 <strong>계약(spec-01) → 화면(spec-02) → 채움(spec-03)</strong>의 층위로 나뉜다. 순서 자체가 설계다: spec-01이 프론트가 소비할 전 계약(진입·문답·결과·큐)을 굳혀야 React 화면이 헛돌지 않고 <span class="ref">(spec-01 §5)</span>, spec-02가 화면·hook 계약을 확정한 뒤라야 spec-03이 예약 지점을 채우는 층으로 역방향 의존 없이 얹힌다 <span class="ref">(spec-03 §5)</span>.</p>
+
+<div class="card">
+<h4>spec-01 · 진단 백엔드 — 계약·데이터모델·큐 로직</h4>
+<p><strong>(a) 확정한 것:</strong> 신규 API 네임스페이스 <code>/api/v1/diagnosis/*</code>(frontier·next·preview·귀속)·<code>/learning-queues/*</code> 전 계약, 서버 주도 stateless 적응형 순회(D1-A), self-report→DKT 매핑·저장(<code>self_report_answers</code> 신설 + <code>probabilities.user_test_id</code> additive), 결과 계약(헤드라인+카드 top-N+<code>urgencyBasis</code>+<code>links:[]</code> 예약), 통합 학습 큐(위상순 지배 정렬 + 재진입 2테이블), 결정 S1~S6.</p>
+<p><strong>(b) 왜 이렇게 나눴나:</strong> 백엔드 엔진과 API 계약에 한정 — 화면(spec-02)과 링크 데이터(spec-03)를 밖으로 밀어내 계약을 먼저 고정.</p>
+<p><strong>(c) 맞물림:</strong> spec-02의 8개 라우트가 이 계약을 소비하고, spec-03이 <code>links:[]</code>·큐 계약 위에 얹힌다. 구 진단 경로(<code>/weakness-diagnosis</code>·<code>answers</code>·<code>findAIInput</code>)는 <strong>무변경 보존 + 신규 경로 무접촉</strong>이 롤백의 전제.</p>
+</div>
+
+<div class="card">
+<h4>spec-02 · 프론트 React MVP — 화면 6개·게이트 배선·상태관리</h4>
+<p><strong>(a) 확정한 것:</strong> 스캐폴딩 스택 T1~T5(Vite+React19+TS / TanStack Query+Zustand / Tailwind+Radix / React Router v7 / <code>web-react/</code> 병행), 크리티컬 패스 6화면 + <code>/queue</code> 라우트 맵, F-2 localStorage 계약(<code>mmt.diagnosis.v1</code>, append-only), F-1 게이트 배선(④ 2상태 + returnTo 복원), auth/API 레이어 재구현(현행 결함 2건 — 401 무대응·에러 상태 유실 — 을 승계하지 않고 개선), Cytoscape hook 포팅(호버 0 → 탭 바텀시트).</p>
+<p><strong>(b) 왜 이렇게 나눴나:</strong> spec-01 계약이 굳은 뒤라 화면-계약 매핑이 고정점 — React 작업이 백엔드 구현과 <strong>병렬 가능</strong>(mock으로 선개발). MVP 규모 산정 근거 = 현행 전역 상태가 accessToken 하나뿐이라는 실측.</p>
+<p><strong>(c) 맞물림:</strong> spec-01 shape를 TS 계약 타입 모듈(<code>contracts.ts</code>)로 옮겨 SSOT 유지. ④ 게이트 뒤 그래프·hook 확장 지점은 spec-03에 계약만 예약.</p>
+</div>
+
+<div class="card">
+<h4>spec-03 · 맞춤 — 외부 링크 + 그래프 경로 노출층</h4>
+<p><strong>(a) 확정한 것:</strong> <code>concept_links</code> 테이블 + 시드 전략(병목 상위 30~50 + 결측 허용 계약), 결과 카드 <code>links</code> 부착(preview 포함 — 무료 존), 학습 큐 응답 계약(<code>reason</code> 사람 언어 문구 + <code>goal</code> primary), 공유 노드 귀속 타이브레이크, R4 링크 점검 운영, 결정 U1~U6.</p>
+<p><strong>(b) 왜 이렇게 나눴나:</strong> 큐 생성·위상정렬 자체는 spec-01 소관 — 본 spec은 그 <strong>출력을 채우고 보여주는</strong> 층. additive 컬럼 2건(<code>source_concept_id</code>·<code>goal_concept_id</code>)과 provenance 운반 책임만 제안, 확정 결정 재오픈 아님.</p>
+<p><strong>(c) 맞물림:</strong> 링크 테이블·시드는 백엔드(spec-01 구현)와, 경로 강조는 프론트(spec-02 hook의 <code>highlightPath</code> 옵션)와 각각 병렬 가능. ⑥ 경로 강조는 <strong>신규 백엔드 없이</strong> 프론트 조립.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="decisions">3. 사인오프된 결정 표</h2>
+
+<h3>F-1~F-4 — 제품/UX knob (PRD §0.1, 전부 확정) <span class="badge b-ok">✅ 사인오프</span></h3>
+<div class="tablewrap"><table>
+<tr><th>코드</th><th>무엇을 정했나</th><th>채택안</th><th>기각안·이유</th></tr>
+<tr><td>F-1</td><td>로그인 게이트 위치 + CTA 위계</td><td><strong>결과-시점 reverse gate.</strong> 진단은 비로그인 완주. 무료 = 진단 결과 그 자체(헤드라인 + 카드 시급도순 + 개념별 무료 외부링크), 게이트 = 독점 자산(인터랙티브 그래프 학습 경로 + 저장·재열람). 화면 단일 1차 CTA = "저장하고 학습 경로 시작하기"(로그인 트리거), 카드별 "경로 보기"는 2차 강등. 원칙: 이미 공짜인 공공자료(EBS)는 게이트하지 않음</td><td>선행 로그인 게이트 — "가치 먼저, 계정 나중" 원칙 위배. N개 CTA 경쟁도 함께 제거</td></tr>
+<tr><td>F-2</td><td>익명 진척 복구</td><td>문답 중 <strong>localStorage answered-map</strong> 저장 → 이탈 후 재개, 결과-시점 로그인에서 계정 귀속. 서버 주도 stateless 순회와 정합 — 이 결정이 spec-01 D1-A(stateless)의 전제를 확정</td><td class="ref">(스펙에 명시적 기각안 미기재 — 서버 세션 저장 방식은 spec-01 §4.3에서 기각)</td></tr>
+<tr><td>F-3</td><td>영역 진입 방식</td><td><strong>스마트 default + ±후보 pick-list.</strong> 학년 기반 시기 추정 단원을 소프트 default로(hard auto-start 아님), 선후순 ±후보 원탭 + escape 두 갈래 필수: (a) 다른 단원 직접 선택 (b) "모르겠어 → 전체 훑기". 고른 단원 = <strong>시작 프론티어(경계 아님)</strong> — drill-down은 단원 밖 선수로 자유롭게 내려감. 카피 "지금 어디쯤이야?"</td><td>escape (a)만 — "그냥 약점 궁금한" 유저가 억지로 단원을 고르게 됨 → (b)가 필수. 별도 모드 선택 UI는 MVP 비범위</td></tr>
+<tr><td>F-4</td><td>결과 출구 · 홈 입구 · top-N</td><td><strong>출구 = 통합 학습 큐(A안):</strong> 공유 선수지식을 병합한 하나의 계단 — 위상순(선수 먼저)이 지배 정렬, DKT 시급도는 진입 우선순위로만. <strong>재진입:</strong> 큐 순서+완료여부+현재 위치 저장, 완료 = 유저 self-mark, 재진단은 별개 액션. <strong>홈:</strong> 1차 "무료 진단 시작" 단독 압도, 그래프는 히어로 비주얼(미끼). <strong>top-N:</strong> '상' 등급만 default, 바닥 3(부족 시 '중' 보충)·캡 5, 나머지 "더 보기"</td><td>개별 경로 N개 — 단일 계단 아님. 순수 시급도순 정렬 — "3단 건너뛰고 5단부터"로 계단 파괴. C안 경로 맵 미리보기·홈 B안 저커밋 진입로 = fast-follow 백로그</td></tr>
+</table></div>
+<p class="note">PRD에는 이보다 앞서 3대 트레이드오프 P-1(주 타깃 = 중·고등 셀프러너 학생) · P-2(추천 단위 = 개념 카드 top-N) · P-3(결과 1차 CTA = 그래프 학습 경로, 외부링크 보조)도 사인오프됨 <span class="ref">(PRD §0)</span>.</p>
+
+<h3>S1~S6 — spec-01 백엔드 (S2·S3 = 리뷰 확정, 나머지 = 잠정 채택)</h3>
+<div class="tablewrap"><table>
+<tr><th>코드</th><th>상태</th><th>무엇을 정했나</th><th>채택안</th><th>기각안·이유</th></tr>
+<tr><td>S1</td><td><span class="badge b-warn">▶ 잠정</span></td><td>익명 결과 산출</td><td><strong>A — 무영속 preview + 로그인 시 재제출 귀속.</strong> <code>users_tests.user_id</code> FK 무변경, F-2 localStorage와 정합, 서버에 익명 잔재 없음. 착수 시 재검토 꼬리표</td><td>B 게스트 행 영속화 — <code>user_id</code> nullable 마이그레이션 + 고아 행 정리 배치 필요</td></tr>
+<tr><td>S2</td><td><span class="badge b-ok">✅ 확정</span></td><td>self-report 답안 저장 스키마</td><td><strong>C — 신규 <code>self_report_answers</code> 테이블 + <code>probabilities.user_test_id</code> additive.</strong> 신규 경로는 구 <code>answers</code>를 읽지도 쓰지도 않음 → R1(공유 테이블 오염) 소멸. 세션 단위는 기존 <code>users_tests</code> 재사용. 임시답/가짜 item 매핑 금지(오염을 '조용한 오염'으로 은폐)</td><td>구 A안 — <code>answers.item_id</code> NOT NULL 완화. 리뷰 R1 확정으로 기각: 롤백용으로 살아있는 <code>findBefore</code>가 NULL item_id 행을 전체 이력으로 긁어 items→concepts 조인이 깨짐</td></tr>
+<tr><td>S3</td><td><span class="badge b-ok">✅ 확정</span></td><td>DKT 입력 구성</td><td><strong>A — 현재 세션 answered-map만 ×10 증폭.</strong> 근거 = preview와 귀속 결과의 <strong>결정론 동치</strong>(F-1 "본 결과를 저장") 보장 + 스냅샷 설명가능. R2(빈/얇은/단조 입력) 가드 전제: 몰라요 0개 → DKT 호출 생략·정상 결과, 대표 4 시나리오 실측, fail-soft</td><td>B 과거 self-report 세션 병합 — preview·귀속 결과 불일치로 F-1 위반</td></tr>
+<tr><td>S4</td><td><span class="badge b-warn">▶ 잠정</span></td><td>등급 컷 출발값</td><td><code>HIGH: p&lt;40 · MID: 40≤p&lt;65 · LOW: p≥65</code> — 구 ResultView 40/65 임계 선례 승계. <strong>출발값일 뿐</strong> — self-report 매핑 입력의 percent 분포는 실채점과 다를 수 있어 승계가 출발값 이상을 의미하지 않음. R2 실측 분포와 함께 보정(백로그)</td><td class="ref">(대안 미기재 — 실데이터 부재로 임의 컷 신설 대신 선례 승계)</td></tr>
+<tr><td>S5</td><td><span class="badge b-warn">▶ 잠정</span></td><td>학습 큐 스키마</td><td><strong>2테이블(<code>learning_queues</code>·<code>learning_queue_items</code>) + 현재 위치 = 파생값</strong>(position 순 첫 <code>done=false</code>). 포인터 컬럼 없음 — 드리프트 원천 차단. 신규 리포지토리는 JPA</td><td>별도 포인터 컬럼 — 불필요한 정합 부담</td></tr>
+<tr><td>S6</td><td><span class="badge b-warn">▶ 잠정</span></td><td>카드 근거 수치</td><td><strong>blockedDescendants = 역방향 재귀 CTE transitive distinct count, depth 3.</strong> <code>findPrerequisitesWithDepth</code>의 미러(<code>to_concept_id=P → from_concept_id</code>), Redis 캐시 <code>graph:v2:blocked:</code></td><td>직계만 — count 과소로 근거 문구 임팩트 약함 / 무제한 depth — 상위 개념에서 수백 개로 과장 위험</td></tr>
+</table></div>
+
+<h3>T1~T5 — spec-02 스택 <span class="badge b-ok">✅ 전 항목 사인오프 (권장안 채택)</span></h3>
+<div class="tablewrap"><table>
+<tr><th>코드</th><th>무엇을 정했나</th><th>채택안</th><th>기각안·이유</th></tr>
+<tr><td>T1</td><td>빌드·언어</td><td><strong>Vite + React 19 + TypeScript.</strong> 커리어 수요(D6 근거)·1인 개발 회귀 안전망·계약(spec-01 DTO) 타입화. 빌드 산출물 = 정적 dist(배포 무변경). 선결 = node 빌드 이미지 업그레이드(React 19는 node:14 빌드 불가 — 실측 (a)(b) 완료, 잔여 1건)</td><td>JS — 초기 속도는 빠르나 계약 드리프트를 런타임에야 발견</td></tr>
+<tr><td>T2</td><td>상태관리</td><td><strong>TanStack Query(서버 상태) + Zustand(클라 상태 2조각: auth·quiz 진행).</strong> Query의 로딩/에러/캐시 표준화가 "에러 상태 유실" 결함의 구조적 해결과 결합</td><td>Redux Toolkit — 과대(현행 전역 상태 실측 = accessToken 하나) / Context만 — quiz·auth 재렌더 제어 번거로움</td></tr>
+<tr><td>T3</td><td>스타일링</td><td><strong>Tailwind CSS(+ 필요 시 Radix headless).</strong> 모바일 퍼스트 유틸리티 + 로우파이 커스텀 와이어프레임의 디자인 자유도</td><td>PrimeReact — 구 PrimeVue 톤 승계 위험·번들 무게·90개 전역 등록 반복 / CSS Modules — 토큰 체계 수작업 재구축</td></tr>
+<tr><td>T4</td><td>라우팅</td><td><strong>React Router v7</strong> — 표준. 게이트는 라우트 가드가 아니라 F-1 결과-시점 트리거(④ 안의 CTA)라 구조 단순 — auth 가드 필요 화면은 <code>/queue</code>뿐</td><td>TanStack Router — 타입 안전하나 생태계 좁음</td></tr>
+<tr><td>T5</td><td>디렉토리 전략</td><td><strong>A — 신규 <code>web-react/</code> 병행, 런치 시 스왑.</strong> spec-01 §4.7 롤백이 "구 Vue 프론트"를 전제 → 구 <code>web/</code>은 런치까지 무변경 생존 필수. 구 Vue·신 React = <strong>별도 이미지(태그) 공존, 롤백 = 이미지 전환</strong></td><td>B <code>web/</code> 내 직접 재작성 — 롤백 = git revert뿐이라 blue-green 이미지 롤백과 어긋남</td></tr>
+</table></div>
+
+<h3>U1~U6 — spec-03 링크·경로 <span class="badge b-ok">✅ 전 항목 사인오프 (권장안 채택)</span></h3>
+<div class="tablewrap"><table>
+<tr><th>코드</th><th>무엇을 정했나</th><th>채택안</th><th>기각안·이유</th></tr>
+<tr><td>U1</td><td>링크 저장소</td><td><strong>A — DB 테이블 <code>concept_links</code>.</strong> 결과·큐 API가 조인 부착, 재배포 없이 갱신, R4 점검 상태(<code>alive</code>) 관리 가능</td><td>B 정적 JSON(프론트 번들) — 갱신마다 재배포 + preview(백엔드 계산)와 이원화</td></tr>
+<tr><td>U2</td><td>시드 커버리지</td><td><strong>A — blockedDescendants 상위 30~50 개념부터 + 결측 허용 계약.</strong> 전 개념(1,631) 커버 불요(D4 원문). 시급도는 유저별이라 사전 선별 불가 → 그래프 구조상 병목(S6 역방향 CTE 재사용)부터. 링크 0 개념은 섹션 자체 생략(빈 껍데기·"준비 중" 없음 — 학생 신뢰 톤)</td><td>B 진입 단원 프론티어 전 개념 — 커버리지 넓으나 콘텐츠 작업량 폭증</td></tr>
+<tr><td>U3</td><td>큐 항목 "급한 이유" 소스</td><td><strong>A — 큐 생성 시 <code>source_concept_id</code> additive 저장</strong> + 조회 시 템플릿 조합("{source 개념}로 가는 아래 계단"). <strong>공유 노드 귀속 타이브레이크 = spec-01 §4.6 진입 우선순위 미러</strong>(최고 시급도 → conceptId ASC) — 결정론까지 승계</td><td>B 조회 시 그래프 파생 — 스키마 무변경이나 조회마다 그래프 질의 + 갱신 시점 따라 문구 흔들림. 다중 출처 문구("여러 약점의 공통 디딤돌")안은 문구 자의성 제거를 우선해 기각(고도화는 백로그)</td></tr>
+<tr><td>U4</td><td>링크 노출 상한</td><td>개념당 <strong>3개</strong>(<code>display_order</code> 순) — 모바일 카드 폭·선택 과부하 방지. EBS 우선, provider 다양화는 후속</td><td class="ref">(대안 미기재)</td></tr>
+<tr><td>U5</td><td>R4 링크 점검</td><td><strong>월 1회 수동 스크립트</strong>(HEAD 점검, 실패 시 GET 폴백 → <code>alive=FALSE</code> 갱신). 자동 복구 없음. 크론화·admin은 링크 수 늘면 후속</td><td class="ref">(대안 미기재 — 크론화는 후속으로 명시)</td></tr>
+<tr><td>U6</td><td>goal(계단 꼭대기) 정의</td><td><strong>A — 최고 시급도 카드의 drill-down 루트 프론티어 = "가장 급한 목표(primary)".</strong> 하향 순회 불필요·큐 존재 ⇒ 항상 정의·와이어프레임 정합·reason과 타이브레이크 공유. 단 유일 목표 아님(다중 프론티어 forest에서 손실적 — primary로 표기) + provenance 추적 비용 공유 캐비어트</td><td>B 위상순 마지막 카드 — 계산 최저렴하나 와이어프레임 의미(카드 위의 도달 목표)와 불일치 / C top-N 최상위 후수 탐색 — spec-01이 걷지 않는 하향(후수) 순회 신규 + 카드 fan-out 시 미정의</td></tr>
+</table></div>
+
+<!-- ============================================================ -->
+<h2 id="invariants">4. 교차 불변식 — 한 파일만 봐선 안 보이는 계약</h2>
+
+<div class="card">
+<h4>① 결정론 시퀀스 순서 — preview == 귀속 결과 (순서 포함)</h4>
+<p>DKT는 RNN 계열이라 <strong>입력 순서에 민감</strong>하다. 따라서 "preview에서 본 결과를 저장한다"(F-1)가 성립하려면 두 시퀀스가 순서까지 일치해야 한다: preview는 요청 <code>answered[]</code> 배열 순서 그대로, 귀속 재조회는 <code>self_report_answer_id ASC</code>(= 저장 입력 순서) — <strong>두 순서의 일치가 결정론의 필요조건</strong> <span class="ref">(spec-01 §4.4-2)</span>. 프론트 측 필요조건이 spec-02에 미러링된다: localStorage의 <code>answered[]</code>는 <strong>답변 순서 보존 계약(append-only)</strong> — 재정렬·dedup·재직렬화로 순서를 흐트리지 않고 재제출 페이로드도 그 순서 그대로 <span class="ref">(spec-02 §4.2)</span>. ×10 증폭은 순서 확정 후 반복하며, 저장은 개념당 1행(<code>UNIQUE(user_test_id, concept_id)</code>). 검증 = 순서 포함 동일 property 테스트 <span class="ref">(spec-01 §8, spec-02 §6)</span>.</p>
+</div>
+
+<div class="card">
+<h4>② 롤백 — 신·구 병행 + 이미지 전환 (재빌드·git revert 아님)</h4>
+<p>백엔드: <strong>롤백 = <code>mmt.diagnosis.enabled=false</code></strong>. S2=C로 신규 테이블·컬럼이 전부 additive이고 구 경로(<code>answers</code>·<code>/weakness-diagnosis</code>·<code>findAIInput</code>/<code>findBefore</code>)는 무변경 + 신규 경로가 일절 접촉하지 않으므로 "구 경로 무변경 = 롤백 대상"이 실제로 성립한다 <span class="ref">(spec-01 §4.7)</span>. 프론트: 구 Vue와 신 React는 <strong>별도 이미지(태그)로 공존</strong> — 롤백 = 이미지 전환. 이것이 T5(<code>web-react/</code> 병행)의 채택 이유이자, <code>web/</code>을 런치까지 무변경 보존해야 하는 이유다 <span class="ref">(spec-02 §2.1·§7 T5)</span>. 즉 spec-01의 플래그 롤백과 spec-02의 이미지 롤백이 한 쌍이다. 신규 경로의 구 테이블 무접촉은 property 테스트로 증명한다(R1 소멸 증명, spec-01 §8).</p>
+</div>
+
+<div class="card">
+<h4>③ 계약 SSOT — spec-01 shape가 정본, 드리프트는 스냅샷으로 감지</h4>
+<p>spec-01 §4.1/§4.3/§4.4의 요청·응답 shape가 정본이고, 프론트는 이를 <strong>TS 계약 타입 모듈</strong>(예: <code>src/api/contracts.ts</code>)로 옮겨 mock과 실클라이언트가 같은 타입을 참조한다 — 병렬 개발(mock 선개발)의 드리프트 방지 장치 <span class="ref">(spec-02 §5)</span>. spec-03의 links shape·<code>highlightPath</code> 옵션도 같은 SSOT에 등재된다 <span class="ref">(spec-03 §3.1·§3.3)</span>. <strong>한계 명시:</strong> 이 SSOT는 드리프트의 <em>사후 감지</em>(게이트 결정론 스냅샷)까지 — Java DTO↔TS 타입의 컴파일 타임 <em>예방</em>은 codegen이 필요하며 T1 범위 밖 → 백로그.</p>
+</div>
+
+<div class="card">
+<h4>④ 큐 provenance — reason·goal 귀속 타이브레이크 = §4.6 진입 우선순위 미러</h4>
+<p>공유 선수 병합이 통합 학습 큐(spec-01 §4.6)의 존재 이유인데, 바로 그 병합 노드에서 한 개념이 여러 카드의 폐쇄에 동시 소속될 수 있다. <code>reason</code>(U3)과 <code>goal</code>(U6)의 귀속이 자의적이면 UX 약속이 깨지므로, <strong>귀속 타이브레이크 = 큐 진입 우선순위 규칙의 미러: 소속 카드 중 최고 시급도(최저 percent) → 동률 시 conceptId 오름차순</strong> — 결정론까지 승계한다 <span class="ref">(spec-03 §3.2)</span>. 캐비어트 2건: (1) 스키마는 additive지만 <strong>큐 생성 알고리즘이 위상 병합을 관통해 출처를 계산·운반하는 새 책임</strong>을 획득 — "컬럼 하나 추가"보다 무거움. (2) goal의 "항상 정의" 불변식은 <strong>provenance 완전성에 종속</strong> — 병합 경로 어디에서도 NULL로 새지 않는지가 실질 관문(property 테스트가 가드). <code>source/goal_concept_id</code>는 스키마 nullable + 애플리케이션 non-null 강제가 의도된 설계 <span class="ref">(spec-03 §6 구현 감시 2건)</span>.</p>
+</div>
+
+<div class="card">
+<h4>⑤ fail-soft·결측 허용 — 부분 실패가 학생을 막다른 골목에 두지 않음</h4>
+<p>TF Serving 실패 시에도 문답·"몰라요" 목록까지는 성립(시급도 등급만 결측) <span class="ref">(spec-01 §4.7)</span> — 프론트는 게이트 재제출 실패 시 이 fail-soft 결과를 렌더한다(에러가 아니라 결과 degrade) <span class="ref">(spec-02 §4.4·§4.6)</span>. 같은 원칙이 링크에도: 링크 0개 개념은 섹션 자체 생략(결측 허용 계약), EBS 대규모 개편 시 provider 단위 일괄 비노출로 서비스는 링크 없이도 성립 <span class="ref">(spec-03 §2.2·§4)</span>. "몰라요" 0개(전부 알아요)도 에러가 아니라 DKT 생략 + "약점 없음" 정상 결과 <span class="ref">(spec-01 R2)</span>.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="status">5. 확정 vs 미결·백로그</h2>
+
+<div class="grid2">
+<div class="col decided">
+<h4>✅ 사인오프 완료 — 재오픈 금지</h4>
+<ul>
+<li>밀스톤 D1~D7(D3은 D3-R로 개정) + 모노레포 유지</li>
+<li>PRD P-1~P-3 + F-1~F-4 전부 (2026-07-13)</li>
+<li>UX: ③ 문답 <strong>A안</strong>(정적 카드+하단 고정 2버튼) 채택, 6화면 와이어프레임 + 플로우 맵</li>
+<li>spec-01: <strong>S2 = C</strong>(self_report_answers)·<strong>S3 = A</strong>(현재 세션만) 리뷰 확정, stateless 순회 D1-A, 결과·큐 전 계약</li>
+<li>spec-02: <strong>T1~T5 전 항목</strong> (Vite+React19+TS / Query+Zustand / Tailwind / RR7 / web-react 병행)</li>
+<li>spec-03: <strong>U1~U6 전 항목</strong> (concept_links / 병목 상위 시드 / source provenance+타이브레이크 / 상한 3 / 월 1회 점검 / primary goal)</li>
+</ul>
+</div>
+<div class="col open">
+<h4>▶ 잠정 채택 · ⏳ 미결 · 📦 백로그</h4>
+<ul>
+<li><strong>▶ 잠정 채택(착수 시 <code>/analyze-before-change</code>에서 재검토):</strong> S1(무영속 preview) · S4(40/65 컷) · S5(파생 현재위치) · S6(역방향 CTE depth 3)</li>
+<li><strong>⏳ 착수 시 확정:</strong> 등급 컷 실데이터 보정(R2 대표 4 시나리오 실측이 입력) · rate limit 임계 · escape(b) 대표 단원 시드 목록 · 재진단 시 구 큐 대체/보관 · fail-soft 응답 형태 · DDL 타입(참조 PK 실측 3건) · ADR 2건(self-report→DKT 매핑 / React 도입) · M6 배포 스크립트의 프론트 이미지 전환 경로(T1 잔여 실측 1건)</li>
+<li><strong>⏳ 미결:</strong> 브랜치 origin 푸시 여부(스펙이 로컬 전용 브랜치에만 존재)</li>
+<li><strong>📦 fast-follow 백로그(오픈 후):</strong> 문답 B(스와이프)/C(2-존)안 · 결과 <strong>C안 경로 맵 미리보기</strong> · 홈 <strong>B안 저커밋 진입로</strong> · 다중 goal 노출(forest의 나머지 도달점) · SSOT codegen(TS 타입 생성) · 링크 점검 크론화·admin UI · reason 문구 고도화 · 이메일 가입 · 부가화면 이식(RecordView·PersonalView·UserEditView 등) · web/CLAUDE.md 재작성(런치 스왑 시)</li>
+</ul>
+</div>
+</div>
+<p class="note">문서 stale 정정 4건(Chart.js·html2pdf 등)은 2026-07-13 사용자 승인으로 처리 완료 <span class="ref">(핸드오프 §미결)</span>. 현재 상태: <strong>구현 0줄</strong> — 다음 = Step 4, <code>feat/m7-spec-01-diagnosis</code> 분기 + <code>/analyze-before-change</code>.</p>
+
+<!-- ============================================================ -->
+<h2 id="glossary">6. 용어·약어 키 + 핵심 인용</h2>
+
+<dl class="gloss">
+<dt>DKT (Deep Knowledge Tracing)</dt>
+<dd>기존 TF Serving 모델. <code>[skillId, answerCode]</code> 시퀀스를 받아 개념별 이해 확률 <code>probabilityList</code>를 반환(<code>probabilityList[skillId-1]</code> 1-based 인덱싱). M7에서 입력만 self-report 매핑으로 교체, 모델 자체는 무변경.</dd>
+<dt>self-report OX</dt>
+<dd>학생이 개념을 "알아요/몰라요"로 자가응답. 정오답 매핑 = <strong>안다=맞음(1) / 모른다=틀림(0)</strong>. 변환은 저장 시가 아니라 DKT 시퀀스 생성 시 조회 변환(<code>known</code> BOOLEAN 그대로 저장).</dd>
+<dt>answered-map</dt>
+<dd><code>[{conceptId, known}]</code> 배열. 익명 문답의 전체 상태이자 매 요청에 실려가는 stateless 순회의 입력. 프론트는 localStorage <code>mmt.diagnosis.v1</code>에 append-only로 보존.</dd>
+<dt>시작 프론티어 (frontier)</dt>
+<dd>선택 단원 개념들 중 단원 내 후수-최상위(같은 단원의 다른 개념이 자기를 선수로 요구하지 않는 개념). 문답의 시작점이지 경계가 아님 — drill-down은 단원 밖으로 내려갈 수 있다.</dd>
+<dt>inferred-known</dt>
+<dd>"알아요" 응답 시 그 개념의 선수 폐쇄 전체(<code>findPrerequisitesWithDepth(C, 10)</code>)를 아는 것으로 마킹해 이후 질문에서 제외 — 화면 수 급감의 핵심.</dd>
+<dt>blockedDescendants (S6)</dt>
+<dd>"이걸 모르면 위로 N개가 막혀요"의 N. <strong>역방향 재귀 CTE</strong>(<code>to_concept_id=P → from_concept_id</code>, 기존 선수 CTE의 미러)로 depth 3 transitive distinct count. 카드의 사람 언어 근거(urgencyBasis)이자 U2 시드 선별 기준.</dd>
+<dt><code>knowledge_space</code> 방향성 (M2 승계)</dt>
+<dd><code>from_concept_id</code> = 후수(뒤에 배움) / <code>to_concept_id</code> = 선수(먼저 알아야 함). 개념 C의 선수 = <code>WHERE from=C</code>, 개념 P를 막는 후수 = <code>WHERE to=P</code>(역방향).</dd>
+<dt><code>self_report_answers</code> (S2=C)</dt>
+<dd>self-report 답안 전용 신규 테이블. 구 <code>answers</code>(item FK 필수)와 완전 분리 — 신규 경로는 구 테이블을 읽지도 쓰지도 않음(R1 소멸).</dd>
+<dt>통합 학습 큐 (F-4)</dt>
+<dd>top-N 취약 개념들의 공유 선수지식을 병합한 단일 계단. 위상순(선수 먼저)이 지배 정렬, 시급도는 Kahn 진입차수 0 후보가 복수일 때의 진입 우선순위로만. 사이클 발견 시 간선 drop + 경고(생성이 죽지 않게 degrade).</dd>
+<dt>provenance (U3·U6)</dt>
+<dd>큐 항목이 어느 취약 카드의 폐쇄에서 왔는지의 출처. <code>source_concept_id</code>(reason 문구 소스)·<code>goal_concept_id</code>(primary 목표)로 큐 생성 시 계산·저장. 귀속 타이브레이크 = 최고 시급도 → conceptId ASC.</dd>
+<dt>결과-시점 reverse gate (F-1)</dt>
+<dd>로그인을 진단 앞이 아니라 결과 시점에 요구. 무료 = 결과 자체(preview), 게이트 = 저장·큐·인터랙티브 경로. 게이트 통과 시 localStorage answered-map 재제출로 계정 귀속.</dd>
+<dt>결측 허용 계약 (U2)</dt>
+<dd>링크 0개 개념은 카드·큐 항목에서 링크 섹션 자체를 생략 — "준비 중" 문구 없음. 전 개념 시드가 런치 전제 조건이 되지 않게 하는 장치.</dd>
+<dt>fail-soft</dt>
+<dd>TF Serving 실패 시 시급도 등급만 결측되고 "몰라요" 목록 기반 결과는 성립 — 런치 차단 요소 아님. 프론트는 에러가 아니라 결과 degrade로 렌더.</dd>
+<dt><code>mmt.diagnosis.enabled</code></dt>
+<dd>신규 경로 전체(<code>/diagnosis/*</code>·<code>/learning-queues/*</code>)의 피처 플래그(기본 false). 백엔드 롤백 스위치. 신규 영역 <code>mmt.diagnosis.*</code>는 ADR 기록 후 등록.</dd>
+<dt>계약 SSOT</dt>
+<dd>spec-01의 요청·응답 shape가 정본 → 프론트 TS 타입 모듈(<code>contracts.ts</code>)로 단일 참조. 드리프트는 스냅샷 테스트로 사후 감지(codegen 예방은 백로그).</dd>
+</dl>
+
+<h3>핵심 인용 — DDL·계약 (스펙 원문)</h3>
+
+<h4>신규 DDL: <code>self_report_answers</code> + <code>probabilities</code> additive <span class="ref">(spec-01 §4.4)</span></h4>
+<pre><code>CREATE TABLE self_report_answers (
+  self_report_answer_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_test_id          BIGINT  NOT NULL,   -- FK users_tests (기존 세션 재사용 — 별도 세션 테이블 신설 안 함)
+  concept_id            INT     NOT NULL,   -- FK concepts
+  known                 BOOLEAN NOT NULL,   -- 안다=true / 모른다=false
+  created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_sra_user_test FOREIGN KEY (user_test_id) REFERENCES users_tests(user_test_id),
+  CONSTRAINT fk_sra_concept   FOREIGN KEY (concept_id)   REFERENCES concepts(concept_id),
+  UNIQUE (user_test_id, concept_id)         -- 세션 내 개념당 1답 (중복 방지)
+);
+
+-- probabilities 는 골격 재사용, 세션 스코프 컬럼만 additive:
+ALTER TABLE probabilities ADD COLUMN user_test_id BIGINT NULL;  -- FK users_tests</code></pre>
+
+<h4>학습 큐 2테이블 (S5) <span class="ref">(spec-01 §4.6)</span></h4>
+<pre><code>learning_queues       (queue_id PK AUTO, user_id FK users, user_test_id FK users_tests,
+                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+learning_queue_items  (queue_item_id PK AUTO, queue_id FK, position INT,
+                       concept_id INT FK concepts, done BOOLEAN DEFAULT FALSE, done_at TIMESTAMP NULL,
+                       UNIQUE (queue_id, position))
+-- + spec-03 additive 2컬럼: learning_queue_items.source_concept_id INT NULL (U3),
+--                           learning_queues.goal_concept_id INT NULL (U6)</code></pre>
+
+<h4>링크 테이블 <code>concept_links</code> (U1) <span class="ref">(spec-03 §2.1)</span></h4>
+<pre><code>CREATE TABLE concept_links (
+  concept_link_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  concept_id      INT          NOT NULL,       -- FK concepts
+  title           VARCHAR(120) NOT NULL,       -- 노출 문구 (예: "무료 강의 (EBS)")
+  url             VARCHAR(500) NOT NULL,
+  provider        VARCHAR(50)  NOT NULL,       -- 'EBS' 등 — 노출·점검 그룹핑 키
+  display_order   INT          NOT NULL DEFAULT 0,
+  alive           BOOLEAN      NOT NULL DEFAULT TRUE,   -- R4 점검 결과 (죽은 링크 비노출)
+  last_checked_at TIMESTAMP    NULL,
+  created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_cl_concept FOREIGN KEY (concept_id) REFERENCES concepts(concept_id),
+  INDEX idx_cl_concept (concept_id)
+);</code></pre>
+
+<h4>세션 플로우 API 계약 <span class="ref">(spec-01 §4.1)</span></h4>
+<pre><code>② 진입: GET /api/v1/chapters?grade&amp;semester (기존·permitAll)     ← 스마트 default 후보
+        POST /api/v1/diagnosis/frontier {chapterId}              ← 시작 프론티어 (신규·permitAll)
+③ 문답: POST /api/v1/diagnosis/next {entry, answered[]} 반복      ← 적응형 순회 (신규·permitAll·무상태)
+④ 결과: POST /api/v1/diagnosis/preview {entry, answered[]}        ← 익명 결과 (신규·permitAll·무영속, S1)
+게이트: POST /api/v1/diagnosis {entry, answered[]} (인증)          ← 귀속 저장
+        POST /api/v1/learning-queues {userTestId} (인증)          ← 통합 학습 큐 생성 (F-4)
+재진입: GET /api/v1/learning-queues/me · PATCH …/items/{id}/done  ← 이어가기·self-mark (인증)</code></pre>
+
+<h4>결과 계약 (preview == GET /diagnosis/{userTestId}) <span class="ref">(spec-01 §4.4)</span></h4>
+<pre><code>{ headline: { totalAsked, weakCount, topConceptName },        // "총 12개 중 3개 약점, 가장 급한 건 '인수분해'"
+  cards: [ { conceptId, conceptName, level, chapter,
+             urgency: "HIGH|MID|LOW",                          // §4.5 등급 컷 (S4)
+             urgencyBasis: { blockedDescendants },             // "이걸 모르면 위로 N개가 막혀요" (S6)
+             links: [] } ],                                    // spec-03 부착 지점 (→ {title, url, provider} 최대 3)
+  more: [ …MID/LOW 카드 동일 shape… ] }                        // "더 보기" (F-4)</code></pre>
+
+<h4>큐 응답 계약 <span class="ref">(spec-03 §3.2)</span></h4>
+<pre><code>GET /api/v1/learning-queues/me
+{ queueId, userTestId, createdAt,
+  items: [ { position, conceptId, conceptName, done, doneAt,
+             links: [ {title, url, provider} ],
+             reason: "인수분해로 가는 바로 아래 계단" } ],   // U3 — 사람 언어 근거
+  current: { position, conceptId },                          // 파생값(첫 done=false, spec-01 S5)
+  goal: { conceptId, conceptName } }                         // 계단 꼭대기 = primary (U6)</code></pre>
+
+<h4>F-2 localStorage 계약 <span class="ref">(spec-02 §4.2)</span></h4>
+<pre><code>key: mmt.diagnosis.v1
+val: { entry: {chapterId | scope:"full", schoolLevel?},
+       answered: [{conceptId, known}], updatedAt }
+// answered[] = append-only (순서 보존 계약). 게이트 재제출 성공 시 삭제(정본이 서버로 이동)</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="quiz">7. 이 자료로 답할 수 있는 복습 질문</h2>
+
+<ol class="qs">
+<li>D3(시급도 = 그래프 점수)이 D3-R(DKT 유지)로 역전된 이유는 무엇이고, 그 대가로 감수한 리스크(R1)와 방어책은 무엇인가?</li>
+<li>S2에서 구 A안(<code>answers.item_id</code> NOT NULL 완화)이 기각된 구체적 메커니즘은? — <code>findBefore</code>와 items→concepts 조인 관점에서 설명하라.</li>
+<li>"preview == 귀속 결과"의 결정론이 깨질 수 있는 지점 두 가지(백엔드 재조회 순서 / 프론트 localStorage)와 각각의 방어 계약은 무엇인가? DKT가 RNN이라는 사실이 왜 여기에 관여하는가?</li>
+<li>통합 학습 큐에서 "순수 시급도순 정렬 금지"인 이유는? 시급도는 정렬에서 정확히 어떤 역할로 제한되는가?</li>
+<li>공유 선수 노드의 <code>reason</code>·<code>goal</code> 귀속 타이브레이크 규칙은 무엇이고, 왜 spec-01 §4.6 진입 우선순위를 미러해야 하는가?</li>
+<li>M7 전체 롤백 시나리오를 백엔드·프론트로 나눠 설명하라 — 왜 git revert나 재빌드가 아닌가? 이것이 T5(web-react/ 병행) 채택과 어떻게 연결되는가?</li>
+<li>"몰라요" 0개(전부 알아요) 세션과 TF Serving 장애는 각각 어떻게 처리되는가? 두 경우 모두 에러가 아닌 이유는?</li>
+<li>U6 goal이 "유일 목표"가 아니라 "primary"로 표기되는 이유는? (힌트: escape(b) 전체 훑기 → 다중 프론티어 → 큐의 그래프 형상)</li>
+</ol>
+
+<p class="meta" style="margin-top:2.5rem">생성: 2026-07-13 · 브랜치 <code>feat/m7-product-pivot</code> · 이 문서는 복습용 파생물 — 정본은 <code>docs/specs/m7/</code>·<code>docs/milestones/milestone-7-product-pivot.md</code>·<code>docs/prd/m7-prd.md</code>.</p>
+
+</main>
+</body>
+</html>

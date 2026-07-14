@@ -1,0 +1,468 @@
+================================================================================
+spec-01 검증 번들 — feat/m7-spec-01-diagnosis (작성 2026-07-13)
+목적: 별도 적대 리뷰어 세션의 실체 대조용. 전부 git·테스트·코드·데이터 실측.
+================================================================================
+
+## 0. 검증 시점·환경 (재현 조건)
+
+- HEAD = 6828faeaf2a743741252ad4fa568384e94ef423d (docs(m7): record spec-01 backend implementation status and human gates)
+- 워킹트리: 2개 항목 = ?? docs/handoff/ ?? shared/benchmark/neo4j-snapshot-20260713.json 
+  (미추적 shared/benchmark/neo4j-snapshot-20260713.json 1건뿐 — 브랜치 비포함 잔재.
+   구 스냅샷 3건(20260424/0512/0622)은 git 추적 중, 20260713 만 미커밋)
+- 브랜치는 로컬 전용 — origin(github.com/data-sy/my-math-teacher) 미푸시, upstream 없음
+- 로컬 인프라: mmt-mysql=13306, mmt-redis=16379 (override — 3306/6379 는
+  ~/high-traffic-performance-tuning 스택이 점유, 2일+ 가동 중이라 회피)
+- TF Serving(mmt-ai): 미기동·로컬 이미지 미보유 → 서빙 경로는 전부 fail-soft 로만 검증됨 (§6)
+- E2E 서버: 기존 8080 프로세스(이전 세션 기동분)를 종료하고 현 HEAD 로 재빌드·재기동 후 측정
+  (SPRING_DATASOURCE_URL=jdbc:mysql://localhost:13306/mmt, SPRING_REDIS_PORT=16379,
+   SPRING_REDIS_PASSWORD=<compose requirepass>, MMT_DIAGNOSIS_ENABLED=true)
+
+--------------------------------------------------------------------------------
+## 1. 커밋
+--------------------------------------------------------------------------------
+
+git rev-list --count main..HEAD = 43
+⚠️ main..branch 전체는 위 커밋 수(구현 9건 + M7 문서 트랙 — PRD·UX·spec 커밋이 같은
+로컬 계보에 있고 main 미머지). 사용자가 말한 "9건"은 spec-01 구현 세션 커밋만이다.
+
+[spec-01 구현 세션 9건, 최신→과거 (git log --format='%H %s' main..HEAD | head -9)]
+6828faeaf2a743741252ad4fa568384e94ef423d docs(m7): record spec-01 backend implementation status and human gates
+04180ae294a79525a86000a865d6a0e2cd6913ef fix(api): return proper 4xx on anonymous diagnosis paths and validate concept existence
+d4f314cbecfeb51bfdcb5e4f38a715e93a7e7ead feat(api): add integrated learning queue with topological ordering
+96499bd284b29f1c12ba47a69275a96392743535 feat(api): add diagnosis result contract (preview, submit, get)
+1e9194590b7b11a658293e83d5cc823f83a431bb feat(api): add self-report to DKT mapping engine (preview, submit)
+ce3e6f90e70e926966d8afdf83f8986cf6ae9414 feat(api): add adaptive diagnosis traversal endpoints (frontier, next)
+d86b0326c0276562bef4f06d1e397ec96db3a9af feat(api): add self-report diagnosis DDL (all additive)
+dafe8270ea0a6742b5955990faad8544886faaae feat(api): add mmt.diagnosis.enabled feature flag
+01bb9d54736dd404309069d1e8686150fe3c3bec docs(adr): adopt self-report to DKT mapping and register diagnosis flag namespace
+
+[전체 43건 oneline (git log --oneline main..HEAD)]
+6828fae docs(m7): record spec-01 backend implementation status and human gates
+04180ae fix(api): return proper 4xx on anonymous diagnosis paths and validate concept existence
+d4f314c feat(api): add integrated learning queue with topological ordering
+96499bd feat(api): add diagnosis result contract (preview, submit, get)
+1e91945 feat(api): add self-report to DKT mapping engine (preview, submit)
+ce3e6f9 feat(api): add adaptive diagnosis traversal endpoints (frontier, next)
+d86b032 feat(api): add self-report diagnosis DDL (all additive)
+dafe827 feat(api): add mmt.diagnosis.enabled feature flag
+01bb9d5 docs(adr): adopt self-report to DKT mapping and register diagnosis flag namespace
+cf212f3 docs(m7): add spec-01 autonomous driving handoff
+9e42eb2 docs(m7): add self-contained study summary for spec-01~03
+08f48cf docs(m7): add Step 4 implementation handoff and refresh status docs
+206415d docs: fix four stale statements across CLAUDE.md files and milestone (user-approved)
+921c770 docs(m7): finalize spec-03 sign-off, close Step 3 technical design
+d2ee0af docs(m7): mark goal as primary, add goal invariant asserts and provenance caveat
+dd6ffca docs(m7): pin shared-node attribution and goal definition in spec-03
+2b778e3 docs(m7): draft spec-03 learning path exposure and concept link curation
+35daa16 docs(m7): mark spec-02 signed off, next is spec-03
+c7786f5 docs(m7): pin rule-scope quote, SSOT detection limit, unify rollback wording
+bbfcf3e docs(m7): spec-02 review fixes - node14 precheck, image rollback semantics, contract SSOT
+0e05448 docs(m7): pin DKT sequence order as determinism precondition across spec-01/02
+c0b1fe7 docs(m7): 구 spec-01 초안 삭제 — 새 spec 자기완결화
+64a3622 docs(m7): 운영문서 리프레시 — Step 3 진행 상태 반영 (콜드스타트 복귀점)
+4fe870c docs(m7): spec-02 작성 — React MVP 스캐폴딩+크리티컬 패스 (T1~T5 사인오프 대기)
+a04ff06 docs(m7): spec-01 확정 — S3=A(R2 가드) 확정·S1/S4~S6 잠정 채택 꼬리표·리뷰 검증 3건 반영
+c30bf7c docs(m7): spec-01 S2 확정 — C안(self_report_answers 별도 테이블) 반영
+e6deb0b docs(m7): spec-01 재작성 — self-report→DKT 매핑·적응형 문답·추천 로직 (S1~S6 사인오프 대기)
+541e834 docs(m7): PRD 사인오프 완료 표기 + CLAUDE.md 현재 활성 작업 M7 반영 (사용자 승인)
+e0dfd66 docs(m7): 운영문서 리프레시 — Step 2 UX 설계 완료 반영, 다음=Step 3 spec-01~03 (콜드스타트 복귀점)
+cf35341 docs(m7): UX 입력 아티팩트 — IA/유저 플로우 맵 + ③ 문답 시안 A/B/C 비교(A 채택)
+58fda12 docs(m7): ⑤ 로그인/에러 와이어프레임 — 게이트 보상 리마인드·OAuth 3사 동급·학생 친화 에러 (F-1)
+e625ff9 docs(m7): ⑥ 그래프 탐색 와이어프레임 — 상시 그래프·탭 바텀시트(호버 0)·상시 진단 CTA (F-4)
+3f48494 docs(m7): ④ 결과 와이어프레임 — 무료 존 카드+단일 1차 CTA / 게이트 뒤 학습 큐·이어서 (F-1·F-4)
+2379c5f docs(m7): ③ 문답 와이어프레임 확정본 — 시안 A·D5 예시·skip 토스트·재개 시트 (F-2)
+3d0e0a3 docs(m7): ② 영역 진입 와이어프레임 — 스마트 default·계단순 pick-list·escape 두 갈래 (F-3)
+3e2d14f docs(m7): ① 홈 와이어프레임 — 단독 1차 CTA·히어로 그래프 미끼·조용한 둘러보기 (F-4)
+a9905d0 docs(m7): Step 2 UX 설계 프롬프트 — 모바일 와이어프레임 생산
+bb38182 docs(m7): PRD 초안 작성 + 유저플로우/CTA 점검 반영 (Step 1 기획)
+0ce1757 docs(m7): PRD 유저플로우/CTA 대화 점검 프롬프트
+c659566 docs(m7): 착수 프로세스 확정(기획→UX설계→spec→구현) + 구 spec-01 DEPRECATED
+4d77228 docs(m7): 피벗 재조정 반영 — DKT 유지·self-report 정오답 매핑·React MVP·학습경로+링크
+7328864 docs(m7): spec-01 진단 엔진 설계 초안 — self-report + 그래프 적응형 문답 + 그래프 시급도
+985793b docs(m7): 제품 피벗 설계 초안 — 자가진단(self-report)·React 모바일 리디자인
+
+[git diff --stat 요약 (마지막 줄)]
+ 67 files changed, 5880 insertions(+), 7 deletions(-)
+
+--------------------------------------------------------------------------------
+## 2. 파일 지문 — diff 적용 후 현재 상태 (md5 · 바이트 · 경로)
+--------------------------------------------------------------------------------
+재현: git diff --name-only main...feat/m7-spec-01-diagnosis \
+      | while read f; do printf "%s  %s  %s\n" "$(md5 -q "$f")" "$(wc -c < "$f" | tr -d ' ')" "$f"; done
+
+4bc35a9dd74073f6d31dc20ef58c464e  4594  CLAUDE.md
+a0337612d00063b5d5232208bb42070e  58569  ROADMAP.md
+b06c032d0ecb82d070de9ce3bcf9c31c  7556  api/CLAUDE.md
+6bee054d5cf891a4574bf768895e8a5e  6381  api/sql/create.sql
+d7481b480b4b8c3d1f9e47dd0acfda07  7965  api/src/main/java/com/mmt/api/config/SecurityConfig.java
+8c7dbe31061cda67df9f6adb2f38def0  3972  api/src/main/java/com/mmt/api/controller/DiagnosisController.java
+130dd8e7b565a1060415cf6e07b39b64  2334  api/src/main/java/com/mmt/api/controller/LearningQueueController.java
+a36df3950f0d644700222fced86f06f2  1404  api/src/main/java/com/mmt/api/domain/diagnosis/LearningQueue.java
+5550a439a7917e5b85c3aecedc3c7dd9  1726  api/src/main/java/com/mmt/api/domain/diagnosis/LearningQueueItem.java
+4dac0ac49ac704a9a76be0adf8c0d17c  2130  api/src/main/java/com/mmt/api/domain/diagnosis/SelfReportAnswer.java
+78cfa360bba113ca67485e7b288c1b0b  477  api/src/main/java/com/mmt/api/dto/diagnosis/AnsweredConcept.java
+769a2918374446a8e2f8fce00ec1a874  425  api/src/main/java/com/mmt/api/dto/diagnosis/DiagnosisEntry.java
+467a26550d2a2fd6724028888cf73a72  563  api/src/main/java/com/mmt/api/dto/diagnosis/DiagnosisFrontierResponse.java
+a667b7594a7f73ce55cbb099663c3504  203  api/src/main/java/com/mmt/api/dto/diagnosis/DiagnosisNextRequest.java
+c2d1b3e359b1493cbdb930b70ed8becd  919  api/src/main/java/com/mmt/api/dto/diagnosis/DiagnosisNextResponse.java
+006c948e10a90854a7b214da677315a3  1916  api/src/main/java/com/mmt/api/dto/diagnosis/DiagnosisResultResponse.java
+3ee6503b93e56b1f499d477e4f9fd9df  283  api/src/main/java/com/mmt/api/dto/diagnosis/DiagnosisSubmitResponse.java
+19defafdae9eae7531f590b69ed917b2  724  api/src/main/java/com/mmt/api/dto/diagnosis/LearningQueueResponse.java
+a621ef88c26797d65dca017f27b1b45f  904  api/src/main/java/com/mmt/api/exception/DiagnosisException.java
+9a022ff767900cdf09e16d41b2f3fa97  2234  api/src/main/java/com/mmt/api/exception/GlobalExceptionHandler.java
+eebb83896a7848d7ce7b1b1359b27cc6  472  api/src/main/java/com/mmt/api/repository/Probability/DiagnosisProbabilityRow.java
+2774b800921a5042336e700ad2904fe1  6357  api/src/main/java/com/mmt/api/repository/Probability/JdbcTemplateProbabilityRepository.java
+e0cc3425949f0419dfbc2ce592a1fff3  1015  api/src/main/java/com/mmt/api/repository/Probability/ProbabilityRepository.java
+4e939a157dfb3eb2a9324a1da52b4a9e  262  api/src/main/java/com/mmt/api/repository/concept/ConceptCardMeta.java
+61f5db92ce1383450c33aa3dcdce6665  275  api/src/main/java/com/mmt/api/repository/concept/ConceptSummary.java
+2a7fec8c5b0357b56a21b279f473d5f6  16605  api/src/main/java/com/mmt/api/repository/concept/JdbcTemplateConceptRepository.java
+d372f21495fff5b8b5a36f118cebe955  322  api/src/main/java/com/mmt/api/repository/concept/KnowledgeEdge.java
+734643c49644dd4b858ffe08011723c1  478  api/src/main/java/com/mmt/api/repository/diagnosis/LearningQueueItemRepository.java
+1463e904f9599d856ba7acec8d01c985  442  api/src/main/java/com/mmt/api/repository/diagnosis/LearningQueueRepository.java
+e6827fadc69b1a9403aff47137b41f88  580  api/src/main/java/com/mmt/api/repository/diagnosis/SelfReportAnswerRepository.java
+bcda11cc5ae00cf721762557dfe82f87  5411  api/src/main/java/com/mmt/api/repository/userTest/JdbcTemplateUserTestRepository.java
+0fc1635f8e0b6ffbfece56d50e92dfed  690  api/src/main/java/com/mmt/api/repository/userTest/UserTestRepository.java
+26dfe143cdc9400e5544d2600913e6cb  15414  api/src/main/java/com/mmt/api/service/DiagnosisAnalysisService.java
+76f705cd006c3d2a15f1171a444e3069  3162  api/src/main/java/com/mmt/api/service/DiagnosisDktClient.java
+8e42002af5c6f30cabee383484224624  1782  api/src/main/java/com/mmt/api/service/DiagnosisRateLimiter.java
+37f9694ace9626f77e8e8fda233212c0  4425  api/src/main/java/com/mmt/api/service/DiagnosisResultAssembler.java
+46c6e031fe462216fb4b2ac8ee869887  7418  api/src/main/java/com/mmt/api/service/DiagnosisService.java
+95c6912dcfa9ffc6d4cacbc3c5044c2b  11536  api/src/main/java/com/mmt/api/service/LearningQueueService.java
+4239d4265bac736109d3d21c4288093f  4071  api/src/main/java/com/mmt/api/util/RedisUtil.java
+a36e8e4c45b3e5cc3a07df999bcd81c1  2907  api/src/main/resources/application.yml
+bd2628d67526b400db0dc7a43bd43943  3790  api/src/test/java/com/mmt/api/repository/diagnosis/DiagnosisJpaEntitiesTest.java
+6f01cd52df318d9bb5c9ff31d2977feb  10674  api/src/test/java/com/mmt/api/service/DiagnosisAnalysisServiceTest.java
+1421547f4ded6da1a92b67e5d65facf0  5630  api/src/test/java/com/mmt/api/service/DiagnosisOldPathNoTouchTest.java
+4722b1c5b86db33f8869054ab8f72070  1752  api/src/test/java/com/mmt/api/service/DiagnosisRateLimiterTest.java
+9869b16960c7ec0f480d6c101fa00ab3  5827  api/src/test/java/com/mmt/api/service/DiagnosisResultAssemblerTest.java
+424405230426f595a55c13849fd49532  6533  api/src/test/java/com/mmt/api/service/DiagnosisServiceTraversalTest.java
+636fcb7fd9a2621dfd035c34949f9a00  5211  api/src/test/java/com/mmt/api/service/LearningQueueTopologyTest.java
+948fc54fab982ab73fd3f9797aec6a39  6836  docs/adr/0010-self-report-dkt-mapping-and-diagnosis-flag-namespace.md
+98f4041273e76bc167972328a2560b65  8473  docs/design/m7-01-home.html
+920ae5973cdb60b1525721a00601e79a  8724  docs/design/m7-02-entry.html
+8662ccc12fc88a54cf839153f2077238  12818  docs/design/m7-03-quiz-variants.html
+182642f5f9a70bb6094c525079ff1268  8917  docs/design/m7-03-quiz.html
+179536b09f79d6ce37c13be09c3e22d8  15967  docs/design/m7-04-result.html
+9272bc5b6567eab65174b1f905678bd5  8957  docs/design/m7-05-auth.html
+afb1fe7fcf1d7c9194441329aecaf7c0  8554  docs/design/m7-06-graph.html
+8f48fefef8f716eb45b83f8c71470fff  13622  docs/design/m7-flow-map.html
+42762ec2a45524515cede30d3428b413  6602  docs/design/m7-ux-design-prompt.md
+9dab9722df864cf910c899d082e6eb63  5138  docs/milestones/m7-spec01-autonomous-handoff.md
+e3931c3a8f8abd75d2e0294bc5519901  4768  docs/milestones/m7-step4-handoff.md
+a2a8d0872ae20e674faac111f63ad390  17001  docs/milestones/milestone-7-product-pivot.md
+fd353acba5b579121cedfb8d242e5dc8  5907  docs/prd/m7-prd-flow-review-prompt.md
+5a00e495b1e87e8ea8d78bebcfc11d0a  19799  docs/prd/m7-prd.md
+b96950a4a5114cd477a62ddaf9f7095d  46001  docs/specs/m7/m7-design-spec01-03.html
+3736be3090bb4ca86ed0d308cd3e9245  29578  docs/specs/m7/spec-01-diagnosis-self-report-dkt.md
+7c1f08a37c289ec8deacf01c455827fd  19592  docs/specs/m7/spec-02-react-mvp.md
+8baa9a46185dc261861f56ce6cf4d467  16072  docs/specs/m7/spec-03-learning-path-links.md
+df0439d98e51db6120a5d6087f309738  3645  web/CLAUDE.md
+
+--------------------------------------------------------------------------------
+## 3. 스펙 이탈 3건 매핑 (커밋 → 파일:라인 → 무엇을 어떻게)
+--------------------------------------------------------------------------------
+
+### 이탈 ① depth-10 CTE → 앱 계층 BFS (spec-01 §4.3-3 대비)
+
+- 스펙 원문: "알아요" 선수 폐쇄 마킹에 `findPrerequisitesWithDepth(C, 10)` 재사용 + graph:v2: 캐시 적중.
+- 구현: ce3e6f9 — knowledge_space 전체 간선 1회 로드 + visited-set BFS. Redis 캐시 미경유(요청당 직로드).
+  - api/src/main/java/com/mmt/api/service/DiagnosisService.java:33-37 (이탈 사유 주석),
+    :62-71 (findAllEdges→인접리스트→BFS 호출), :133-158 (buildPrerequisiteAdjacency·bfsCollect)
+  - api/src/main/java/com/mmt/api/repository/concept/JdbcTemplateConceptRepository.java:217-231 (findAllEdges + 사유 주석)
+- 근거 실측 (본 세션 재현, 로컬 MySQL 8 / mmt DB):
+  - 간선 3,446행 (NULL 간선 0행), 개념 1,631
+  - 선수 폐쇄 최대 깊이 = 22 (개념 5294에서 실측 — 간선 전량 덤프 후 BFS)
+  - 폐쇄 깊이 ≥10 인 개념 = 417/1,631 → depth-10 CTE 는 사이클과 무관하게도 이 417개에서 절단/충돌
+  - ERROR 3636 재현: SET SESSION cte_max_recursion_depth=10 (앱과 동일 — application.yml:17
+    HikariCP connection-init-sql) 후 findPrerequisitesWithDepth 의 SQL 을 maxDepth=10 으로 실행 →
+    "ERROR 3636 (HY000): Recursive query aborted after 11 iterations. Try increasing
+    @@cte_max_recursion_depth to a larger value." (개념 605 — 상호선수 2-사이클 멤버)
+  - 상호선수 2-사이클 26쌍(간선 52)은 depth 상한 없인 CTE 무한 증식 요인, visited-set BFS 는 면역
+- 참고: §4.4 취약 확장·§4.5 역방향 blockedDescendants 는 여전히 CTE(depth 3 ≤ 10 안전) — 이탈은 §4.3-3 폐쇄 계산만.
+
+[git show ce3e6f9 커밋 메시지 (해당 이탈 명시)]
+ce3e6f90e70e926966d8afdf83f8986cf6ae9414
+feat(api): add adaptive diagnosis traversal endpoints (frontier, next)
+
+- POST /api/v1/diagnosis/frontier·/next — 서버 주도 stateless 순회 (spec-01 §4.2~4.3, D1-A)
+- '알아요' 선수 폐쇄는 depth 10 CTE 대신 전체 간선 로드 + visited-set BFS —
+  실그래프 폐쇄 깊이 22 가 cte_max_recursion_depth=10 과 충돌(ERROR 3636 실측) 하기 때문
+- 중복 conceptId 400 은 preview·귀속 대칭 계약 (design-review Caution#2 흡수)
+- 그래프 조회는 CTE 마이그레이션 플래그와 무관하게 MySQL 직행 (ADR-0010 Decision-3)
+- DiagnosisController 는 mmt.diagnosis.enabled 게이트(@ConditionalOnProperty), off=404
+- SecurityConfig permitAll: frontier·next 2개 정확 매칭 추가 (귀속 경로는 인증 유지)
+- 단위 테스트 7종: 결정론(간선 셔플 불변)·skip·drill-down·중복 400·사이클 종료
+
+[git show ce3e6f9 — findAllEdges 신설 hunk 발췌]
++    public List<KnowledgeEdge> findAllEdges() {
++        String sql = "SELECT from_concept_id, to_concept_id FROM knowledge_space " +
++                "WHERE from_concept_id IS NOT NULL AND to_concept_id IS NOT NULL";
++        return jdbcTemplate.query(sql, (rs, rowNum) ->
++                new KnowledgeEdge(rs.getInt("from_concept_id"), rs.getInt("to_concept_id")));
++    }
+
+### 이탈 ② 중복·미존재 conceptId — preview·귀속 양경로 400 통일 (스펙 무규정 → 계약 확장)
+
+- 스펙엔 에러 동작 규정이 없었음. 구현은 "결정론 계약을 에러 동작까지 확장"으로 400 대칭 통일:
+  - 중복 conceptId 400: ce3e6f9 — DiagnosisService.toValidatedAnsweredMap
+    (현 HEAD 기준 api/src/main/java/com/mmt/api/service/DiagnosisService.java:107-116;
+    ce3e6f9 시점엔 ResponseStatusException, 04180ae 에서 DiagnosisException 으로 교체 — 이탈 ③ 연동)
+  - 미존재 conceptId 400: 04180ae — DiagnosisAnalysisService.validateAnswers 신설
+    (api/src/main/java/com/mmt/api/service/DiagnosisAnalysisService.java:103-117) +
+    JdbcTemplateConceptRepository.findExistingConceptIds (:314-326).
+    비대칭 제거: preview 는 미존재 id 를 조용히 무시 / 귀속은 FK 위반 500 이던 것을 양쪽 400 으로.
+- 라이브 실측(§4 E2E): preview-dup=400, preview-missing=400, submit-dup=400, submit-missing=400 전부 재현.
+
+[git show 04180ae — validateAnswers 신설 hunk]
+@@ -91,10 +91,31 @@ public class DiagnosisAnalysisService {
+     @Transactional(readOnly = true)
+     public DiagnosisComputation preview(List<AnsweredConcept> answered) {
+         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
+-        diagnosisService.toValidatedAnsweredMap(answers); // 중복 400 — 귀속과 대칭
++        validateAnswers(answers); // 중복·미존재 400 — 귀속과 대칭
+         return compute(answers);
+     }
+ 
++    /**
++     * preview·귀속 공통 사전 검증 — 결정론 계약을 에러 동작까지 확장:
++     * 중복 conceptId(귀속만 UNIQUE 500 방지) + 미존재 conceptId(귀속만 FK 500,
++     * preview 는 조용히 무시되는 비대칭 방지 — 2026-07-13 E2E 스모크 발견).
++     */
++    private void validateAnswers(List<AnsweredConcept> answers) {
++        Map<Integer, Boolean> answeredMap = diagnosisService.toValidatedAnsweredMap(answers);
++        if (answeredMap.isEmpty()) {
++            return;
++        }
++        Set<Integer> existing = conceptRepository.findExistingConceptIds(answeredMap.keySet());
++        List<Integer> missing = answeredMap.keySet().stream()
++                .filter(id -> !existing.contains(id))
++                .collect(Collectors.toList());
++        if (!missing.isEmpty()) {
++            throw new com.mmt.api.exception.DiagnosisException(
++                    org.springframework.http.HttpStatus.BAD_REQUEST,
++                    "존재하지 않는 conceptId: " + missing);
++        }
++    }
++
+     /** 익명 preview 결과 계약 (§4.4) — 무영속. */
+     @Transactional(readOnly = true)
+     public com.mmt.api.dto.diagnosis.DiagnosisResultResponse previewResult(List<AnsweredConcept> answered) {
+@@ -166,7 +187,7 @@ public class DiagnosisAnalysisService {
+         Long userId = usersRepository.findUserIdByUserEmail(userEmail)
+                 .orElseThrow(() -> new AccessDeniedException("인증 정보를 확인할 수 없습니다."));
+         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
+-        diagnosisService.toValidatedAnsweredMap(answers); // 중복 400 — preview 와 대칭 (UNIQUE 500 방지)
++        validateAnswers(answers); // 중복·미존재 400 — preview 와 대칭 (UNIQUE·FK 500 방지)
+ 
+
+### 이탈 ③ 익명 4xx 의 401 마스킹 우회 (신규 경로 한정 전용 예외)
+
+- 발견: ResponseStatusException 은 전용 핸들러가 없어 /error 디스패치를 타는데, /error 가
+  permitAll 이 아니라 익명(permitAll 엔드포인트) 요청의 400·429 가 전부 401 로 마스킹됨.
+- 구현: 04180ae — DiagnosisException(HttpStatus 보유) 신설 + GlobalExceptionHandler 에
+  @ExceptionHandler(DiagnosisException.class) 직접 응답. 구 경로 응답 shape 무변경(신규 타입만 처리).
+  - api/src/main/java/com/mmt/api/exception/DiagnosisException.java (신규 24줄, 사유 주석 포함)
+  - api/src/main/java/com/mmt/api/exception/GlobalExceptionHandler.java:38-45 (+8줄)
+- 주의: 구 경로의 동일 마스킹(예: 소유권 AccessDeniedException → 401)은 무변경 보존 —
+  residual ④가 이것 (본 세션 실측: 타 계정 GET /diagnosis/{utid} = 401 빈 바디).
+
+[git show 04180ae — 예외 2파일 diff 전문]
+diff --git a/api/src/main/java/com/mmt/api/exception/DiagnosisException.java b/api/src/main/java/com/mmt/api/exception/DiagnosisException.java
+new file mode 100644
+index 0000000..baa787e
+--- /dev/null
++++ b/api/src/main/java/com/mmt/api/exception/DiagnosisException.java
+@@ -0,0 +1,24 @@
++package com.mmt.api.exception;
++
++import org.springframework.http.HttpStatus;
++
++/**
++ * M7 spec-01 자가진단 경로 전용 예외. ResponseStatusException 은 핸들러가 없어
++ * /error 디스패치를 타는데, /error 가 permitAll 이 아니라 익명 요청(permitAll
++ * 엔드포인트)의 4xx 가 전부 401 로 마스킹된다 — 익명 preview/next 의 400·429 가
++ * 학생에게 401 로 보이면 게이트 UX(F-1)가 깨지므로 전용 타입 + 직접 핸들러로 우회.
++ * (구 경로의 동일 마스킹은 무변경 보존 대상이라 손대지 않음 — 완성물 리뷰에 보고.)
++ */
++public class DiagnosisException extends RuntimeException {
++
++    private final HttpStatus status;
++
++    public DiagnosisException(HttpStatus status, String message) {
++        super(message);
++        this.status = status;
++    }
++
++    public HttpStatus getStatus() {
++        return status;
++    }
++}
+diff --git a/api/src/main/java/com/mmt/api/exception/GlobalExceptionHandler.java b/api/src/main/java/com/mmt/api/exception/GlobalExceptionHandler.java
+index 9232821..392b07d 100644
+--- a/api/src/main/java/com/mmt/api/exception/GlobalExceptionHandler.java
++++ b/api/src/main/java/com/mmt/api/exception/GlobalExceptionHandler.java
+@@ -35,4 +35,12 @@ public class GlobalExceptionHandler {
+         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+     }
+ 
++    // M7 spec-01: 자가진단 경로 전용 — ResponseStatusException 은 /error 디스패치를 타
++    // 익명(permitAll) 요청의 4xx 가 401 로 마스킹되므로 전용 타입을 직접 응답으로 처리
++    // (구 경로 응답 shape 무변경 — 이 핸들러는 DiagnosisException 만 잡는다)
++    @ExceptionHandler(DiagnosisException.class)
++    public ResponseEntity<String> handleDiagnosisException(DiagnosisException ex) {
++        return ResponseEntity.status(ex.getStatus()).body(ex.getMessage());
++    }
++
+ }
+
+--------------------------------------------------------------------------------
+## 4. 테스트 증거
+--------------------------------------------------------------------------------
+
+### 4.1 전체 스위트 164 green — 2단 재현 (2026-07-13 본 세션)
+
+1단: cd api && ./gradlew test          (Docker 필요 — Testcontainers)
+  → "164 tests completed, 7 failed" / 실패 = com.mmt.api.util.RedisUtilTest 6건 +
+    com.mmt.api.ApiApplicationTests 1건 (전부 로컬 3306/6379 포트 점유 기인 — 코드 무관,
+    CLAUDE.local.md 에 문서화된 기지 사항)
+2단: SPRING_DATASOURCE_URL='jdbc:mysql://localhost:13306/mmt' SPRING_REDIS_PORT=16379 \
+     SPRING_REDIS_PASSWORD=<compose requirepass> \
+     ./gradlew test --tests "RedisUtilTest" --tests "ApiApplicationTests"
+  → BUILD SUCCESSFUL (7/7 green)
+합계: 164/164 green (env 오버라이드를 전체 스위트에 걸면 test 프로파일 누수로 오히려 깨짐 — 2단이 정본 절차)
+
+### 4.2 신규 진단 테스트 32건 내역 (본 세션 단독 재실행, 전부 green)
+
+com.mmt.api.repository.diagnosis.DiagnosisJpaEntitiesTest      3
+com.mmt.api.service.DiagnosisAnalysisServiceTest               8
+com.mmt.api.service.DiagnosisOldPathNoTouchTest                2  (구 경로 무접촉 감시)
+com.mmt.api.service.DiagnosisRateLimiterTest                   1
+com.mmt.api.service.DiagnosisResultAssemblerTest               6
+com.mmt.api.service.DiagnosisServiceTraversalTest              7  (결정론=간선 셔플 불변 포함)
+com.mmt.api.service.LearningQueueTopologyTest                  5  (위상 불변식·사이클 degrade)
+
+### 4.3 라이브 E2E (현 HEAD 재빌드 서버, TF Serving 부재 = fail-soft 경로)
+
+판정 요약 (전체 요청/응답 로그는 temp.md 부록 C / scratchpad e2e_log.txt):
+  next 결정론 (동일 입력 2회)                        : True
+  preview == submit.result (전체 JSON, 정렬 비교)     : True   (userTestId=90007)
+  preview == GET /diagnosis/90007                    : True
+  중복/미존재 conceptId — preview·귀속 4경로          : 전부 400
+  익명 submit                                        : 401 (인증 게이트 — 의도된 거부)
+  학습 큐: size=14, 계단 불변식(선수 pos < 후수 pos) 위반: 0
+  /learning-queues/me = 최신 queueId                 : True (확정 ② 활성 큐=최신 동작 확인)
+  PATCH done → 파생 현재위치 1→2 이동                : True
+  소유권 위반(타 계정 GET)                            : 401 ← residual ④ 현재값 실측
+  preview rate limit                                 : 윈도우 내 11번째 호출에서 429 (상한 10 정확)
+  fail-soft: urgencyAvailable=false, cards[].urgency=null, probabilityPercent=null
+
+DB 영속 검증 (userTestId=90007):
+  self_report_answers 8행 (입력 순서 = self_report_answer_id ASC)
+  probabilities 42행 — answer_id 전부 NULL, user_test_id=90007, probability_percent 전부 NULL
+  (= 세션 스코프 기록 + 서빙 실패 시 percent 결측의 실물 증거)
+
+--------------------------------------------------------------------------------
+## 5. DDL additive 증명
+--------------------------------------------------------------------------------
+
+git diff --numstat main...HEAD -- api/sql/create.sql  →  "47  0  api/sql/create.sql"
+(추가 47줄 / 삭제 0줄 — 기존 스키마 서술 무변경. 변경 diff 전문:)
+
+diff --git a/api/sql/create.sql b/api/sql/create.sql
+index f7916f9..a21cb13 100644
+--- a/api/sql/create.sql
++++ b/api/sql/create.sql
+@@ -157,3 +157,50 @@ CREATE TABLE probabilities (
+ 	FOREIGN KEY (answer_id) REFERENCES answers (answer_id),
+ 	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id)
+ );
++
++-- ============================================================
++-- M7 spec-01: 자가진단(self-report→DKT) — 전부 additive (ADR-0010)
++-- 롤백: mmt.diagnosis.enabled=false. 구 경로 미참조라 방치 가능, 필요 시 DROP.
++-- ============================================================
++
++-- 자가진단 답안 테이블 (구 answers 무접촉 — S2=C)
++CREATE TABLE self_report_answers (
++	self_report_answer_id BIGINT auto_increment,
++	user_test_id BIGINT NOT NULL,
++	concept_id INT NOT NULL,
++	known BOOLEAN NOT NULL,  -- 안다=true / 모른다=false (정오답 변환은 DKT 시퀀스 생성 시)
++	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
++	PRIMARY KEY (self_report_answer_id),
++	FOREIGN KEY (user_test_id) REFERENCES users_tests (user_test_id),
++	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),
++	UNIQUE KEY uk_sra_session_concept (user_test_id, concept_id)  -- 세션 내 개념당 1답
++);
++
++-- probabilities 세션 스코프 컬럼 (신규 경로 전용 — 구 경로는 answer_id 로 무변경)
++ALTER TABLE probabilities ADD COLUMN user_test_id BIGINT NULL;
++ALTER TABLE probabilities ADD CONSTRAINT fk_prob_user_test FOREIGN KEY (user_test_id) REFERENCES users_tests (user_test_id);
++ALTER TABLE probabilities ADD INDEX idx_prob_user_test (user_test_id);
++
++-- 통합 학습 큐 (S5: 현재 위치 = 파생값, 포인터 컬럼 없음)
++CREATE TABLE learning_queues (
++	queue_id BIGINT auto_increment,
++	user_id BIGINT NOT NULL,
++	user_test_id BIGINT NOT NULL,
++	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
++	PRIMARY KEY (queue_id),
++	FOREIGN KEY (user_id) REFERENCES users (user_id),
++	FOREIGN KEY (user_test_id) REFERENCES users_tests (user_test_id)
++);
++
++CREATE TABLE learning_queue_items (
++	queue_item_id BIGINT auto_increment,
++	queue_id BIGINT NOT NULL,
++	position INT NOT NULL,
++	concept_id INT NOT NULL,
++	done BOOLEAN NOT NULL DEFAULT FALSE,
++	done_at TIMESTAMP NULL,
++	PRIMARY KEY (queue_item_id),
++	FOREIGN KEY (queue_id) REFERENCES learning_queues (queue_id),
++	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),
++	UNIQUE KEY uk_lqi_queue_position (queue_id, position)
++);
+
+내역: 신규 테이블 3 (self_report_answers, learning_queues, learning_queue_items) +
+probabilities 에 ALTER ADD 3건(컬럼 user_test_id NULL·FK·인덱스 — 전부 ADD, DROP/MODIFY 없음).
+구 answers·tests_items·items·probabilities 기존 컬럼·채점 스키마 무변경.
+구 경로 격리: 구 findResults/findProbability 는 answer_id 경유 → answer_id NULL 인 신규 행 미노출
+(ADR-0010 분석 요약 §구 경로 구조적 격리 증명 + DiagnosisOldPathNoTouchTest 2건이 감시).
+롤백 = mmt.diagnosis.enabled=false (+ 필요 시 신규 테이블 DROP — 구 경로 미참조라 방치 가능).
+
+--------------------------------------------------------------------------------
+## 6. 미검증 못박기 — "164 green ≠ 전부 검증"
+--------------------------------------------------------------------------------
+
+1. R2 실측 4시나리오(1답만/전부 알아요/전부 몰라요/혼합) = 미완. 실 TF Serving 응답 필요 —
+   로컬 서빙 미기동(mmt-ai 이미지 미보유). 사람 게이트로 명시 이월된 상태 그대로다.
+2. 따라서 본 번들의 모든 라이브 검증은 fail-soft 경로(urgencyAvailable=false)만 커버한다:
+   - DKT 확률이 실제로 채워지는 경로(percentByConcept 채움, urgency HIGH/MID/LOW 산출,
+     S4 컷 40/65 실동작, top-N 바닥3/캡5 의 실데이터 분기)는 **단위 테스트(mock 예측벡터)로만** 검증됨.
+   - 가드 3종 중 "null 응답" 가드만 라이브로 발화했고(서빙 부재), "미매핑 skill_id"는 현 데이터에
+     NULL skill_id 개념 0개라 휴면(실측), "범위 초과"는 mock 테스트만.
+3. S4 컷(40/65)은 구 채점 입력 분포 선례 승계 출발값 — self-report ×10 증폭 입력의 percent 분포
+   실측(R2) 전까지 보정 불가. R2 가 컷 상수를 바꿀 수 있음(코드 구조는 불변 전망).
+4. preview==귀속 동치(True)도 fail-soft 상태에서의 동치다 — 서빙 활성 상태의 동치는
+   R2 실측과 함께 재확인 필요(동일 코드 경로라 성립 전망이나 실측은 아님).
+5. 성능 미검증: /next 가 요청당 간선 3,446행 직로드(무캐시) — 유저 0명 규모에선 무해하나 부하 실측 없음.
+
+--------------------------------------------------------------------------------
+## 7. 데이터 실측 부록 (그래프 수치 — 본 세션 재측정, 로컬 mmt DB)
+--------------------------------------------------------------------------------
+
+- knowledge_space 간선: 3,446 (NULL 간선 0) / 개념: 1,631 / concepts.skill_id NULL: 0
+- 상호선수 2-사이클: 26쌍 = 간선 52, 관여 개념 43 (쌍 목록·개념명은 temp.md 부록 D)
+- 선수 폐쇄 최대 깊이: 22 (개념 5294) / 폐쇄 깊이 ≥10 개념: 417/1,631
+- 폐쇄에 사이클 멤버 포함 개념: 816/1,631
+- depth≤3 확장에 2-사이클 페어가 통째로 들어오는 개념: 302/1,631 (18.5%)
+  → 학습 큐 위상정렬 degrade(간선 drop) 발동 가능 범위
+- ERROR 3636 재현 커맨드: docker exec <mmt-mysql> mysql mmt 에서
+  SET SESSION cte_max_recursion_depth=10; + findPrerequisitesWithDepth SQL(maxDepth=10, 개념 605)
+  → "Recursive query aborted after 11 iterations"
+
+================================================================================
+번들 끝. 대조 절차: ① 이 파일의 지문 표 vs 리뷰어가 checkout 후 직접 md5 재계산
+② 이탈 3건 = temp.md 부록 실물 파일과 git show 발췌 대조 ③ 테스트는 §4.1 커맨드 재현.
+================================================================================

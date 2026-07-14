@@ -181,4 +181,149 @@ public class JdbcTemplateConceptRepository {
             return concept;
         };
     }
+
+    // ===== M7 spec-01 자가진단 (ADR-0010) — 이하 신규 경로 전용, 구 경로 무접촉 =====
+
+    /**
+     * 시작 프론티어(spec-01 §4.2): 단원 내 후수-최상위 개념 — 같은 단원의 다른 개념이
+     * 자기를 선수로 요구하지 않는 개념. ORDER BY concept_id = 결정론 계약의 일부.
+     */
+    public List<ConceptSummary> findFrontierByChapterId(int chapterId) {
+        String sql = """
+            SELECT c.concept_id, c.concept_name, c.concept_description FROM concepts c
+            WHERE c.concept_chapter_id = ?
+              AND NOT EXISTS (SELECT 1 FROM knowledge_space ks
+                              JOIN concepts c2 ON c2.concept_id = ks.from_concept_id
+                              WHERE ks.to_concept_id = c.concept_id
+                                AND c2.concept_chapter_id = c.concept_chapter_id)
+            ORDER BY c.concept_id
+            """;
+        return jdbcTemplate.query(sql, conceptSummaryRowMapper(), chapterId);
+    }
+
+    /**
+     * 전체 훑기 escape(spec-01 §4.2-b): 학교급 전 단원 프론티어 합집합.
+     */
+    public List<ConceptSummary> findFrontierBySchoolLevel(String schoolLevel) {
+        String sql = """
+            SELECT c.concept_id, c.concept_name, c.concept_description FROM concepts c
+            JOIN chapters ch ON ch.chapter_id = c.concept_chapter_id
+            WHERE ch.school_level = ?
+              AND NOT EXISTS (SELECT 1 FROM knowledge_space ks
+                              JOIN concepts c2 ON c2.concept_id = ks.from_concept_id
+                              WHERE ks.to_concept_id = c.concept_id
+                                AND c2.concept_chapter_id = c.concept_chapter_id)
+            ORDER BY c.concept_id
+            """;
+        return jdbcTemplate.query(sql, conceptSummaryRowMapper(), schoolLevel);
+    }
+
+    /**
+     * knowledge_space 전체 간선(from=후수, to=선수). 신규 진단 경로의 앱 계층 BFS 용 —
+     * depth 10 CTE 는 세션 cte_max_recursion_depth=10 과 경계 충돌(ERROR 3636 실측,
+     * 실그래프 폐쇄 깊이 22)이라 선수 폐쇄 전체는 visited-set BFS 로 계산한다.
+     */
+    public List<KnowledgeEdge> findAllEdges() {
+        String sql = "SELECT from_concept_id, to_concept_id FROM knowledge_space " +
+                "WHERE from_concept_id IS NOT NULL AND to_concept_id IS NOT NULL";
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new KnowledgeEdge(rs.getInt("from_concept_id"), rs.getInt("to_concept_id")));
+    }
+
+    public java.util.Optional<ConceptSummary> findConceptSummaryById(int conceptId) {
+        String sql = "SELECT concept_id, concept_name, concept_description FROM concepts WHERE concept_id = ?";
+        try {
+            return java.util.Optional.ofNullable(
+                    jdbcTemplate.queryForObject(sql, conceptSummaryRowMapper(), conceptId));
+        } catch (EmptyResultDataAccessException e) {
+            return java.util.Optional.empty();
+        }
+    }
+
+    /**
+     * blockedDescendants (spec-01 §4.5, S6): 역방향 재귀 CTE — "이 개념을 모르면 위로
+     * 몇 개가 막히는가". findPrerequisitesWithDepth 의 미러 (to→from 방향), transitive
+     * distinct count, 자기 자신 제외. depth 3 은 cte_max_recursion_depth=10 내 안전.
+     */
+    public int countBlockedDescendants(int conceptId, int maxDepth) {
+        String sql = """
+            WITH RECURSIVE blocked_path AS (
+                SELECT concept_id, 0 AS depth
+                FROM concepts WHERE concept_id = ?
+
+                UNION ALL
+
+                SELECT c.concept_id, bp.depth + 1
+                FROM blocked_path bp
+                JOIN knowledge_space ks ON bp.concept_id = ks.to_concept_id
+                JOIN concepts c           ON ks.from_concept_id = c.concept_id
+                WHERE bp.depth < ?
+            )
+            SELECT COUNT(DISTINCT concept_id) - 1 FROM blocked_path
+            """;
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, conceptId, maxDepth);
+        return count == null ? 0 : count;
+    }
+
+    /**
+     * 카드 표시 메타 배치 조회 (spec-01 §4.4 결과 계약): level = "학교-학년-학기",
+     * chapter = "대-중-소" — 구 ResultResponse 표기 관례 승계.
+     */
+    public List<ConceptCardMeta> findConceptCardMetas(java.util.Collection<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return List.of();
+        }
+        String placeholders = String.join(",", java.util.Collections.nCopies(conceptIds.size(), "?"));
+        String sql = "SELECT c.concept_id, c.concept_name, ch.school_level, ch.grade_level, ch.semester, " +
+                "ch.chapter_main, ch.chapter_sub, ch.chapter_name " +
+                "FROM concepts c JOIN chapters ch ON ch.chapter_id = c.concept_chapter_id " +
+                "WHERE c.concept_id IN (" + placeholders + ")";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new ConceptCardMeta(
+                rs.getInt("concept_id"),
+                rs.getString("concept_name"),
+                rs.getString("school_level") + "-" + rs.getString("grade_level") + "-" + rs.getString("semester"),
+                rs.getString("chapter_main") + "-" + rs.getString("chapter_sub") + "-" + rs.getString("chapter_name")),
+                conceptIds.toArray());
+    }
+
+    /**
+     * skill_id 배치 조회 — DKT 시퀀스·시급도 인덱싱용. skill_id 가 NULL 인 행은
+     * 결과에서 제외한다: 반환 맵에 키가 없으면 "미매핑"이며, 호출측 가드가
+     * 해당 개념을 시퀀스/시급도에서 fail-soft 로 뺀다 (단건 findSkillIdByConceptId 의
+     * -1 반환은 행 미존재만 커버하고 NULL skill_id 는 NPE 라 신규 경로에서 미사용 —
+     * 2026-07-13 audit-doc 발견 흡수).
+     */
+    public java.util.Map<Integer, Integer> findSkillIdsByConceptIds(java.util.Collection<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return java.util.Map.of();
+        }
+        String placeholders = String.join(",", java.util.Collections.nCopies(conceptIds.size(), "?"));
+        String sql = "SELECT concept_id, skill_id FROM concepts WHERE skill_id IS NOT NULL AND concept_id IN (" + placeholders + ")";
+        java.util.Map<Integer, Integer> result = new java.util.HashMap<>();
+        jdbcTemplate.query(sql, rs -> {
+            result.put(rs.getInt("concept_id"), rs.getInt("skill_id"));
+        }, conceptIds.toArray());
+        return result;
+    }
+
+    /** 존재하는 concept_id 만 반환 — 진단 answered[] 사전 검증용 (미존재 = FK 500 대신 400). */
+    public java.util.Set<Integer> findExistingConceptIds(java.util.Collection<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return java.util.Set.of();
+        }
+        String placeholders = String.join(",", java.util.Collections.nCopies(conceptIds.size(), "?"));
+        String sql = "SELECT concept_id FROM concepts WHERE concept_id IN (" + placeholders + ")";
+        java.util.Set<Integer> result = new java.util.HashSet<>();
+        jdbcTemplate.query(sql, rs -> {
+            result.add(rs.getInt("concept_id"));
+        }, conceptIds.toArray());
+        return result;
+    }
+
+    private RowMapper<ConceptSummary> conceptSummaryRowMapper() {
+        return (rs, rowNum) -> new ConceptSummary(
+                rs.getInt("concept_id"),
+                rs.getString("concept_name"),
+                rs.getString("concept_description"));
+    }
 }

@@ -50,7 +50,7 @@
 - `ConceptService` 생성자 주입 4종: `ConceptRepository`(Neo4j Reactive) + `KnowledgeSpaceRepository` + `JdbcTemplateConceptRepository`(CTE) + `RedisUtil`. CTE 전환은 `@Value` 불리언 `useMysqlCte`(플래그 `mmt.migration.use-mysql-cte-for-graph`, 기본 false)로 **각 그래프 메서드 내에서 분기**(bean 등록 아님) — true 면 `JdbcTemplateConceptRepository.findPrerequisitesWithDepth`/`findPrerequisiteConcepts`(WITH RECURSIVE) 경로, false 면 Neo4j 경로. 그래프 캐시 키 네임스페이스는 `graph:v2:`(크로스인스턴스 직렬화 안전, 2026-07 캐시픽스). *(구 서술의 `Optional<MysqlConceptRepository> 스텁`은 존재하지 않는 클래스였음 — 정정)*
 - `ConceptService` 그래프 메서드: `findNodesByConceptId`, `findNodesIdByConceptIdDepth2`, `findNodesIdByConceptIdDepth3`, `findNodesIdByConceptIdDepth5`, `findToConcepts`
 - `LogicUtil.bfs(int start, List<Integer> integerList)`: `Map<Integer, Integer>` 반환 (시작 노드로부터 거리 맵)
-- `ProbabilityService`의 `.block()` 호출 위치: `createAndPredict` 류 메서드 (`ProbabilityService.java:66` 근방)
+- `ProbabilityService` 는 동기 `RestTemplate` 로 TF Serving 호출(`getPrediction`, URL 하드코딩 `http://mmt-ai:8501/v1/models/my_model:predict`) — **`.block()` 없음**. 리액티브 `.block()` 은 `ConceptService.java:194`·`KnowledgeSpaceService.java:39` 에만 존재 *(구 서술 "`createAndPredict` 류 `.block()`" 은 오류였음 — 2026-07-13 Explore 재검증으로 정정)*
 - Neo4j 컨테이너 이미지: `mymathteacher/mmt-neo4j:1.0.0` (커스텀 빌드, 기반 Neo4j 버전은 별도 확인 필요)
 
 ## 영속성 레이어 규칙
@@ -96,6 +96,7 @@
 - `mmt.migration.*` — 마이그레이션 관련 (예: `use-mysql-cte-for-graph`, `use-jpa-for-tests`)
 - `mmt.observability.*` — 관측성 설정 (예: `slow-query-threshold-ms`)
 - `mmt.benchmark.baseline.*` — 벤치마크 기준선 값 (실측 후 주입)
+- `mmt.diagnosis.*` — M7 자가진단 경로 (예: `enabled` — 신규 `/api/v1/diagnosis/*`·`/learning-queues/*` 게이트, ADR-0010)
 
 새 영역 추가 시 ADR로 기록한 뒤 본 섹션에 영역명 추가.
 

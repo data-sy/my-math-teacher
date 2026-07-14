@@ -56,7 +56,7 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 ## 현재 활성 작업
 
 - [Roadmap](ROADMAP.md)
-- M2(Neo4j→MySQL CTE)·M4(무중단 배포) 완료(2026-07-06, PR #45). 현재 = M5 관측성(Grafana/Prometheus) 착수 대기 / M3(Neo4j 폐기) Next. 정본은 항상 `ROADMAP.md`.
+- M2(Neo4j→MySQL CTE)·M4(무중단 배포) 완료(2026-07-06, PR #45). 현재 = **M7 제품 피벗 진행 중**(Step 4: **spec-01 백엔드 완료 + 사인오프 + draft PR #48**(2026-07-14) — 다음 = **spec-02(React)·spec-03(링크)**. 핸드오프 = `docs/milestones/m7-step4-handoff.md`) / M5 관측성(Grafana/Prometheus) 착수 대기 / M3(Neo4j 폐기) Next. 정본은 항상 `ROADMAP.md`.
 
 ## 금지 사항
 
