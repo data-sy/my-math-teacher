@@ -87,10 +87,9 @@ MBTI식 "클릭하면 답에 따라 다음 화면이 갈리는" 흐름 = 지식�
 
 ## 구성 spec (착수 시 spec-first 작성)
 
-✅ **3편 전부 작성·확정 완료(2026-07-13, 각각 리뷰 실체 대조 통과).** 정본 = `docs/specs/m7/`:
+✅ **spec-01·spec-03 작성·확정 완료(2026-07-13, 각각 리뷰 실체 대조 통과) — 프론트 spec 은 재설계 후 재작성.** 정본 = `docs/specs/m7/`:
 
 - **spec-01 — 진단 엔진(백엔드):** self-report 문답 진행 + 그래프 적응형 순회(D1·D2) + **self-report OX → 정오답 매핑(안다=맞음/모른다=틀림)으로 기존 DKT 입력·시급도 산출(D3-R)**. `AnswerService.findAIInput` 재배선. *(그래프 점수 전제였던 구 초안은 D3-R 로 재작성 후 **삭제** — git 히스토리 보존. 현행 정본 = `docs/specs/m7/spec-01-diagnosis-self-report-dkt.md`.)*
-- **spec-02 — 프론트 React 새로 짜기 + 모바일 크리티컬 패스:** 최소 런치 MVP(홈·자가진단 문답·결과·맞춤·로그인/에러·개념그래프 탐색). 스캐폴딩(Vite React·상태관리·UI 라이브러리), auth/OAuth 인터셉터·router·`api.js` React 재구현, Cytoscape 포팅(프레임워크 무관). *(2026-07-13 정정: 구 서술의 Chart.js 는 현행 미사용·html2pdf 는 D4 폐기 화면 전용이라 **둘 다 포팅 대상 아님** — spec-02 §1 Out.)*
 - **spec-03 — 맞춤 = 그래프 학습 경로 + 링크 큐레이션(D4):** 그래프 위 학습 순서 경로 + 개념별 외부 링크 데이터 + 결과 화면 노출.
 
 ---
@@ -112,7 +111,7 @@ MBTI식 "클릭하면 답에 따라 다음 화면이 갈리는" 흐름 = 지식�
 
 1. **기획(PRD)** `docs/prd/m7-prd.md` — 타겟 유저·핵심 가치, **자가진단 결과를 유저에게 어떻게 권할지**(추천 단위=개념/영역, 시급도 우선순위 규칙, 결과 화면에서 유저가 취할 액션), MVP 화면 확정, 성공 기준, 비범위. ✅ **완료 + 유저플로우/CTA 대화 점검 반영(2026-07-13, 사인오프 완료).** 3대 트레이드오프(타깃=중·고등 셀프러너 학생·추천 단위=개념 카드 top-N·결과 1차 CTA=그래프 경로) + **입구→출구 knob F-1~F-4 전부 확정**(결과-시점 reverse gate·화면 단일 1차 CTA·스마트 default ±후보 pick-list·시급도 학습 큐+재진입·홈 입구 단독 CTA·top-N '상' 등급 3~5). PRD §0.1 참조. **PRD 전체 사인오프 완료(2026-07-13, 사용자 승인).**
 2. **UX 설계** `docs/design/` — ✅ **완료(2026-07-13, 브랜치 `feat/m7-product-pivot`).** 아티팩트 8종: IA/유저 플로우 맵(`m7-flow-map.html`, 화면 연결·전이 SSOT) + ③ 문답 시안 A/B/C 비교(`m7-03-quiz-variants.html`) → **A안(정적 카드+하단 고정 2버튼) 채택**(오답유발 R1 최저·신뢰톤 정합; B 스와이프/C 2-존은 백로그) + 6화면 단일방향 와이어프레임(`m7-01-home`·`m7-02-entry`·`m7-03-quiz` 확정본·`m7-04-result` 무료/게이트 2상태·`m7-05-auth`·`m7-06-graph`). 전부 자기완결 HTML(인라인 CSS·외부 의존 0)·모바일 뷰포트 프레임·로우파이 그레이스케일·semantic 계층(Figma 이관 용이). F-1~F-4 화면 구현 완료, 재량 판단 2건(③ 알아요/몰라요 채움 차이=위계 아닌 구분 · ⑤ OAuth 3사 동급=단일 1차 규율의 표준 예외)은 각 파일 주석에 표기.
-3. **기술 설계(spec)** — ✅ **완료(2026-07-13).** 구 spec-01 초안은 재작성 후 삭제(git 히스토리 보존, 새 spec 이 자기완결). 3편 확정: spec-01(진단 — S2=C `self_report_answers`·S3=A·DKT 시퀀스 순서=결정론 필요조건) · spec-02(React MVP — T1~T5: Vite+React19+TS/TanStack Query+Zustand/Tailwind/RR7/`web-react/` 병행) · spec-03(경로+링크 — U1~U6: concept_links·귀속 타이브레이크·primary goal). ADR 2건(React 도입 / self-report→DKT 매핑)은 코드 착수 시. ← **다음 착수점 = 4. 구현.**
+3. **기술 설계(spec)** — ✅ **완료(2026-07-13).** 구 spec-01 초안은 재작성 후 삭제(git 히스토리 보존, 새 spec 이 자기완결). spec-01(진단 — S2=C `self_report_answers`·S3=A·DKT 시퀀스 순서=결정론 필요조건) · spec-03(경로+링크 — U1~U6: concept_links·귀속 타이브레이크·primary goal) 확정 — 프론트 spec 은 재설계 후 재작성. ADR(self-report→DKT 매핑)은 ADR-0010 Accepted. ← **다음 착수점 = 프론트 재설계(UX 부터).**
 4. **구현** — spec 단위 브랜치 → `/analyze-before-change` → Task 단위 커밋.
 
 ---
