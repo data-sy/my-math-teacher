@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 플로우 맵 — 화면 전이 SSOT</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --sub: #666; --line: #bbb; --paper: #fff;
+    --bg: #f4f4f4; --node: #fff; --gate: #e9e9e9; --note: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding: 24px 16px 64px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  /* ── 문서 헤더 ── */
+  header.doc { margin-bottom: 24px; }
+  header.doc h1 { font-size: 20px; margin-bottom: 6px; }
+  header.doc .meta { font-size: 12px; color: var(--sub); }
+  header.doc .meta strong { color: var(--ink); }
+  .status { display: inline-block; border: 1px solid var(--ink); padding: 1px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+
+  /* ── 범례 ── */
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--sub); border: 1px dashed var(--line); padding: 8px 12px; margin-bottom: 28px; background: var(--paper); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .chip { display: inline-block; width: 22px; height: 13px; border: 1.5px solid var(--ink); background: var(--node); }
+  .chip.gated { background: var(--gate); border-style: dashed; }
+  .chip.cross { border-style: dotted; border-color: var(--sub); }
+  .chip.loop { border-radius: 8px; }
+
+  /* ── 플로우 노드 ── */
+  .flow { display: flex; flex-direction: column; align-items: stretch; }
+  .screen { background: var(--node); border: 2px solid var(--ink); padding: 12px 14px; position: relative; }
+  .screen .no { font-size: 11px; color: var(--sub); letter-spacing: .05em; }
+  .screen h2 { font-size: 15px; margin: 1px 0 4px; }
+  .screen .desc { font-size: 12px; color: var(--sub); }
+  .screen .api { font-size: 10.5px; font-family: ui-monospace, Menlo, monospace; color: var(--sub); margin-top: 6px; border-top: 1px dotted var(--line); padding-top: 5px; }
+  .screen.gated { background: var(--gate); border-style: dashed; }
+  .screen.cross { border-style: dotted; border-width: 2px; border-color: var(--sub); }
+  .screen.loop-node { border-radius: 14px; }
+  .anno { position: absolute; top: -9px; right: -7px; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  /* ── 엣지(전이) ── */
+  .edge { display: flex; align-items: center; gap: 8px; padding: 6px 0 6px 26px; font-size: 12px; }
+  .edge .arrow { color: var(--ink); font-size: 14px; }
+  .edge .lbl { color: var(--ink); }
+  .edge .lbl b { background: var(--ink); color: #fff; padding: 0 5px; border-radius: 3px; font-weight: 600; }
+  .edge .cond { color: var(--sub); font-size: 11px; }
+  .edge.minor .lbl, .edge.minor .arrow { color: var(--sub); }
+
+  /* ── 분기(가로 배치) ── */
+  .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0; }
+  .branch .col { display: flex; flex-direction: column; }
+  @media (max-width: 540px) { .branch { grid-template-columns: 1fr; } }
+
+  .section-gap { height: 26px; border-left: 2px dashed var(--line); margin-left: 40px; }
+
+  /* ── 인터랙션 노트 ── */
+  .notes { margin-top: 40px; }
+  .notes h3, .contract h3, .open h3 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 5px; margin-bottom: 12px; }
+  .note-item { display: flex; gap: 10px; background: var(--note); border: 1px solid var(--line); padding: 9px 12px; margin-bottom: 7px; font-size: 12.5px; }
+  .note-item .n { flex: none; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .note-item .src { color: var(--sub); font-size: 11px; }
+
+  /* ── API 계약 요약 ── */
+  .contract { margin-top: 40px; }
+  .contract .tbl-scroll { overflow-x: auto; }
+  .contract table { border-collapse: collapse; font-size: 11.5px; width: 100%; min-width: 620px; background: var(--paper); }
+  .contract th, .contract td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  .contract th { background: var(--gate); font-size: 11px; }
+  .contract code { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; }
+
+  .open { margin-top: 40px; }
+  .open li { font-size: 12.5px; margin: 0 0 6px 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>M7 v2 · 플로우 맵 — 화면 연결·전이 SSOT<span class="status">확정 — 프로토타입 검증 반영(2026-07-17)</span></h1>
+  <p class="meta">
+    작성 2026-07-17 · 정본 입력 = <strong>PRD(m7-prd.md) F-1~F-4·§3</strong> + <strong>spec-01 API 계약</strong> · 구 산출물(docs/design/m7-*) 무참조 백지 재설계 · 클릭러블 프로토타입(<code>00-flow-prototype.html</code>) 리뷰 확정 반영 — 리뷰 전 스냅샷 = <code>00-flow-map-draft.html</code>.<br>
+    로우파이 = 본 v2 HTML(주석 와이어프레임) → 하이파이 = Claude Design 이관 (매체 결정 2026-07-17, milestone-7 §착수 프로세스).
+  </p>
+</header>
+
+<div class="legend">
+  <span><span class="chip"></span> 무료(비로그인 도달 가능)</span>
+  <span><span class="chip gated"></span> 게이트(로그인 필요)</span>
+  <span><span class="chip cross"></span> 횡단(어디서든 진입)</span>
+  <span><span class="chip loop"></span> 반복 루프</span>
+  <span><b style="background:var(--ink);color:#fff;padding:0 5px;border-radius:3px;">1차 CTA</b> = 화면당 단 하나(F-1)</span>
+  <span>●숫자 = 인터랙션 노트</span>
+</div>
+
+<!-- ══════════ 플로우 ══════════ -->
+<div class="flow">
+
+  <!-- ① 홈 -->
+  <div class="screen">
+    <span class="anno">1</span>
+    <div class="no">SCREEN ①</div>
+    <h2>홈</h2>
+    <div class="desc">가치제안 헤드라인("수학은 계단이다…") + 지식그래프 = 히어로 비주얼(미끼, 버튼 아님) + 작동방식 스텝</div>
+  </div>
+
+  <div class="edge"><span class="arrow">▼</span><span class="lbl"><b>1차 CTA</b> "무료 진단 시작"</span></div>
+  <div class="edge minor"><span class="arrow">↘</span><span class="lbl">"개념 그래프 둘러보기" — 조용한 텍스트 링크(강등)</span><span class="cond">→ ⑥ 그래프 탐색</span></div>
+  <div class="edge minor"><span class="arrow">↻</span><span class="lbl">재진입: "이어서: 다음 개념"</span><span class="cond">로그인 + 활성 큐 보유 시에만 노출 → ④ 게이트 상태 ●8</span></div>
+
+  <!-- ② 영역 진입 -->
+  <div class="screen">
+    <span class="anno">2</span>
+    <div class="no">SCREEN ②</div>
+    <h2>영역 진입 — "진단하고 싶은 것을 고르세요"</h2>
+    <div class="desc">학년 기반 시기 추정 단원 = 소프트 default(자동 시작 아님) + 선후 계단순 ±후보 pick-list(3~4개) 원탭 + "여기 없음?" escape. 진행 중 세션 있으면 [이어서 진행 / 새로 시작] 선택 제시. 카피는 짧게(진단 내부 동작 설명 금지 — 2026-07-17 확정)</div>
+    <div class="api">GET /api/v1/chapters?grade&amp;semester → POST /api/v1/diagnosis/frontier {chapterId}</div>
+  </div>
+
+  <div class="branch">
+    <div class="col">
+      <div class="edge"><span class="arrow">▼</span><span class="lbl">pick-list 원탭 (또는 default 수락)</span></div>
+    </div>
+    <div class="col">
+      <div class="edge minor"><span class="arrow">▼</span><span class="lbl">escape (a) 다른 단원 직접 선택</span></div>
+      <div class="edge minor"><span class="arrow">▼</span><span class="lbl">escape (b) "모르겠어 → 전체 훑기"</span><span class="cond">entry scope=full ●3</span></div>
+    </div>
+  </div>
+
+  <!-- ③ 문답 -->
+  <div class="screen loop-node">
+    <span class="anno">4</span>
+    <div class="no">SCREEN ③ — 반복 루프</div>
+    <h2>자가진단 문답</h2>
+    <div class="desc">화면당 개념 1개: 개념 이름 + 대표 예시(D5) + "알아요 / 몰라요" 2택 + 진척 표시 + "‹ 이전 답 수정"(직전 답 1개 undo만 — 임의 과거 답 수정은 인과 불변식 위반이라 금지). 매 답변 후 localStorage answered-map 저장(F-2)</div>
+    <div class="api">POST /api/v1/diagnosis/next {entry, answered[]} 반복 · res { next, progress } | { done:true }</div>
+  </div>
+
+  <div class="edge minor"><span class="arrow">↻</span><span class="lbl">"알아요" → 선수 가지 전체 skip / "몰라요" → 직계 선수로 drill-down</span><span class="cond">●4</span></div>
+  <div class="edge minor"><span class="arrow">↻</span><span class="lbl">중도 이탈 → 재방문 시 answered-map 복원, 이어서 진행</span><span class="cond">●5</span></div>
+  <div class="edge"><span class="arrow">▼</span><span class="lbl">done:true (프론티어 소진)</span></div>
+
+  <!-- ④ 결과 · 무료 -->
+  <div class="screen">
+    <span class="anno">6</span>
+    <div class="no">SCREEN ④-A · 결과(무료 상태)</div>
+    <h2>결과 — 무료: 진단 그 자체</h2>
+    <div class="desc">헤드라인 요약("총 12개 중 3개 약점, 가장 급한 건 '인수분해'") → 개념 카드 시급도순 top-N('상' 3~5장) + 카드별 사람 언어 근거("이걸 모르면 위로 N개가 막혀요") + 무료 외부자료 링크 → "더 보기"(중/하)</div>
+    <div class="api">POST /api/v1/diagnosis/preview {entry, answered[]} (무영속) · cards[].urgency = HIGH|MID|LOW</div>
+  </div>
+
+  <div class="edge"><span class="arrow">▼</span><span class="lbl"><b>1차 CTA</b> "저장하고 학습 경로 시작하기"</span><span class="cond">카드별 "학습 경로 보기"는 2차로 강등 ●6</span></div>
+  <div class="edge minor"><span class="arrow">↘</span><span class="lbl">약점 0이면: 1차 버튼 "한 계단 위 '단원' 진단하기" → ③ · 링크 "그래프에서 확인하기 ›" → ⑥</span><span class="cond">B안 확정 ●11</span></div>
+
+  <!-- ⑤ 로그인 (게이트 경유) -->
+  <div class="branch">
+    <div class="col">
+      <div class="screen cross">
+        <span class="anno">7</span>
+        <div class="no">SCREEN ⑤-A · 횡단</div>
+        <h2>로그인 (비로그인일 때만 경유)</h2>
+        <div class="desc">OAuth 3사(구글/네이버/카카오) → 콜백 → 귀속·큐 생성 후 ④-B 복귀. 진단 결과는 localStorage에 있으므로 유실 없음</div>
+        <div class="api">OAuth 콜백 후: POST /api/v1/diagnosis {entry, answered[]} → POST /api/v1/learning-queues {userTestId}</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="edge minor" style="padding-top:20px;"><span class="arrow">→</span><span class="lbl">이미 로그인 상태면 ⑤ 건너뛰고 바로 귀속+큐 생성</span></div>
+    </div>
+  </div>
+
+  <div class="edge"><span class="arrow">▼</span><span class="lbl">귀속 성공 (preview == 귀속 결과, 결정론 계약)</span></div>
+
+  <!-- ④ 결과 · 게이트 -->
+  <div class="screen gated">
+    <span class="anno">8</span>
+    <div class="no">SCREEN ④-B · 결과(게이트 상태) — 독점 자산</div>
+    <h2>인터랙티브 그래프 학습 경로 + 통합 학습 큐</h2>
+    <div class="desc">화면 순서(2026-07-17 확정) = 그래프 경로(하이라이트) → 진단 카드(재열람) → 큐 체크리스트. 큐 = top-N 개념들의 공유 선수지식을 병합한 단일 계단(위상순 지배 정렬 — 선수지식 먼저), 항목별 완료 self-mark, 현재 위치 = 첫 미완료. 결과 저장·재열람</div>
+    <div class="api">GET /api/v1/diagnosis/{userTestId} · GET /api/v1/learning-queues/me · PATCH /api/v1/learning-queues/{qId}/items/{itemId}/done</div>
+  </div>
+
+  <div class="edge minor"><span class="arrow">↻</span><span class="lbl">공부하고 돌아옴 → 홈 "이어서" 또는 큐 직접 재열람</span><span class="cond">재진단은 별개 액션 → ② ●8</span></div>
+
+  <div class="section-gap"></div>
+
+  <!-- ⑥ 그래프 탐색 · ⑤ 에러 (독립/횡단) -->
+  <div class="branch">
+    <div class="col">
+      <div class="screen">
+        <span class="anno">9</span>
+        <div class="no">SCREEN ⑥ · 독립 진입(무료)</div>
+        <h2>개념그래프 탐색 — 서비스의 얼굴</h2>
+        <div class="desc">검색 한 줄 + 그래프 상시 표시(호버 의존 0, 모바일 동작). 상시 CTA "내 약점 진단하기" → ② (탐색→진단 루프)</div>
+        <div class="api">GET /api/v1/concepts?chapterId · /search · /{id} (permitAll)</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="screen cross">
+        <span class="anno">10</span>
+        <div class="no">SCREEN ⑤-B · 횡단</div>
+        <h2>에러 — 학생 친화 카피</h2>
+        <div class="desc">400 중복/미존재 답변 · 401 미인증 · 403 남의 기록 · 429 "잠깐 쉬었다 다시"(preview 10회/분/IP) · TF Serving 실패 = fail-soft(등급만 결측, 몰라요 목록은 표시)</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /flow -->
+
+<!-- ══════════ 인터랙션 노트 ══════════ -->
+<section class="notes">
+  <h3>인터랙션 노트 (클릭 → 무슨 일이 일어나나)</h3>
+  <div class="note-item"><span class="n">1</span><div>홈의 1차 CTA는 "무료 진단 시작" <b>단독 압도</b>. 그래프는 히어로 비주얼(눌러도 이동하지 않는 미끼 — 하이파이에서 미세 인터랙션 검토), "둘러보기"는 시각 무게 없는 텍스트 링크. <span class="src">PRD F-4 홈 입구 A안</span></div></div>
+  <div class="note-item"><span class="n">2</span><div>진입 화면은 "무엇을 배울지"가 아니라 <b>"지금 어디쯤이야?"(시작점)</b>를 묻는다. default 단원은 미리 선택된 상태로 보여주되 자동 시작하지 않음(소프트). 후보를 탭하면 즉시 ③으로(별도 확인 버튼 없음 — 원탭). <span class="src">PRD F-3</span></div></div>
+  <div class="note-item"><span class="n">3</span><div>escape는 반드시 두 갈래: (a) 전체 단원 목록에서 직접 선택 (b) "모르겠어 → 전체 훑기" = 학교급 대표 단원 프론티어 합집합에서 시작. (b)가 "그냥 약점 궁금한" 유저를 흡수하므로 단원 강제 선택이 되살아나지 않음. <span class="src">PRD F-3 · spec-01 §4.2</span></div></div>
+  <div class="note-item"><span class="n">4</span><div>"알아요" 탭 → 그 개념의 선수 폐쇄 전체가 이후 질문에서 제외(화면 수 급감 체감의 핵심). "몰라요" 탭 → 직계 선수가 다음 질문 후보로 push(뿌리 찾기 drill-down). 서버가 매 요청 answered-map 전체로 재계산 — 클라는 순회 로직을 모름. <span class="src">spec-01 §4.3 D1-A</span></div></div>
+  <div class="note-item"><span class="n">5</span><div>매 답변 직후 localStorage에 answered-map 저장. 브라우저를 닫고 돌아와도 같은 지점에서 재개, 결과-시점 로그인 때 이 맵을 그대로 재제출해 계정 귀속(서버는 익명 구간에 아무것도 저장 안 함). <b>이어가기 범위(확정):</b> 같은 단원의 진행 중(미완주·미저장) 세션만 — 새 진단 시작 = 새 세션. <span class="src">PRD F-2 · spec-01 S1-A</span></div></div>
+  <div class="note-item"><span class="n">6</span><div>결과 화면 레벨 1차 CTA는 <b>"저장하고 학습 경로 시작하기" 하나뿐</b>. 비로그인이면 이 탭이 로그인 트리거(⑤ 경유). 카드 안의 "학습 경로 보기"는 2차 스타일로 강등 — 탭하면 동일 게이트로 수렴. 무료 구간(헤드라인·카드·외부링크)만으로 "개념·순서·자료"가 충족되어야 함(런치 판정 §5.1). <span class="src">PRD F-1</span></div></div>
+  <div class="note-item"><span class="n">7</span><div>로그인 성공 콜백 → 클라가 저장해둔 answered-map으로 귀속 API 호출 → 큐 생성 → ④-B로 자동 전환. preview와 귀속 결과는 동일해야 함(결정론 계약 — "본 결과가 저장됐다"는 약속). 실패 시 ⑤-B 에러 카피. <span class="src">spec-01 §4.1·§8</span></div></div>
+  <div class="note-item"><span class="n">8</span><div>큐 항목 탭 → 완료 self-mark 토글(앱은 외부 학습을 검증하지 않음). 현재 위치 = 첫 미완료 항목(파생값). 재진입은 저장 큐 이어가기이고, 재진단은 별개 액션으로 ②부터 새로 — 새 큐가 활성 큐를 대체. 홈 "이어서" 배너(로그인+활성 큐 보유 시 노출) 채택 — 2026-07-17 확정. <span class="src">PRD F-4 재진입 · spec-01 §4.6</span></div></div>
+  <div class="note-item"><span class="n">9</span><div>⑥은 진단과 독립 진입 가능한 무료 화면. 상시 "내 약점 진단하기" CTA로 탐색→진단 루프를 만든다. 호버 의존 0 — 모든 그래프 조작이 탭으로 가능해야 함(모바일 무결 §5.1). <span class="src">PRD F-4 · §3.2 ⑥</span></div></div>
+  <div class="note-item"><span class="n">10</span><div>에러는 별도 페이지가 아니라 상황 내 표시 우선(문답 중 네트워크 실패 = 카드 자리 인라인 재시도). TF Serving 실패 시에도 "몰라요" 목록 기반 결과는 성립(fail-soft) — 시급도 등급 자리만 결측 표시. 전부 "알아요"면 카드 0장 + "약점 없음" 헤드라인 = 정상 결과. <span class="src">spec-01 §4.4 R2·§4.7</span></div></div>
+  <div class="note-item"><span class="n">11</span><div>약점 0(전부 알아요) = 시작점이 너무 쉬웠다는 신호(순회는 아래로만 감) → 1차 CTA를 <b>"한 계단 위 단원 진단하기"</b>로 타게팅(② 계단순 pick-list 데이터 재사용). 게이트 CTA·저장 없음 — 큐는 약점 기반이라 이 경우 빈 큐. 그래프 확인은 조용한 링크 ›. <span class="src">2026-07-17 A/B 비교(04-result-empty-variants.html) B안 확정</span></div></div>
+</section>
+
+<!-- ══════════ API 계약 요약 (spec-01 → 프론트 소비) ══════════ -->
+<section class="contract">
+  <h3>화면 ↔ 백엔드 계약 매핑 (spec-01 확정본 요약 — 프론트가 소비할 전부)</h3>
+  <div class="tbl-scroll">
+  <table>
+    <tr><th>화면</th><th>엔드포인트</th><th>인증</th><th>핵심 계약</th></tr>
+    <tr><td>②</td><td><code>GET /api/v1/chapters?grade&amp;semester</code></td><td>무료</td><td>pick-list 후보 데이터 (시기 추정 default는 프론트 로직)</td></tr>
+    <tr><td>②→③</td><td><code>POST /api/v1/diagnosis/frontier {chapterId}</code></td><td>무료</td><td>시작 프론티어 = 단원 내 후수-최상위 개념들. 단원 = 시작점이지 경계 아님</td></tr>
+    <tr><td>③</td><td><code>POST /api/v1/diagnosis/next {entry, answered[]}</code></td><td>무료</td><td>stateless — 매 요청 answered-map 전체 전송 → <code>{next{conceptId, conceptName, description}, progress{asked, estimatedRemaining}}</code> 또는 <code>{done:true}</code>. description = D5 대표 예시 1차 소스</td></tr>
+    <tr><td>④-A</td><td><code>POST /api/v1/diagnosis/preview {entry, answered[]}</code></td><td>무료</td><td>무영속. <code>{headline{totalAsked, weakCount, topConceptName}, cards[{conceptId, conceptName, level, chapter, urgency:HIGH|MID|LOW, urgencyBasis{blockedDescendants}, links[]}], more[]}</code>. top-N = HIGH 전부(바닥 3·캡 5). <b>rate limit 10회/분/IP → 429</b></td></tr>
+    <tr><td>④-B 귀속</td><td><code>POST /api/v1/diagnosis {entry, answered[]}</code></td><td>인증</td><td>users_tests + self_report_answers + probabilities 영속. 응답 shape = preview와 동일 + userTestId. <b>preview == 귀속 (결정론)</b></td></tr>
+    <tr><td>④-B 큐</td><td><code>POST /api/v1/learning-queues {userTestId}</code></td><td>인증</td><td>통합 학습 큐 생성 — 위상순 지배 정렬(선수 먼저), 시급도 = 가지 진입 우선순위만. 유저당 활성 큐 1개</td></tr>
+    <tr><td>④-B 재열람</td><td><code>GET /api/v1/diagnosis/{userTestId}</code> · <code>GET /api/v1/learning-queues/me</code></td><td>인증</td><td>본인 것만(403 소유권). 현재 위치 = position순 첫 done=false (서버 파생값)</td></tr>
+    <tr><td>④-B self-mark</td><td><code>PATCH /api/v1/learning-queues/{qId}/items/{itemId}/done</code></td><td>인증</td><td>완료 토글. 앱은 학습을 검증하지 않음</td></tr>
+    <tr><td>⑥</td><td><code>GET /api/v1/concepts?chapterId</code> · <code>/search</code> · <code>/{id}</code></td><td>무료</td><td>기존 permitAll 재사용</td></tr>
+    <tr><td>⑤-B</td><td>공통 에러</td><td>—</td><td><code>400</code> 중복·미존재 conceptId / <code>401</code> 미인증 / <code>403</code> 소유권 / <code>429</code> preview 한도. 전부 학생 친화 메시지 바디. 내부 용어(percent, depth) 화면 노출 금지 — urgency 등급·urgencyBasis만 표기</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- ══════════ 열린 질문 ══════════ -->
+<section class="open">
+  <h3>결정 로그 · 남은 열림</h3>
+  <ul>
+    <li>✅ <b>2026-07-17 프로토타입 리뷰 확정분은 본문에 통합됨</b> — 홈 "이어서" 배너 · ④ 같은 화면 2상태 · ④-B 순서(그래프→카드→체크리스트) · ③ "이전 답 수정"(직전 1개 undo만 — 인과 불변식) · 새 진단 = 새 세션 · 약점 0 = B안. 리뷰 전 스냅샷 = <code>00-flow-map-draft.html</code>, 약점 0 A/B 근거 = <code>04-result-empty-variants.html</code>.</li>
+    <li>🔎 <b>열림(비차단·백로그):</b> ③ 질문 선택 알고리즘 고찰 — 다중 선수 질문 순서·단일 프론티어 1문 종료 보완·"알아요" 폐쇄 skip 의 과신 검증. 기존 알고리즘(KST/ALEKS·CAT·IRT 등) 서베이 = 전문가 프롬프트로 별도 수행. 정본: <code>docs/backlog/m7-adaptive-traversal-question-selection.md</code>. 화면 계약과 독립이라 와이어프레임 진행 비차단.</li>
+  </ul>
+</section>
+
+</div>
+</body>
+</html>
