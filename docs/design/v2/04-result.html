@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 와이어프레임 ④ 결과 (무료·게이트·약점 0)</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --sub: #666; --line: #c8c8c8; --bg: #ececec;
+    --paper: #fff; --soft: #f5f5f5; --note: #fafafa; --gate: #e6e6e6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding: 24px 16px 64px; }
+  .wrap { max-width: 1280px; margin: 0 auto; }
+
+  header.doc { margin-bottom: 20px; }
+  header.doc h1 { font-size: 19px; margin-bottom: 6px; }
+  header.doc .meta { font-size: 12px; color: var(--sub); }
+  header.doc .meta code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .status { display: inline-block; border: 1px solid var(--ink); padding: 1px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+
+  .frames { display: flex; gap: 26px; flex-wrap: wrap; justify-content: center; margin-bottom: 34px; }
+  .frame-col { width: 390px; }
+  .flabel { text-align: center; margin-bottom: 10px; }
+  .flabel b { font-size: 14px; }
+  .flabel span { display: block; font-size: 11px; color: var(--sub); }
+
+  .phone { width: 390px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; min-height: 740px; display: flex; flex-direction: column; position: relative; }
+  .phone.gated { background: var(--gate); }
+  .statusbar { height: 22px; border-bottom: 1px dotted var(--line); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--sub); letter-spacing: .2em; flex: none; }
+  .body { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 18px; }
+
+  .co { position: absolute; background: var(--ink); color: #fff; font-size: 11px; width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; }
+  .rel { position: relative; }
+
+  .navrow { display: flex; align-items: center; margin-bottom: 6px; }
+  .navrow .back { font-size: 13px; color: var(--sub); }
+
+  .headline { font-size: 17px; font-weight: 800; line-height: 1.4; }
+  .honest { font-size: 11px; color: var(--sub); margin-top: 5px; margin-bottom: 10px; }
+
+  .cond-frame { border: 1.5px dashed var(--sub); border-radius: 8px; padding: 4px; margin-bottom: 10px; }
+  .cond-frame .cond-tag { font-size: 9.5px; color: var(--sub); padding: 0 6px 2px; letter-spacing: .04em; }
+  .failsoft { font-size: 11px; color: var(--sub); background: var(--soft); border-radius: 5px; padding: 6px 9px; }
+
+  .cut-tag { font-size: 10px; color: var(--sub); margin-bottom: 5px; letter-spacing: .03em; }
+  .card { border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; margin-bottom: 8px; background: var(--paper); }
+  .card .crow { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .card .cn { font-size: 14px; font-weight: 700; }
+  .badge { font-size: 10px; border: 1px solid var(--ink); padding: 0 7px; border-radius: 9px; white-space: nowrap; }
+  .badge.hi { background: var(--ink); color: #fff; }
+  .card .basis { font-size: 11.5px; color: var(--sub); margin-top: 4px; }
+  .card .links { margin-top: 7px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .card .links span { font-size: 10.5px; border: 1px solid var(--line); border-radius: 4px; padding: 2px 7px; color: var(--sub); background: var(--soft); }
+  .card .path2 { margin-top: 7px; font-size: 11.5px; color: var(--sub); text-decoration: underline; }
+  .morefold { text-align: center; margin: 2px 0 10px; font-size: 12px; color: var(--sub); text-decoration: underline; }
+
+  .btn-primary { display: block; width: 100%; border: none; background: var(--ink); color: #fff; font-size: 15px; font-weight: 700; padding: 14px; border-radius: 8px; margin-top: auto; text-align: center; }
+  .gate-note { font-size: 10.5px; color: var(--sub); text-align: center; margin-top: 7px; }
+  .btn-secondary { display: block; width: 100%; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); font-size: 13px; padding: 10px; border-radius: 8px; text-align: center; }
+  .txt-link { color: var(--sub); font-size: 12.5px; text-decoration: underline; text-align: center; display: block; margin-top: 10px; }
+
+  .graph-path { height: 120px; border: 1.5px dashed var(--line); background: var(--soft); border-radius: 10px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; color: var(--sub); margin-bottom: 12px; }
+  .sec-tag { font-size: 11.5px; font-weight: 700; margin-bottom: 6px; }
+  .queue-wrap { border: 2px dashed var(--sub); border-radius: 10px; padding: 11px; background: var(--paper); margin-bottom: 12px; }
+  .queue-wrap .qsub { font-size: 10.5px; color: var(--sub); margin-bottom: 8px; }
+  .qitem { display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 7px; padding: 8px 10px; margin-bottom: 6px; font-size: 12.5px; background: var(--paper); }
+  .qitem .chk { width: 16px; height: 16px; border: 1.5px solid var(--ink); border-radius: 4px; flex: none; text-align: center; font-size: 10px; line-height: 14px; }
+  .qitem.done { color: var(--sub); text-decoration: line-through; }
+  .qitem .here { margin-left: auto; font-size: 9.5px; background: var(--ink); color: #fff; padding: 1px 6px; border-radius: 8px; }
+
+  .empty-card { border: 1.5px solid var(--line); border-radius: 10px; padding: 16px; text-align: center; font-size: 12px; color: var(--sub); background: var(--soft); }
+
+  .notes { max-width: 1180px; margin: 0 auto; }
+  .notes h3 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 5px; margin-bottom: 12px; }
+  .note-cols { column-count: 2; column-gap: 22px; }
+  @media (max-width: 900px) { .note-cols { column-count: 1; } }
+  .note-item { display: flex; gap: 10px; background: var(--note); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; font-size: 12.5px; break-inside: avoid; }
+  .note-item .n { flex: none; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .note-item .src { color: var(--sub); font-size: 11px; }
+  .note-item dl { margin-top: 3px; }
+  .note-item dt { font-weight: 700; font-size: 11px; margin-top: 5px; }
+  .note-item dd { margin-left: 0; }
+  .note-item code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .rules { margin-top: 18px; border: 1px dashed var(--line); background: var(--paper); padding: 10px 14px; font-size: 12px; color: var(--sub); }
+  .rules b { color: var(--ink); }
+  .rules li { margin: 4px 0 4px 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>M7 v2 · 와이어프레임 — SCREEN ④ 결과 (같은 화면 2상태 + 약점 0)<span class="status">확정 — 검수 반영(2026-07-17)</span></h1>
+  <p class="meta">
+    작성 2026-07-17 · 정본 입력 = PRD §4·F-1·F-4 + 플로우 맵 ④-A/④-B·●6·●7·●8·●10·●11 + spec-01 · 04는 무료/게이트 2상태 + 약점 0 포함(핸드오프 규율)<br>
+    2026-07-17 확정 반영: 같은 화면 2상태 · ④-B 순서(그래프→카드→체크리스트) · 더 보기 토글 · 게이트 안내문 무료 먼저 · 약점 0 = B안 · 정직성 한 줄은 여기(①에서 이동)<br>
+    검수 확정 3건: ●1 완주·미저장 이탈 = 소실 허용(재프리뷰 여부는 백로그 결정) · ●3 fail-soft 인라인 스트립 · ④-B 1차 CTA 0개 해석
+  </p>
+</header>
+
+<div class="frames">
+
+<!-- ══════════ ④-A 무료 ══════════ -->
+<div class="frame-col">
+  <div class="flabel"><b>④-A · 무료 상태</b><span>done:true 직후 자동 도착 · 비로그인 그대로</span></div>
+  <div class="phone">
+    <div class="statusbar">MMT · 390px · 무료</div>
+    <div class="body">
+
+      <!-- ●1 이탈 -->
+      <div class="navrow rel">
+        <span class="co" style="top:-4px; left:-9px;">1</span>
+        <span class="back">‹ 홈</span>
+      </div>
+
+      <!-- ●2 헤드라인 + 정직성 -->
+      <div class="rel">
+        <span class="co" style="top:-6px; right:-6px;">2</span>
+        <div class="headline">확인한 7개 중 3개 약점 —<br>가장 급한 건 '인수분해'</div>
+        <div class="honest">자가응답 기반 AI 학습 가이드예요 — 시험 점수가 아니에요</div>
+      </div>
+
+      <!-- ●3 fail-soft (조건부) -->
+      <div class="cond-frame rel">
+        <span class="co" style="top:-9px; left:-9px;">3</span>
+        <div class="cond-tag">▼ 조건부 — AI 시급도 계산 실패 시(fail-soft)</div>
+        <div class="failsoft">시급도 계산이 잠깐 안 돼요 — 약점 목록과 자료는 그대로예요 (카드의 시급도 배지만 "—" 결측)</div>
+      </div>
+
+      <!-- ●4 개념 카드 top-N -->
+      <div class="rel">
+        <span class="co" style="top:-8px; right:-6px;">4</span>
+        <div class="cut-tag">top-N = '상' 전부(3~5장) · '상'&lt;3이면 '중'으로 보충해 3장 — 아래는 상1+중2 보충 예</div>
+        <div class="card">
+          <div class="crow"><span class="cn">인수분해</span><span class="badge hi">시급도 상</span></div>
+          <div class="basis">이걸 모르면 위로 4개 개념이 막혀요</div>
+          <div class="links"><span>EBS 무료 강의 ↗</span><span>개념 정리 자료 ↗</span></div>
+          <div class="path2">학습 경로 보기 ›</div>
+        </div>
+        <div class="card">
+          <div class="crow"><span class="cn">이차방정식의 풀이</span><span class="badge">시급도 중</span></div>
+          <div class="basis">이걸 모르면 위로 2개 개념이 막혀요</div>
+          <div class="links"><span>EBS 무료 강의 ↗</span></div>
+          <div class="path2">학습 경로 보기 ›</div>
+        </div>
+        <div class="card">
+          <div class="crow"><span class="cn">제곱근과 실수</span><span class="badge">시급도 중</span></div>
+          <div class="basis">이걸 모르면 위로 2개 개념이 막혀요</div>
+          <div class="links"><span>개념 정리 자료 ↗</span></div>
+          <div class="path2">학습 경로 보기 ›</div>
+        </div>
+      </div>
+
+      <!-- ●5 더 보기 -->
+      <div class="morefold rel">
+        <span class="co" style="top:-4px; right:96px;">5</span>
+        더 보기 (중/하 1개) ∨
+      </div>
+
+      <!-- ●6 1차 CTA -->
+      <div class="rel" style="margin-top:auto;">
+        <span class="co" style="top:-9px; left:-9px;">6</span>
+        <div class="btn-primary">저장하고 학습 경로 시작하기</div>
+        <div class="gate-note">진단 결과와 자료는 무료예요 — 저장과 학습 경로는 로그인 후 제공</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ④-B 게이트 ══════════ -->
+<div class="frame-col">
+  <div class="flabel"><b>④-B · 게이트 상태</b><span>같은 화면 — 로그인·귀속 성공 시 이 상태로 전환 / 재열람 시 직접 도착</span></div>
+  <div class="phone gated">
+    <div class="statusbar">MMT · 390px · 게이트(로그인)</div>
+    <div class="body">
+
+      <!-- ●7 이탈 -->
+      <div class="navrow rel">
+        <span class="co" style="top:-4px; left:-9px;">7</span>
+        <span class="back">‹ 홈</span>
+      </div>
+
+      <!-- ●8 그래프 경로 (순서 1) -->
+      <div class="rel">
+        <span class="co" style="top:-8px; right:-6px;">8</span>
+        <div class="sec-tag">나의 학습 경로 (저장됨)</div>
+        <div class="graph-path">인터랙티브 그래프 학습 경로 (Cytoscape 자리)<br>무너진 토대 → 목표 개념 계단이 그래프 위 하이라이트<br>탭 = 노드 선택 (호버 의존 0)</div>
+      </div>
+
+      <!-- ●9 진단 카드 재열람 (순서 2) -->
+      <div class="rel">
+        <span class="co" style="top:-8px; right:-6px;">9</span>
+        <div class="sec-tag">진단 카드 (재열람)</div>
+        <div class="card">
+          <div class="crow"><span class="cn">인수분해</span><span class="badge hi">시급도 상</span></div>
+          <div class="basis">이걸 모르면 위로 4개 개념이 막혀요</div>
+          <div class="links"><span>EBS 무료 강의 ↗</span><span>개념 정리 자료 ↗</span></div>
+        </div>
+        <div class="card" style="opacity:.55;">
+          <div class="crow"><span class="cn">이차방정식의 풀이</span><span class="badge">시급도 중</span></div>
+          <div class="basis">(카드 반복 ⋯ ④-A와 동일, "학습 경로 보기" 2차 버튼만 없음)</div>
+        </div>
+      </div>
+
+      <!-- ●10 큐 체크리스트 (순서 3) -->
+      <div class="queue-wrap rel">
+        <span class="co" style="top:-9px; left:-9px;">10</span>
+        <div class="sec-tag">나의 학습 계단 — 체크리스트</div>
+        <div class="qsub">선수지식 먼저(위상순). 공부하고 오면 탭해서 완료 표시</div>
+        <div class="qitem done"><span class="chk">✓</span> 1. 문자와 식</div>
+        <div class="qitem"><span class="chk"></span> 2. 다항식의 곱셈 <span class="here">여기부터</span></div>
+        <div class="qitem"><span class="chk"></span> 3. 인수분해</div>
+        <div class="qitem"><span class="chk"></span> 4. 제곱근과 실수</div>
+        <div class="qitem"><span class="chk"></span> 5. 이차방정식의 풀이</div>
+      </div>
+
+      <!-- ●11 재진단 -->
+      <div class="rel" style="margin-top:auto;">
+        <span class="co" style="top:-9px; left:-9px;">11</span>
+        <div class="btn-secondary">다시 진단하기</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ④ 약점 0 ══════════ -->
+<div class="frame-col">
+  <div class="flabel"><b>④ · 약점 0 상태 (B안 확정)</b><span>전부 "알아요" — 카드 0장 = 정상 결과</span></div>
+  <div class="phone">
+    <div class="statusbar">MMT · 390px · 무료</div>
+    <div class="body">
+
+      <div class="navrow"><span class="back">‹ 홈</span></div>
+
+      <!-- ●12 -->
+      <div class="rel">
+        <span class="co" style="top:-6px; right:-6px;">12</span>
+        <div class="headline">확인한 7개 개념,<br>약점이 안 보여요! 👍</div>
+        <div class="honest">여기는 탄탄해요 — 한 계단 위로 올라가볼까요?</div>
+      </div>
+
+      <div class="empty-card">카드 0장 = 정상 결과<br>(전부 알아요 → 시급도 산출 생략)</div>
+
+      <div class="rel" style="margin-top:auto;">
+        <div class="btn-primary">한 계단 위 '이차함수' 진단하기</div>
+        <a class="txt-link">진단한 개념, 그래프에서 확인하기 ›</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /frames -->
+
+<!-- ══════════ 인터랙션 노트 ══════════ -->
+<div class="notes">
+  <h3>인터랙션 노트 (탭하면 무슨 일이)</h3>
+  <div class="note-cols">
+
+  <div class="note-item"><span class="n">1</span><div>
+    <b>④-A "‹ 홈"</b> — 탭 → ① (경고 없음).
+    <dl><dt>완주·미저장 이탈 = 소실 허용(확정 (a))</dt><dd>완주(done)·미저장 세션은 ②의 이어가기 대상이 아님(미완주만) → 여기서 나가면 이 결과로 돌아올 진입로가 없음. <b>MVP는 소실 허용</b> — "저장하고…" 1차 CTA가 바로 그 해답(게이트 가치 강화). 완주 맵 유지 + 홈 "결과 다시 보기" 재프리뷰 배선을 <b>추가할지 말지</b>는 백로그에서 결정(<code>docs/backlog/m7-result-completed-session-repreview.md</code>).</dd></dl>
+    <span class="src">spec-01 S1-A(이어가기 범위) 파생 · 2026-07-17 04-result 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">2</span><div>
+    <b>헤드라인 요약 + 정직성 한 줄</b> — 정적. "확인한 N개 중 M개 약점 — 가장 급한 건 '{top 개념}'"(<code>headline{totalAsked, weakCount, topConceptName}</code>). 정직성 한 줄은 ①에서 이동해온 확정 위치 — 시급도라는 "주장"이 등장하는 화면에 병기.
+    <span class="src">PRD §4.3 · 01-home 검수 확정(B안) · 플로우 맵 API 표 ④-A</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">3</span><div>
+    <b>fail-soft 스트립(조건부)</b> — TF Serving 실패 시에만 헤드라인 아래 노출. "몰라요" 목록 기반 결과(카드·링크)는 그대로 성립, 카드의 시급도 배지만 "—" 결측 + 카드 순서는 근거(blocked 수) 순으로 대체. 별도 에러 페이지로 가지 않음.
+    <dl><dt>형태(확정)</dt><dd>인라인 안내 스트립 1줄 — 모달·토스트 아님(지속 상태라 화면에 남아야 함).</dd></dl>
+    <span class="src">플로우 맵 ●10 · spec-01 §4.4 R2 · 2026-07-17 04-result 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">4</span><div>
+    <b>개념 카드(무료) — 시급도순 top-N</b> — 카드 구성: 개념명 + 시급도 배지(상/중/하 — 내부 % 노출 금지) + 사람 언어 근거("이걸 모르면 위로 N개가 막혀요" = <code>urgencyBasis.blockedDescendants</code>) + 무료 외부자료 링크(탭 → 새 탭, 비로그인 노출 — 공짜 공공자료는 게이트 안 함).
+    <dl>
+      <dt>top-N 컷(확정 규칙 시연)</dt><dd>'상' 전부 default, '상'&lt;3 → '중'에서 시급도순 보충해 바닥 3장 / '상'&gt;5 → 5장 캡. 프레임은 상1+중2 보충 예.</dd>
+      <dt>"학습 경로 보기 ›" (2차)</dt><dd>탭 → ●6과 <b>동일 게이트로 수렴</b>(비로그인 = 로그인 트리거). 조용한 텍스트 스타일 — 1차와 경쟁 금지.</dd>
+    </dl>
+    <span class="src">PRD §4.1·§4.2·§4.3 · F-1 · 플로우 맵 ●6</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">5</span><div>
+    <b>"더 보기 (중/하 N개) ∨"</b> — 탭 → 나머지 카드 인라인 펼침, 다시 탭("접기 ∧") → 접힘(펼침/접기 토글 확정 — 페이지 이동 아님). 펼쳐도 1차 CTA는 하단 유지.
+    <span class="src">PRD F-4 top-N · 2026-07-17 확정(토글)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">6</span><div>
+    <b>1차 CTA "저장하고 학습 경로 시작하기" + 게이트 안내문</b> — 화면 유일 1차. 비로그인 → ⑤ 로그인 경유 → 귀속(<code>POST /api/v1/diagnosis</code>) + 큐 생성 → <b>같은 화면이 ④-B 상태로 전환</b>. 이미 로그인이면 ⑤ 생략하고 바로 귀속+전환. preview == 귀속 결과(결정론 계약 — "본 결과가 저장됐다").
+    <dl><dt>안내문 카피(확정)</dt><dd>무료 먼저 — "진단 결과와 자료는 무료예요 — 저장과 학습 경로는 로그인 후 제공".</dd></dl>
+    <span class="src">PRD F-1 · 플로우 맵 ●6·●7 · 2026-07-17 확정(안내문 무료 먼저)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">7</span><div>
+    <b>④-B "‹ 홈"</b> — 탭 → ①. 저장 상태라 언제든 복귀 가능: 홈 "이어서" 배너 또는 (재열람 API) <code>GET /api/v1/learning-queues/me</code>.
+    <span class="src">플로우 맵 ●8</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">8</span><div>
+    <b>인터랙티브 그래프 학습 경로(게이트 독점 자산 · 순서 1)</b> — 무너진 토대 → 목표 개념 계단이 그래프 위에 하이라이트. 노드 탭 = 선택·개념 정보(호버 의존 0). 다운로드형 아님 — 그래프 위 가이드가 해자. 상세 인터랙션(줌·이동)은 ⑥ 그래프 화면 규약 공유.
+    <span class="src">PRD §4.3 1차 CTA 보상 · 2026-07-17 확정(④-B 순서 = 그래프→카드→체크리스트)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">9</span><div>
+    <b>진단 카드 재열람(순서 2)</b> — ④-A와 동일 카드이되 "학습 경로 보기" 2차 버튼만 없음(게이트 이미 통과 — 경로는 위 ●8이 담당). 외부링크는 그대로 탭 가능.
+    <span class="src">플로우 맵 ④-B desc</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">10</span><div>
+    <b>큐 체크리스트(순서 3)</b> — 항목 탭 → 완료 self-mark <b>토글</b>(<code>PATCH …/items/{itemId}/done</code> — 앱은 학습을 검증하지 않음, 해제도 가능). "여기부터" = position순 첫 미완료(서버 파생값 — 클라 계산 아님). 정렬 = 위상순 지배(선수 먼저), 시급도는 가지 진입 우선순위만 — 순서 재배열 UI 없음.
+    <span class="src">PRD F-4 출구·재진입 · spec-01 §4.6 · 플로우 맵 ●8</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">11</span><div>
+    <b>"다시 진단하기"(보조)</b> — 탭 → ② 영역 진입부터 새로(재진단 = 별개 액션). 새 진단을 완주·저장하면 <b>새 큐가 활성 큐를 대체</b>(유저당 활성 큐 1개). 탭 시점엔 아무것도 폐기되지 않음 — 대체는 새 큐 생성 시.
+    <span class="src">플로우 맵 ●8 · spec-01 §4.6</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">12</span><div>
+    <b>약점 0 상태(B안 확정)</b> — 전부 "알아요" = 시작점이 너무 쉬웠다는 신호(순회는 아래로만) → 1차 CTA "한 계단 위 '{단원}' 진단하기"(② 계단순 데이터 재사용, 탭 → 그 단원으로 ③ 새 세션) + 조용한 링크 "그래프에서 확인하기 ›" → ⑥. <b>게이트 CTA·저장 없음</b> — 큐는 약점 기반이라 이 경우 빈 큐(저장할 것이 없음). 시급도 배지·정직성 한 줄 대신 격려 서브카피.
+    <span class="src">플로우 맵 ●11 · 04-result-empty-variants.html B안 확정</span>
+  </div></div>
+
+  </div><!-- /note-cols -->
+
+  <div class="rules">
+    <b>화면 레벨 규칙</b>
+    <li><b>같은 화면 2상태(확정)</b> — ④-A/④-B는 별개 페이지가 아니라 한 화면의 상태 전환. 로그인·귀속 성공 시 그 자리에서 B로 전환, 재열람(홈 배너 등) 진입 시 처음부터 B로 도착.</li>
+    <li>1차 CTA는 상태당 하나: A = "저장하고 학습 경로 시작하기", B = 없음(재열람 화면 — "다시 진단하기"는 보조), 약점 0 = "한 계단 위 진단하기".</li>
+    <li>내부 용어(percent, depth, probability) 화면 노출 금지 — urgency 등급·blockedDescendants 사람 언어만(§4.2).</li>
+    <li>preview rate limit 429 → ⑤-B 학생 친화 카피("잠깐 쉬었다 다시") — 인라인 표시, 답변 맵은 무사.</li>
+    <li>무료 상태만으로 "개념·순서·자료"가 충족되어야 함(§5.1 런치 판정) — 게이트는 그래프 경로·저장·큐만.</li>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
