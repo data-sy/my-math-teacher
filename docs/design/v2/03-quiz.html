@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 와이어프레임 ③ 자가진단 문답</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --sub: #666; --line: #c8c8c8; --bg: #ececec;
+    --paper: #fff; --soft: #f5f5f5; --note: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding: 24px 16px 64px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  header.doc { margin-bottom: 20px; }
+  header.doc h1 { font-size: 19px; margin-bottom: 6px; }
+  header.doc .meta { font-size: 12px; color: var(--sub); }
+  header.doc .meta code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .status { display: inline-block; border: 1px solid var(--ink); padding: 1px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+
+  .cols { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+
+  .phone { width: 390px; margin: 0 auto; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; min-height: 720px; display: flex; flex-direction: column; position: relative; }
+  .statusbar { height: 22px; border-bottom: 1px dotted var(--line); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--sub); letter-spacing: .2em; flex: none; }
+  .body { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 20px; }
+
+  .co { position: absolute; background: var(--ink); color: #fff; font-size: 11px; width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; }
+  .rel { position: relative; }
+
+  .navrow { display: flex; align-items: center; margin-bottom: 8px; }
+  .navrow .back { font-size: 13px; color: var(--sub); }
+
+  .progress { font-size: 11.5px; color: var(--sub); display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .pbar { height: 5px; background: var(--soft); border-radius: 3px; margin-bottom: 22px; overflow: hidden; border: 1px solid var(--line); }
+  .pbar i { display: block; height: 100%; width: 38%; background: var(--ink); }
+
+  .qcard { border: 2px solid var(--ink); border-radius: 12px; padding: 30px 18px; text-align: center; }
+  .qcard .cname { font-size: 21px; font-weight: 800; }
+  .qcard .cdesc { font-size: 13px; color: var(--sub); margin-top: 12px; border-top: 1px dotted var(--line); padding-top: 12px; }
+
+  .cond-frame { border: 1.5px dashed var(--sub); border-radius: 10px; padding: 4px; margin-top: 12px; }
+  .cond-frame .cond-tag { font-size: 9.5px; color: var(--sub); padding: 0 6px 3px; letter-spacing: .04em; }
+  .err-card { border: 1.5px solid var(--line); border-radius: 10px; padding: 14px; text-align: center; font-size: 12px; color: var(--sub); background: var(--soft); }
+  .err-card .retry { display: inline-block; border: 1.5px solid var(--ink); color: var(--ink); border-radius: 7px; padding: 5px 16px; font-size: 12.5px; margin-top: 8px; }
+
+  .toast { margin: 14px auto 0; background: var(--ink); color: #fff; font-size: 11.5px; padding: 7px 14px; border-radius: 16px; width: fit-content; }
+
+  .qbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+  .qbtns .b { padding: 17px 0; font-size: 16px; font-weight: 700; border-radius: 8px; text-align: center; }
+  .qbtns .dont { border: 2px solid var(--ink); background: var(--paper); color: var(--ink); }
+  .qbtns .know { background: var(--ink); color: #fff; }
+  .undo-row { text-align: center; margin-top: 12px; }
+  .undo-row span { color: var(--sub); font-size: 12.5px; text-decoration: underline; }
+
+  .notes h3 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 5px; margin-bottom: 12px; }
+  .note-item { display: flex; gap: 10px; background: var(--note); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; font-size: 12.5px; }
+  .note-item .n { flex: none; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .note-item .src { color: var(--sub); font-size: 11px; }
+  .note-item dl { margin-top: 3px; }
+  .note-item dt { font-weight: 700; font-size: 11px; margin-top: 5px; }
+  .note-item dd { margin-left: 0; }
+  .note-item code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .rules { margin-top: 20px; border: 1px dashed var(--line); background: var(--paper); padding: 10px 14px; font-size: 12px; color: var(--sub); }
+  .rules b { color: var(--ink); }
+  .rules li { margin: 4px 0 4px 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>M7 v2 · 와이어프레임 — SCREEN ③ 자가진단 문답<span class="status">확정 — 검수 반영(2026-07-17)</span></h1>
+  <p class="meta">
+    작성 2026-07-17 · 정본 입력 = PRD §3.2 ③·D5 + 플로우 맵 ③(반복 루프)·●4·●5·●10 + spec-01 §4.3 · A안(정적 카드 + 하단 고정 2버튼) 확정 반영<br>
+    검수 확정 3건: ●2 진척 바 후퇴 금지(undo 예외) · ●5 토스트 = "알아요"에만 · ●4 버튼 좌우·강조 스타일 = 하이파이에서 재판단(현행 유지)
+  </p>
+</header>
+
+<div class="cols">
+
+<!-- ══════════ 프레임 ══════════ -->
+<div>
+<div class="phone">
+  <div class="statusbar">MMT · 390px · 무료 · 반복 루프(질문마다 이 화면 재사용)</div>
+  <div class="body">
+
+    <!-- ●1 뒤로 -->
+    <div class="navrow rel">
+      <span class="co" style="top:-4px; left:-9px;">1</span>
+      <span class="back">‹ 진입</span>
+    </div>
+
+    <!-- ●2 진척 -->
+    <div class="rel">
+      <span class="co" style="top:-8px; right:-6px;">2</span>
+      <div class="progress"><span>4개 답변</span><span>남은 예상 ~3</span></div>
+      <div class="pbar"><i></i></div>
+    </div>
+
+    <!-- ●3 질문 카드 -->
+    <div class="rel">
+      <span class="co" style="top:-9px; left:-9px;">3</span>
+      <div class="qcard">
+        <div class="cname">인수분해</div>
+        <div class="cdesc">예: x²−5x+6 → (x−2)(x−3)</div>
+      </div>
+    </div>
+
+    <!-- ●7 인라인 에러 (조건부) -->
+    <div class="cond-frame rel">
+      <span class="co" style="top:-9px; left:-9px;">7</span>
+      <div class="cond-tag">▼ 조건부 — 다음 질문 로드 실패 시 카드 자리를 이것으로 대체</div>
+      <div class="err-card">연결이 잠깐 끊겼어요. 답변은 그대로 있어요.<br><span class="retry">다시 시도</span></div>
+    </div>
+
+    <!-- ●5 토스트 (일시 표시) -->
+    <div class="rel">
+      <span class="co" style="top:-2px; right:66px;">5</span>
+      <div class="toast">알겠어요 — 관련 기초는 건너뛸게요</div>
+    </div>
+
+    <!-- ●4 2택 버튼 -->
+    <div class="qbtns rel">
+      <span class="co" style="top:-9px; left:-9px;">4</span>
+      <div class="b dont">몰라요</div>
+      <div class="b know">알아요</div>
+    </div>
+
+    <!-- ●6 undo -->
+    <div class="undo-row rel">
+      <span class="co" style="top:2px; right:100px;">6</span>
+      <span>‹ 이전 답 수정</span>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 인터랙션 노트 ══════════ -->
+<div class="notes">
+  <h3>인터랙션 노트 (탭하면 무슨 일이)</h3>
+
+  <div class="note-item"><span class="n">1</span><div>
+    <b>‹ 진입</b> — 탭 → ② (경고 없음). 진행분은 매 답변마다 localStorage에 있으므로 유실 없음 — ②에서 [이어서 진행/새로 시작] 노트로 복구.
+    <span class="src">PRD F-2 · 플로우 맵 ●5</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">2</span><div>
+    <b>진척 표시</b> — 좌 "N개 답변"(확정값) · 우 "남은 예상 ~M"(서버 <code>progress.estimatedRemaining</code> — 적응형이라 추정치임을 "~"로 표기). 인터랙션 없음.
+    <dl>
+      <dt>바 채움 규칙(확정)</dt><dd>바 = asked/(asked+estimatedRemaining). "몰라요" drill-down 으로 남은 예상이 늘면 계산값이 뒤로 갈 수 있는데, <b>바는 후퇴 금지(지금까지의 max 유지)</b> — 답할수록 뒤로 가는 바는 이탈 유발. 숫자("남은 예상 ~N")는 솔직하게 갱신. 단 ●6 undo 는 명시적 되돌리기이므로 바도 같이 되돌아감(후퇴 금지의 유일 예외).</dd>
+    </dl>
+    <span class="src">spec-01 §4.3(progress) · 2026-07-17 03-quiz 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">3</span><div>
+    <b>질문 카드 = 개념 이름 + 대표 예시</b> — 정적(카드 자체는 탭 대상 아님 — A안). 예시는 서버 <code>next.description</code>(D5 — "내용은 아는데 이름을 몰라" 오답 방지). 화면당 개념 1개.
+    <span class="src">PRD §3.2 ③·D5 · 2026-07-13 A안 확정 · 플로우 맵 API 표 ③</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">4</span><div>
+    <b>2택 "몰라요 / 알아요"</b> — 탭 → answered-map에 추가 + localStorage 저장 + <code>POST /api/v1/diagnosis/next {entry, answered[]}</code> → 다음 질문으로 카드 교체. 하단 고정, 좌우 위치 불변(위치 학습 — 반복 루프에서 오탭 방지).
+    <dl>
+      <dt>배선(서버 몫)</dt><dd>"알아요" = 그 개념의 선수 폐쇄 전체 skip / "몰라요" = 직계 선수 push(drill-down). 클라는 순회 로직을 모름 — 매 요청 맵 전체 전송(stateless).</dd>
+      <dt>done:true 응답</dt><dd>즉시 ④ 결과로 자동 전환(별도 "결과 보기" 버튼 없음).</dd>
+      <dt>스타일(하이파이 이월)</dt><dd>좌우 배치·강조 차등(채움/아웃라인·색 분리 등)은 <b>하이파이 디자인에서 재판단</b> — 로우파이는 현행(몰라요 좌 아웃라인 / 알아요 우 채움) 유지(2026-07-17 검수).</dd>
+    </dl>
+    <span class="src">플로우 맵 ●4 · spec-01 §4.3 D1-A · 03-quiz 검수</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">5</span><div>
+    <b>답변 피드백 토스트(일시 표시) — "알아요"에만(확정)</b> — "알아요" 답변 직후 1.5초 노출 후 소멸: "알겠어요 — 관련 기초는 건너뛸게요". "몰라요"는 토스트 없음(방향 안내는 정보량이 적어 소음).
+    <dl><dt>왜</dt><dd>적응형 skip 은 서버 안에서 일어나 유저에게 안 보임 — 질문이 조용히 증발하는 이유를 이 신호가 전달해야 "짧다"는 체감(§5.1 런치 판정)이 성립.</dd></dl>
+    <span class="src">§5.1 적응형 체감 · 2026-07-17 03-quiz 검수 확정("알아요"에만)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">6</span><div>
+    <b>‹ 이전 답 수정</b> — 탭 → <b>직전 답 1개만</b> undo(맵에서 제거 + 그 개념 질문으로 복귀). 답변 0개면 숨김. 연타 시 한 번에 한 개씩 더 과거로. 임의 과거 답을 골라 수정하는 UI는 금지 — 순회가 답에 의존(인과 불변식)하므로 직전 외 수정은 이후 답 전부 무효화.
+    <span class="src">2026-07-17 프로토타입 리뷰 확정 · 플로우 맵 ③ desc · 공통 규약 undo = ‹</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">7</span><div>
+    <b>인라인 에러(조건부)</b> — 다음 질문 로드 실패 시 별도 페이지로 가지 않고 <b>카드 자리만</b> 에러 카드로 대체 + "다시 시도"(같은 요청 재전송). 답변 맵은 localStorage에 무사함을 카피로 안심시킴. 2택 버튼은 이 상태에서 비활성.
+    <span class="src">플로우 맵 ●10(상황 내 표시 우선)</span>
+  </div></div>
+
+  <div class="rules">
+    <b>화면 레벨 규칙</b>
+    <li>반복 루프 화면 — 질문마다 새 페이지가 아니라 카드 내용만 교체(레이아웃·버튼 위치 불변).</li>
+    <li>이 화면의 1차 행동 = 2택 자체(동급 2버튼). 그 외 요소(undo·뒤로)는 전부 조용한 스타일 — 2택과 경쟁 금지.</li>
+    <li>entry scope=full(② escape (b) 진입)도 동일 화면·동일 계약 — 화면 차이 없음.</li>
+    <li>프레임 표기 관례: ●5 토스트·●7 에러는 실제로는 동시에 안 보임(토스트 = 일시, 에러 = 카드 대체). 여기선 명세를 위해 병렬 표시.</li>
+  </div>
+</div>
+
+</div><!-- /cols -->
+</div>
+</body>
+</html>
