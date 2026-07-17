@@ -74,7 +74,7 @@
   <h1>M7 v2 · 와이어프레임 — SCREEN ① 홈<span class="status">확정 — 검수 반영(2026-07-17)</span></h1>
   <p class="meta">
     작성 2026-07-17 · 정본 입력 = PRD §3.2 ①·F-4 + 플로우 맵(<code>00-flow-map.html</code>) ●1·●8 · 로우파이(레이아웃·위계·인터랙션만 — 비주얼·카피 폴리싱은 하이파이 단계)<br>
-    검수 확정 2건(정직성 한 줄 = ④에서만 · 완료 큐 배너 = 문구 대체 A안) — 비교 근거 = <code>01-home-variants.html</code>
+    검수 확정 2건(정직성 한 줄 = ④에서만 · 완료 큐 배너 = 문구 대체 A안) — 비교 근거 = <code>01-home-variants.html</code> · ●7 로그인 링크는 05 검수에서 추가(2026-07-17)
   </p>
 </header>
 
@@ -85,6 +85,12 @@
 <div class="phone">
   <div class="statusbar">MMT · 390px · 무료(비로그인 도달 가능)</div>
   <div class="body">
+
+    <!-- ●7 로그인 링크 (조건부 — 비로그인 시에만) -->
+    <div class="rel" style="text-align:right; margin-bottom:4px;">
+      <span class="co" style="top:-4px; right:-9px;">7</span>
+      <a class="txt-link" style="display:inline; margin-top:0;">로그인</a>
+    </div>
 
     <!-- ●1 재진입 배너 (조건부) -->
     <div class="cond-frame rel">
@@ -183,10 +189,15 @@
     <span class="src">PRD F-4 · 2026-07-17 공통 확정(링크 › / undo ‹)</span>
   </div></div>
 
+  <div class="note-item"><span class="n">7</span><div>
+    <b>조용한 "로그인" 텍스트 링크(조건부 — 비로그인 시에만)</b> — 탭 → ⑤-A 변형(귀속할 진단 결과 없음 — 귀속·큐 생성 생략, 성공 시 홈 복귀 → ●1 배너 노출). 새 기기·로그아웃 상태의 재방문 유저가 저장된 큐에 닿는 유일한 진입로. 로그인 상태면 이 링크 자체가 없음(●1 배너와 상호 배타 — 동시 노출 불가).
+    <span class="src">2026-07-17 05-login-error 검수 확정(●3 진입 변형)</span>
+  </div></div>
+
   <div class="rules">
     <b>화면 레벨 규칙</b>
     <li>홈 = 루트 화면. 상단 뒤로가기 없음. 진입 경로 = 최초 방문 · ③/⑥에서 ‹ 홈 · OAuth 콜백 실패 폴백.</li>
-    <li>1차 CTA는 화면당 정확히 1개(F-1) — 이 화면에선 ●5. ●1 배너는 버튼이 아닌 카드형 재진입 숏컷, ●6은 텍스트 링크.</li>
+    <li>1차 CTA는 화면당 정확히 1개(F-1) — 이 화면에선 ●5. ●1 배너는 버튼이 아닌 카드형 재진입 숏컷, ●6·●7은 텍스트 링크.</li>
     <li>폴드(첫 화면) 안에 헤드라인 + 1차 CTA가 함께 보여야 함. 스텝·그래프가 길어지면 줄이는 쪽은 그래프 높이.</li>
   </div>
 </div>

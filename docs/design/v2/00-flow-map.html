@@ -160,7 +160,7 @@
         <span class="anno">7</span>
         <div class="no">SCREEN ⑤-A · 횡단</div>
         <h2>로그인 (비로그인일 때만 경유)</h2>
-        <div class="desc">OAuth 3사(구글/네이버/카카오) → 콜백 → 귀속·큐 생성 후 ④-B 복귀. 진단 결과는 localStorage에 있으므로 유실 없음</div>
+        <div class="desc">OAuth 3사(구글/네이버/카카오) → 콜백 → 귀속·큐 생성 후 ④-B 복귀. 진단 결과는 localStorage에 있으므로 유실 없음. 별도 진입 변형: ① 홈 상단 조용한 "로그인" 링크(비로그인 시에만) — 귀속 없이 로그인만, 성공 시 홈 복귀(05 검수 확정 2026-07-17)</div>
         <div class="api">OAuth 콜백 후: POST /api/v1/diagnosis {entry, answered[]} → POST /api/v1/learning-queues {userTestId}</div>
       </div>
     </div>
