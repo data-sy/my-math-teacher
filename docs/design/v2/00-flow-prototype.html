@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 클릭러블 프로토타입 (로우파이)</title>
+<style>
+  :root { --ink:#1a1a1a; --sub:#666; --line:#c8c8c8; --bg:#ececec; --paper:#fff; --soft:#f5f5f5; --gate:#e6e6e6; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { font-family:-apple-system,"Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; padding:16px 12px 48px; }
+
+  /* ── 상단 플로우 스트립 ── */
+  .toolbar { max-width:560px; margin:0 auto 14px; }
+  .toolbar h1 { font-size:14px; margin-bottom:8px; }
+  .toolbar h1 small { color:var(--sub); font-weight:400; font-size:11px; }
+  .flowstrip { display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-size:10.5px; }
+  .flowstrip .fnode { border:1.5px solid var(--line); background:var(--paper); color:var(--sub); padding:2px 7px; border-radius:10px; white-space:nowrap; }
+  .flowstrip .fnode.on { border-color:var(--ink); background:var(--ink); color:#fff; }
+  .flowstrip .fsep { color:var(--line); }
+  .toolbar .ctrl { margin-top:8px; font-size:11px; color:var(--sub); display:flex; gap:12px; align-items:center; }
+  .toolbar .ctrl button { font-size:11px; border:1px solid var(--line); background:var(--paper); padding:2px 10px; border-radius:4px; cursor:pointer; color:var(--sub); }
+
+  /* ── 폰 프레임 ── */
+  .phone { max-width:390px; margin:0 auto; background:var(--paper); border:2.5px solid var(--ink); border-radius:24px; overflow:hidden; min-height:640px; display:flex; flex-direction:column; position:relative; }
+  .statusbar { height:22px; border-bottom:1px dotted var(--line); display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--sub); letter-spacing:.2em; flex:none; }
+  .screen { display:none; flex:1; flex-direction:column; padding:18px 16px 20px; overflow-y:auto; }
+  .screen.on { display:flex; }
+
+  /* ── 로우파이 공용 부품 ── */
+  .sc-tag { font-size:10px; color:var(--sub); letter-spacing:.08em; margin-bottom:10px; }
+  .ph-box { border:1.5px dashed var(--line); background:var(--soft); color:var(--sub); display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; }
+  .btn-primary { display:block; width:100%; border:none; background:var(--ink); color:#fff; font-size:15px; font-weight:700; padding:14px; border-radius:8px; cursor:pointer; margin-top:auto; }
+  .btn-secondary { display:block; width:100%; border:1.5px solid var(--ink); background:var(--paper); color:var(--ink); font-size:13px; padding:10px; border-radius:8px; cursor:pointer; }
+  .txt-link { background:none; border:none; color:var(--sub); font-size:12px; text-decoration:underline; cursor:pointer; }
+  .headline { font-size:19px; font-weight:800; line-height:1.35; }
+  .subcopy { font-size:12px; color:var(--sub); margin-top:6px; }
+  .badge { display:inline-block; font-size:10px; border:1px solid var(--ink); padding:0 6px; border-radius:9px; }
+  .badge.hi { background:var(--ink); color:#fff; }
+
+  /* ① 홈 */
+  #scr-home .hero-graph { height:150px; margin:14px 0; position:relative; }
+  #scr-home .hero-graph .gnode { position:absolute; width:34px; height:34px; border:1.5px solid var(--sub); border-radius:50%; background:var(--paper); font-size:8px; color:var(--sub); display:flex; align-items:center; justify-content:center; }
+  #scr-home .steps { margin:10px 0 16px; }
+  #scr-home .steps li { font-size:12px; color:var(--sub); margin:5px 0 5px 18px; }
+  .resume-banner { border:1.5px solid var(--ink); background:var(--soft); border-radius:8px; padding:10px 12px; font-size:12.5px; margin-bottom:12px; cursor:pointer; display:none; }
+  .resume-banner b { display:block; font-size:13px; }
+  .resume-banner.show { display:block; }
+
+  /* ② 진입 */
+  .pick-item { border:1.5px solid var(--line); border-radius:8px; padding:11px 12px; margin-bottom:8px; cursor:pointer; font-size:13.5px; background:var(--paper); }
+  .pick-item small { display:block; font-size:11px; color:var(--sub); }
+  .pick-item.default { border-color:var(--ink); background:var(--soft); }
+  .pick-item.default::after { content:"지금 시기 추천"; float:right; font-size:10px; color:var(--sub); border:1px solid var(--line); padding:0 6px; border-radius:8px; }
+  .escape-row { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+  .resume-note { font-size:11px; color:var(--sub); border:1px dashed var(--line); padding:6px 10px; border-radius:6px; margin-bottom:10px; display:none; }
+  .resume-note.show { display:block; }
+
+  /* ③ 문답 */
+  #scr-quiz .progress { font-size:11px; color:var(--sub); display:flex; justify-content:space-between; margin-bottom:12px; }
+  #scr-quiz .pbar { height:4px; background:var(--soft); border-radius:2px; margin-bottom:22px; overflow:hidden; }
+  #scr-quiz .pbar i { display:block; height:100%; background:var(--ink); transition:width .25s; }
+  .qcard { border:2px solid var(--ink); border-radius:12px; padding:26px 18px; text-align:center; }
+  .qcard .cname { font-size:20px; font-weight:800; }
+  .qcard .cdesc { font-size:12.5px; color:var(--sub); margin-top:10px; border-top:1px dotted var(--line); padding-top:10px; }
+  .qbtns { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:auto; }
+  .qbtns button { padding:16px 0; font-size:15px; font-weight:700; border-radius:8px; cursor:pointer; }
+  .qbtns .know { border:none; background:var(--ink); color:#fff; }
+  .qbtns .dont { border:2px solid var(--ink); background:var(--paper); color:var(--ink); }
+
+  /* ④ 결과 */
+  .card { border:1.5px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:var(--paper); }
+  .card .crow { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .card .cn { font-size:14px; font-weight:700; }
+  .card .basis { font-size:11.5px; color:var(--sub); margin-top:5px; }
+  .card .links { margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
+  .card .links span { font-size:10.5px; border:1px solid var(--line); border-radius:4px; padding:2px 7px; color:var(--sub); background:var(--soft); }
+  .card .path2 { margin-top:8px; }
+  .card .path2 button { font-size:11px; border:1px solid var(--line); background:none; padding:3px 9px; border-radius:5px; color:var(--sub); cursor:pointer; }
+  .morefold { text-align:center; margin:4px 0 12px; }
+  .gate-note { font-size:10.5px; color:var(--sub); text-align:center; margin-top:6px; }
+
+  /* ④-B 큐 */
+  .queue-wrap { border:2px dashed var(--sub); border-radius:10px; padding:12px; background:var(--gate); margin-bottom:14px; }
+  .queue-wrap h3 { font-size:13px; margin-bottom:2px; }
+  .queue-wrap .qsub { font-size:11px; color:var(--sub); margin-bottom:10px; }
+  .qitem { display:flex; align-items:center; gap:9px; background:var(--paper); border:1.5px solid var(--line); border-radius:7px; padding:9px 10px; margin-bottom:6px; cursor:pointer; font-size:13px; }
+  .qitem .chk { width:17px; height:17px; border:1.5px solid var(--ink); border-radius:4px; flex:none; display:flex; align-items:center; justify-content:center; font-size:11px; }
+  .qitem.done { color:var(--sub); text-decoration:line-through; }
+  .qitem.done .chk::after { content:"✓"; }
+  .qitem .here { margin-left:auto; font-size:9.5px; background:var(--ink); color:#fff; padding:1px 6px; border-radius:8px; }
+  .mini-path { height:72px; margin-bottom:10px; }
+
+  /* ⑤ 로그인 */
+  #scr-login .oauth { display:flex; flex-direction:column; gap:9px; margin:22px 0; }
+  #scr-login .oauth button { border:1.5px solid var(--ink); background:var(--paper); padding:12px; font-size:14px; border-radius:8px; cursor:pointer; }
+  .gatebox { border:1.5px dashed var(--sub); background:var(--gate); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--sub); }
+
+  /* ⑥ 그래프 */
+  #scr-graph .search { border:1.5px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; color:var(--sub); background:var(--soft); margin-bottom:12px; }
+  #scr-graph .gcanvas { flex:1; min-height:280px; margin-bottom:14px; }
+
+  /* 공통 상단 뒤로 */
+  .navrow { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .navrow .back { border:none; background:none; font-size:13px; cursor:pointer; color:var(--sub); padding:2px 4px; }
+
+  /* 화면 밑 인터랙션 캡션 */
+  .caption { max-width:390px; margin:12px auto 0; font-size:11.5px; color:var(--sub); border-left:3px solid var(--line); padding-left:10px; }
+  .caption b { color:var(--ink); }
+
+  /* 토스트 */
+  #toast { position:absolute; bottom:84px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:11.5px; padding:7px 14px; border-radius:16px; opacity:0; transition:opacity .25s; pointer-events:none; white-space:nowrap; }
+  #toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <h1>M7 v2 · 클릭러블 프로토타입 <small>— 로우파이 템플릿 + 실동작 인터랙션 · 데이터는 목(이차방정식 미니 그래프 7개념)</small></h1>
+  <div class="flowstrip" id="flowstrip">
+    <span class="fnode" data-f="home">① 홈</span><span class="fsep">→</span>
+    <span class="fnode" data-f="entry">② 진입</span><span class="fsep">→</span>
+    <span class="fnode" data-f="quiz">③ 문답</span><span class="fsep">→</span>
+    <span class="fnode" data-f="result">④-A 결과(무료)</span><span class="fsep">→</span>
+    <span class="fnode" data-f="login">⑤ 로그인</span><span class="fsep">→</span>
+    <span class="fnode" data-f="gated">④-B 경로·큐</span>
+    <span class="fsep">|</span>
+    <span class="fnode" data-f="graph">⑥ 그래프</span>
+  </div>
+  <div class="ctrl">
+    <button onclick="resetAll()">처음부터 리셋</button>
+    <span id="statebrief"></span>
+  </div>
+</div>
+
+<div class="phone">
+  <div class="statusbar">MMT · 목업 프레임 390px</div>
+
+  <!-- ① 홈 -->
+  <section class="screen" id="scr-home">
+    <div class="sc-tag">SCREEN ① 홈 · 무료</div>
+    <div class="resume-banner" id="resumeBanner" onclick="go('gated')">
+      <b>이어서: <span id="resumeNext">—</span> ›</b>
+      <span style="font-size:11px;color:var(--sub);">저장된 학습 큐로 돌아가기 (★제안 — 열린 질문 1)</span>
+    </div>
+    <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+    <div class="hero-graph ph-box" style="display:block;">
+      <span style="position:absolute;top:6px;left:8px;font-size:9px;">히어로 비주얼 = 지식그래프 (미끼 — 버튼 아님)</span>
+      <span class="gnode" style="top:38px;left:30px;">개념</span>
+      <span class="gnode" style="top:70px;left:105px;">개념</span>
+      <span class="gnode" style="top:30px;left:180px;">개념</span>
+      <span class="gnode" style="top:82px;left:250px;">개념</span>
+      <span class="gnode" style="top:36px;left:300px;">개념</span>
+    </div>
+    <ul class="steps">
+      <li>알아요/몰라요만 답하면</li>
+      <li>그래프가 무너진 토대를 추적하고</li>
+      <li>AI가 급한 순서로 짚어줘요</li>
+    </ul>
+    <button class="btn-primary" onclick="go('entry')">무료 진단 시작</button>
+    <div style="text-align:center;margin-top:10px;">
+      <button class="txt-link" onclick="go('graph')">개념 그래프 둘러보기</button>
+    </div>
+  </section>
+
+  <!-- ② 진입 -->
+  <section class="screen" id="scr-entry">
+    <div class="navrow"><button class="back" onclick="go('home')">‹ 홈</button></div>
+    <div class="sc-tag">SCREEN ② 영역 진입 · 무료</div>
+    <div class="headline" style="font-size:17px;">지금 어디쯤이야?</div>
+    <div class="subcopy" style="margin-bottom:14px;">진단하고 싶은 것을 고르세요.</div>
+    <div class="resume-note" id="resumeNote">진행 중인 진단이 있어요
+      <div style="display:flex;gap:8px;margin-top:7px;">
+        <button class="btn-secondary" style="padding:7px;font-size:12px;" onclick="go('quiz')">이어서 진행</button>
+        <button class="btn-secondary" style="padding:7px;font-size:12px;" onclick="S.answered=[];persist();brief();toast('새로 시작합니다');document.getElementById('resumeNote').classList.remove('show');">새로 시작</button>
+      </div>
+    </div>
+    <div class="pick-item default" onclick="startQuiz('이차방정식')">이차방정식 <small>중3 · 1학기</small></div>
+    <div class="pick-item" onclick="startQuiz('인수분해')">인수분해 <small>중3 · 1학기 (한 계단 아래)</small></div>
+    <div class="pick-item" onclick="startQuiz('이차함수')">이차함수 <small>중3 · 2학기 (한 계단 위)</small></div>
+    <div class="escape-row">
+      <button class="btn-secondary" onclick="toast('목업: 전체 단원 목록 시트가 열립니다'); ">여기 없음? — 다른 단원 직접 선택</button>
+      <button class="btn-secondary" onclick="startQuiz('전체 훑기')">모르겠어 → 전체 훑기</button>
+    </div>
+  </section>
+
+  <!-- ③ 문답 -->
+  <section class="screen" id="scr-quiz">
+    <div class="navrow"><button class="back" onclick="go('entry')">‹ 진입</button></div>
+    <div class="sc-tag">SCREEN ③ 자가진단 문답 · 무료 · 반복 루프</div>
+    <div class="progress"><span id="qAsked">0개 답변</span><span id="qRemain">남은 예상 —</span></div>
+    <div class="pbar"><i id="qBar" style="width:4%;"></i></div>
+    <div class="qcard">
+      <div class="cname" id="qName">—</div>
+      <div class="cdesc" id="qDesc">—</div>
+    </div>
+    <div class="qbtns">
+      <button class="dont" onclick="answer(false)">몰라요</button>
+      <button class="know" onclick="answer(true)">알아요</button>
+    </div>
+    <div style="text-align:center;margin-top:10px;"><button class="txt-link" id="qUndo" onclick="undoAnswer()">‹ 이전 답 수정</button></div>
+  </section>
+
+  <!-- ④-A 결과(무료) -->
+  <section class="screen" id="scr-result">
+    <div class="sc-tag">SCREEN ④-A 결과 · 무료 상태</div>
+    <div class="headline" style="font-size:16.5px;" id="rHeadline">—</div>
+    <div class="subcopy" style="margin-bottom:14px;" id="rSub">자가응답 기반 AI 학습 가이드예요 (시험 점수가 아니에요)</div>
+    <div id="rCards"></div>
+    <div id="rMoreCards"></div>
+    <div class="morefold" id="rMore"></div>
+    <button class="btn-primary" id="rCta" onclick="gateCta()">저장하고 학습 경로 시작하기</button>
+    <div class="gate-note" id="rGateNote">진단 결과와 자료는 무료예요 — 저장과 학습 경로는 로그인 후 제공</div>
+  </section>
+
+  <!-- ⑤ 로그인 -->
+  <section class="screen" id="scr-login">
+    <div class="navrow"><button class="back" onclick="go('result')">‹ 결과로</button></div>
+    <div class="sc-tag">SCREEN ⑤ 로그인 · 횡단</div>
+    <div class="headline" style="font-size:17px;">결과를 저장하고<br>학습 경로를 시작해요</div>
+    <div class="gatebox" style="margin-top:12px;">방금 받은 진단 결과는 그대로 있어요 (localStorage — 유실 없음). 로그인하면 계정에 저장돼요.</div>
+    <div class="oauth">
+      <button onclick="loginAs('구글')">구글로 계속하기</button>
+      <button onclick="loginAs('네이버')">네이버로 계속하기</button>
+      <button onclick="loginAs('카카오')">카카오로 계속하기</button>
+    </div>
+    <div style="text-align:center;"><button class="txt-link" onclick="go('result')">나중에 할게요 — 무료 결과로 돌아가기</button></div>
+  </section>
+
+  <!-- ④-B 게이트 결과 -->
+  <section class="screen" id="scr-gated">
+    <div class="navrow"><button class="back" onclick="go('home')">‹ 홈</button></div>
+    <div class="sc-tag">SCREEN ④-B 결과 · 게이트 상태 (로그인 후 같은 화면에 열림)</div>
+    <div class="mini-path ph-box" style="height:130px;margin-bottom:12px;">인터랙티브 그래프 학습 경로 (Cytoscape 자리)<br>— 학습 계단이 그래프 위에 하이라이트</div>
+    <div style="font-size:12px;font-weight:700;margin-bottom:8px;">진단 카드 (저장됨 · 재열람)</div>
+    <div id="gCards"></div>
+    <div class="queue-wrap">
+      <h3>나의 학습 계단 — 체크리스트</h3>
+      <div class="qsub">선수지식 먼저(위상순). 공부하고 오면 탭해서 완료 표시(self-mark)</div>
+      <div id="queueList"></div>
+    </div>
+    <button class="btn-secondary" onclick="go('entry')" style="margin-top:auto;">다시 진단하기 (새 큐로 대체)</button>
+  </section>
+
+  <!-- ⑥ 그래프 탐색 -->
+  <section class="screen" id="scr-graph">
+    <div class="navrow"><button class="back" onclick="go('home')">‹ 홈</button></div>
+    <div class="sc-tag">SCREEN ⑥ 개념그래프 탐색 · 무료 · 독립 진입</div>
+    <div class="search">🔍 개념 검색 (예: 인수분해)</div>
+    <div class="gcanvas ph-box">전체 지식그래프 캔버스<br>(탭 = 노드 선택 · 호버 의존 0)</div>
+    <button class="btn-primary" onclick="go('entry')">내 약점 진단하기</button>
+  </section>
+
+  <div id="toast"></div>
+</div>
+
+<div class="caption" id="caption"></div>
+
+<script>
+/* ══════════ 목 데이터 — 이차방정식 미니 그래프 (7개념) ══════════ */
+const C = {
+  c1:{name:'이차방정식의 활용', desc:'예: 가로가 세로보다 3cm 긴 직사각형 넓이가 40cm²일 때 세로는?', pre:['c2']},
+  c2:{name:'이차방정식의 풀이', desc:'예: x²−5x+6=0 의 해 구하기', pre:['c3','c4']},
+  c3:{name:'인수분해',          desc:'예: x²−5x+6 → (x−2)(x−3)', pre:['c5']},
+  c4:{name:'제곱근과 실수',      desc:'예: √16=4, √2 는 무리수', pre:['c6']},
+  c5:{name:'다항식의 곱셈',      desc:'예: (x+2)(x−3) 전개하기', pre:['c7']},
+  c6:{name:'유리수와 순환소수',  desc:'예: 1/3 = 0.333… (순환소수)', pre:[]},
+  c7:{name:'문자와 식',          desc:'예: 사과 x개의 값은 500x원', pre:[]},
+};
+const START_FRONTIER = ['c1']; // 단원 내 후수-최상위 (spec-01 §4.2)
+
+/* blockedDescendants: 역방향 transitive count (근거 문구용, spec-01 §4.5) */
+function blockedCount(id){
+  const rev = {}; Object.keys(C).forEach(k=>C[k].pre.forEach(p=>{(rev[p]=rev[p]||[]).push(k);}));
+  const seen = new Set(); const st=[...(rev[id]||[])];
+  while(st.length){const n=st.pop(); if(seen.has(n))continue; seen.add(n); (rev[n]||[]).forEach(x=>st.push(x));}
+  return seen.size;
+}
+function urgency(id){ const b=blockedCount(id); return b>=3?'상':(b>=1?'중':'하'); } // 목 로직 — 실제 = DKT percent 컷 40/65
+
+/* 선수 폐쇄 (알아요 skip 용) */
+function preClosure(id){
+  const seen=new Set(); const st=[...C[id].pre];
+  while(st.length){const n=st.pop(); if(seen.has(n))continue; seen.add(n); C[n].pre.forEach(x=>st.push(x));}
+  return seen;
+}
+
+/* ══════════ 상태 (F-2: localStorage 저장 — 새로고침해도 복원) ══════════ */
+let S = { answered:[], loggedIn:false, saved:false, queue:[], done:{}, chapter:null };
+function persist(){ localStorage.setItem('m7proto', JSON.stringify(S)); }
+function restore(){ try{ const j=localStorage.getItem('m7proto'); if(j) S={...S,...JSON.parse(j)}; }catch(e){} }
+function resetAll(){ localStorage.removeItem('m7proto'); location.reload(); }
+
+const knownSet = ()=>{ const s=new Set();
+  S.answered.forEach(a=>{ if(a.known){ s.add(a.id); preClosure(a.id).forEach(x=>s.add(x)); } }); return s; };
+const answeredIds = ()=> new Set(S.answered.map(a=>a.id));
+const unknowns = ()=> S.answered.filter(a=>!a.known).map(a=>a.id);
+
+/* ══════════ 적응형 순회 (spec-01 §4.3 규칙의 목 구현) ══════════ */
+function nextConcept(){
+  const done=answeredIds(), known=knownSet();
+  const frontier=[...START_FRONTIER];
+  const queued=new Set(frontier);
+  while(frontier.length){
+    const id=frontier.shift();
+    if(done.has(id)){ // "몰라요"였으면 직계 선수 push (drill-down)
+      const a=S.answered.find(x=>x.id===id);
+      if(a && !a.known) C[id].pre.forEach(p=>{ if(!queued.has(p)){queued.add(p); frontier.push(p);} });
+      continue;
+    }
+    if(known.has(id)) continue; // inferred-known skip
+    return id;
+  }
+  return null; // done
+}
+
+/* ══════════ 화면 라우터 ══════════ */
+const CAPTIONS = {
+  home:'<b>①</b> 1차 CTA "무료 진단 시작" 단독 압도(F-4). 그래프는 미끼 비주얼, 둘러보기는 텍스트 링크 강등. 큐 저장 후엔 "이어서" 배너(★제안).',
+  entry:'<b>②</b> 소프트 default(추천 배지) + 계단순 pick-list 원탭. escape 두 갈래 필수(F-3). 탭 즉시 문답 시작 — 확인 버튼 없음.',
+  quiz:'<b>③</b> 알아요 → 선수 가지 전체 skip / 몰라요 → 직계 선수로 drill-down (직접 눌러보세요 — 실제로 갈립니다). 매 답변이 localStorage 저장(F-2).',
+  result:'<b>④-A</b> 무료 = 진단 그 자체(헤드라인+카드+외부링크). 화면 단일 1차 CTA 하나뿐 — 카드 속 "학습 경로 보기"는 2차 강등, 같은 게이트로 수렴(F-1).',
+  login:'<b>⑤</b> 결과-시점 reverse gate. OAuth 아무거나 탭 = 로그인 성공 시뮬레이션 → 귀속+큐 생성 후 ④-B 자동 전환.',
+  gated:'<b>④-B</b> 순서 = 그래프 경로 → 진단 카드 → 큐 체크리스트 (2026-07-17 피드백 반영). 큐 항목 탭 = self-mark 완료 토글, "여기부터" = 첫 미완료(파생값).',
+  graph:'<b>⑥</b> 진단과 독립 진입(서비스의 얼굴). 상시 "내 약점 진단하기" CTA로 탐색→진단 루프(F-4). 호버 의존 0.',
+};
+function go(scr){
+  document.querySelectorAll('.screen').forEach(e=>e.classList.remove('on'));
+  document.getElementById('scr-'+scr).classList.add('on');
+  document.querySelectorAll('#flowstrip .fnode').forEach(e=>e.classList.toggle('on', e.dataset.f===scr));
+  document.getElementById('caption').innerHTML = CAPTIONS[scr]||'';
+  if(scr==='home') renderHome();
+  if(scr==='entry') document.getElementById('resumeNote').classList.toggle('show', S.answered.length>0 && !S.saved && nextConcept()!==null);
+  if(scr==='quiz') renderQuiz();
+  if(scr==='result') renderResult();
+  if(scr==='gated') renderGated();
+  brief();
+}
+function brief(){
+  document.getElementById('statebrief').textContent =
+    `답변 ${S.answered.length} · 몰라요 ${unknowns().length} · ${S.loggedIn?'로그인됨':'비로그인'}${S.saved?' · 큐 저장됨':''}`;
+}
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+
+/* ── ① 홈 ── */
+function renderHome(){
+  const b=document.getElementById('resumeBanner');
+  if(S.loggedIn && S.saved && S.queue.length){
+    const next=S.queue.find(id=>!S.done[id]);
+    document.getElementById('resumeNext').textContent = next?C[next].name:'전부 완료! 🎉';
+    b.classList.add('show');
+  } else b.classList.remove('show');
+}
+
+/* ── ②→③ ── */
+function startQuiz(chapter){
+  // 새 진단 = 새 세션. 이어가기는 "같은 단원의 진행 중(미완주·미저장)" 세션일 때만 (F-2)
+  const inProgress = S.answered.length>0 && !S.saved && S.chapter===chapter && nextConcept()!==null;
+  if(!inProgress) S.answered=[];
+  if(S.saved){ S.queue=[]; S.done={}; S.saved=false; } // 재진단 = 새 큐로 대체
+  S.chapter=chapter; persist(); go('quiz');
+}
+
+/* ── ③ 문답 ── */
+function renderQuiz(){
+  const id=nextConcept();
+  if(!id){ go('result'); return; }
+  document.getElementById('qName').textContent=C[id].name;
+  document.getElementById('qDesc').textContent=C[id].desc;
+  const asked=S.answered.length, total=Object.keys(C).length;
+  const remain=Math.max(1, total - asked - knownSet().size);
+  document.getElementById('qAsked').textContent=`${asked}개 답변`;
+  document.getElementById('qRemain').textContent=`남은 예상 ~${remain}`;
+  document.getElementById('qBar').style.width=Math.min(96, asked/(asked+remain)*100)+'%';
+  document.getElementById('scr-quiz').dataset.current=id;
+  document.getElementById('qUndo').style.visibility = S.answered.length ? 'visible' : 'hidden';
+}
+function undoAnswer(){
+  if(!S.answered.length) return;
+  const last=S.answered.pop(); persist();
+  toast(`'${C[last.id].name}' 답을 다시 물어봐요`);
+  renderQuiz(); brief();
+}
+function answer(known){
+  const id=document.getElementById('scr-quiz').dataset.current;
+  S.answered.push({id, known}); persist();
+  toast(known ? '선수지식 가지 skip!' : '선수지식으로 내려갑니다');
+  renderQuiz(); brief();
+}
+
+/* ── ④-A 결과 ── */
+function cardHtml(id, gated){
+  return `<div class="card"><div class="crow"><span class="cn">${C[id].name}</span>
+    <span class="badge ${urgency(id)==='상'?'hi':''}">시급도 ${urgency(id)}</span></div>
+    <div class="basis">이걸 모르면 위로 ${blockedCount(id)}개 개념이 막혀요</div>
+    <div class="links"><span>EBS 무료 강의 ↗</span><span>개념 정리 자료 ↗</span></div>
+    ${gated?'':'<div class="path2"><button onclick="gateCta()">학습 경로 보기 (2차)</button></div>'}</div>`;
+}
+function renderResult(){
+  const u=unknowns();
+  const sorted=[...u].sort((a,b)=>blockedCount(b)-blockedCount(a));
+  const total=S.answered.length + knownSet().size;
+  const h=document.getElementById('rHeadline');
+  if(!u.length){
+    h.textContent=`확인한 ${total}개 개념, 약점이 안 보여요! 👍`;
+    document.getElementById('rCards').innerHTML='<div class="card" style="text-align:center;color:var(--sub);">카드 0장 = 정상 결과 (전부 알아요 → DKT 생략, spec-01 R2)</div>';
+    moreIds=[]; renderMore();
+    document.getElementById('rSub').textContent='여기는 탄탄해요 — 한 계단 위로 올라가볼까요?';
+    document.getElementById('rCta').textContent="한 계단 위 '이차함수' 진단하기";
+    document.getElementById('rCta').onclick=()=>startQuiz('이차함수');
+    document.getElementById('rGateNote').innerHTML='<button class="txt-link" onclick="go(\'graph\')">진단한 개념, 그래프에서 확인하기 ›</button>';
+    return;
+  }
+  h.textContent=`확인한 ${total}개 중 ${u.length}개 약점 — 가장 급한 건 '${C[sorted[0]].name}'`;
+  const topN=sorted.slice(0,5);
+  document.getElementById('rCards').innerHTML=topN.map(id=>cardHtml(id,false)).join('');
+  moreIds=sorted.slice(5); moreOpen=false; renderMore();
+  document.getElementById('rSub').textContent='자가응답 기반 AI 학습 가이드예요 (시험 점수가 아니에요)';
+  document.getElementById('rCta').textContent='저장하고 학습 경로 시작하기';
+  document.getElementById('rCta').onclick=gateCta;
+  document.getElementById('rGateNote').textContent='진단 결과와 자료는 무료예요 — 저장과 학습 경로는 로그인 후 제공';
+}
+function gateCta(){ S.loggedIn ? attribute() : go('login'); }
+let moreIds=[], moreOpen=false;
+function renderMore(){
+  const btn=document.getElementById('rMore'), box=document.getElementById('rMoreCards');
+  if(!moreIds.length){ btn.innerHTML=''; box.innerHTML=''; return; }
+  box.innerHTML = moreOpen ? moreIds.map(id=>cardHtml(id,false)).join('') : '';
+  btn.innerHTML = `<button class="txt-link" onclick="moreOpen=!moreOpen;renderMore()">${moreOpen?'접기 ∧':`더 보기 (중/하 ${moreIds.length}개) ∨`}</button>`;
+}
+
+/* ── ⑤→④-B: 귀속 + 큐 생성 ── */
+function loginAs(provider){ S.loggedIn=true; persist(); toast(provider+' 로그인 성공 (시뮬레이션)'); setTimeout(attribute,500); }
+function attribute(){
+  // 큐 = 몰라요 ∪ 선수폐쇄 − 아는것 → 위상순(선수 먼저), spec-01 §4.6
+  const known=knownSet();
+  const nodes=new Set();
+  unknowns().forEach(id=>{ nodes.add(id); preClosure(id).forEach(p=>{ if(!known.has(p)) nodes.add(p); }); });
+  const q=[]; const placed=new Set();
+  while(placed.size<nodes.size){
+    let progressed=false;
+    [...nodes].sort((a,b)=>blockedCount(b)-blockedCount(a)).forEach(id=>{
+      if(placed.has(id)) return;
+      if(C[id].pre.every(p=>!nodes.has(p)||placed.has(p))){ q.push(id); placed.add(id); progressed=true; }
+    });
+    if(!progressed) break; // 사이클 degrade (spec-01 §4.6-4)
+  }
+  S.queue=q; S.saved=true; persist(); go('gated'); toast('결과 저장 + 학습 큐 생성 완료');
+}
+
+/* ── ④-B ── */
+function renderGated(){
+  if(!S.queue.length){ document.getElementById('queueList').innerHTML='<div style="font-size:12px;color:var(--sub);">저장된 큐 없음 — 진단부터 진행하세요</div>'; document.getElementById('gCards').innerHTML=''; return; }
+  const cur=S.queue.find(id=>!S.done[id]);
+  document.getElementById('queueList').innerHTML=S.queue.map((id,i)=>
+    `<div class="qitem ${S.done[id]?'done':''}" onclick="markDone('${id}')">
+       <span class="chk"></span> ${i+1}. ${C[id].name} ${id===cur?'<span class="here">여기부터</span>':''}</div>`).join('');
+  const sorted=[...unknowns()].sort((a,b)=>blockedCount(b)-blockedCount(a));
+  document.getElementById('gCards').innerHTML=sorted.slice(0,5).map(id=>cardHtml(id,true)).join('');
+}
+function markDone(id){ S.done[id]=!S.done[id]; persist(); renderGated(); toast(S.done[id]?'완료 표시 (self-mark)':'완료 해제'); }
+
+/* ══════════ 부팅 ══════════ */
+restore(); go('home');
+</script>
+</body>
+</html>
