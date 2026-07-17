@@ -103,7 +103,7 @@ MBTI식 "클릭하면 답에 따라 다음 화면이 갈리는" 흐름 = 지식�
 | 폴더 | 내용 |
 |---|---|
 | `docs/prd/m7-prd.md` | **기획(PRD)** — 제품 요구사항 정의서 |
-| `docs/design/m7-*.html` | **UX 설계** — 와이어프레임·시안. **계층구조 정돈한 HTML**(추후 Figma 이관 염두, ASCII·직접 Figma 아님) |
+| `docs/design/m7-*.html` | **UX 설계** — 와이어프레임·시안. **계층구조 정돈한 HTML**(추후 Figma 이관 염두, ASCII·직접 Figma 아님). **매체 확정(2026-07-17, 재설계 트랙):** 로우파이 = Claude Code 작성 HTML 주석 와이어프레임(`docs/design/v2/`, 인터랙션 노트 포함) → 하이파이 비주얼 = Claude Design(claude.ai/design)으로 이관. Figma MCP 는 무료 사용량 한계로 제외 |
 | `docs/specs/m7/spec-*.md` | **기술 설계** — 백엔드/프론트 spec |
 | `docs/milestones/milestone-7-product-pivot.md` | 피벗 정본(본 문서) |
 
