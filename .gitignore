@@ -1,37 +1,6 @@
-# IDE
-.idea/
-
-# Claude Code 개인 설정
-CLAUDE.local.md
-.claude/settings.local.json
-.claude/*.local.*
-
-# Jupyter
-**/.ipynb_checkpoints/
-
-# Docker
-docker-compose.yml
-
-# Auth / Secrets
-api/src/main/resources/application-secure*.yml
-
-# Test scripts
-ai/oauth2_test.py
-
-# M4 개인 운영 문서 (시크릿 템플릿 "커밋 금지" 표기 + 운영 계정 신원 정보 → 로컬 전용)
-m4-secrets-and-env-template.md
-m4-account-setup-checklist.md
-m6-first-deploy-session-log.md
-
-# Claude Code 런타임 아티팩트
-.claude/scheduled_tasks.lock
-
-# Terraform (M4 spec-03 — state/tfvars 는 자격·실 리소스 ID 를 평문 저장 → 커밋 금지)
-*.tfstate
-*.tfstate.*
-.terraform/
-*.tfvars
-!*.tfvars.example
-# .terraform.lock.hcl 은 커밋 (provider 버전 잠금 공유)
-# M4 런 텔레메트리 raw 로그 (EIP/endpoint 평문 → tfstate 와 동일 사유로 비커밋)
-infra/terraform/run-logs/
+node_modules/
+dist/
+.env
+.env.*
+*.local
+.DS_Store
