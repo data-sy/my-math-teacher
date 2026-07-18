@@ -13,6 +13,12 @@
   --primary-deep: #0b6459;
   --accent: #0e9f8c; /* 진척·포커스·선택 */
   --accent-soft: #dff2ec;
+  /* 그래프 위계 A안 (2026-07-19 컨설팅 확정) — 선수=틸(primary+아래 틴트)·후수=보라 2계열.
+     CVD ΔE·명도 램프·라이트엔드 대비 검증 통과값. ConceptGraph.tsx 상수와 동기화 유지 */
+  --graph-pre-far: #2fb5a6;
+  --graph-succ: #7c3aed;
+  --graph-succ-far: #a78bfa;
+  --graph-out: #dce1e8;
   --urgent-hi: #be3a25;
   --urgent-hi-bg: #fbe7e4;
   --urgent-mid: #9c6b10;

@@ -354,6 +354,7 @@ function SavedResult() {
             selectedId={selectedId}
             onSelect={setSelectedId}
             pathIds={pathIds}
+            compact
             height={220}
           />
         ) : (
