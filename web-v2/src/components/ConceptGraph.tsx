@@ -77,7 +77,10 @@ export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pa
           selector: 'node.sel',
           style: { 'border-width': 3, 'border-color': INK, color: INK, 'font-weight': 'bold' },
         },
-        { selector: '.dim', style: { opacity: 0.25 } }, // 숨김 아님 — 지형은 보이되 시선만 모음
+        // 뎁스 링별 페이드 — 덩어리로 안 뭉치게 (2026-07-18 실기기 라운드: depth1/2 분리감)
+        { selector: '.d1', style: { opacity: 0.75 } },
+        { selector: '.d2', style: { opacity: 0.45 } },
+        { selector: '.dim', style: { opacity: 0.2 } }, // 숨김 아님 — 지형은 보이되 시선만 모음
       ],
       layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.1, padding: 12 },
       userZoomingEnabled: true, // 핀치 줌
@@ -102,7 +105,7 @@ export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pa
     const cy = cyRef.current
     if (!cy) return
     cy.batch(() => {
-      cy.elements().removeClass('sel path dim')
+      cy.elements().removeClass('sel path dim d1 d2')
       if (pathIds && pathIds.length > 0) {
         const pathSet = new Set(pathIds)
         cy.nodes().forEach((n) => {
@@ -137,10 +140,20 @@ export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pa
             frontier = nxt
           }
           cy.nodes().forEach((n) => {
-            if (!dist.has(n.id())) n.addClass('dim')
+            const d = dist.get(n.id())
+            if (d === undefined) n.addClass('dim')
+            else if (d === 1) n.addClass('d1')
+            else if (d === 2) n.addClass('d2')
           })
           cy.edges().forEach((e) => {
-            if (!dist.has(e.source().id()) || !dist.has(e.target().id())) e.addClass('dim')
+            const du = dist.get(e.source().id())
+            const dv = dist.get(e.target().id())
+            if (du === undefined || dv === undefined) e.addClass('dim')
+            else {
+              const maxd = Math.max(du, dv)
+              if (maxd === 1) e.addClass('d1')
+              else if (maxd === 2) e.addClass('d2')
+            }
           })
           // 선택 노드로 부드럽게 재포커스
           cy.animate({ center: { eles: sel }, duration: 250 })
