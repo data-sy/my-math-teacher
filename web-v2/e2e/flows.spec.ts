@@ -104,6 +104,45 @@ test('④-A 게이트 CTA 실패 = 무음 금지 — 인라인 에러 + 재시�
   await expect(page.getByText('나의 학습 경로 (저장됨)')).toBeVisible()
 })
 
+test('④-B 스테일 큐 403 — 한 번 실패 후 자가치유 재탭 성공 (2026-07-18 실기기 발견)', async ({ page }) => {
+  // 로그인 + 완주 + 귀속 → ④-B
+  await page.goto('/entry')
+  await page.evaluate(() => localStorage.setItem('mmt.accessToken', 'mock-token-google'))
+  await pickGradeAndDefault(page)
+  await page.getByRole('button', { name: /이차방정식 / }).click()
+  await page.getByRole('button', { name: '몰라요' }).click()
+  await expect(page.getByText('이차방정식의 풀이')).toBeVisible()
+  await page.getByRole('button', { name: '몰라요' }).click()
+  await expect(page.getByText('이차방정식의 뜻')).toBeVisible()
+  await page.getByRole('button', { name: '알아요' }).click()
+  await page.getByRole('button', { name: '알아요' }).click()
+  await expect(page).toHaveURL(/\/result/)
+  await page.getByRole('button', { name: '저장하고 학습 경로 시작하기' }).click()
+  await expect(page).toHaveURL(/\/result\?view=saved/)
+
+  // 그 사이 다른 경로의 재귀속으로 큐가 교체된 상황 — 저장소 큐 id 바꿔치기
+  await page.evaluate(() => {
+    const db = JSON.parse(localStorage.getItem('mmt.mockdb.v2')!) as {
+      queue: { queueId: string; items: { queueItemId: string }[] }
+    }
+    db.queue.queueId = 'qREPLACED'
+    db.queue.items = db.queue.items.map((i, k) => ({ ...i, queueItemId: `qiR-${k}` }))
+    localStorage.setItem('mmt.mockdb.v2', JSON.stringify(db))
+  })
+
+  // 스테일 화면에서 토글 → 403 스트립(원인 코드 포함) + 큐 자동 재조회
+  await page.getByRole('button', { name: /학습 계단 0\/2/ }).click()
+  const item = page.getByRole('button', { name: /1\. 이차방정식의 풀이/ })
+  await item.click()
+  await expect(page.getByText('체크가 저장되지 않았어요 — 다시 탭해주세요.')).toBeVisible()
+  await expect(page.getByText('(오류 403)')).toBeVisible()
+
+  // 자가치유 후 재탭 = 성공, 스트립 소거
+  await item.click()
+  await expect(item).toContainText('✓')
+  await expect(page.getByText('체크가 저장되지 않았어요 — 다시 탭해주세요.')).toHaveCount(0)
+})
+
 test('③ undo — 직전 답 1개 되돌리기, 진척 후퇴는 undo 만 예외', async ({ page }) => {
   await page.goto('/entry')
   await pickGradeAndDefault(page)
