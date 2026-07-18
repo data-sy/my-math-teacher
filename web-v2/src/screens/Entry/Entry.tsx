@@ -29,6 +29,8 @@ export default function Entry() {
   const [gradeSheetOpen, setGradeSheetOpen] = useState(false)
   const [chapterSheetOpen, setChapterSheetOpen] = useState(false)
   const [starting, setStarting] = useState(false)
+  // 폐기 확인 시트 (백로그 m7-entry-discard-confirm-dialog 구현) — then = 폐기 확정 후 이어서 실행할 시작 동작
+  const [discardConfirm, setDiscardConfirm] = useState<{ then: (() => void) | null } | null>(null)
 
   const { data: chapters, isError, refetch } = useQuery({
     queryKey: ['chapters'],
@@ -46,7 +48,21 @@ export default function Entry() {
     setGradeSheetOpen(false)
   }
 
-  // pick-list 원탭 = 즉시 ③ (별도 확인 없음). 다른 단원 탭 = 기존 세션 확인 없이 자동 폐기 (02 ●4 확정)
+  // 진행 중(미완주) 세션이 있으면 어떤 시작 경로든 폐기 확인을 먼저 — 없으면 원탭 즉시 시작 그대로
+  function guardDiscard(then: (() => void) | null) {
+    if (resume) setDiscardConfirm({ then })
+    else then?.()
+  }
+
+  function confirmDiscard() {
+    const then = discardConfirm?.then ?? null
+    clearSession()
+    setResume(null)
+    setDiscardConfirm(null)
+    then?.()
+  }
+
+  // pick-list 원탭 = 즉시 ③ (별도 확인 없음 — 진행 중 세션이 있을 때만 guardDiscard 확인 한 홉)
   async function startChapter(c: Chapter) {
     if (starting) return
     setStarting(true)
@@ -92,14 +108,7 @@ export default function Entry() {
           진행 중인 진단이 있어요 — '{resume.chapterName}' {resume.answered.length}개 답변까지
           <div className={s.resumeBtns}>
             <button onClick={() => nav('/quiz')}>이어서 진행</button>
-            <button
-              onClick={() => {
-                clearSession() // 확인탭 없이 즉시 폐기 (02 ●4 확정 — 확인 모달은 백로그)
-                setResume(null)
-              }}
-            >
-              새로 시작
-            </button>
+            <button onClick={() => guardDiscard(null)}>새로 시작</button>
           </div>
         </div>
       )}
@@ -120,7 +129,7 @@ export default function Entry() {
             <button
               key={c.chapterId}
               className={`${s.pickItem} ${c.chapterId === defaultChapter.chapterId ? s.default : ''}`}
-              onClick={() => startChapter(c)}
+              onClick={() => guardDiscard(() => startChapter(c))}
               disabled={starting}
             >
               <span>
@@ -147,7 +156,7 @@ export default function Entry() {
         <button className="btn-secondary" onClick={() => setChapterSheetOpen(true)}>
           여기 없음? — 다른 단원 직접 선택
         </button>
-        <button className="btn-secondary" onClick={startFullScan}>
+        <button className="btn-secondary" onClick={() => guardDiscard(startFullScan)}>
           모르겠어 → 전체 훑기
         </button>
       </div>
@@ -167,12 +176,34 @@ export default function Entry() {
             {chapters
               ?.filter((c) => c.grade === g)
               .map((c) => (
-                <button key={c.chapterId} className={s.sheetItem} onClick={() => startChapter(c)} disabled={starting}>
+                <button
+                  key={c.chapterId}
+                  className={s.sheetItem}
+                  onClick={() => guardDiscard(() => startChapter(c))}
+                  disabled={starting}
+                >
                   {c.name} <small style={{ color: 'var(--sub)' }}>· {c.semester}학기</small>
                 </button>
               ))}
           </div>
         ))}
+      </BottomSheet>
+
+      {/* 폐기 확인 시트 — 진행 중 세션이 있을 때만 조건부 (다른 시트 위에 겹치도록 마지막 렌더) */}
+      <BottomSheet open={!!discardConfirm} onClose={() => setDiscardConfirm(null)}>
+        <div className={s.sheetTitle}>진행 중인 진단을 지울까요?</div>
+        <p className={s.confirmBody}>
+          '{resume?.chapterName}' {resume?.answered.length}개 답변이 사라져요. 지운 뒤에는 되돌릴 수
+          없어요.
+        </p>
+        <div className={s.confirmBtns}>
+          <button className="btn-primary" onClick={confirmDiscard}>
+            지우고 새로 시작
+          </button>
+          <button className="btn-secondary" onClick={() => setDiscardConfirm(null)}>
+            취소
+          </button>
+        </div>
       </BottomSheet>
     </div>
   )
@@ -187,27 +218,40 @@ function GradePicker({
 }) {
   const [grade, setGrade] = useState<string | null>(current?.grade ?? null)
   const month = new Date().getMonth() + 1
+  // 학교급·학기를 조용히 구분 — 소그룹 라벨(시트 그룹 관용구) + 학기는 칩 형태로 학년 셀과 차별
+  const levels: Array<{ label: string; grades: string[] }> = [
+    { label: '중등', grades: GRADES.filter((g) => g.startsWith('중')) },
+    { label: '고등', grades: GRADES.filter((g) => g.startsWith('고')) },
+  ]
   return (
     <div>
-      <div className={s.gradeGrid}>
-        {GRADES.map((g) => (
-          <button key={g} className={grade === g ? s.on : ''} onClick={() => setGrade(g)}>
-            {g}
-          </button>
-        ))}
-      </div>
-      {grade && (
-        <div className={s.semRow}>
-          {([1, 2] as const).map((sem) => (
-            <button
-              key={sem}
-              className={current?.grade === grade && current?.semester === sem ? s.on : ''}
-              onClick={() => onPick({ grade, semester: sem })}
-            >
-              {sem}학기{currentSemester(month) === sem ? ' (지금)' : ''}
-            </button>
-          ))}
+      {levels.map((lv) => (
+        <div key={lv.label}>
+          <div className={s.pickerGroup}>{lv.label}</div>
+          <div className={s.gradeGrid}>
+            {lv.grades.map((g) => (
+              <button key={g} className={grade === g ? s.on : ''} onClick={() => setGrade(g)}>
+                {g}
+              </button>
+            ))}
+          </div>
         </div>
+      ))}
+      {grade && (
+        <>
+          <div className={s.pickerGroup}>학기</div>
+          <div className={s.semRow}>
+            {([1, 2] as const).map((sem) => (
+              <button
+                key={sem}
+                className={current?.grade === grade && current?.semester === sem ? s.on : ''}
+                onClick={() => onPick({ grade, semester: sem })}
+              >
+                {sem}학기{currentSemester(month) === sem ? ' (지금)' : ''}
+              </button>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

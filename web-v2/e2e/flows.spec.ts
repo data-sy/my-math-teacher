@@ -115,6 +115,50 @@ test('② 이어가기 — 미완주 세션 복구 노트', async ({ page }) => 
   await expect(page.getByText('이차방정식의 풀이')).toBeVisible()
 })
 
+test('② 폐기 확인 — 진행 중 세션이 있을 때만 조건부 시트 (백로그 m7-entry-discard-confirm-dialog)', async ({ page }) => {
+  // 진행 중 세션이 없으면 원탭 즉시 시작 — 모달 없음
+  await page.goto('/entry')
+  await pickGradeAndDefault(page)
+  await page.getByRole('button', { name: /이차방정식 / }).click()
+  await expect(page).toHaveURL(/\/quiz/)
+  await expect(page.getByText('진행 중인 진단을 지울까요?')).toHaveCount(0)
+
+  // 세션 생성 (1개 답변) 후 ②로 이탈
+  await page.getByRole('button', { name: '몰라요' }).click()
+  await page.getByRole('link', { name: '‹ 진입' }).click()
+  await expect(page.getByText(/진행 중인 진단이 있어요/)).toBeVisible()
+
+  // 다른 단원 원탭 → 확인 시트 (즉시 시작 대신 한 홉) · 취소 → 세션 유지
+  await page.getByRole('button', { name: /^인수분해/ }).click()
+  await expect(page.getByText('진행 중인 진단을 지울까요?')).toBeVisible()
+  await expect(page.getByText(/'이차방정식' 1개 답변이 사라져요/)).toBeVisible()
+  await expect(page).toHaveURL(/\/entry/)
+  await page.getByRole('button', { name: '취소', exact: true }).click()
+  await expect(page.getByText('진행 중인 진단을 지울까요?')).toHaveCount(0)
+  await expect(page.getByText(/진행 중인 진단이 있어요/)).toBeVisible()
+
+  // 다른 단원 원탭 → 확정 → 폐기 후 그 단원으로 새 세션 시작 (확인 후 진행)
+  await page.getByRole('button', { name: /^인수분해/ }).click()
+  await page.getByRole('button', { name: '지우고 새로 시작' }).click()
+  await expect(page).toHaveURL(/\/quiz/)
+  await expect(page.getByText('0개 답변')).toBeVisible()
+
+  // "새로 시작" → 동일 확인 → 확정 시 노트 소거 (화면 이동 없음)
+  await page.getByRole('button', { name: '몰라요' }).click()
+  await page.getByRole('link', { name: '‹ 진입' }).click()
+  await expect(page.getByText(/진행 중인 진단이 있어요 — '인수분해' 1개 답변까지/)).toBeVisible()
+  await page.getByRole('button', { name: '새로 시작', exact: true }).click()
+  await expect(page.getByText('진행 중인 진단을 지울까요?')).toBeVisible()
+  await page.getByRole('button', { name: '지우고 새로 시작' }).click()
+  await expect(page.getByText(/진행 중인 진단이 있어요/)).toHaveCount(0)
+  await expect(page).toHaveURL(/\/entry/)
+
+  // 세션이 사라졌으니 다시 원탭 즉시 시작 — 모달 없음 (조건부 보장)
+  await page.getByRole('button', { name: /^인수분해/ }).click()
+  await expect(page).toHaveURL(/\/quiz/)
+  await expect(page.getByText('0개 답변')).toBeVisible()
+})
+
 test('⑥ 그래프 탐색 — 검색·시트 체인·스코프 전환·진단 루프 CTA', async ({ page }) => {
   await page.goto('/graph')
   // 기억값 없음 — 대표 단원 스코프 (중3·현재 학기 추정)

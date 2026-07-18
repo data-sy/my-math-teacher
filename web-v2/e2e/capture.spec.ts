@@ -11,6 +11,7 @@ test('캡처: 전 화면', async ({ page }) => {
   await page.goto('/entry')
   await page.screenshot({ path: `${OUT}/02a-entry-first-visit.png`, fullPage: true })
   await page.getByRole('button', { name: '중3', exact: true }).click()
+  await page.screenshot({ path: `${OUT}/02a2-entry-semester.png`, fullPage: true })
   await page.getByRole('button', { name: /^1학기/ }).click()
   await page.screenshot({ path: `${OUT}/02b-entry-picklist.png`, fullPage: true })
 
