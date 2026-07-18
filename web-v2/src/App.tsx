@@ -1,6 +1,36 @@
-// 스캐폴드 단계 플레이스홀더 — 앱 셸 뭉치에서 라우터로 대체된다
-function App() {
-  return <div>MMT 프론트 v2 — 스캐폴드</div>
-}
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthContext'
+import Home from './screens/Home/Home'
+import Entry from './screens/Entry/Entry'
+import Quiz from './screens/Quiz/Quiz'
+import Result from './screens/Result/Result'
+import Login from './screens/Login/Login'
+import GraphExplore from './screens/GraphExplore/GraphExplore'
+import NotFound from './screens/NotFound/NotFound'
 
-export default App
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 60_000 },
+  },
+})
+
+const router = createBrowserRouter([
+  { path: '/', element: <Home /> },
+  { path: '/entry', element: <Entry /> },
+  { path: '/quiz', element: <Quiz /> },
+  { path: '/result', element: <Result /> },
+  { path: '/login', element: <Login /> },
+  { path: '/graph', element: <GraphExplore /> },
+  { path: '*', element: <NotFound /> },
+])
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryClientProvider>
+  )
+}

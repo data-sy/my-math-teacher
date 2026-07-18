@@ -1,0 +1,82 @@
+import { useQuery } from '@tanstack/react-query'
+import { Link, useNavigate } from 'react-router-dom'
+import { fetchMyQueue } from '../../api/endpoints'
+import { useAuth } from '../../auth/AuthContext'
+import s from './Home.module.css'
+
+export default function Home() {
+  const nav = useNavigate()
+  const { isLoggedIn } = useAuth()
+
+  // 배너 데이터 — 로그인 상태에서만 1회 호출 (01 ●1: 비로그인 시 호출 없음)
+  const { data: queue } = useQuery({
+    queryKey: ['queue', 'me'],
+    queryFn: fetchMyQueue,
+    enabled: isLoggedIn,
+  })
+
+  const nextItem = queue?.items.find((i) => !i.done)
+  const allDone = !!queue && queue.items.length > 0 && !nextItem
+
+  return (
+    <div className="screen">
+      {/* ●7 조용한 로그인 링크 — 비로그인 시에만 (●1 배너와 상호 배타) */}
+      {!isLoggedIn && (
+        <div className={s.loginRow}>
+          <Link className="txt-link" to="/login?from=home">
+            로그인
+          </Link>
+        </div>
+      )}
+
+      {/* ●1 재진입 배너 — 로그인 + 활성 큐 보유 시에만. 완료 시 문구만 대체(A안) */}
+      {isLoggedIn && queue && queue.items.length > 0 && (
+        <button className={s.resumeBanner} onClick={() => nav('/result?view=saved')}>
+          <b>{allDone ? '학습 계단 전부 완료 🎉 ›' : `이어서: ${nextItem!.conceptName} ›`}</b>
+          <span className="sub">저장된 학습 계단으로 돌아가기</span>
+        </button>
+      )}
+
+      {/* ●2 가치제안 헤드라인 — 정직성 한 줄은 ④에서만 (B안 확정) */}
+      <h1 className={s.headline}>
+        수학은 계단이다.
+        <br />
+        어디서 막혔는지,
+        <br />
+        3분 자가진단으로 AI가 짚어준다.
+      </h1>
+
+      {/* ●3 히어로 비주얼 = 지식그래프 미끼 — 탭해도 이동하지 않음 */}
+      <div className={s.heroGraph} aria-hidden="true">
+        <span className={s.gedge} style={{ top: 73, left: 64, width: 66, transform: 'rotate(14deg)' }} />
+        <span className={s.gedge} style={{ top: 105, left: 138, width: 70, transform: 'rotate(-28deg)' }} />
+        <span className={s.gedge} style={{ top: 70, left: 210, width: 62, transform: 'rotate(25deg)' }} />
+        <span className={s.gedge} style={{ top: 98, left: 284, width: 56, transform: 'rotate(-24deg)' }} />
+        <span className={s.gnode} style={{ top: 55, left: 30 }}>개념</span>
+        <span className={s.gnode} style={{ top: 88, left: 104 }}>개념</span>
+        <span className={s.gnode} style={{ top: 50, left: 178 }}>개념</span>
+        <span className={s.gnode} style={{ top: 82, left: 250 }}>개념</span>
+        <span className={s.gnode} style={{ top: 48, left: 320 }}>개념</span>
+      </div>
+
+      {/* ●4 작동방식 스텝 */}
+      <ul className={s.steps}>
+        <li>알아요 / 몰라요만 답하면</li>
+        <li>그래프가 무너진 토대를 추적하고</li>
+        <li>AI가 급한 순서로 짚어줘요</li>
+      </ul>
+
+      {/* ●5 1차 CTA — 화면 유일 버튼, 하단 고정 */}
+      <div className={s.cta}>
+        <button className="btn-primary" onClick={() => nav('/entry')}>
+          무료 진단 시작
+        </button>
+      </div>
+
+      {/* ●6 조용한 텍스트 링크 */}
+      <Link className={`txt-link ${s.browseLink}`} to="/graph">
+        개념 그래프 둘러보기 ›
+      </Link>
+    </div>
+  )
+}

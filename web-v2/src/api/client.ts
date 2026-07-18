@@ -7,8 +7,13 @@ export const API_BASE: string = mockEnabled()
   : (import.meta.env.VITE_API_BASE ?? '')
 
 export function mockEnabled(): boolean {
+  // 기본값: dev = mock on (백엔드 미기동 환경) · prod 빌드 = off.
+  // 명시 플래그가 항상 우선 — 실서버 연동 dev 는 VITE_ENABLE_MOCK=false,
+  // mock 으로 prod 빌드 검증(Playwright)은 VITE_ENABLE_MOCK=true 로 빌드.
   const flag = import.meta.env.VITE_ENABLE_MOCK
-  return flag === 'true'
+  if (flag === 'true') return true
+  if (flag === 'false') return false
+  return import.meta.env.DEV
 }
 
 export class ApiError extends Error {

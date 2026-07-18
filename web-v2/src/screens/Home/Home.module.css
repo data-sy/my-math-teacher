@@ -1,0 +1,114 @@
+.loginRow {
+  text-align: right;
+  margin-bottom: 4px;
+}
+
+.loginRow a {
+  display: inline;
+  color: var(--sub);
+  font-size: 12.5px;
+}
+
+.resumeBanner {
+  display: block;
+  width: 100%;
+  border: 1.5px solid var(--ink);
+  background: var(--soft);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  margin-bottom: 14px;
+}
+
+.resumeBanner b {
+  display: block;
+  font-size: 13.5px;
+}
+
+.resumeBanner .sub {
+  font-size: 11px;
+  color: var(--sub);
+}
+
+.headline {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+/* 히어로 = 지식그래프 미끼 — 버튼 아님. 폴드 확보 위해 축소 우선 대상 (01 규칙) */
+.heroGraph {
+  height: 170px;
+  margin: 16px 0 14px;
+  border: 1.5px dashed var(--line);
+  background: var(--soft);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 1;
+}
+
+@media (max-height: 700px) {
+  .heroGraph {
+    height: 120px;
+  }
+}
+
+.gnode {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--sub);
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: 8px;
+  color: var(--sub);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gedge {
+  position: absolute;
+  height: 1.5px;
+  background: var(--line);
+  transform-origin: 0 0;
+}
+
+.steps {
+  margin: 4px 0 18px;
+  list-style: none;
+  counter-reset: st;
+}
+
+.steps li {
+  font-size: 13px;
+  color: var(--sub);
+  margin: 7px 0;
+  padding-left: 26px;
+  position: relative;
+  counter-increment: st;
+}
+
+.steps li::before {
+  content: counter(st);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--sub);
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta {
+  margin-top: auto;
+}
+
+.browseLink {
+  margin-top: 12px;
+}
