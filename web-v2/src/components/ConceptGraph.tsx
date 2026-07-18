@@ -20,7 +20,6 @@ const SUB = '#5f6e67'
 const LINE = '#cdd8d2'
 const PAPER = '#fbfbf7'
 const PRIMARY = '#0e7a6c'
-const ACCENT = '#0e9f8c'
 const ACCENT_SOFT = '#dff2ec'
 
 export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pathIds, height }: Props) {
@@ -69,14 +68,15 @@ export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pa
           },
         },
         {
-          selector: 'node.sel',
-          style: { 'border-width': 2.5, 'border-color': ACCENT, color: INK, 'font-weight': 'bold' },
-        },
-        {
           selector: 'node.path',
           style: { 'background-color': ACCENT_SOFT, 'border-width': 2.5, 'border-color': PRIMARY, color: INK },
         },
         { selector: 'edge.path', style: { 'line-color': PRIMARY, 'target-arrow-color': PRIMARY, width: 2.5 } },
+        // 선택 = 잉크 링 — 경로(초록 계열)와 분리, path 뒤에 둬서 path+sel 겹침에서도 선택이 이김
+        {
+          selector: 'node.sel',
+          style: { 'border-width': 3, 'border-color': INK, color: INK, 'font-weight': 'bold' },
+        },
         { selector: '.dim', style: { opacity: 0.25 } }, // 숨김 아님 — 지형은 보이되 시선만 모음
       ],
       layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.1, padding: 12 },
