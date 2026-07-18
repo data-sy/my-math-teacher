@@ -161,13 +161,15 @@ export default function GraphExplore() {
       {/* ●4 그래프 캔버스 — 탭 선택 · 핀치 줌 · 팬 · 호버 의존 0 */}
       <div className={s.canvas}>
         {graphData && (
-          <ConceptGraph
-            concepts={graphData.concepts}
-            edges={graphData.edges}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            height="100%"
-          />
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <ConceptGraph
+              concepts={graphData.concepts}
+              edges={graphData.edges}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              height="100%"
+            />
+          </div>
         )}
         {graphQ.isError && (
           <div className="err-card" style={{ margin: 12 }}>
