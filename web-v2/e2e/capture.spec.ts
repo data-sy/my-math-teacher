@@ -35,9 +35,13 @@ test('캡처: 전 화면', async ({ page }) => {
 
   await page.getByRole('button', { name: '구글로 계속하기' }).click()
   await page.waitForURL(/\/result\?view=saved/)
-  await page.getByText('나의 학습 계단 — 체크리스트').waitFor()
+  await page.getByRole('button', { name: /학습 계단 \d+\/\d+/ }).waitFor()
   await page.waitForTimeout(600) // 그래프 레이아웃 안정
   await page.screenshot({ path: `${OUT}/04b-result-gated.png`, fullPage: true })
+  await page.getByRole('button', { name: /학습 계단 \d+\/\d+/ }).click()
+  await page.getByText('나의 학습 계단 — 체크리스트').waitFor()
+  await page.screenshot({ path: `${OUT}/04c-queue-sheet.png` })
+  await page.mouse.click(10, 10) // 시트 밖 탭 = 닫기
 
   await page.goto('/')
   await page.getByText(/이어서:/).waitFor()

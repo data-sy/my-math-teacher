@@ -55,9 +55,10 @@ test('실서버: 진입→문답→결과→귀속→큐 체크리스트→홈 �
   }
   await gateCta.click()
 
-  // ④-B — 그래프·카드·체크리스트
+  // ④-B — 그래프·카드 + 플로팅 체크리스트 진입 (2026-07-18 재배치)
   await expect(page).toHaveURL(/\/result\?view=saved/, { timeout: 60_000 })
-  await expect(page.getByText('나의 학습 계단 — 체크리스트')).toBeVisible({ timeout: 30_000 })
+  await page.getByRole('button', { name: /학습 계단 \d+\/\d+/ }).click({ timeout: 30_000 })
+  await expect(page.getByText('나의 학습 계단 — 체크리스트')).toBeVisible()
 
   // 실서버 엣지: 알아요 폐쇄가 큐 후보를 전부 걸러 빈 큐가 될 수 있다 (2026-07-18 실측 — 백로그)
   const first = page.locator('button').filter({ hasText: /^1\. / }).first()

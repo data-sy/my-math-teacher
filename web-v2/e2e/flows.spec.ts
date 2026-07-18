@@ -50,10 +50,11 @@ test('핵심 플로우 ①→②→③→④-A → 게이트 전환 ④-B → �
   await expect(page.getByText('방금 받은 진단 결과는 그대로 있어요.')).toBeVisible()
   await page.getByRole('button', { name: '구글로 계속하기' }).click()
 
-  // ④-B 게이트 상태 — 순서: 그래프 → 카드 → 체크리스트
+  // ④-B 게이트 상태 — 그래프 → 카드 + 플로팅 체크리스트 진입 (2026-07-18 재배치)
   await expect(page).toHaveURL(/\/result\?view=saved/)
   await expect(page.getByText('나의 학습 경로 (저장됨)')).toBeVisible()
   await expect(page.getByText('진단 카드 (재열람)')).toBeVisible()
+  await page.getByRole('button', { name: /학습 계단 0\/2/ }).click() // 플로팅 pill → 시트
   await expect(page.getByText('나의 학습 계단 — 체크리스트')).toBeVisible()
   await expect(page.getByText('1. 이차방정식의 풀이')).toBeVisible() // 위상순 — 선수 먼저
   await expect(page.getByText('여기부터')).toBeVisible()

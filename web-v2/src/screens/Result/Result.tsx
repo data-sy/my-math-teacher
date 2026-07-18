@@ -15,6 +15,7 @@ import {
 import { ApiError, AuthRequiredError } from '../../api/client'
 import type { ResultCard } from '../../api/types'
 import { useAuth } from '../../auth/AuthContext'
+import BottomSheet from '../../components/BottomSheet'
 import ConceptGraph from '../../components/ConceptGraph'
 import { nextChapterUp } from '../../lib/curriculum'
 import {
@@ -269,6 +270,7 @@ function SavedResult() {
   const qc = useQueryClient()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [queueOpen, setQueueOpen] = useState(false)
 
   const queueQ = useQuery({ queryKey: ['queue', 'me'], queryFn: fetchMyQueue, retry: false })
   const queue = queueQ.data ?? null
@@ -374,8 +376,21 @@ function SavedResult() {
         </>
       )}
 
-      {/* ●10 큐 체크리스트 (순서 3) — self-mark 토글, "여기부터" = 첫 미완료 */}
-      <div className={s.queueWrap}>
+      {/* ●11 다시 진단하기 (보조) — 탭 시점엔 아무것도 폐기 안 됨. 하단 여백 = 플로팅 버튼 자리 */}
+      <div className={s.ctaWrap} style={{ paddingBottom: 64 }}>
+        <button className="btn-secondary" onClick={() => nav('/entry')}>
+          다시 진단하기
+        </button>
+      </div>
+
+      {/* ●10 큐 체크리스트 (순서 3) — 화면 위에 떠 있는 상주 pill → 탭하면 시트
+          (2026-07-18 실기기 라운드: 페이지 하단 인라인 → 플로팅 진입으로 재배치) */}
+      {queue && (
+        <button className={s.queueFab} onClick={() => setQueueOpen(true)}>
+          학습 계단 {queue.items.filter((i) => i.done).length}/{queue.items.length}
+        </button>
+      )}
+      <BottomSheet open={queueOpen} onClose={() => setQueueOpen(false)}>
         <div className={s.secTag}>나의 학습 계단 — 체크리스트</div>
         <div className={s.qsub}>선수지식 먼저(위상순). 공부하고 오면 탭해서 완료 표시</div>
         {toggle.isError && (
@@ -411,14 +426,7 @@ function SavedResult() {
               {item.current && <span className={s.here}>여기부터</span>}
             </button>
           ))}
-      </div>
-
-      {/* ●11 다시 진단하기 (보조) — 탭 시점엔 아무것도 폐기 안 됨 */}
-      <div className={s.ctaWrap}>
-        <button className="btn-secondary" onClick={() => nav('/entry')}>
-          다시 진단하기
-        </button>
-      </div>
+      </BottomSheet>
     </div>
   )
 }
