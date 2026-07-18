@@ -166,7 +166,11 @@ function CardView({ card, onPathTap }: { card: ResultCard; onPathTap?: () => voi
     <div className={s.card}>
       <div className={s.crow}>
         <span className={s.cname}>{card.conceptName}</span>
-        <span className={`${s.badge} ${card.urgency === 'HIGH' ? s.badgeHi : ''}`}>{badge}</span>
+        <span
+          className={`${s.badge} ${card.urgency === 'HIGH' ? s.badgeHi : card.urgency === 'MID' ? s.badgeMid : ''}`}
+        >
+          {badge}
+        </span>
       </div>
       <div className={s.basis}>이걸 모르면 위로 {card.urgencyBasis.blockedDescendants}개 개념이 막혀요</div>
       <div className={s.links}>

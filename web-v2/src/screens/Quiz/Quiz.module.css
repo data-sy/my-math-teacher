@@ -18,7 +18,7 @@
 .pbar i {
   display: block;
   height: 100%;
-  background: var(--ink);
+  background: var(--accent);
   transition: width 0.25s ease;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .toast {
-  background: var(--ink);
+  background: var(--primary);
   color: #fff;
   font-size: 11.5px;
   padding: 7px 14px;
@@ -77,16 +77,19 @@
   opacity: 0.4;
 }
 
-/* 좌 = 몰라요(아웃라인) / 우 = 알아요(채움) — 위치 불변 (03 ●4) */
+/* 좌 = 몰라요 / 우 = 알아요 — 위치 불변 (03 ●4).
+   하이파이 재판단(2026-07-18): 동급 무게 + 색으로만 의미 분화 —
+   채움/아웃라인 비대칭은 "알아요"를 유도해 자가응답 과신 오염을 키우므로 배제. */
 .dont {
-  border: 2px solid var(--ink);
+  border: 2px solid var(--sub);
   background: var(--paper);
   color: var(--ink);
 }
 
 .know {
-  background: var(--ink);
-  color: #fff;
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--primary-deep);
 }
 
 .undoRow {

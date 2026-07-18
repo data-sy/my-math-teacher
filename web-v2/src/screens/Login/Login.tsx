@@ -118,9 +118,9 @@ export default function Login() {
 
       {/* ●3 OAuth 3사 — 동급(특정 사 우대 없음), 페이지 이동 */}
       <div className={s.oauth}>
-        <button onClick={() => tapOAuth('google')}>구글로 계속하기</button>
-        <button onClick={() => tapOAuth('naver')}>네이버로 계속하기</button>
-        <button onClick={() => tapOAuth('kakao')}>카카오로 계속하기</button>
+        <button className={s.google} onClick={() => tapOAuth('google')}>구글로 계속하기</button>
+        <button className={s.naver} onClick={() => tapOAuth('naver')}>네이버로 계속하기</button>
+        <button className={s.kakao} onClick={() => tapOAuth('kakao')}>카카오로 계속하기</button>
       </div>
 
       {/* 조건부 — OAuth 콜백 실패 복귀 (인라인, 재시도 컨텍스트 보존) */}

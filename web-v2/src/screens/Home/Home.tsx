@@ -48,15 +48,16 @@ export default function Home() {
 
       {/* ●3 히어로 비주얼 = 지식그래프 미끼 — 탭해도 이동하지 않음 */}
       <div className={s.heroGraph} aria-hidden="true">
-        <span className={s.gedge} style={{ top: 73, left: 64, width: 66, transform: 'rotate(14deg)' }} />
-        <span className={s.gedge} style={{ top: 105, left: 138, width: 70, transform: 'rotate(-28deg)' }} />
-        <span className={s.gedge} style={{ top: 70, left: 210, width: 62, transform: 'rotate(25deg)' }} />
-        <span className={s.gedge} style={{ top: 98, left: 284, width: 56, transform: 'rotate(-24deg)' }} />
+        {/* 엣지 = 노드 테두리에서 테두리로 (끝점이 원에 안 덮여야 ›가 보임) */}
+        <span className={s.gedge} style={{ top: 80, left: 64, width: 42, transform: 'rotate(24deg)' }} />
+        <span className={s.gedge} style={{ top: 98, left: 138, width: 44, transform: 'rotate(-27deg)' }} />
+        <span className={s.gedge} style={{ top: 75, left: 212, width: 40, transform: 'rotate(24deg)' }} />
+        <span className={s.gedge} style={{ top: 92, left: 284, width: 39, transform: 'rotate(-26deg)' }} />
         <span className={s.gnode} style={{ top: 55, left: 30 }}>개념</span>
-        <span className={s.gnode} style={{ top: 88, left: 104 }}>개념</span>
-        <span className={s.gnode} style={{ top: 50, left: 178 }}>개념</span>
-        <span className={s.gnode} style={{ top: 82, left: 250 }}>개념</span>
-        <span className={s.gnode} style={{ top: 48, left: 320 }}>개념</span>
+        <span className={`${s.gnode} ${s.gnodeGap}`} style={{ top: 88, left: 104 }}>?</span>
+        <span className={s.gnode} style={{ top: 50, left: 178, animationDelay: '0.6s' }}>개념</span>
+        <span className={s.gnode} style={{ top: 82, left: 250, animationDelay: '1.2s' }}>개념</span>
+        <span className={s.gnode} style={{ top: 48, left: 320, animationDelay: '1.8s' }}>개념</span>
       </div>
 
       {/* ●4 작동방식 스텝 */}

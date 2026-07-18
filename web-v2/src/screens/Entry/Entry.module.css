@@ -84,14 +84,14 @@
 }
 
 .pickItem.default {
-  border: 2px solid var(--ink);
-  background: var(--soft);
+  border: 2px solid var(--primary);
+  background: var(--accent-soft);
 }
 
 .reco {
   font-size: 10px;
-  color: var(--sub);
-  border: 1px solid var(--line);
+  color: var(--primary-deep);
+  border: 1px solid var(--accent);
   padding: 0 6px;
   border-radius: 8px;
   white-space: nowrap;
@@ -144,7 +144,8 @@
 .gradeGrid button.on,
 .semRow button.on,
 .on {
-  background: var(--ink);
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
 }
 

@@ -42,15 +42,25 @@
 
 .badge {
   font-size: 10px;
-  border: 1px solid var(--ink);
+  font-weight: 700;
+  border: 1px solid var(--line);
+  color: var(--sub);
   padding: 0 7px;
   border-radius: 9px;
   white-space: nowrap;
 }
 
+/* 시급도 색 문법 (정직성 원칙) — 상=빨강 / 중=호박 / 하·결측=회색 */
 .badgeHi {
-  background: var(--ink);
-  color: #fff;
+  background: var(--urgent-hi-bg);
+  color: var(--urgent-hi);
+  border-color: transparent;
+}
+
+.badgeMid {
+  background: var(--urgent-mid-bg);
+  color: var(--urgent-mid);
+  border-color: transparent;
 }
 
 .basis {
@@ -184,7 +194,7 @@
 .here {
   margin-left: auto;
   font-size: 9.5px;
-  background: var(--ink);
+  background: var(--accent);
   color: #fff;
   padding: 1px 6px;
   border-radius: 8px;

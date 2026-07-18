@@ -14,10 +14,14 @@ interface Props {
   height: number | string
 }
 
-const INK = '#1a1a1a'
-const SUB = '#666'
-const LINE = '#c8c8c8'
-const SOFT = '#f5f5f5'
+// 틸 그로스 토큰 (index.css :root 와 동일 값 — Cytoscape 는 CSS 변수를 못 읽어 상수 복제)
+const INK = '#14231f'
+const SUB = '#5f6e67'
+const LINE = '#cdd8d2'
+const PAPER = '#fbfbf7'
+const PRIMARY = '#0e7a6c'
+const ACCENT = '#0e9f8c'
+const ACCENT_SOFT = '#dff2ec'
 
 export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pathIds, height }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -41,7 +45,7 @@ export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pa
             width: 46,
             height: 46,
             shape: 'ellipse',
-            'background-color': '#fff',
+            'background-color': PAPER,
             'border-width': 1.5,
             'border-color': SUB,
             label: 'data(label)',
@@ -66,13 +70,13 @@ export default function ConceptGraph({ concepts, edges, selectedId, onSelect, pa
         },
         {
           selector: 'node.sel',
-          style: { 'border-width': 2.5, 'border-color': INK, color: INK, 'font-weight': 'bold' },
+          style: { 'border-width': 2.5, 'border-color': ACCENT, color: INK, 'font-weight': 'bold' },
         },
         {
           selector: 'node.path',
-          style: { 'background-color': SOFT, 'border-width': 2.5, 'border-color': INK, color: INK },
+          style: { 'background-color': ACCENT_SOFT, 'border-width': 2.5, 'border-color': PRIMARY, color: INK },
         },
-        { selector: 'edge.path', style: { 'line-color': INK, 'target-arrow-color': INK, width: 2.5 } },
+        { selector: 'edge.path', style: { 'line-color': PRIMARY, 'target-arrow-color': PRIMARY, width: 2.5 } },
         { selector: '.dim', style: { opacity: 0.25 } }, // 숨김 아님 — 지형은 보이되 시선만 모음
       ],
       layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.1, padding: 12 },

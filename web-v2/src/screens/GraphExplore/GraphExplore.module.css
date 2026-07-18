@@ -14,7 +14,7 @@
 }
 
 .search input:focus {
-  border-color: var(--ink);
+  border-color: var(--accent);
 }
 
 .searchList {
@@ -140,8 +140,8 @@
 }
 
 .pillNow {
-  border: 1.5px solid var(--ink);
-  color: var(--ink);
+  border: 1.5px solid var(--accent);
+  color: var(--primary-deep);
   font-weight: 700;
   background: var(--paper);
 }

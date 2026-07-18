@@ -31,6 +31,25 @@
   text-align: center;
 }
 
+/* 3사 브랜드 가이드 색 — 크기·순서·형태 동일(동급, 특정 사 우대 없음 ●3) */
+.oauth .google {
+  border-color: #dadce0;
+  background: #fff;
+  color: #1f1f1f;
+}
+
+.oauth .naver {
+  border-color: #03c75a;
+  background: #03c75a;
+  color: #fff;
+}
+
+.oauth .kakao {
+  border-color: #fee500;
+  background: #fee500;
+  color: #191919;
+}
+
 .inlineErr {
   font-size: 11.5px;
   color: var(--sub);

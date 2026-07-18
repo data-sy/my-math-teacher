@@ -1,13 +1,22 @@
-/* 디자인 토큰 — 와이어프레임 그레이스케일 그대로 (로우파이 충실 재현이 목표) */
+/* 디자인 토큰 — 하이파이 "틸 그로스" (C안, 2026-07-18 블라인드 평가+사용자 확정)
+   중립색은 녹색 기 그레이로 틴트, 액션·진척은 틸. 시급도는 정직성 원칙(빨강=상/호박=중/회색=하). */
 :root {
-  --ink: #1a1a1a;
-  --sub: #666;
-  --line: #c8c8c8;
-  --bg: #ececec;
-  --paper: #fff;
-  --soft: #f5f5f5;
-  --gate: #e6e6e6;
-  --note: #fafafa;
+  --ink: #14231f;
+  --sub: #5f6e67;
+  --line: #cdd8d2;
+  --bg: #e9eeea;
+  --paper: #fbfbf7;
+  --soft: #f0f3f0;
+  --gate: #e4ebe6;
+  --note: #f7faf6;
+  --primary: #0e7a6c; /* 1차 CTA·확정 액션 */
+  --primary-deep: #0b6459;
+  --accent: #0e9f8c; /* 진척·포커스·선택 */
+  --accent-soft: #dff2ec;
+  --urgent-hi: #be3a25;
+  --urgent-hi-bg: #fbe7e4;
+  --urgent-mid: #9c6b10;
+  --urgent-mid-bg: #fdf2d9;
 }
 
 * {
@@ -55,7 +64,8 @@ input {
   background: var(--paper);
   display: flex;
   flex-direction: column;
-  padding: 18px 16px 20px;
+  /* 노치·다이나믹 아일랜드 안전영역 — viewport-fit=cover 전제 (없으면 env=0 으로 무해) */
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px));
   position: relative;
 }
 
@@ -67,7 +77,7 @@ input {
 .btn-primary {
   display: block;
   width: 100%;
-  background: var(--ink);
+  background: var(--primary);
   color: #fff;
   font-size: 16px;
   font-weight: 700;

@@ -12,8 +12,8 @@
 .resumeBanner {
   display: block;
   width: 100%;
-  border: 1.5px solid var(--ink);
-  background: var(--soft);
+  border: 1.5px solid var(--primary);
+  background: var(--accent-soft);
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 12.5px;
@@ -66,6 +66,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: float 4.5s ease-in-out infinite;
+}
+
+/* "빈 계단" 노드 — 어디서 막혔는지의 서사. 시급도 색 문법(빨강)과 동일 어휘 */
+.gnodeGap {
+  border: 1.5px dashed var(--urgent-hi);
+  background: var(--urgent-hi-bg);
+  color: var(--urgent-hi);
+  font-size: 13px;
+  font-weight: 800;
+  animation: gapPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes gapPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(190, 58, 37, 0.28);
+  }
+  60% {
+    box-shadow: 0 0 0 8px rgba(190, 58, 37, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gnode,
+  .gnodeGap {
+    animation: none;
+  }
 }
 
 .gedge {
@@ -73,6 +107,19 @@
   height: 1.5px;
   background: var(--line);
   transform-origin: 0 0;
+}
+
+/* 선수 → 후수 화살촉 — 선 끝(도착 노드 직전), O——›O. ⑥ 그래프 화살표와 같은 어휘 */
+.gedge::after {
+  content: '›';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-54%);
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--sub);
 }
 
 .steps {
