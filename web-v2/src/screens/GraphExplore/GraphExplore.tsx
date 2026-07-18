@@ -5,9 +5,10 @@ import {
   fetchChapters,
   fetchConceptDetail,
   fetchConceptGraph,
+  fetchFrontier,
   searchConcepts,
 } from '../../api/endpoints'
-import type { Chapter, ConceptNode } from '../../api/types'
+import type { Chapter, ConceptNode, ConceptSearchHit } from '../../api/types'
 import BottomSheet from '../../components/BottomSheet'
 import ConceptGraph from '../../components/ConceptGraph'
 import { currentSemester, pickDefaultChapter } from '../../lib/curriculum'
@@ -26,7 +27,7 @@ export default function GraphExplore() {
   const [selectedId, setSelectedId] = useState<string | null>(initialConceptId)
   const [scopeSheetOpen, setScopeSheetOpen] = useState(false)
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<ConceptNode[] | null>(null)
+  const [results, setResults] = useState<ConceptSearchHit[] | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data: chapters } = useQuery({ queryKey: ['chapters'], queryFn: () => fetchChapters() })
@@ -57,10 +58,28 @@ export default function GraphExplore() {
     else setScope({ type: 'all' })
   }, [scope, chapters, initialConceptId, initialDetail])
 
+  // 그래프 로드 — 실서버는 중심 개념 서브그래프(nodes/edges/{id})라 스코프에서 중심을 정한다:
+  // 단원 스코프 = 그 단원 프론티어 대표 / 모두 보기 = 현재 선택(또는 진입 컨텍스트) 중심
   const graphQ = useQuery({
-    queryKey: ['concepts', scope?.type === 'chapter' ? scope.chapterId : 'all'],
-    queryFn: () => fetchConceptGraph(scope?.type === 'chapter' ? scope.chapterId : undefined),
-    enabled: !!scope,
+    queryKey: [
+      'concept-graph',
+      scope?.type === 'chapter' ? scope.chapterId : `all:${selectedId ?? initialConceptId ?? ''}`,
+    ],
+    queryFn: async () => {
+      if (scope!.type === 'chapter') {
+        const f = await fetchFrontier(scope!.chapterId)
+        const center = f.concepts[0]?.conceptId
+        if (!center) return { concepts: [], edges: [] }
+        return fetchConceptGraph(center)
+      }
+      let center = selectedId ?? initialConceptId
+      if (!center && chapters?.[0]) {
+        center = (await fetchFrontier(chapters[0].chapterId)).concepts[0]?.conceptId ?? null
+      }
+      if (!center) return { concepts: [], edges: [] }
+      return fetchConceptGraph(center)
+    },
+    enabled: !!scope && !!chapters,
   })
 
   // 초기 선택 — 컨텍스트 없으면 스코프 대표 노드(단원 내 후수-최상위 = ② 프론티어와 동일 개념)
@@ -101,18 +120,22 @@ export default function GraphExplore() {
   }
 
   // 검색 결과·체인 pill 탭 — 경계 개념이면 스코프 자동 전환 (06 ●2·●3)
-  function jumpTo(c: ConceptNode) {
-    if (scope?.type === 'chapter' && c.chapterId !== scope.chapterId && chapters) {
-      const ch = chapters.find((x) => x.chapterId === c.chapterId)
-      if (ch) setScope({ type: 'chapter', chapterId: ch.chapterId, name: ch.name })
+  // 검색 hit 은 chapterId 가 없어(실서버 shape) 단원명 매칭, 체인 pill(ConceptNode)은 chapterId 매칭
+  function jumpTo(c: { conceptId: string; chapterId?: string; chapterName?: string }) {
+    if (scope?.type === 'chapter' && chapters) {
+      const ch = c.chapterId
+        ? chapters.find((x) => x.chapterId === c.chapterId)
+        : c.chapterName
+          ? chapters.find((x) => x.name === c.chapterName)
+          : undefined
+      if (ch && ch.chapterId !== scope.chapterId) {
+        setScope({ type: 'chapter', chapterId: ch.chapterId, name: ch.name })
+      }
     }
     setSelectedId(c.conceptId)
     setQuery('')
     setResults(null)
   }
-
-  const chapterName = (c: ConceptNode) =>
-    chapters?.find((x) => x.chapterId === c.chapterId)?.name ?? ''
 
   const graphData = graphQ.data
   const stackedPills = (nodes: ConceptNode[]) => {
@@ -144,7 +167,7 @@ export default function GraphExplore() {
             )}
             {results.map((r) => (
               <button key={r.conceptId} onClick={() => jumpTo(r)}>
-                {r.conceptName} <small>· {chapterName(r)}</small>
+                {r.conceptName} <small>· {r.chapterName}</small>
               </button>
             ))}
           </div>

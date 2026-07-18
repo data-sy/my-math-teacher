@@ -266,11 +266,20 @@ function SavedResult() {
     retry: false,
   })
 
-  // 경로 하이라이트용 전체 그래프 (④-B는 ⑥ 컴포넌트 공유 + pathIds 만 추가)
-  const graphQ = useQuery({ queryKey: ['concepts', 'all'], queryFn: () => fetchConceptGraph() })
+  // 경로 하이라이트용 그래프 (④-B는 ⑥ 컴포넌트 공유 + pathIds 만 추가)
+  // 실서버는 전체 그래프 엔드포인트가 없어 중심 개념 서브그래프 — 중심 = "여기부터"(서버 파생 current)
+  const currentItem = queue?.items.find((i) => i.current) ?? null
+  const graphCenter =
+    currentItem?.conceptId ?? queue?.items[0]?.conceptId ?? diagQ.data?.cards[0]?.conceptId ?? null
+  const graphQ = useQuery({
+    queryKey: ['concept-graph', 'path', graphCenter],
+    queryFn: () => fetchConceptGraph(graphCenter!),
+    enabled: !!graphCenter,
+  })
 
   const toggle = useMutation({
-    mutationFn: ({ itemId }: { itemId: string }) => toggleQueueItemDone(queue!.queueId, itemId),
+    mutationFn: ({ queueItemId }: { queueItemId: string }) =>
+      toggleQueueItemDone(queue!.queueId, queueItemId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['queue', 'me'] }),
   })
 
@@ -308,7 +317,6 @@ function SavedResult() {
   }
 
   const pathIds = queue?.items.map((i) => i.conceptId) ?? []
-  const firstUndone = queue?.items.find((i) => !i.done)
   const selectedConcept = graphQ.data?.concepts.find((c) => c.conceptId === selectedId)
   const cards = diagQ.data?.cards ?? []
   const more = diagQ.data?.more ?? []
@@ -374,14 +382,14 @@ function SavedResult() {
           .sort((a, b) => a.position - b.position)
           .map((item) => (
             <button
-              key={item.itemId}
+              key={item.queueItemId}
               className={`${s.qitem} ${item.done ? s.done : ''}`}
-              onClick={() => toggle.mutate({ itemId: item.itemId })}
+              onClick={() => toggle.mutate({ queueItemId: item.queueItemId })}
               disabled={toggle.isPending}
             >
               <span className={s.chk}>{item.done ? '✓' : ''}</span>
               {item.position}. {item.conceptName}
-              {firstUndone?.itemId === item.itemId && <span className={s.here}>여기부터</span>}
+              {item.current && <span className={s.here}>여기부터</span>}
             </button>
           ))}
       </div>

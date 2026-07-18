@@ -74,7 +74,7 @@ export default function Quiz() {
     if (phase.kind !== 'question' || !session) return
     const updated: DiagSession = {
       ...session,
-      answered: [...session.answered, { conceptId: phase.q.conceptId, know }],
+      answered: [...session.answered, { conceptId: phase.q.conceptId, known: know }],
       savedAt: Date.now(),
     }
     saveSession(updated) // 매 답변 직후 localStorage (F-2)

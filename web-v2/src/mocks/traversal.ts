@@ -34,10 +34,10 @@ export function validateAnswers(answered: Answer[]): string | null {
 }
 
 export function traverse(entry: DiagnosisEntry, answered: Answer[]): TraversalResult {
-  const answerOf = new Map(answered.map((a) => [a.conceptId, a.know]))
+  const answerOf = new Map(answered.map((a) => [a.conceptId, a.known]))
   const skip = new Set<string>()
   for (const a of answered) {
-    if (a.know) for (const p of prereqClosure(a.conceptId)) skip.add(p)
+    if (a.known) for (const p of prereqClosure(a.conceptId)) skip.add(p)
   }
 
   const queue = [...resolveFrontier(entry)]
@@ -68,17 +68,17 @@ export interface WeakConcept {
 /** 몰라요 목록 → blocked 수 내림차순 (preview·귀속 공용 — 결정론 계약) */
 export function weakConcepts(answered: Answer[]): WeakConcept[] {
   return answered
-    .filter((a) => !a.know)
+    .filter((a) => !a.known)
     .map((a) => ({ conceptId: a.conceptId, blockedDescendants: successorClosure(a.conceptId).size }))
     .sort((x, y) => y.blockedDescendants - x.blockedDescendants)
 }
 
 /** 통합 학습 큐 = 약점 ∪ 약점의 선수 폐쇄 − 아는 것(및 그 선수 폐쇄), 위상순(선수 먼저) */
 export function buildQueueConcepts(answered: Answer[]): string[] {
-  const weak = answered.filter((a) => !a.know).map((a) => a.conceptId)
+  const weak = answered.filter((a) => !a.known).map((a) => a.conceptId)
   const known = new Set<string>()
   for (const a of answered) {
-    if (a.know) {
+    if (a.known) {
       known.add(a.conceptId)
       for (const p of prereqClosure(a.conceptId)) known.add(p)
     }

@@ -15,7 +15,7 @@ export default function Home() {
     enabled: isLoggedIn,
   })
 
-  const nextItem = queue?.items.find((i) => !i.done)
+  const nextItem = queue?.items.find((i) => i.current) // 서버 파생 "여기부터" (전부 완료면 없음)
   const allDone = !!queue && queue.items.length > 0 && !nextItem
 
   return (

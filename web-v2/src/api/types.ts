@@ -20,13 +20,13 @@ export type DiagnosisEntry =
 
 export interface Answer {
   conceptId: string
-  /** 알아요 = true / 몰라요 = false */
-  know: boolean
+  /** 알아요 = true / 몰라요 = false — 실계약 필드명 = known (spec-01 §4.3, 2026-07-18 실서버 확인) */
+  known: boolean
 }
 
 export interface FrontierResponse {
-  /** 시작 프론티어 = 단원 내 후수-최상위 개념 id들 */
-  frontier: string[]
+  /** 시작 프론티어 = 단원 내 후수-최상위 개념들 (실서버 shape: {concepts:[{conceptId, conceptName}]}) */
+  concepts: { conceptId: string; conceptName: string }[]
 }
 
 export interface NextQuestion {
@@ -77,17 +77,21 @@ export interface PreviewResponse {
   failSoft?: boolean
 }
 
-/** 귀속 응답 = preview 와 동일 shape + userTestId (결정론 계약) */
-export interface DiagnosisSavedResponse extends PreviewResponse {
+/** 귀속 응답 — 실서버 shape: result 중첩 (2026-07-18 실측, preview 와 result 동일 = 결정론 계약) */
+export interface SaveDiagnosisResponse {
   userTestId: string
+  result: PreviewResponse
 }
 
 export interface QueueItem {
-  itemId: string
+  /** 실계약 필드명 = queueItemId (2026-07-18 실측 — 가정 itemId 정정) */
+  queueItemId: string
   conceptId: string
   conceptName: string
   position: number
   done: boolean
+  /** 서버 파생 "여기부터" — position 순 첫 done=false (클라 계산 금지, spec-02 §4.4) */
+  current: boolean
 }
 
 export interface LearningQueue {
@@ -112,6 +116,13 @@ export interface ConceptEdge {
 export interface ConceptGraphResponse {
   concepts: ConceptNode[]
   edges: ConceptEdge[]
+}
+
+/** ⑥ 검색 결과 — 실서버 응답에 chapterId 없음(단원명만) → 스코프 점프는 단원명 매칭 (2026-07-18 실측) */
+export interface ConceptSearchHit {
+  conceptId: string
+  conceptName: string
+  chapterName: string
 }
 
 export interface ConceptDetail {

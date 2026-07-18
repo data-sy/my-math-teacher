@@ -4,22 +4,13 @@ import { HttpResponse, http } from 'msw'
 import type {
   Answer,
   Chapter,
-  ConceptNode,
   DiagnosisEntry,
   LearningQueue,
   PreviewResponse,
   ResultCard,
   Urgency,
 } from '../api/types'
-import {
-  CHAPTERS,
-  CONCEPTS,
-  chapterOf,
-  concept,
-  directPrereqs,
-  directSuccessors,
-  linksFor,
-} from './graph-data'
+import { CHAPTERS, CONCEPTS, chapterOf, concept, directPrereqs, linksFor } from './graph-data'
 import { buildQueueConcepts, resolveFrontier, traverse, validateAnswers, weakConcepts } from './traversal'
 
 // ── mock 영속 상태 (localStorage — 새로고침 넘어 ④-B 재열람·홈 배너 검증용) ──
@@ -29,7 +20,8 @@ interface MockDb {
   queue: LearningQueue | null
 }
 
-const DB_KEY = 'mmt.mockdb'
+// v2: 실서버 wire shape 미러(queueItemId·current·귀속 중첩 등) — 구 키의 stale 상태와 격리 (2026-07-18)
+const DB_KEY = 'mmt.mockdb.v2'
 
 function loadDb(): MockDb {
   try {
@@ -101,22 +93,37 @@ function buildResult(answered: Answer[]): PreviewResponse {
 function buildQueue(db: MockDb, userTestId: string): LearningQueue {
   const test = db.tests[userTestId]
   const ids = buildQueueConcepts(test.answered)
-  return {
+  return withCurrent({
     queueId: `q${userTestId}`,
     userTestId,
     items: ids.map((conceptId, i) => ({
-      itemId: `qi-${userTestId}-${i + 1}`,
+      queueItemId: `qi-${userTestId}-${i + 1}`,
       conceptId,
       conceptName: concept(conceptId).conceptName,
       position: i + 1,
       done: false,
+      current: false,
     })),
-  }
+  })
 }
 
-const node = (id: string): ConceptNode => {
+/** 서버 파생값 미러 — current = position 순 첫 done=false (실서버 shape 2026-07-18 실측) */
+function withCurrent(q: LearningQueue): LearningQueue {
+  const sorted = [...q.items].sort((a, b) => a.position - b.position)
+  const firstUndone = sorted.find((i) => !i.done)
+  return { ...q, items: q.items.map((i) => ({ ...i, current: i === firstUndone })) }
+}
+
+// 실서버 ConceptResponse wire shape 미러
+const wireNode = (id: string) => {
   const c = concept(id)
-  return { conceptId: c.conceptId, conceptName: c.conceptName, description: c.description, chapterId: c.chapterId }
+  return {
+    conceptId: c.conceptId,
+    conceptName: c.conceptName,
+    conceptDescription: c.description,
+    conceptChapterId: c.chapterId,
+    conceptChapterName: chapterOf(id).name,
+  }
 }
 
 export const handlers = [
@@ -129,7 +136,11 @@ export const handlers = [
   http.post('/api/v1/diagnosis/frontier', async ({ request }) => {
     const { chapterId } = (await request.json()) as { chapterId: string }
     if (!CHAPTERS.some((c) => c.chapterId === chapterId)) return err(400, '없는 단원이에요')
-    return HttpResponse.json({ frontier: resolveFrontier({ scope: 'chapter', chapterId }) })
+    // 실서버 shape: {concepts:[{conceptId, conceptName}]}
+    const ids = resolveFrontier({ scope: 'chapter', chapterId })
+    return HttpResponse.json({
+      concepts: ids.map((id) => ({ conceptId: id, conceptName: concept(id).conceptName })),
+    })
   }),
 
   // ── ③ stateless next ──
@@ -141,8 +152,9 @@ export const handlers = [
     if (invalid) return err(400, invalid)
     const t = traverse(entry, answered)
     if (!t.next) return HttpResponse.json({ done: true })
+    const c = concept(t.next)
     return HttpResponse.json({
-      next: node(t.next),
+      next: { conceptId: c.conceptId, conceptName: c.conceptName, description: c.description },
       progress: { asked: answered.length, estimatedRemaining: t.estimatedRemaining },
     })
   }),
@@ -167,7 +179,8 @@ export const handlers = [
     const userTestId = `t${db.seq}`
     db.tests[userTestId] = { entry, answered }
     saveDb(db)
-    return HttpResponse.json({ ...buildResult(answered), userTestId })
+    // 실서버 shape: result 중첩 (2026-07-18 실측)
+    return HttpResponse.json({ userTestId, result: buildResult(answered) })
   }),
 
   http.post('/api/v1/learning-queues', async ({ request }) => {
@@ -185,7 +198,7 @@ export const handlers = [
     const db = loadDb()
     const test = db.tests[params.userTestId as string]
     if (!test) return err(403, '찾을 수 없어요') // 존재 숨김 톤 (05 ●6)
-    return HttpResponse.json({ ...buildResult(test.answered), userTestId: params.userTestId })
+    return HttpResponse.json(buildResult(test.answered)) // 실서버 shape: flat (userTestId 없음)
   }),
 
   http.get('/api/v1/learning-queues/me', ({ request }) => {
@@ -199,48 +212,52 @@ export const handlers = [
     if (!isAuthed(request)) return unauthorized()
     const db = loadDb()
     if (!db.queue || db.queue.queueId !== params.qId) return err(403, '찾을 수 없어요')
-    const item = db.queue.items.find((i) => i.itemId === params.itemId)
+    const item = db.queue.items.find((i) => i.queueItemId === params.itemId)
     if (!item) return err(400, '없는 항목이에요')
     item.done = !item.done // self-mark 토글 (해제도 가능 — 04 ●10)
+    db.queue = withCurrent(db.queue)
     saveDb(db)
-    return HttpResponse.json({ itemId: item.itemId, done: item.done })
+    return HttpResponse.json(db.queue) // 실서버 shape: 갱신된 큐 전체 (2026-07-18 실측)
   }),
 
-  // ── ⑥ permitAll — search 를 :id 보다 먼저 등록 ──
+  // ── ⑥ permitAll — 실서버 wire shape 미러 (2026-07-18 실측). search 를 :id 보다 먼저 등록 ──
   http.get('/api/v1/concepts/search', ({ request }) => {
     const q = new URL(request.url).searchParams.get('q')?.trim() ?? ''
     if (!q) return HttpResponse.json([])
-    const hits = CONCEPTS.filter((c) => c.conceptName.includes(q)).map((c) => node(c.conceptId))
+    const hits = CONCEPTS.filter((c) => c.conceptName.includes(q)).map((c) => ({
+      conceptId: c.conceptId,
+      conceptName: c.conceptName,
+      conceptChapterName: chapterOf(c.conceptId).name,
+    }))
     return HttpResponse.json(hits)
+  }),
+
+  // 직계 선수 목록 (실서버는 자기 자신 포함 — 미러)
+  http.get('/api/v1/concepts/prerequisite/:id', ({ params }) => {
+    const id = params.id as string
+    if (!CONCEPTS.some((c) => c.conceptId === id)) return err(400, '없는 개념이에요')
+    return HttpResponse.json([id, ...directPrereqs(id)].map(wireNode))
+  }),
+
+  // 중심 개념 서브그래프 — mock 그래프는 소규모라 전체 = 이웃
+  http.get('/api/v1/concepts/nodes/:id', ({ params }) => {
+    if (!CONCEPTS.some((c) => c.conceptId === (params.id as string))) return err(400, '없는 개념이에요')
+    return HttpResponse.json(CONCEPTS.map((c) => wireNode(c.conceptId)))
+  }),
+
+  // 엣지 — source→target = 선수→후수 (knowledge_space 대조 실측과 동일 방향)
+  http.get('/api/v1/concepts/edges/:id', ({ params }) => {
+    if (!CONCEPTS.some((c) => c.conceptId === (params.id as string))) return err(400, '없는 개념이에요')
+    const edges = CONCEPTS.flatMap((c, ci) =>
+      c.prereqs.map((p, pi) => ({ data: { id: `e${ci}-${pi}`, source: p, target: c.conceptId } })),
+    )
+    return HttpResponse.json(edges)
   }),
 
   http.get('/api/v1/concepts/:id', ({ params }) => {
     const id = params.id as string
     if (!CONCEPTS.some((c) => c.conceptId === id)) return err(400, '없는 개념이에요')
-    return HttpResponse.json({
-      concept: node(id),
-      prerequisites: directPrereqs(id).map(node),
-      successors: directSuccessors(id).map(node),
-    })
-  }),
-
-  http.get('/api/v1/concepts', ({ request }) => {
-    const chapterId = new URL(request.url).searchParams.get('chapterId')
-    let ids: Set<string>
-    if (chapterId) {
-      // 단원 개념 + 직계 경계 이웃(1-hop) — focus+context 의 "지형" 제공 (가정 A-9)
-      ids = new Set(CONCEPTS.filter((c) => c.chapterId === chapterId).map((c) => c.conceptId))
-      for (const id of [...ids]) {
-        directPrereqs(id).forEach((p) => ids.add(p))
-        directSuccessors(id).forEach((s) => ids.add(s))
-      }
-    } else {
-      ids = new Set(CONCEPTS.map((c) => c.conceptId)) // 모두 보기
-    }
-    const edges = CONCEPTS.flatMap((c) =>
-      c.prereqs.filter((p) => ids.has(p) && ids.has(c.conceptId)).map((p) => ({ from: p, to: c.conceptId })),
-    )
-    return HttpResponse.json({ concepts: [...ids].map(node), edges })
+    return HttpResponse.json(wireNode(id)) // 실서버 shape: flat 상세 (통짜 detail 아님)
   }),
 
   // ── 인증 역학 (접점 시트) ──
