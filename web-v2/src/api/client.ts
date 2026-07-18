@@ -39,6 +39,10 @@ interface RequestOptions {
   auth?: boolean
 }
 
+// 응답 없는 행(iOS 가 mock 서비스워커를 죽인 뒤 등)이 isPending 을 영구 고정해 UI 를
+// 잠그는 것 방지 — 타임아웃이면 reject 되어 에러 피드백·재시도 경로로 합류 (2026-07-18 실기기 발견)
+const REQUEST_TIMEOUT_MS = 15_000
+
 async function rawRequest(path: string, opts: RequestOptions, token: string | null): Promise<Response> {
   const headers: Record<string, string> = {}
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
@@ -47,6 +51,7 @@ async function rawRequest(path: string, opts: RequestOptions, token: string | nu
     method: opts.method ?? 'GET',
     headers,
     body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   })
 }
 
@@ -58,6 +63,7 @@ async function tryReissue(expiredToken: string): Promise<string | null> {
       // 쿠키의 refreshToken 필요 — withCredentials 필수 (접점 시트)
       credentials: 'include',
       body: JSON.stringify({ grantType: 'Bearer', accessToken: expiredToken }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     })
     if (!res.ok) return null
     const data = (await res.json()) as ReissueResponse

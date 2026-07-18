@@ -297,6 +297,8 @@ function SavedResult() {
     mutationFn: ({ queueItemId }: { queueItemId: string }) =>
       toggleQueueItemDone(queue!.queueId, queueItemId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['queue', 'me'] }),
+    // 실패 시에도 큐 재조회 — 스테일 queueId/itemId 로 인한 반복 실패 자가치유
+    onError: () => qc.invalidateQueries({ queryKey: ['queue', 'me'] }),
   })
 
   // 401 — 인라인 안내 → 재로그인 → 보던 화면 복귀 (05 카탈로그 확정)
@@ -396,6 +398,10 @@ function SavedResult() {
         {toggle.isError && (
           <div className={s.qerr} role="alert">
             체크가 저장되지 않았어요 — 다시 탭해주세요.
+            {/* 원인 코드 — 실기기 재보고 시 원인 특정용 (2026-07-18 미재현 버그) */}
+            <small>
+              ({toggle.error instanceof ApiError ? `오류 ${toggle.error.status}` : toggle.error.name})
+            </small>
             {toggle.error instanceof AuthRequiredError && (
               <button
                 className="retry"
