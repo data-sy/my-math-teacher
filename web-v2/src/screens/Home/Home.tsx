@@ -56,19 +56,26 @@ export default function Home() {
       </h1>
 
       {/* ●3 히어로 비주얼 = 지식그래프 미끼 — 탭해도 이동하지 않음.
-          클러스터는 고정 좌표라 래퍼로 박스 중앙 정렬 (넓은 웹·120px 축소에서 쏠림·바닥 잘림 방지) */}
+          클러스터는 고정 좌표라 래퍼로 박스 중앙 정렬 (넓은 웹·120px 축소에서 쏠림·바닥 잘림 방지).
+          배열 = 왼쪽 아래→오른쪽 위 오름 계단 — 헤드라인 "수학은 계단이다"와 시각 일치
+          (2026-07-18 실기기 라운드: 지그재그는 계단으로 안 읽힘 → 재배치) */}
       <div className={s.heroGraph} aria-hidden="true">
         <div className={s.gcluster}>
-          {/* 엣지 = 노드 테두리에서 테두리로 (끝점이 원에 안 덮여야 ›가 보임) */}
-          <span className={s.gedge} style={{ top: 32, left: 34, width: 42, transform: 'rotate(24deg)' }} />
-          <span className={s.gedge} style={{ top: 50, left: 108, width: 44, transform: 'rotate(-27deg)' }} />
-          <span className={s.gedge} style={{ top: 27, left: 182, width: 40, transform: 'rotate(24deg)' }} />
-          <span className={s.gedge} style={{ top: 44, left: 254, width: 39, transform: 'rotate(-26deg)' }} />
-          <span className={s.gnode} style={{ top: 7, left: 0 }}>개념</span>
-          <span className={`${s.gnode} ${s.gnodeGap}`} style={{ top: 40, left: 74 }}>?</span>
-          <span className={s.gnode} style={{ top: 2, left: 148, animationDelay: '0.6s' }}>개념</span>
-          <span className={s.gnode} style={{ top: 34, left: 220, animationDelay: '1.2s' }}>개념</span>
-          <span className={s.gnode} style={{ top: 0, left: 290, animationDelay: '1.8s' }}>개념</span>
+          {/* 계단 프로파일 = 디딤판(가로) + 챌판(세로) — 빈 계단(?) 디딤판만 빨간 점선 */}
+          <span className={s.gstep} style={{ top: 100, left: 0, width: 62 }} />
+          <span className={s.griser} style={{ top: 84, left: 62, height: 16 }} />
+          <span className={`${s.gstep} ${s.gstepGap}`} style={{ top: 84, left: 62, width: 62 }} />
+          <span className={s.griser} style={{ top: 68, left: 124, height: 16 }} />
+          <span className={s.gstep} style={{ top: 68, left: 124, width: 62 }} />
+          <span className={s.griser} style={{ top: 52, left: 186, height: 16 }} />
+          <span className={s.gstep} style={{ top: 52, left: 186, width: 62 }} />
+          <span className={s.griser} style={{ top: 36, left: 248, height: 16 }} />
+          <span className={s.gstep} style={{ top: 36, left: 248, width: 62 }} />
+          <span className={s.gnode} style={{ top: 64, left: 13 }}>개념</span>
+          <span className={`${s.gnode} ${s.gnodeGap}`} style={{ top: 48, left: 75 }}>?</span>
+          <span className={s.gnode} style={{ top: 32, left: 137, animationDelay: '0.6s' }}>개념</span>
+          <span className={s.gnode} style={{ top: 16, left: 199, animationDelay: '1.2s' }}>개념</span>
+          <span className={s.gnode} style={{ top: 0, left: 261, animationDelay: '1.8s' }}>개념</span>
         </div>
       </div>
 

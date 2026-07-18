@@ -54,14 +54,34 @@
   }
 }
 
-/* 노드·엣지 좌표(326×76)의 기준틀 — 박스 크기와 무관하게 항상 정중앙 */
+/* 노드·계단 좌표(310×102)의 기준틀 — 박스 크기와 무관하게 항상 정중앙 */
 .gcluster {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 326px;
-  height: 76px;
+  width: 310px;
+  height: 102px;
   transform: translate(-50%, -50%);
+}
+
+/* 계단 프로파일 — 디딤판(가로선)·챌판(세로선) */
+.gstep {
+  position: absolute;
+  height: 2px;
+  background: var(--line);
+}
+
+.griser {
+  position: absolute;
+  width: 2px;
+  background: var(--line);
+}
+
+/* 빈 계단 디딤판 — ? 노드와 같은 시급도 어휘(빨강 점선) */
+.gstepGap {
+  background: none;
+  height: 0;
+  border-top: 2px dashed var(--urgent-hi);
 }
 
 .gnode {
@@ -110,26 +130,6 @@
   .gnodeGap {
     animation: none;
   }
-}
-
-.gedge {
-  position: absolute;
-  height: 1.5px;
-  background: var(--line);
-  transform-origin: 0 0;
-}
-
-/* 선수 → 후수 화살촉 — 선 끝(도착 노드 직전), O——›O. ⑥ 그래프 화살표와 같은 어휘 */
-.gedge::after {
-  content: '›';
-  position: absolute;
-  right: -3px;
-  top: 50%;
-  transform: translateY(-54%);
-  font-size: 17px;
-  line-height: 1;
-  font-weight: 800;
-  color: var(--sub);
 }
 
 .steps {
