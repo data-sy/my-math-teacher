@@ -75,7 +75,7 @@
 <div class="wrap">
 
 <header class="doc">
-  <h1>M7 v2 · 와이어프레임 — SCREEN ⑥ 개념그래프 탐색<span class="status">확정 — 검수 반영(2026-07-17)</span></h1>
+  <h1>M7 v2 · 와이어프레임 — SCREEN ⑥ 개념그래프 탐색<span class="status">확정 — 검수 반영(2026-07-17) · ●4 시각 위계 = A안 색 층위로 대체(2026-07-19)</span></h1>
   <p class="meta">
     작성 2026-07-17 · 정본 입력 = PRD §3.2 ⑥·F-4 + 플로우 맵 ⑥·●9 · 무료·독립 진입(서비스의 얼굴) · 렌더 = 기존 Cytoscape 자산 재사용 전제<br>
     검수 확정 3건: ●3 스코프 = 단원 + "모두 보기" · ●4 선택 중심 depth≤2 선명 + 너머 오퍼시티 흐림(focus+context, 기존 depth API 재사용) · ●5 시트 = 3열 스택 체인(먼저/지금/다음)
@@ -112,7 +112,7 @@
     <!-- ●4 그래프 캔버스 -->
     <div class="gcanvas rel">
       <span class="co" style="top:-8px; right:-6px;">4</span>
-      <span class="lbl">그래프 캔버스 (Cytoscape) — 탭 = 선택 · 핀치 줌 · 드래그 팬 · 호버 의존 0<br>선명 = 선택 중심 depth≤2 · 너머 = 흐림(오퍼시티)</span>
+      <span class="lbl">그래프 캔버스 (Cytoscape) — 탭 = 선택 · 핀치 줌 · 드래그 팬 · 호버 의존 0<br>시각 위계 = A안 색 층위(2026-07-19): hue=방향(선수 틸/후수 보라)·명도=거리·계보 밖 무채색 축소</span>
       <span class="gedge" style="top:96px; left:84px; width:74px; transform:rotate(38deg);"></span>
       <span class="gedge" style="top:160px; left:150px; width:70px; transform:rotate(-30deg);"></span>
       <span class="gedge" style="top:118px; left:226px; width:64px; transform:rotate(30deg);"></span>
@@ -183,10 +183,18 @@
   <div class="note-item"><span class="n">4</span><div>
     <b>그래프 캔버스 — 선택 중심 focus+context(확정)</b> — 노드 탭 = 선택(강조 + ●5 시트) / 빈 곳 탭 = 선택 해제·시트 닫기 / 핀치 줌·드래그 팬. <b>호버 의존 0</b> — 모든 조작이 탭으로 가능(모바일 무결 §5.1). 엣지 방향 = 선수 → 후수.
     <dl>
-      <dt>선명/흐림 규칙(확정)</dt><dd><b>선명 = 선택 노드 중심 depth≤2 이웃</b>(기존 <code>ConceptService.findNodesIdByConceptIdDepth2</code> 계약 재사용), <b>그 너머 = 오퍼시티 흐림</b>(숨김 아님 — 지형은 보이되 시선만 모음). 선택을 옮길 때마다 선명 영역이 따라 이동 + 선택 노드로 부드럽게 재포커스.</dd>
+      <dt>시각 위계 = A안 색 층위(2026-07-19 확정 — 구 "depth≤2 선명/오퍼시티 흐림" 대체)</dt><dd>
+        백지 컨설팅(🤖-그래프-위계-A안-핸드오프) 채택 + v2 팔레트 맵핑(CVD ΔE·명도 램프·라이트엔드 대비 검증 통과, 보라 = 사용자 확정).
+        <b>hue = 방향</b>(선수 = 틸 / 후수 = 보라 — 신설 토큰 <code>--graph-succ</code>), <b>명도 = 거리</b>(직접/원거리, 뎁스 −2·+2 이하 병합), 레이아웃·좌표 불변.
+        상태 공간 노드 6 + 엣지 3 고정: 선택(잉크 + 흰 링 + 할로) · 선수-직접 <code>#0e7a6c</code> r15 · 선수-원거리 <code>#2fb5a6</code> r11(뎁스3+ r9) ·
+        후수-직접 <code>#7c3aed</code> r15 · 후수-원거리 <code>#a78bfa</code> r11 · 계보 밖 <code>#dce1e8</code> r7(무채색 축소 — 오퍼시티 미사용).
+        엣지: 직접 2.5px(방향색·화살촉) / 계보 내 원거리 1.5px(<code>#a5d8d2</code>·<code>#d4c6fd</code>) / 계보 밖 1px 무화살촉.
+        라벨 12·800 / 10.5·700 / 9·500 / 8·400(계보 밖 저줌 생략), 노드 하단 배치. 모션 = 선택 전이 1회 220ms만.
+        무선택 = 전 노드 중립 단일 톤·균일 크기. B안 요약 칩 이식은 별도 백로그.
+      </dd>
       <dt>초기 선택</dt><dd>진입 컨텍스트가 있으면 그 노드(●2 검색 결과 · ④ 약점 0 링크의 진단 개념), 없으면 스코프 대표 노드(단원 내 후수-최상위 — ② 프론티어와 동일 개념).</dd>
     </dl>
-    렌더·조작 규약은 ④-B 학습 경로 그래프와 공유(같은 컴포넌트, ④-B는 경로 하이라이트만 추가).
+    렌더·조작 규약은 ④-B 학습 경로 그래프와 공유(같은 컴포넌트, ④-B는 경로 하이라이트 + compact 라벨 모드(선택 노드만 라벨) 추가).
     <span class="src">플로우 맵 ●9 · §5.1 모바일 무결 · 04-result ●8 · 2026-07-17 06-graph 검수 확정</span>
   </div></div>
 
