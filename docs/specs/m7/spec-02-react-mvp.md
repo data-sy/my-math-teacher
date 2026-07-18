@@ -3,7 +3,7 @@
 **상위 마일스톤:** [Milestone 7](../../milestones/milestone-7-product-pivot.md) — 제품 피벗. 밀스톤 D6(React 새로 짜기)·D7(모바일 퍼스트)·PRD §3.2(MVP 6화면)·**v2 와이어프레임**(`docs/design/v2/` — 전 화면 검수 사인오프 2026-07-17)을 기술 설계로 구체화한다.
 **대상:** 프론트엔드(스캐폴딩·크리티컬 패스·auth/API 레이어·그래프 포팅). 백엔드 계약은 [spec-01](spec-01-diagnosis-self-report-dkt.md)(확정), 링크 데이터·경로 강조는 [spec-03](spec-03-learning-path-links.md)(확정 — 본 spec 의 hook·카드 계약 위에 얹힘).
 **작업 브랜치:** 착수 시 `feat/m7-spec-02-react-mvp` (본 설계 문서는 `feat/m7-ux-redesign` 에 동반)
-**상태:** 📝 **초안 — 사인오프 대기(§7 T1~T5 재확정).** UX SSOT = `docs/design/v2/00-flow-map.html`(전이·API 매핑) + `01-home`~`06-graph`(화면별 검수 확정).
+**상태:** ✅ **T1~T5 재확정 완료(2026-07-18 — 제로베이스 실빌드 + 사용자 확정, 🤖 빌드 문서 "재론 금지 결정").** 확정 결과가 §7 권장과 다른 3건: **T2 = TanStack Query + React Context**(Zustand 아님) · **T3 = CSS Modules**(Tailwind 아님) · **T5 = `web-v2/`**(web-react 아님). 라우트도 플랫 경로(`/entry`·`/quiz`·`/result`·`/graph`)로 확정. **구현 결정 정본 = [`frontend-spec.md`](frontend-spec.md)** — 본 문서는 백엔드 접점 사실(§2)·에러 카탈로그(§4.6)·검증 항목(§6) 참조용으로 유지. UX SSOT = `docs/design/v2/00-flow-map.html`(전이·API 매핑) + `01-home`~`06-graph`(화면별 검수 확정).
 **선행:** spec-01 확정(2026-07-13, 구현 머지 PR #48) · spec-03 확정(2026-07-13) · v2 와이어프레임 전 화면 사인오프(2026-07-17).
 **Supersedes:** 구 spec-02(2026-07-13 사인오프, **2026-07-16 `693d6fe` 로 삭제 — git 히스토리 보존**). 구 문서는 구 와이어프레임(`docs/design/m7-*`, read 전용 아카이브)을 UX SSOT 로 전제했으므로 v2 재설계에 맞춰 전면 재작성한다. 구 문서에서 시간을 안 타는 부분(백엔드 접점 사실확인 §2, 스택 결정 논거 §3, 결함 비승계 원칙 §2.2)은 재검토 후 본문에 흡수 — **본 문서만으로 자기완결.**
 
