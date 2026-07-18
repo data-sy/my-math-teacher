@@ -86,11 +86,16 @@ export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Prom
   }
 
   if (!res.ok) {
+    // 실서버 에러 바디 = plain text (2026-07-18 실측 — {message} JSON 가정 뒤집힘, 401 은 빈 바디)
     let body: ApiErrorBody = {}
-    try {
-      body = (await res.json()) as ApiErrorBody
-    } catch {
-      /* 바디 없는 실패 — 상태코드만으로 처리 */
+    const text = await res.text().catch(() => '')
+    if (text) {
+      try {
+        const parsed: unknown = JSON.parse(text)
+        body = typeof parsed === 'object' && parsed !== null ? (parsed as ApiErrorBody) : { message: String(parsed) }
+      } catch {
+        body = { message: text }
+      }
     }
     throw new ApiError(res.status, body)
   }

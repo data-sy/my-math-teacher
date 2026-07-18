@@ -45,8 +45,9 @@ function isAuthed(request: Request): boolean {
   return (request.headers.get('Authorization') ?? '').startsWith('Bearer mock-token')
 }
 
-const err = (status: number, message: string) => HttpResponse.json({ message }, { status })
-const unauthorized = () => err(401, '다시 로그인해주세요')
+// 실서버 미러: 에러 바디 = plain text (2026-07-18 실측), 401 은 빈 바디
+const err = (status: number, message: string) => new HttpResponse(message, { status })
+const unauthorized = () => new HttpResponse(null, { status: 401 })
 
 // ── preview/귀속 공용 결과 산출 (결정론 계약: 같은 입력 → 같은 결과) ──
 function buildResult(answered: Answer[]): PreviewResponse {

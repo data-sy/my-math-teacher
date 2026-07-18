@@ -377,6 +377,11 @@ function SavedResult() {
             )}
           </div>
         )}
+        {queue?.items.length === 0 && (
+          <div className={s.qsub}>
+            표시할 계단이 없어요 — 이미 아는 것으로 확인된 개념은 계단에 넣지 않아요.
+          </div>
+        )}
         {queue?.items
           .slice()
           .sort((a, b) => a.position - b.position)

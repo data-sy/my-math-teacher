@@ -104,12 +104,13 @@ web-v2/src/
 
 샌드박스 `backend-contract.md` 가정을 이 리포 실계약([spec-01](spec-01-diagnosis-self-report-dkt.md)·spec-02 §2.1)과 대조한 결과. "계약 문서상 일치"여도 실응답 검증 전까지는 가정 취급.
 
-| # | 검증 대상 | 스펙 문서 대조 결과 | 실서버 검증 방법 | 상태 |
+| # | 검증 대상 | 스펙 문서 대조 결과 | 실측 결과 (2026-07-18 로컬 실서버) | 상태 |
 |---|---|---|---|---|
-| A-2 | `next`/`preview` 응답 필드명 (`{next{…}, progress{asked, estimatedRemaining}}` · 결과 `{headline, cards[], more[]}`) | spec-01 §4.3·§4.4 계약과 **문서상 일치** | 실서버 `POST /diagnosis/next`·`/preview` 응답 JSON 대조 | ⏳ 예정 |
-| A-2b | 에러 바디 shape = `{message}` (400/401/403/429) | spec-01 §4.6 "학생 친화 메시지 바디"만 확정 — shape 미명시 | 각 에러 실응답 유발(중복 conceptId·미인증·타인 자원·11연타) | ⏳ 예정 |
-| A-9 | `GET /concepts?chapterId` 에 edges 포함 여부 | spec-02 §2.1 "nodes/edges permitAll" 서술 있으나 응답 shape 미명시 | 실응답 확인 → 불일치 시 `types.ts`+어댑터 수정 | ⏳ 예정 |
-| A-10 | `/concepts/search`·`/{id}` 응답 shape (`{concept, prerequisites[], successors[]}`) | 계약 문서에 shape 미명시 | 실응답 확인 | ⏳ 예정 |
-| A-11 | 큐 응답 shape (`{queueId, items[{itemId, conceptId, conceptName, position, done}]}`) | spec-01 §4.6 테이블 정의와 정합 추정 — 응답 DTO 미명시 | 실서버 `POST /learning-queues`·`GET /me` 응답 대조 | ⏳ 예정 |
-| A-15 | OAuth 실패 콜백 = `/login?error=` 가정 | 접점 시트 성공 콜백만 확정 — 실패 리다이렉트 침묵 | 실 OAuth 실패 유발(5단계) 또는 백엔드 코드 확인 | ⏳ 예정 |
-| — | 진단 플래그 활성(`mmt.diagnosis.enabled`) + `/diagnosis/*`·`/learning-queues/*` 라우팅 | spec-01 §4.7 — env `MMT_DIAGNOSIS_ENABLED=true` 필요 | 실서버 기동 후 frontier 200 확인 | ⏳ 예정 |
+| A-2 | `next`/`preview` 응답 필드명 | spec-01 §4.3·§4.4 계약과 문서상 일치 | **일치** — 단 결과 카드에 내부 필드(`probabilityPercent`·`toConceptDepth`) 추가 노출: 타입 미반영·표기 금지 준수로 무시. `Answer` 필드는 **`known`**(구현 초안의 `know` 는 서버가 조용히 무시 — 치명 정정) | ✅ 사실 |
+| A-2b | 에러 바디 shape = `{message}` | spec-01 §4.6 shape 미명시 | **뒤집힘** — 400/403/429 = **plain text** 학생 친화 메시지, 401 = 빈 바디. client.ts 가 text 폴백으로 흡수 | ✅ 사실(정정) |
+| A-9 | `GET /concepts?chapterId` 에 edges 포함 | shape 미명시 | **뒤집힘** — 이름 목록만. 그래프 = `nodes/{id}`+`edges/{id}` 중심 서브그래프(전체 그래프 엔드포인트 없음). edge `source→target = 선수→후수`(knowledge_space 대조) | ✅ 사실(정정) |
+| A-10 | `/search`·`/{id}` 응답 shape | shape 미명시 | **뒤집힘** — search 필드 = `conceptChapterName` 등(chapterId 없음), `/{id}` = flat 상세. 통짜 detail 없음 → `/{id}`+`prerequisite/{id}`+nodes+edges 4콜 조립(prerequisite 는 자기 자신 포함) | ✅ 사실(정정) |
+| A-11 | 큐 응답 shape | spec-01 §4.6 테이블과 정합 추정 | **필드 정정** — `queueItemId`(itemId 아님) + 서버 파생 **`current`** 제공("여기부터" 클라 계산 금지 충족). done 토글 응답 = 갱신된 큐 전체. ⚠️ 엣지 실측: 알아요 폐쇄가 후보를 전부 거르면 **빈 큐(items:[]) 생성** — 프론트는 빈 상태 카피로 흡수, 백엔드 병합 로직 재검토는 백로그 | ✅ 사실(정정) |
+| A-13 | chapters = 계단순 전체 목록 | — | **뒤집힘** — 실응답 = 구 Vue 트리(`{key,label,icon,children}`), (학년·학기) 단위 조회(값 = `중3`·`1학기` 한글). 중등 6개 학기 fan-out + leaf(=chapter_id) 평탄화로 흡수. 고등(수학·수1·상/하/전체)은 도메인 미매핑 — 백로그 | ✅ 사실(정정) |
+| A-15 | OAuth 실패 콜백 = `/login?error=` 가정 | 접점 시트 성공 콜백만 확정 | 실 OAuth 실패 유발(5단계) 또는 백엔드 코드 확인 | ⏳ 5단계 |
+| — | 진단 플래그 + 신규 라우팅 활성 | spec-01 §4.7 | frontier·next·preview·귀속·큐·toggle 전부 200, preview 11연타 = 429, 타인 자원 = 403, **preview==귀속 결정론 동치 확인** | ✅ 사실 |
