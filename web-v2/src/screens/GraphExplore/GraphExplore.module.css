@@ -7,8 +7,10 @@
   width: 100%;
   border: 1.5px solid var(--line);
   border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 13px;
+  padding: 9px 12px;
+  /* 16px 미만이면 iOS 사파리가 포커스 시 페이지를 자동 확대하고 되돌리지 않음
+     (2026-07-18 실기기 라운드 발견 — 축소 제스처로만 복귀되던 원인) */
+  font-size: 16px;
   background: var(--soft);
   outline: none;
 }
