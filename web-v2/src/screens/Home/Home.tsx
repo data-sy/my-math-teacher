@@ -55,18 +55,21 @@ export default function Home() {
         3분 자가진단으로 AI가 짚어준다.
       </h1>
 
-      {/* ●3 히어로 비주얼 = 지식그래프 미끼 — 탭해도 이동하지 않음 */}
+      {/* ●3 히어로 비주얼 = 지식그래프 미끼 — 탭해도 이동하지 않음.
+          클러스터는 고정 좌표라 래퍼로 박스 중앙 정렬 (넓은 웹·120px 축소에서 쏠림·바닥 잘림 방지) */}
       <div className={s.heroGraph} aria-hidden="true">
-        {/* 엣지 = 노드 테두리에서 테두리로 (끝점이 원에 안 덮여야 ›가 보임) */}
-        <span className={s.gedge} style={{ top: 80, left: 64, width: 42, transform: 'rotate(24deg)' }} />
-        <span className={s.gedge} style={{ top: 98, left: 138, width: 44, transform: 'rotate(-27deg)' }} />
-        <span className={s.gedge} style={{ top: 75, left: 212, width: 40, transform: 'rotate(24deg)' }} />
-        <span className={s.gedge} style={{ top: 92, left: 284, width: 39, transform: 'rotate(-26deg)' }} />
-        <span className={s.gnode} style={{ top: 55, left: 30 }}>개념</span>
-        <span className={`${s.gnode} ${s.gnodeGap}`} style={{ top: 88, left: 104 }}>?</span>
-        <span className={s.gnode} style={{ top: 50, left: 178, animationDelay: '0.6s' }}>개념</span>
-        <span className={s.gnode} style={{ top: 82, left: 250, animationDelay: '1.2s' }}>개념</span>
-        <span className={s.gnode} style={{ top: 48, left: 320, animationDelay: '1.8s' }}>개념</span>
+        <div className={s.gcluster}>
+          {/* 엣지 = 노드 테두리에서 테두리로 (끝점이 원에 안 덮여야 ›가 보임) */}
+          <span className={s.gedge} style={{ top: 32, left: 34, width: 42, transform: 'rotate(24deg)' }} />
+          <span className={s.gedge} style={{ top: 50, left: 108, width: 44, transform: 'rotate(-27deg)' }} />
+          <span className={s.gedge} style={{ top: 27, left: 182, width: 40, transform: 'rotate(24deg)' }} />
+          <span className={s.gedge} style={{ top: 44, left: 254, width: 39, transform: 'rotate(-26deg)' }} />
+          <span className={s.gnode} style={{ top: 7, left: 0 }}>개념</span>
+          <span className={`${s.gnode} ${s.gnodeGap}`} style={{ top: 40, left: 74 }}>?</span>
+          <span className={s.gnode} style={{ top: 2, left: 148, animationDelay: '0.6s' }}>개념</span>
+          <span className={s.gnode} style={{ top: 34, left: 220, animationDelay: '1.2s' }}>개념</span>
+          <span className={s.gnode} style={{ top: 0, left: 290, animationDelay: '1.8s' }}>개념</span>
+        </div>
       </div>
 
       {/* ●4 작동방식 스텝 */}

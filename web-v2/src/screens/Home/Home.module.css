@@ -54,6 +54,16 @@
   }
 }
 
+/* 노드·엣지 좌표(326×76)의 기준틀 — 박스 크기와 무관하게 항상 정중앙 */
+.gcluster {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 326px;
+  height: 76px;
+  transform: translate(-50%, -50%);
+}
+
 .gnode {
   position: absolute;
   width: 36px;
