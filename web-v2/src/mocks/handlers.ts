@@ -195,6 +195,7 @@ export const handlers = [
   }),
 
   http.patch('/api/v1/learning-queues/:qId/items/:itemId/done', ({ request, params }) => {
+    if (mockErrorSwitch() === 'neterr') return HttpResponse.error()
     if (!isAuthed(request)) return unauthorized()
     const db = loadDb()
     if (!db.queue || db.queue.queueId !== params.qId) return err(403, '찾을 수 없어요')

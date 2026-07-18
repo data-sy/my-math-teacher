@@ -58,9 +58,17 @@ test('핵심 플로우 ①→②→③→④-A → 게이트 전환 ④-B → �
   await expect(page.getByText('1. 이차방정식의 풀이')).toBeVisible() // 위상순 — 선수 먼저
   await expect(page.getByText('여기부터')).toBeVisible()
 
-  // self-mark 토글 → "여기부터" 이동
+  // 토글 실패 = 무음 금지 (2026-07-18 POC 발견): 실패 주입 → 인라인 피드백, 체크 안 됨
+  await page.evaluate(() => localStorage.setItem('mmt.mockError', 'neterr'))
+  await page.getByRole('button', { name: /1\. 이차방정식의 풀이/ }).click()
+  await expect(page.getByText('체크가 저장되지 않았어요 — 다시 탭해주세요.')).toBeVisible()
+  await expect(page.getByRole('button', { name: /1\. 이차방정식의 풀이/ })).not.toContainText('✓')
+  await page.evaluate(() => localStorage.removeItem('mmt.mockError'))
+
+  // self-mark 토글 → "여기부터" 이동 (재시도 성공 시 에러 스트립 소거)
   await page.getByRole('button', { name: /1\. 이차방정식의 풀이/ }).click()
   await expect(page.getByRole('button', { name: /1\. 이차방정식의 풀이/ })).toContainText('✓')
+  await expect(page.getByText('체크가 저장되지 않았어요 — 다시 탭해주세요.')).toHaveCount(0)
 
   // ① 홈 재진입 배너 (로그인 + 활성 큐)
   await page.goto('/')

@@ -356,6 +356,19 @@ function SavedResult() {
       <div className={s.queueWrap}>
         <div className={s.secTag}>나의 학습 계단 — 체크리스트</div>
         <div className={s.qsub}>선수지식 먼저(위상순). 공부하고 오면 탭해서 완료 표시</div>
+        {toggle.isError && (
+          <div className={s.qerr} role="alert">
+            체크가 저장되지 않았어요 — 다시 탭해주세요.
+            {toggle.error instanceof AuthRequiredError && (
+              <button
+                className="retry"
+                onClick={() => nav(`/login?return=${encodeURIComponent('/result?view=saved')}`)}
+              >
+                다시 로그인
+              </button>
+            )}
+          </div>
+        )}
         {queue?.items
           .slice()
           .sort((a, b) => a.position - b.position)
