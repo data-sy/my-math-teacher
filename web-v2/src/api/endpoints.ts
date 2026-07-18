@@ -116,6 +116,8 @@ const normalizeResult = (p: PreviewResponse): PreviewResponse => ({
   ...p,
   cards: p.cards.map((c) => ({ ...c, conceptId: sid(c.conceptId) })),
   more: p.more.map((c) => ({ ...c, conceptId: sid(c.conceptId) })),
+  // 실서버는 최상위 failSoft 필드 없이 urgency:null 로만 신호 (2026-07-18 TF 정지 실측) — 파생
+  failSoft: p.failSoft ?? (p.cards.length > 0 && p.cards.every((c) => c.urgency === null)),
 })
 
 // ── ④-A 무영속 프리뷰 ──

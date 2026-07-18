@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { fetchMyQueue } from '../../api/endpoints'
 import { useAuth } from '../../auth/AuthContext'
 import s from './Home.module.css'
@@ -7,6 +8,14 @@ import s from './Home.module.css'
 export default function Home() {
   const nav = useNavigate()
   const { isLoggedIn } = useAuth()
+  const [params] = useSearchParams()
+
+  // OAuth 실패 콜백은 백엔드가 `/?error=` 로 보낸다 (2026-07-18 실코드 확인 — A-15 정정).
+  // 인라인 실패 안내는 ⑤-A 소관(05 카탈로그) — 그대로 넘긴다.
+  const oauthError = params.get('error')
+  useEffect(() => {
+    if (oauthError) nav(`/login?error=${encodeURIComponent(oauthError)}`, { replace: true })
+  }, [oauthError, nav])
 
   // 배너 데이터 — 로그인 상태에서만 1회 호출 (01 ●1: 비로그인 시 호출 없음)
   const { data: queue } = useQuery({
