@@ -76,6 +76,33 @@ test('핵심 플로우 ①→②→③→④-A → 게이트 전환 ④-B → �
   await expect(page.getByRole('link', { name: '로그인' })).toHaveCount(0) // 배너와 상호 배타
 })
 
+test('④-A 게이트 CTA 실패 = 무음 금지 — 인라인 에러 + 재시도 성공 (2026-07-18 발견)', async ({ page }) => {
+  // 로그인 상태(토큰 선주입 — 구 세션 잔존 토큰 시나리오와 동일)로 완주 → ④-A
+  await page.goto('/entry')
+  await page.evaluate(() => localStorage.setItem('mmt.accessToken', 'mock-token-google'))
+  await pickGradeAndDefault(page)
+  await page.getByRole('button', { name: /이차방정식 / }).click()
+  await page.getByRole('button', { name: '몰라요' }).click()
+  await expect(page.getByText('이차방정식의 풀이')).toBeVisible()
+  await page.getByRole('button', { name: '몰라요' }).click()
+  await expect(page.getByText('이차방정식의 뜻')).toBeVisible()
+  await page.getByRole('button', { name: '알아요' }).click()
+  await page.getByRole('button', { name: '알아요' }).click()
+  await expect(page).toHaveURL(/\/result/)
+
+  // 귀속 실패 주입 → 인라인 에러, 화면 이탈 없음 (무음 금지)
+  await page.evaluate(() => localStorage.setItem('mmt.mockError', 'neterr'))
+  await page.getByRole('button', { name: '저장하고 학습 경로 시작하기' }).click()
+  await expect(page.getByText('저장이 잘 안 됐어요 — 다시 시도해주세요. 진단 결과는 그대로 있어요.')).toBeVisible()
+  await expect(page).toHaveURL(/\/result$/)
+
+  // 재시도 성공 → ④-B 전환 + 에러 스트립 소거
+  await page.evaluate(() => localStorage.removeItem('mmt.mockError'))
+  await page.getByRole('button', { name: '저장하고 학습 경로 시작하기' }).click()
+  await expect(page).toHaveURL(/\/result\?view=saved/)
+  await expect(page.getByText('나의 학습 경로 (저장됨)')).toBeVisible()
+})
+
 test('③ undo — 직전 답 1개 되돌리기, 진척 후퇴는 undo 만 예외', async ({ page }) => {
   await page.goto('/entry')
   await pickGradeAndDefault(page)

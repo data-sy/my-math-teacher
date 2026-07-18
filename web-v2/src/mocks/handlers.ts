@@ -171,6 +171,7 @@ export const handlers = [
 
   // ── ④-B 귀속 (인증) — 응답 = preview 와 동일 + userTestId ──
   http.post('/api/v1/diagnosis', async ({ request }) => {
+    if (mockErrorSwitch() === 'neterr') return HttpResponse.error()
     if (!isAuthed(request)) return unauthorized()
     const { entry, answered } = (await request.json()) as { entry: DiagnosisEntry; answered: Answer[] }
     const invalid = validateAnswers(answered)

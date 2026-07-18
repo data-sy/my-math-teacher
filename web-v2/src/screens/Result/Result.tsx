@@ -37,6 +37,7 @@ function FreeResult() {
   const session = useMemo(completedSession, [])
   const [moreOpen, setMoreOpen] = useState(false)
   const [gateBusy, setGateBusy] = useState(false)
+  const [gateErr, setGateErr] = useState(false)
 
   const preview = useQuery({
     queryKey: ['preview', session?.savedAt],
@@ -54,11 +55,19 @@ function FreeResult() {
       return
     }
     setGateBusy(true)
+    setGateErr(false)
     try {
       const saved = await saveDiagnosis(session.entry, session.answered)
       await createQueue(saved.userTestId)
       nav('/result?view=saved', { replace: true })
-    } catch {
+    } catch (e) {
+      if (e instanceof AuthRequiredError) {
+        // 토큰 만료 — client 가 토큰을 비웠으니 비로그인 게이트 경로로 수렴
+        setPendingAttribution()
+        nav('/login')
+        return
+      }
+      setGateErr(true)
       setGateBusy(false)
     }
   }
@@ -144,6 +153,11 @@ function FreeResult() {
 
       {/* ●6 1차 CTA + 게이트 안내문 (무료 먼저) */}
       <div className={s.ctaWrap}>
+        {gateErr && (
+          <div className={s.qerr} role="alert">
+            저장이 잘 안 됐어요 — 다시 시도해주세요. 진단 결과는 그대로 있어요.
+          </div>
+        )}
         <button className="btn-primary" onClick={onGateCta} disabled={gateBusy}>
           저장하고 학습 경로 시작하기
         </button>
