@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 와이어프레임 ⑥ 개념그래프 탐색</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --sub: #666; --line: #c8c8c8; --bg: #ececec;
+    --paper: #fff; --soft: #f5f5f5; --note: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding: 24px 16px 64px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  header.doc { margin-bottom: 20px; }
+  header.doc h1 { font-size: 19px; margin-bottom: 6px; }
+  header.doc .meta { font-size: 12px; color: var(--sub); }
+  header.doc .meta code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .status { display: inline-block; border: 1px solid var(--ink); padding: 1px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+
+  .cols { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+
+  .phone { width: 390px; margin: 0 auto; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; min-height: 720px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .statusbar { height: 22px; border-bottom: 1px dotted var(--line); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--sub); letter-spacing: .2em; flex: none; }
+  .body { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 18px; }
+
+  .co { position: absolute; background: var(--ink); color: #fff; font-size: 11px; width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; }
+  .rel { position: relative; }
+
+  .navrow { display: flex; align-items: center; margin-bottom: 8px; }
+  .navrow .back { font-size: 13px; color: var(--sub); }
+
+  .search { border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--sub); background: var(--soft); margin-bottom: 8px; }
+  .scope-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .scope-chip { border: 1.5px solid var(--ink); border-radius: 16px; padding: 3px 12px; font-size: 12px; background: var(--soft); }
+  .scope-row .hint { font-size: 10.5px; color: var(--sub); }
+
+  .gcanvas { flex: 1; min-height: 300px; border: 1.5px dashed var(--line); background: var(--soft); border-radius: 10px; position: relative; margin-bottom: 10px; }
+  .gcanvas .lbl { position: absolute; top: 6px; left: 9px; font-size: 9.5px; color: var(--sub); }
+  .gnode { position: absolute; width: 44px; height: 44px; border: 1.5px solid var(--sub); border-radius: 50%; background: var(--paper); font-size: 8.5px; color: var(--sub); display: flex; align-items: center; justify-content: center; text-align: center; }
+  .gnode.sel { border: 2.5px solid var(--ink); color: var(--ink); font-weight: 700; }
+  .gedge { position: absolute; height: 1.5px; background: var(--line); transform-origin: 0 0; }
+
+  .cond-frame { border: 1.5px dashed var(--sub); border-radius: 10px 10px 0 0; padding: 4px; margin: 0 -4px 8px; }
+  .cond-frame .cond-tag { font-size: 9.5px; color: var(--sub); padding: 0 6px 3px; letter-spacing: .04em; }
+  .sheet { background: var(--paper); border: 1.5px solid var(--line); border-radius: 10px 10px 0 0; padding: 12px 14px; }
+  .sheet .grab { width: 34px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 8px; }
+  .sheet .cn { font-size: 15px; font-weight: 800; }
+  .sheet .cdesc { font-size: 12px; color: var(--sub); margin-top: 4px; }
+  .sheet .chain { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 11px; }
+  .sheet .colc { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+  .sheet .colc .cl { font-size: 9.5px; color: var(--sub); letter-spacing: .06em; }
+  .sheet .pill { display: inline-block; border: 1px solid var(--line); border-radius: 10px; padding: 2px 9px; font-size: 11px; color: var(--sub); background: var(--soft); max-width: 104px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sheet .pill.now { border: 1.5px solid var(--ink); color: var(--ink); font-weight: 700; background: var(--paper); }
+  .sheet .chain .arr { color: var(--sub); font-size: 13px; flex: none; }
+
+  .btn-primary { display: block; width: 100%; border: none; background: var(--ink); color: #fff; font-size: 15px; font-weight: 700; padding: 14px; border-radius: 8px; text-align: center; }
+
+  .notes h3 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 5px; margin-bottom: 12px; }
+  .note-item { display: flex; gap: 10px; background: var(--note); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; font-size: 12.5px; }
+  .note-item .n { flex: none; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .note-item .src { color: var(--sub); font-size: 11px; }
+  .note-item dl { margin-top: 3px; }
+  .note-item dt { font-weight: 700; font-size: 11px; margin-top: 5px; }
+  .note-item dd { margin-left: 0; }
+  .note-item code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .rules { margin-top: 20px; border: 1px dashed var(--line); background: var(--paper); padding: 10px 14px; font-size: 12px; color: var(--sub); }
+  .rules b { color: var(--ink); }
+  .rules li { margin: 4px 0 4px 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>M7 v2 · 와이어프레임 — SCREEN ⑥ 개념그래프 탐색<span class="status">확정 — 검수 반영(2026-07-17) · ●4 시각 위계 = A안 색 층위로 대체(2026-07-19)</span></h1>
+  <p class="meta">
+    작성 2026-07-17 · 정본 입력 = PRD §3.2 ⑥·F-4 + 플로우 맵 ⑥·●9 · 무료·독립 진입(서비스의 얼굴) · 렌더 = 기존 Cytoscape 자산 재사용 전제<br>
+    검수 확정 3건: ●3 스코프 = 단원 + "모두 보기" · ●4 선택 중심 depth≤2 선명 + 너머 오퍼시티 흐림(focus+context, 기존 depth API 재사용) · ●5 시트 = 3열 스택 체인(먼저/지금/다음)
+  </p>
+</header>
+
+<div class="cols">
+
+<!-- ══════════ 프레임 ══════════ -->
+<div>
+<div class="phone">
+  <div class="statusbar">MMT · 390px · 무료 · 독립 진입</div>
+  <div class="body">
+
+    <!-- ●1 뒤로 -->
+    <div class="navrow rel">
+      <span class="co" style="top:-4px; left:-9px;">1</span>
+      <span class="back">‹ 홈</span>
+    </div>
+
+    <!-- ●2 검색 -->
+    <div class="rel">
+      <span class="co" style="top:-8px; right:-6px;">2</span>
+      <div class="search">🔍 개념 검색 (예: 인수분해)</div>
+    </div>
+
+    <!-- ●3 단원 스코프 -->
+    <div class="scope-row rel">
+      <span class="co" style="top:-9px; left:-9px;">3</span>
+      <span class="scope-chip">이차방정식 ▾</span>
+      <span class="hint">로드 범위 — 단원 목록 + "모두 보기"</span>
+    </div>
+
+    <!-- ●4 그래프 캔버스 -->
+    <div class="gcanvas rel">
+      <span class="co" style="top:-8px; right:-6px;">4</span>
+      <span class="lbl">그래프 캔버스 (Cytoscape) — 탭 = 선택 · 핀치 줌 · 드래그 팬 · 호버 의존 0<br>시각 위계 = A안 색 층위(2026-07-19): hue=방향(선수 틸/후수 보라)·명도=거리·계보 밖 무채색 축소</span>
+      <span class="gedge" style="top:96px; left:84px; width:74px; transform:rotate(38deg);"></span>
+      <span class="gedge" style="top:160px; left:150px; width:70px; transform:rotate(-30deg);"></span>
+      <span class="gedge" style="top:118px; left:226px; width:64px; transform:rotate(30deg);"></span>
+      <span class="gedge" style="top:172px; left:132px; width:80px; transform:rotate(48deg);" ></span>
+      <span class="gnode" style="top:70px; left:60px;">문자와 식</span>
+      <span class="gnode" style="top:140px; left:128px;">다항식의 곱셈</span>
+      <span class="gnode sel" style="top:96px; left:212px;">인수분해</span>
+      <span class="gnode" style="top:150px; left:284px;">이차방정식의 풀이</span>
+      <span class="gnode" style="top:230px; left:180px;">제곱근과 실수</span>
+      <span class="gnode" style="top:240px; left:60px; opacity:.3;">유리수와 순환소수</span>
+      <span class="gnode" style="top:56px; left:300px; opacity:.3;">이차방정식의 활용</span>
+      <span class="gedge" style="top:250px; left:104px; width:56px; transform:rotate(-40deg); opacity:.3;"></span>
+      <span class="gedge" style="top:140px; left:300px; width:40px; transform:rotate(-58deg); opacity:.3;"></span>
+    </div>
+
+    <!-- ●5 노드 시트 (조건부) -->
+    <div class="cond-frame rel">
+      <span class="co" style="top:-9px; left:-1px;">5</span>
+      <div class="cond-tag">▼ 조건부 — 노드 선택 시 하단 시트(캔버스 위에 겹침)</div>
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="cn">인수분해</div>
+        <div class="cdesc">예: x²−5x+6 → (x−2)(x−3)</div>
+        <div class="chain">
+          <div class="colc"><span class="cl">먼저</span><span class="pill">다항식의 곱셈</span></div>
+          <span class="arr">→</span>
+          <div class="colc"><span class="cl">지금</span><span class="pill now">인수분해</span></div>
+          <span class="arr">→</span>
+          <div class="colc"><span class="cl">다음</span><span class="pill">이차방정식의 풀이</span><span class="pill">+1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ●6 상시 CTA -->
+    <div class="rel">
+      <span class="co" style="top:-9px; left:-9px;">6</span>
+      <div class="btn-primary">내 약점 진단하기</div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 인터랙션 노트 ══════════ -->
+<div class="notes">
+  <h3>인터랙션 노트 (탭하면 무슨 일이)</h3>
+
+  <div class="note-item"><span class="n">1</span><div>
+    <b>‹ 홈</b> — 탭 → ①. ⑥은 독립 진입 무료 화면 — 진입 경로 = ① "둘러보기 ›" · ④ 약점 0 "그래프에서 확인하기 ›".
+    <span class="src">플로우 맵 ⑥ · PRD §3.2 ⑥</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">2</span><div>
+    <b>검색 한 줄</b> — 탭 → 키보드 + 입력 중 자동완성 리스트(개념명, <code>GET /api/v1/concepts/search</code>). 결과 탭 → 그 개념이 속한 단원으로 스코프 전환(필요시) + 해당 노드 선택·중앙 포커스 + ●5 시트 오픈. 검색이 "다른 단원의 개념"으로 가는 최단 경로.
+    <span class="src">플로우 맵 ⑥ desc·API 표 ⑥</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">3</span><div>
+    <b>스코프 칩 = 로드 범위(확정)</b> — 탭 → 선택 시트: <b>단원 목록(②와 동일 데이터) + "모두 보기"</b>. 단원 = <code>GET /api/v1/concepts?chapterId</code>, 모두 보기 = 전체 로드.
+    <dl>
+      <dt>역할 분리(확정)</dt><dd>스코프 = <b>무엇을 로드하나</b>일 뿐, 판독성은 ●4의 선택 중심 선명/흐림이 담당 — 그래서 "모두 보기"여도 화면이 안 무너짐. 단원별 크기 편차(엄청 많거나 적거나) 문제도 선명 영역이 항상 depth-bound라 해소.</dd>
+      <dt>초기 스코프</dt><dd>②에서 기억한 학년의 시기 추정 단원(동일 로직 재사용, 기억값 없으면 대표 단원).</dd>
+      <dt>단원 경계 넘기</dt><dd>●2 검색 또는 ●5 체인 pill 탭(경계 개념이면 스코프 자동 전환).</dd>
+    </dl>
+    <span class="src">API 계약(chapterId 단위) · 2026-07-17 06-graph 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">4</span><div>
+    <b>그래프 캔버스 — 선택 중심 focus+context(확정)</b> — 노드 탭 = 선택(강조 + ●5 시트) / 빈 곳 탭 = 선택 해제·시트 닫기 / 핀치 줌·드래그 팬. <b>호버 의존 0</b> — 모든 조작이 탭으로 가능(모바일 무결 §5.1). 엣지 방향 = 선수 → 후수.
+    <dl>
+      <dt>시각 위계 = A안 색 층위(2026-07-19 확정 — 구 "depth≤2 선명/오퍼시티 흐림" 대체)</dt><dd>
+        백지 컨설팅(🤖-그래프-위계-A안-핸드오프) 채택 + v2 팔레트 맵핑(CVD ΔE·명도 램프·라이트엔드 대비 검증 통과, 보라 = 사용자 확정).
+        <b>hue = 방향</b>(선수 = 틸 / 후수 = 보라 — 신설 토큰 <code>--graph-succ</code>), <b>명도 = 거리</b>(직접/원거리, 뎁스 −2·+2 이하 병합), 레이아웃·좌표 불변.
+        상태 공간 노드 6 + 엣지 3 고정: 선택(잉크 + 흰 링 + 할로) · 선수-직접 <code>#0e7a6c</code> r15 · 선수-원거리 <code>#2fb5a6</code> r11(뎁스3+ r9) ·
+        후수-직접 <code>#7c3aed</code> r15 · 후수-원거리 <code>#a78bfa</code> r11 · 계보 밖 <code>#dce1e8</code> r7(무채색 축소 — 오퍼시티 미사용).
+        엣지: 직접 2.5px(방향색·화살촉) / 계보 내 원거리 1.5px(<code>#a5d8d2</code>·<code>#d4c6fd</code>) / 계보 밖 1px 무화살촉.
+        라벨 12·800 / 10.5·700 / 9·500 / 8·400(계보 밖 저줌 생략), 노드 하단 배치. 모션 = 선택 전이 1회 220ms만.
+        무선택 = 전 노드 중립 단일 톤·균일 크기. B안 요약 칩 이식은 별도 백로그.
+      </dd>
+      <dt>초기 선택</dt><dd>진입 컨텍스트가 있으면 그 노드(●2 검색 결과 · ④ 약점 0 링크의 진단 개념), 없으면 스코프 대표 노드(단원 내 후수-최상위 — ② 프론티어와 동일 개념).</dd>
+    </dl>
+    렌더·조작 규약은 ④-B 학습 경로 그래프와 공유(같은 컴포넌트, ④-B는 경로 하이라이트 + compact 라벨 모드(선택 노드만 라벨) 추가).
+    <span class="src">플로우 맵 ●9 · §5.1 모바일 무결 · 04-result ●8 · 2026-07-17 06-graph 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">5</span><div>
+    <b>노드 정보 바텀시트 — 3열 스택 체인(확정)</b> — 구성: 개념명 + 대표 예시(<code>description</code> — ③ 문답 카드와 동일 소스 D5) + <b>체인 "먼저(선수) → 지금 → 다음(후수)"</b>. 관계를 말로 설명하지 않고 <b>위치와 화살표</b>로 표현(어휘 오독 구조적 제거 — "이걸 배우려면" 문구 폐기).
+    <dl>
+      <dt>체인 규칙</dt><dd>직계 관계만, 각 열은 <b>세로 스택</b>(선수·후수 여럿 = DAG를 직선으로 오해시키지 않기), 많으면 "+N". 칩은 말줄임(…) 허용 — 탭 = 그 노드로 선택 이동(●4 재포커스 + 시트 내용 교체)이라 풀네임은 이동 후 확인. 가운데 "지금"은 강조 스타일.</dd>
+      <dt>왜 시트인가</dt><dd>모바일에서 노드 옆 팝오버는 손가락에 가림 + 호버 툴팁 금지 — 하단 시트가 캔버스를 최소 침범. 닫기 = 빈 곳 탭 또는 끌어내림. 시트가 떠도 ●6 CTA는 가리지 않음.</dd>
+    </dl>
+    <span class="src">API 표 ⑥(<code>GET /concepts/{id}</code>) · 2026-07-17 06-graph 검수 확정(3열 스택 체인)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">6</span><div>
+    <b>상시 1차 CTA "내 약점 진단하기"</b> — 탭 → ② 영역 진입. 하단 고정(스크롤·시트와 무관하게 상시 노출) — 탐색→진단 루프의 회로. 노드를 보다가 "나 이거 아나?" 하는 순간을 놓치지 않는 장치.
+    <span class="src">PRD F-4 · 플로우 맵 ●9</span>
+  </div></div>
+
+  <div class="rules">
+    <b>화면 레벨 규칙</b>
+    <li>무료·비로그인 도달 가능(permitAll 기존 API 재사용) — 로그인 상태와 화면 차이 없음.</li>
+    <li>1차 CTA = ●6 하나. 검색·칩·시트는 전부 탐색 도구 위계.</li>
+    <li>그래프 컴포넌트는 ④-B와 공유 — 여기서 확정한 조작 규약(탭 선택·핀치 줌·호버 0)이 ④-B에도 적용.</li>
+  </div>
+</div>
+
+</div><!-- /cols -->
+</div>
+</body>
+</html>

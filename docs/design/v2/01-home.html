@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 와이어프레임 ① 홈</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --sub: #666; --line: #c8c8c8; --bg: #ececec;
+    --paper: #fff; --soft: #f5f5f5; --note: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding: 24px 16px 64px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  /* ── 문서 헤더 ── */
+  header.doc { margin-bottom: 20px; }
+  header.doc h1 { font-size: 19px; margin-bottom: 6px; }
+  header.doc .meta { font-size: 12px; color: var(--sub); }
+  header.doc .meta code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .status { display: inline-block; border: 1px solid var(--ink); padding: 1px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+
+  /* ── 프레임 + 노트 2단 ── */
+  .cols { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+
+  /* ── 폰 프레임 (390px) ── */
+  .phone { width: 390px; margin: 0 auto; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; min-height: 720px; display: flex; flex-direction: column; position: relative; }
+  .statusbar { height: 22px; border-bottom: 1px dotted var(--line); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--sub); letter-spacing: .2em; flex: none; }
+  .body { flex: 1; display: flex; flex-direction: column; padding: 18px 16px 20px; }
+
+  /* 콜아웃 배지 */
+  .co { position: absolute; background: var(--ink); color: #fff; font-size: 11px; width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; }
+  .rel { position: relative; }
+
+  /* ── 로우파이 부품 ── */
+  .cond-frame { border: 1.5px dashed var(--sub); border-radius: 10px; padding: 4px; margin-bottom: 14px; }
+  .cond-frame .cond-tag { font-size: 9.5px; color: var(--sub); padding: 0 6px 3px; letter-spacing: .04em; }
+  .resume-banner { border: 1.5px solid var(--ink); background: var(--soft); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; cursor: pointer; }
+  .resume-banner b { display: block; font-size: 13.5px; }
+  .resume-banner .sub { font-size: 11px; color: var(--sub); }
+
+  .headline { font-size: 21px; font-weight: 800; line-height: 1.35; }
+
+  .hero-graph { height: 170px; margin: 16px 0 14px; border: 1.5px dashed var(--line); background: var(--soft); border-radius: 10px; position: relative; overflow: hidden; }
+  .hero-graph .lbl { position: absolute; top: 6px; left: 9px; font-size: 9.5px; color: var(--sub); }
+  .gnode { position: absolute; width: 36px; height: 36px; border: 1.5px solid var(--sub); border-radius: 50%; background: var(--paper); font-size: 8px; color: var(--sub); display: flex; align-items: center; justify-content: center; }
+  .gedge { position: absolute; height: 1.5px; background: var(--line); transform-origin: 0 0; }
+
+  .steps { margin: 4px 0 18px; list-style: none; counter-reset: st; }
+  .steps li { font-size: 13px; color: var(--sub); margin: 7px 0; padding-left: 26px; position: relative; counter-increment: st; }
+  .steps li::before { content: counter(st); position: absolute; left: 0; top: 1px; width: 18px; height: 18px; border: 1.5px solid var(--sub); border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+
+  .btn-primary { display: block; width: 100%; border: none; background: var(--ink); color: #fff; font-size: 16px; font-weight: 700; padding: 15px; border-radius: 8px; margin-top: auto; text-align: center; }
+  .txt-link { color: var(--sub); font-size: 12.5px; text-decoration: underline; text-align: center; display: block; margin-top: 12px; }
+
+  /* ── 인터랙션 노트 ── */
+  .notes h3 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 5px; margin-bottom: 12px; }
+  .note-item { display: flex; gap: 10px; background: var(--note); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; font-size: 12.5px; }
+  .note-item .n { flex: none; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .note-item .src { color: var(--sub); font-size: 11px; }
+  .note-item dl { margin-top: 3px; }
+  .note-item dt { font-weight: 700; font-size: 11px; margin-top: 5px; }
+  .note-item dd { margin-left: 0; }
+  .rules { margin-top: 20px; border: 1px dashed var(--line); background: var(--paper); padding: 10px 14px; font-size: 12px; color: var(--sub); }
+  .rules b { color: var(--ink); }
+  .rules li { margin: 4px 0 4px 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>M7 v2 · 와이어프레임 — SCREEN ① 홈<span class="status">확정 — 검수 반영(2026-07-17)</span></h1>
+  <p class="meta">
+    작성 2026-07-17 · 정본 입력 = PRD §3.2 ①·F-4 + 플로우 맵(<code>00-flow-map.html</code>) ●1·●8 · 로우파이(레이아웃·위계·인터랙션만 — 비주얼·카피 폴리싱은 하이파이 단계)<br>
+    검수 확정 2건(정직성 한 줄 = ④에서만 · 완료 큐 배너 = 문구 대체 A안) — 비교 근거 = <code>01-home-variants.html</code> · ●7 로그인 링크는 05 검수에서 추가(2026-07-17)
+  </p>
+</header>
+
+<div class="cols">
+
+<!-- ══════════ 프레임 ══════════ -->
+<div>
+<div class="phone">
+  <div class="statusbar">MMT · 390px · 무료(비로그인 도달 가능)</div>
+  <div class="body">
+
+    <!-- ●7 로그인 링크 (조건부 — 비로그인 시에만) -->
+    <div class="rel" style="text-align:right; margin-bottom:4px;">
+      <span class="co" style="top:-4px; right:-9px;">7</span>
+      <a class="txt-link" style="display:inline; margin-top:0;">로그인</a>
+    </div>
+
+    <!-- ●1 재진입 배너 (조건부) -->
+    <div class="cond-frame rel">
+      <span class="co" style="top:-9px; left:-9px;">1</span>
+      <div class="cond-tag">▼ 조건부 — 로그인 + 활성 큐 보유 시에만 노출</div>
+      <div class="resume-banner">
+        <b>이어서: {다음 개념명} ›</b>
+        <span class="sub">저장된 학습 계단으로 돌아가기</span>
+      </div>
+    </div>
+
+    <!-- ●2 헤드라인 -->
+    <div class="rel">
+      <span class="co" style="top:-4px; right:-6px;">2</span>
+      <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+    </div>
+
+    <!-- ●3 히어로 그래프 -->
+    <div class="hero-graph rel">
+      <span class="co" style="top:-8px; right:-6px;">3</span>
+      <span class="lbl">히어로 비주얼 = 지식그래프 (미끼 — 버튼 아님)</span>
+      <span class="gedge" style="top:73px; left:64px; width:66px; transform:rotate(14deg);"></span>
+      <span class="gedge" style="top:105px; left:138px; width:70px; transform:rotate(-28deg);"></span>
+      <span class="gedge" style="top:70px; left:210px; width:62px; transform:rotate(25deg);"></span>
+      <span class="gedge" style="top:98px; left:284px; width:56px; transform:rotate(-24deg);"></span>
+      <span class="gnode" style="top:55px; left:30px;">개념</span>
+      <span class="gnode" style="top:88px; left:104px;">개념</span>
+      <span class="gnode" style="top:50px; left:178px;">개념</span>
+      <span class="gnode" style="top:82px; left:250px;">개념</span>
+      <span class="gnode" style="top:48px; left:320px;">개념</span>
+    </div>
+
+    <!-- ●4 작동방식 스텝 -->
+    <ul class="steps rel">
+      <span class="co" style="top:-4px; right:-6px;">4</span>
+      <li>알아요 / 몰라요만 답하면</li>
+      <li>그래프가 무너진 토대를 추적하고</li>
+      <li>AI가 급한 순서로 짚어줘요</li>
+    </ul>
+
+    <!-- ●5 1차 CTA -->
+    <div class="rel" style="margin-top:auto;">
+      <span class="co" style="top:-9px; left:-9px;">5</span>
+      <div class="btn-primary">무료 진단 시작</div>
+    </div>
+
+    <!-- ●6 조용한 텍스트 링크 -->
+    <div class="rel">
+      <span class="co" style="top:4px; right:36px;">6</span>
+      <a class="txt-link">개념 그래프 둘러보기 ›</a>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 인터랙션 노트 ══════════ -->
+<div class="notes">
+  <h3>인터랙션 노트 (탭하면 무슨 일이)</h3>
+
+  <div class="note-item"><span class="n">1</span><div>
+    <b>재진입 배너 "이어서: {다음 개념명} ›"</b> — 탭 → <b>④-B 게이트 결과</b>(저장 큐 재열람)로 직행.
+    <dl>
+      <dt>노출 조건</dt><dd>로그인 <b>그리고</b> 활성 큐 보유 시에만. 그 외(비로그인·큐 없음)엔 이 자리 자체가 없음(빈 공간 아님 — 레이아웃이 위로 붙음).</dd>
+      <dt>{다음 개념명}</dt><dd>= 큐의 첫 미완료 항목(서버 파생값). 데이터는 로그인 상태에서만 <code>GET /api/v1/learning-queues/me</code> 1회 — 비로그인 시 호출 없음.</dd>
+      <dt>큐 전부 완료 상태(A안 확정)</dt><dd>"학습 계단 전부 완료 🎉 ›"로 <b>문구만 대체, 탭 동작은 동일하게 ④-B</b>(재진단 = ④-B 안의 별개 액션 — 전이 규칙 예외 없음). 완료 배너 탭 → ② 재진단 직행(B안)은 백로그(<code>docs/backlog/m7-home-completed-banner-rediagnosis-cta.md</code>).</dd>
+    </dl>
+    <span class="src">플로우 맵 ●8 · PRD F-4 재진입 · 2026-07-17 01-home 검수 확정(비교 = 01-home-variants.html)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">2</span><div>
+    <b>가치제안 헤드라인</b> — 인터랙션 없음(정적). PRD §1 한 줄 정의 그대로.
+    정직성 병기("자가응답 기반 — 시험·평가가 아니에요")는 <b>홈이 아니라 ④ 결과에서만</b> — 홈은 가치제안 후킹에 집중, 정직 한 줄은 시급도라는 "주장"이 실제 등장하는 화면에 건다(B안 확정).
+    <span class="src">PRD §1 · §2.3 · 2026-07-17 01-home 검수 확정(비교 = 01-home-variants.html)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">3</span><div>
+    <b>히어로 비주얼 = 지식그래프(미끼)</b> — <b>탭해도 이동하지 않음</b>(버튼 아님). 1차 CTA와 경쟁하는 진입로가 되지 않게 내비게이션을 걸지 않는다. 그래프로 가는 길은 ●6 텍스트 링크 하나뿐.
+    <dl><dt>하이파이 이월</dt><dd>실그래프 렌더링 여부·미세 인터랙션(은은한 모션 등)은 하이파이에서 재판단(2026-07-17 확정 — "그래프 = 히어로 비주얼 유지, 하이파이에서 재판단").</dd></dl>
+    <span class="src">PRD F-4 홈 입구 A안 · 플로우 맵 ●1</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">4</span><div>
+    <b>작동방식 스텝 3줄</b> — 인터랙션 없음(정적). 저마찰("알아요/몰라요만") → 추적(그래프) → 우선순위(AI) 순서로 §2.2 핵심 가치 3개를 압축. 카피 확정은 하이파이 폴리싱 패스에서.
+    <span class="src">PRD §2.2 · §3.2 ①</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">5</span><div>
+    <b>1차 CTA "무료 진단 시작"</b> — 탭 → <b>② 영역 진입</b>. 화면 유일의 1차 버튼(단독 압도) — 홈에 다른 버튼형 요소를 두지 않는다. 하단 고정 배치(폴드 아래로 밀리지 않게).
+    <dl><dt>로그인 불요</dt><dd>비로그인 그대로 진행(결과-시점 reverse gate, F-1). "무료" 워딩이 그 약속.</dd></dl>
+    <span class="src">PRD F-4 홈 입구 A안 · F-1 · 플로우 맵 ●1</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">6</span><div>
+    <b>조용한 텍스트 링크 "개념 그래프 둘러보기 ›"</b> — 탭 → <b>⑥ 그래프 탐색</b>. 의도적으로 시각 무게 없는 밑줄 텍스트(버튼 스타일 금지 — 퍼널 누수 방지 강등). 링크 화살표는 공통 규약대로 ›.
+    <span class="src">PRD F-4 · 2026-07-17 공통 확정(링크 › / undo ‹)</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">7</span><div>
+    <b>조용한 "로그인" 텍스트 링크(조건부 — 비로그인 시에만)</b> — 탭 → ⑤-A 변형(귀속할 진단 결과 없음 — 귀속·큐 생성 생략, 성공 시 홈 복귀 → ●1 배너 노출). 새 기기·로그아웃 상태의 재방문 유저가 저장된 큐에 닿는 유일한 진입로. 로그인 상태면 이 링크 자체가 없음(●1 배너와 상호 배타 — 동시 노출 불가).
+    <span class="src">2026-07-17 05-login-error 검수 확정(●3 진입 변형)</span>
+  </div></div>
+
+  <div class="rules">
+    <b>화면 레벨 규칙</b>
+    <li>홈 = 루트 화면. 상단 뒤로가기 없음. 진입 경로 = 최초 방문 · ③/⑥에서 ‹ 홈 · OAuth 콜백 실패 폴백.</li>
+    <li>1차 CTA는 화면당 정확히 1개(F-1) — 이 화면에선 ●5. ●1 배너는 버튼이 아닌 카드형 재진입 숏컷, ●6·●7은 텍스트 링크.</li>
+    <li>폴드(첫 화면) 안에 헤드라인 + 1차 CTA가 함께 보여야 함. 스텝·그래프가 길어지면 줄이는 쪽은 그래프 높이.</li>
+  </div>
+</div>
+
+</div><!-- /cols -->
+</div>
+</body>
+</html>

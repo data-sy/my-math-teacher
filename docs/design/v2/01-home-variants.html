@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · ① 홈 열린 결정 2건 — 좌우 비교</title>
+<style>
+  :root { --ink:#1a1a1a; --sub:#666; --line:#c8c8c8; --bg:#ececec; --paper:#fff; --soft:#f5f5f5; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; padding:24px 16px 56px; }
+  .head { max-width:1060px; margin:0 auto 20px; }
+  .head h1 { font-size:17px; margin-bottom:4px; }
+  .head p { font-size:12px; color:var(--sub); }
+  .sect { max-width:1060px; margin:0 auto 44px; }
+  .sect > h2 { font-size:15px; border-bottom:2px solid var(--ink); padding-bottom:5px; margin-bottom:4px; }
+  .sect > .q { font-size:12px; color:var(--sub); margin-bottom:16px; }
+
+  .compare { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; }
+  .variant { width:330px; }
+  .vlabel { text-align:center; margin-bottom:10px; }
+  .vlabel b { font-size:14px; }
+  .vlabel span { display:block; font-size:11px; color:var(--sub); }
+
+  .phone { background:var(--paper); border:2.5px solid var(--ink); border-radius:22px; overflow:hidden; display:flex; flex-direction:column; }
+  .statusbar { height:20px; border-bottom:1px dotted var(--line); display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--sub); letter-spacing:.2em; }
+  .scr { flex:1; display:flex; flex-direction:column; padding:16px 15px 12px; }
+  .sc-tag { font-size:10px; color:var(--sub); letter-spacing:.08em; margin-bottom:10px; }
+  .headline { font-size:17px; font-weight:800; line-height:1.35; }
+  .honest { font-size:11px; color:var(--sub); margin-top:7px; }
+  .crop { border-top:1px dashed var(--line); color:var(--sub); font-size:10px; text-align:center; padding:7px 0 2px; margin-top:14px; }
+
+  .hero-mini { height:74px; margin-top:12px; border:1.5px dashed var(--line); background:var(--soft); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--sub); }
+
+  .resume-banner { border:1.5px solid var(--ink); background:var(--soft); border-radius:8px; padding:9px 11px; font-size:12px; margin-bottom:12px; }
+  .resume-banner b { display:block; font-size:12.5px; }
+  .resume-banner .sub { font-size:10.5px; color:var(--sub); }
+  .resume-banner.ghost { border-style:dashed; border-color:var(--line); background:var(--paper); color:var(--sub); text-align:center; font-size:11px; padding:12px 11px; }
+
+  .procon { margin-top:12px; font-size:11.5px; }
+  .procon .pro::before { content:"+ "; font-weight:700; }
+  .procon .con::before { content:"− "; font-weight:700; }
+  .procon div { margin-bottom:5px; color:var(--ink); }
+  .procon .con { color:var(--sub); }
+
+  .note { max-width:1060px; margin:26px auto 0; font-size:11.5px; color:var(--sub); border-left:3px solid var(--line); padding-left:10px; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>① 홈 · 열린 결정 2건 — 좌우 비교</h1>
+  <p>01-home.html 검수에서 나온 와이어프레임 소관 결정 2건. 프레임은 홈 상단만 크롭(이하 구성 동일). (2026-07-17)</p>
+  <p><b>✅ 확정(2026-07-17 검수):</b> 결정 1 = B안(정직성 한 줄은 ④에서만) · 결정 2 = A안(문구 대체, 탭 → ④-B). 결정 2의 B안(탭 → ② 재진단 직행)은 백로그 이월 — 자가 채점(self-mark) 기반이라 as-is/to-be 재측정 서사가 아직 안 서는 게 보류 사유(<code>docs/backlog/m7-home-completed-banner-rediagnosis-cta.md</code>).</p>
+</div>
+
+<!-- ══════════ 결정 1 · 정직성 한 줄 위치 ══════════ -->
+<div class="sect">
+  <h2>결정 1 — 정직성 한 줄("자가응답 기반 AI 학습 가이드 — 시험·평가가 아니에요")을 홈에도 둘까</h2>
+  <p class="q">PRD §2.3은 "정직하게 병기"를 요구하지만 위치는 미명시. ④ 결과 화면 병기는 양안 공통(이미 확정 요소) — 쟁점은 홈 추가 여부만.</p>
+  <div class="compare">
+
+    <div class="variant">
+      <div class="vlabel"><b>A안 — 홈에도 병기</b><span>헤드라인 바로 아래 작은 글씨</span></div>
+      <div class="phone">
+        <div class="statusbar">MMT</div>
+        <div class="scr">
+          <div class="sc-tag">SCREEN ① 홈</div>
+          <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+          <div class="honest">자가응답 기반 AI 학습 가이드 — 시험·평가가 아니에요</div>
+          <div class="hero-mini">히어로 그래프 (미끼)</div>
+          <div class="crop">⋯ 이하 동일 (스텝 → 1차 CTA → 링크)</div>
+        </div>
+      </div>
+      <div class="procon">
+        <div class="pro">진입 시점부터 기대치 세팅 — "시험인가?" 하는 긴장을 시작 전에 해소(저마찰 §2.2와 정합)</div>
+        <div class="pro">과대주장 회피(§2.3·R1)를 가장 이른 접점에 걸어 정직 포지셔닝이 일관됨</div>
+        <div class="con">헤드라인 직후 첫 정보가 부정형("~가 아니에요") — 가치제안 임팩트를 한 박자 눌러버림</div>
+        <div class="con">홈 카피 요소 +1 — 단독 압도 화면에 텍스트 층이 하나 더 쌓임</div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <div class="vlabel"><b>B안 — 결과(④)에서만</b><span>홈은 가치제안에 집중</span></div>
+      <div class="phone">
+        <div class="statusbar">MMT</div>
+        <div class="scr">
+          <div class="sc-tag">SCREEN ① 홈</div>
+          <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+          <div class="hero-mini" style="margin-top:14px;">히어로 그래프 (미끼)</div>
+          <div class="crop">⋯ 이하 동일 (스텝 → 1차 CTA → 링크)</div>
+        </div>
+      </div>
+      <div class="procon">
+        <div class="pro">홈 = 후킹 한 가지 일만 — 헤드라인·CTA 단독 압도(F-4)가 최대로 삶</div>
+        <div class="pro">정직 병기는 시급도라는 "주장"이 실제 등장하는 ④에서가 맥락상 정확(홈엔 아직 주장이 없음)</div>
+        <div class="con">"3분 자가진단으로 AI가 짚어준다"만 보고 평가·인증을 기대하고 진입하는 유저 가능 — 기대 교정이 ④까지 지연</div>
+        <div class="con">§2.3 "정직 병기"의 적용 접점이 1곳으로 줄어듦(문답 ③ 헤더 등 다른 접점으로 보완 여지는 있음)</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ 결정 2 · 완료 큐 배너 ══════════ -->
+<div class="sect">
+  <h2>결정 2 — 재진입 배너: 큐 전 항목이 완료된 유저의 홈</h2>
+  <p class="q">전제: 로그인 + 활성 큐 보유, 그런데 체크리스트를 전부 self-mark 완료함. 다음 재방문 때 홈 배너를 어떻게. (플로우 맵 ●8 미정의 구간 — 진행 중 큐의 "이어서: {다음 개념명} ›" 배너는 3안 공통)</p>
+  <div class="compare">
+
+    <div class="variant">
+      <div class="vlabel"><b>A안 — 문구 대체, 탭 → ④-B</b><span>완료 상태를 보여주고 재진단은 그 안에서</span></div>
+      <div class="phone">
+        <div class="statusbar">MMT</div>
+        <div class="scr">
+          <div class="sc-tag">SCREEN ① 홈 · 로그인 + 큐 전부 완료</div>
+          <div class="resume-banner">
+            <b>학습 계단 전부 완료 🎉 ›</b>
+            <span class="sub">결과 보러 가기 — 다음 진단을 준비해요</span>
+          </div>
+          <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+          <div class="crop">⋯ 이하 동일</div>
+        </div>
+      </div>
+      <div class="procon">
+        <div class="pro">완주를 인정해주는 접점(성취 확인) + 저장 결과 재열람 진입로가 유지됨</div>
+        <div class="pro">"재진단 = 별개 액션(④-B 안 버튼)" 원칙(플로우 맵 ●8) 그대로 — 전이 규칙에 예외 없음</div>
+        <div class="con">완주 유저의 실제 다음 행동(재진단)까지 한 홉 경유(홈 → ④-B → 재진단)</div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <div class="vlabel"><b>B안 — 문구 대체, 탭 → ② 재진단</b><span>다음 행동으로 직행</span></div>
+      <div class="phone">
+        <div class="statusbar">MMT</div>
+        <div class="scr">
+          <div class="sc-tag">SCREEN ① 홈 · 로그인 + 큐 전부 완료</div>
+          <div class="resume-banner">
+            <b>학습 계단 전부 완료 🎉 — 다시 진단해볼까? ›</b>
+            <span class="sub">공부한 만큼 올라갔는지 확인해요</span>
+          </div>
+          <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+          <div class="crop">⋯ 이하 동일</div>
+        </div>
+      </div>
+      <div class="procon">
+        <div class="pro">완주 유저의 자연스러운 다음 행동(재진단·상승 확인)으로 최단 경로 — 제품 루프 재점화</div>
+        <div class="pro">"공부했으니 다시 재보자"는 서사가 배너 문구에 실림</div>
+        <div class="con">같은 배너 자리가 상태 따라 다른 화면(④-B/②)으로 가는 이중 동작 — 전이 규칙에 예외 1건 추가</div>
+        <div class="con">저장 결과 재열람 진입로가 홈에서 사라짐(④-B는 어디서 다시 여나 문제 발생 — 별도 진입로 필요해짐)</div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <div class="vlabel"><b>C안 — 배너 숨김</b><span>완료 큐 = 비활성 취급</span></div>
+      <div class="phone">
+        <div class="statusbar">MMT</div>
+        <div class="scr">
+          <div class="sc-tag">SCREEN ① 홈 · 로그인 + 큐 전부 완료</div>
+          <div class="resume-banner ghost">(배너 없음 — 신규 유저와 동일한 홈)</div>
+          <div class="headline">수학은 계단이다.<br>어디서 막혔는지,<br>3분 자가진단으로 AI가 짚어준다.</div>
+          <div class="crop">⋯ 이하 동일</div>
+        </div>
+      </div>
+      <div class="procon">
+        <div class="pro">규칙이 제일 단순 — "미완료 항목이 있을 때만 배너"(파생값 하나로 판정)</div>
+        <div class="pro">홈 요소 최소 유지, 1차 CTA("무료 진단 시작")가 자연히 재진단 진입로 역할</div>
+        <div class="con">완주가 조용히 증발 — 성취 인정 접점도, 저장 결과 재열람 진입로도 사라짐(홈베이스 컨셉 §4.3 약화)</div>
+        <div class="con">"내 저장 결과 어디 갔지?" — 완료 직후 재방문 유저에게 상태 소실감</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="note">
+  결정 2의 3안 공통: 미완료 항목이 남은 보통 상태 배너는 "이어서: {다음 개념명} ›" 탭 → ④-B 로 동일(플로우 맵 ●8 확정 그대로). 쟁점은 "전부 완료" 엣지 상태의 처리뿐 — MVP 스키마상 활성 큐는 유저당 1개라 이 상태는 재진단 전까지 지속됨.
+</div>
+
+</body>
+</html>

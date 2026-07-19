@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · ④ 결과 "약점 없음" 상태 — A/B 좌우 비교</title>
+<style>
+  :root { --ink:#1a1a1a; --sub:#666; --line:#c8c8c8; --bg:#ececec; --paper:#fff; --soft:#f5f5f5; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,"Apple SD Gothic Neo",sans-serif; background:var(--bg); color:var(--ink); line-height:1.5; padding:24px 16px 56px; }
+  .head { max-width:900px; margin:0 auto 20px; }
+  .head h1 { font-size:17px; margin-bottom:4px; }
+  .head p { font-size:12px; color:var(--sub); }
+
+  .compare { display:flex; gap:28px; justify-content:center; flex-wrap:wrap; max-width:900px; margin:0 auto; }
+  .variant { width:340px; }
+  .vlabel { text-align:center; margin-bottom:10px; }
+  .vlabel b { font-size:14px; }
+  .vlabel span { display:block; font-size:11px; color:var(--sub); }
+
+  .phone { background:var(--paper); border:2.5px solid var(--ink); border-radius:22px; overflow:hidden; min-height:560px; display:flex; flex-direction:column; padding:0; }
+  .statusbar { height:20px; border-bottom:1px dotted var(--line); display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--sub); letter-spacing:.2em; }
+  .scr { flex:1; display:flex; flex-direction:column; padding:18px 16px 20px; }
+  .sc-tag { font-size:10px; color:var(--sub); letter-spacing:.08em; margin-bottom:10px; }
+  .headline { font-size:16.5px; font-weight:800; line-height:1.35; }
+  .subcopy { font-size:12px; color:var(--sub); margin-top:6px; margin-bottom:14px; }
+  .card { border:1.5px solid var(--line); border-radius:10px; padding:14px; text-align:center; color:var(--sub); font-size:12px; background:var(--paper); }
+
+  .btn-primary { display:block; width:100%; border:none; background:var(--ink); color:#fff; font-size:14.5px; font-weight:700; padding:14px; border-radius:8px; margin-top:auto; }
+  .txt-link { background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; display:block; text-align:center; margin:0 auto; }
+  .linkstack { margin-top:auto; display:flex; flex-direction:column; gap:14px; padding-bottom:6px; }
+  .linkstack .txt-link.big { font-size:14px; color:var(--ink); }
+  .aftercta { text-align:center; margin-top:12px; }
+
+  .procon { margin-top:14px; font-size:11.5px; }
+  .procon .pro::before { content:"+ "; font-weight:700; }
+  .procon .con::before { content:"− "; font-weight:700; }
+  .procon div { margin-bottom:5px; color:var(--ink); }
+  .procon .con { color:var(--sub); }
+
+  .note { max-width:900px; margin:26px auto 0; font-size:11.5px; color:var(--sub); border-left:3px solid var(--line); padding-left:10px; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>④ 결과 · "약점 없음" 상태 — 출구 액션 A/B 비교</h1>
+  <p>전제 상황: 문답 전부 "알아요" → 카드 0장 정상 결과. 이 화면의 다음 행동을 어떻게 제시하나. (2026-07-17)</p>
+</div>
+
+<div class="compare">
+
+  <!-- ══════ A안 ══════ -->
+  <div class="variant">
+    <div class="vlabel"><b>A안 — 링크 2개 (버튼 없음)</b><span>1차 CTA를 텍스트 링크로 강등</span></div>
+    <div class="phone">
+      <div class="statusbar">MMT</div>
+      <div class="scr">
+        <div class="sc-tag">SCREEN ④ 결과 · 약점 없음</div>
+        <div class="headline">확인한 7개 개념,<br>약점이 안 보여요! 👍</div>
+        <div class="subcopy">자가응답 기반 AI 학습 가이드예요</div>
+        <div class="card">카드 0장 = 정상 결과<br>(전부 알아요 → 시급도 산출 생략)</div>
+        <div class="linkstack">
+          <button class="txt-link big">다른 단원도 진단해보기 ›</button>
+          <button class="txt-link">진단한 개념, 그래프에서 확인하기 ›</button>
+        </div>
+      </div>
+    </div>
+    <div class="procon">
+      <div class="pro">화면이 조용하고 겸손함 — "약점 없음"의 축하 무드를 버튼이 안 깨뜨림</div>
+      <div class="pro">두 액션이 동급이라 유저 선택 부담 없음</div>
+      <div class="con">화면에 1차 CTA 부재 — 결과 화면이 막다른 골목(모멘텀 최고 상태에서 강한 다음 행동 없음)</div>
+      <div class="con">제품 루프 복귀로(재진단)와 이탈로(그래프 구경)가 같은 무게 — 퍼널 누수</div>
+      <div class="con">"화면당 단일 1차 CTA" 패턴의 예외 화면이 생김(④-A 유약점 상태와 비일관)</div>
+    </div>
+  </div>
+
+  <!-- ══════ B안 ══════ -->
+  <div class="variant">
+    <div class="vlabel"><b>B안 — 타게팅 버튼 + 조용한 링크 (권장)</b><span>1차 = 한 계단 위 재진단, 그래프는 링크 강등</span></div>
+    <div class="phone">
+      <div class="statusbar">MMT</div>
+      <div class="scr">
+        <div class="sc-tag">SCREEN ④ 결과 · 약점 없음</div>
+        <div class="headline">확인한 7개 개념,<br>약점이 안 보여요! 👍</div>
+        <div class="subcopy">여기는 탄탄해요 — 한 계단 위로 올라가볼까요?</div>
+        <div class="card">카드 0장 = 정상 결과<br>(전부 알아요 → 시급도 산출 생략)</div>
+        <button class="btn-primary">한 계단 위 '이차함수' 진단하기</button>
+        <div class="aftercta">
+          <button class="txt-link">진단한 개념, 그래프에서 확인하기 ›</button>
+        </div>
+      </div>
+    </div>
+    <div class="procon">
+      <div class="pro">1차 CTA 보존 — 모멘텀 높은 유저에게 즉시 다음 행동 제공, 제품 루프 유지</div>
+      <div class="pro">"약점 0 = 시작점이 너무 쉬웠음" 통찰을 CTA로 번역(순회는 아래로만 가므로 재시도는 위로) — F-3 스마트 default 철학과 정합</div>
+      <div class="pro">그래프 = 조용한 링크 → 홈(F-4)과 동일 패턴, 전 화면 일관</div>
+      <div class="con">"한 계단 위" 단원 산출 로직 필요(② 계단순 정렬 재사용 — 프론트 로직, 소폭)</div>
+      <div class="con">추천이 틀리면(이미 아는 단원) 무의미한 CTA — 탭하면 ②로 보내 pick-list에서 조정 가능하게 해 완화</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  B안 변형(B′): 타게팅 없이 1차 버튼 = "다른 단원 진단하기"(→ ② 진입, default 를 한 계단 위로 부스트). 화면 로직 최소화 버전 — B 채택 시 타게팅 여부만 후속 결정.
+  · 두 안 공통: "그래프에서 확인하기"는 ›, 문답의 "이전 답 수정"은 ‹ (방향 대비).
+</div>
+
+</body>
+</html>

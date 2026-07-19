@@ -1,0 +1,224 @@
+.headline {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.honest {
+  font-size: 11px;
+  color: var(--sub);
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.failsoft {
+  font-size: 11px;
+  color: var(--sub);
+  background: var(--soft);
+  border-radius: 5px;
+  padding: 6px 9px;
+  margin-bottom: 10px;
+}
+
+.card {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  background: var(--paper);
+}
+
+.crow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.cname {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid var(--line);
+  color: var(--sub);
+  padding: 0 7px;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+
+/* 시급도 색 문법 (정직성 원칙) — 상=빨강 / 중=호박 / 하·결측=회색 */
+.badgeHi {
+  background: var(--urgent-hi-bg);
+  color: var(--urgent-hi);
+  border-color: transparent;
+}
+
+.badgeMid {
+  background: var(--urgent-mid-bg);
+  color: var(--urgent-mid);
+  border-color: transparent;
+}
+
+.basis {
+  font-size: 11.5px;
+  color: var(--sub);
+  margin-top: 4px;
+}
+
+.links {
+  margin-top: 7px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.links a {
+  font-size: 10.5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--sub);
+  background: var(--soft);
+  text-decoration: none;
+}
+
+.pathLink {
+  margin-top: 7px;
+  font-size: 11.5px;
+  color: var(--sub);
+  text-decoration: underline;
+  display: inline-block;
+}
+
+.moreFold {
+  display: block;
+  margin: 2px auto 10px;
+  font-size: 12px;
+  color: var(--sub);
+  text-decoration: underline;
+  text-align: center;
+}
+
+.ctaWrap {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.gateNote {
+  font-size: 10.5px;
+  color: var(--sub);
+  text-align: center;
+  margin-top: 7px;
+}
+
+.emptySub {
+  font-size: 11px;
+  color: var(--sub);
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.graphLink {
+  margin-top: 10px;
+}
+
+/* ── ④-B 게이트 상태 ── */
+.secTag {
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.graphBox {
+  border: 1.5px dashed var(--line);
+  background: var(--soft);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.nodeInfo {
+  font-size: 11.5px;
+  color: var(--sub);
+  margin-bottom: 12px;
+  min-height: 18px;
+}
+
+/* 큐 진입 pill — 화면 위에 떠 있는 상주 버튼 (스크롤과 무관, 탭 = 체크리스트 시트) */
+.queueFab {
+  position: fixed;
+  right: max(16px, calc(50% - 224px)); /* 480px 컬럼 안쪽 16px 에 정렬, 모바일은 16px */
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 12px 18px;
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(20, 35, 31, 0.35);
+}
+
+.qsub {
+  font-size: 10.5px;
+  color: var(--sub);
+  margin-bottom: 8px;
+}
+
+.qerr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--urgent-hi);
+  background: var(--urgent-hi-bg);
+  border-radius: 7px;
+  padding: 7px 10px;
+  margin-bottom: 8px;
+}
+
+.qitem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 7px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  background: var(--paper);
+}
+
+.qitem.done {
+  color: var(--sub);
+  text-decoration: line-through;
+}
+
+.chk {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  flex: none;
+  text-align: center;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.here {
+  margin-left: auto;
+  font-size: 9.5px;
+  background: var(--accent);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.sectionGap {
+  margin-top: 12px;
+}

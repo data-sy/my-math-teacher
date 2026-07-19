@@ -1,0 +1,114 @@
+.progress {
+  font-size: 11.5px;
+  color: var(--sub);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.pbar {
+  height: 5px;
+  background: var(--soft);
+  border-radius: 3px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.pbar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+.qcard {
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 30px 18px;
+  text-align: center;
+}
+
+.qname {
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.qdesc {
+  font-size: 13px;
+  color: var(--sub);
+  margin-top: 12px;
+  border-top: 1px dotted var(--line);
+  padding-top: 12px;
+}
+
+.toastWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  min-height: 32px;
+}
+
+.toast {
+  background: var(--primary);
+  color: #fff;
+  font-size: 11.5px;
+  padding: 7px 14px;
+  border-radius: 16px;
+  width: fit-content;
+}
+
+.qbtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.qbtns button {
+  padding: 17px 0;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.qbtns button:disabled {
+  opacity: 0.4;
+}
+
+/* 좌 = 몰라요 / 우 = 알아요 — 위치 불변 (03 ●4).
+   하이파이 재판단(2026-07-18): 동급 무게 + 색으로만 의미 분화 —
+   채움/아웃라인 비대칭은 "알아요"를 유도해 자가응답 과신 오염을 키우므로 배제. */
+.dont {
+  border: 2px solid var(--sub);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.know {
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--primary-deep);
+}
+
+.undoRow {
+  text-align: center;
+  margin-top: 12px;
+  min-height: 20px;
+}
+
+.undoRow button {
+  color: var(--sub);
+  font-size: 12.5px;
+  text-decoration: underline;
+}
+
+.loading {
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  padding: 30px 18px;
+  text-align: center;
+  color: var(--sub);
+  font-size: 13px;
+}

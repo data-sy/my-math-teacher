@@ -1,0 +1,32 @@
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.face {
+  width: 84px;
+  height: 84px;
+  border: 1.5px dashed var(--line);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  background: var(--soft);
+}
+
+.copy {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--sub);
+}

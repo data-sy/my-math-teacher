@@ -1,0 +1,38 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 40;
+}
+
+.backdrop.transparent {
+  background: transparent;
+  pointer-events: none;
+}
+
+.backdrop.transparent .sheet {
+  pointer-events: auto;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  padding: 12px 14px calc(16px + env(safe-area-inset-bottom));
+  max-height: 70dvh;
+  overflow-y: auto;
+}
+
+.grab {
+  width: 34px;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  margin: 0 auto 8px;
+}

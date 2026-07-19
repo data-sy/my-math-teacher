@@ -1,0 +1,199 @@
+.headline {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.subcopy {
+  font-size: 12.5px;
+  color: var(--sub);
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.gradeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.gradeChip {
+  border: 1.5px solid var(--ink);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  background: var(--soft);
+}
+
+.gradeHint {
+  font-size: 10.5px;
+  color: var(--sub);
+}
+
+.resumeNote {
+  border: 1px dashed var(--line);
+  background: var(--soft);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.resumeBtns {
+  display: flex;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.resumeBtns button {
+  flex: 1;
+  border: 1.5px solid var(--ink);
+  border-radius: 7px;
+  padding: 6px 0;
+  font-size: 12px;
+  text-align: center;
+  background: var(--paper);
+}
+
+.ladderTag {
+  font-size: 10.5px;
+  color: var(--sub);
+  margin-bottom: 6px;
+  letter-spacing: 0.03em;
+}
+
+.pickItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  background: var(--paper);
+}
+
+.pickItem small {
+  display: block;
+  font-size: 11px;
+  color: var(--sub);
+  font-weight: 400;
+}
+
+.pickItem.default {
+  border: 2px solid var(--primary);
+  background: var(--accent-soft);
+}
+
+.reco {
+  font-size: 10px;
+  color: var(--primary-deep);
+  border: 1px solid var(--accent);
+  padding: 0 6px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.escapeRow {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 최초 방문 — 학년 미설정 시 pick-list 자리에 학년 선택 먼저 (02 ●3 확정) */
+.gradeFirst {
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.gradeFirst p {
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+.pickerGroup {
+  font-size: 10.5px;
+  color: var(--sub);
+  letter-spacing: 0.04em;
+  text-align: left;
+  margin: 10px 0 4px;
+}
+
+.gradeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.gradeGrid button,
+.semRow button {
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 13.5px;
+  background: var(--paper);
+  text-align: center;
+}
+
+.gradeGrid button.on,
+.semRow button.on,
+.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* 학기 = 칩(pill) 형태 — 학년 셀과 조용히 구분 (학년 선택의 하위 단계임을 형태로) */
+.semRow {
+  display: flex;
+  gap: 8px;
+}
+
+.semRow button {
+  flex: none;
+  border-radius: 16px;
+  padding: 5px 16px;
+  font-size: 12.5px;
+}
+
+.sheetTitle {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.sheetGroup {
+  font-size: 11px;
+  color: var(--sub);
+  margin: 10px 0 4px;
+  letter-spacing: 0.04em;
+}
+
+.confirmBody {
+  font-size: 12.5px;
+  color: var(--sub);
+  margin-bottom: 12px;
+}
+
+.confirmBtns {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sheetItem {
+  display: block;
+  width: 100%;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  font-size: 13.5px;
+  background: var(--paper);
+}

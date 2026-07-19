@@ -1,0 +1,144 @@
+/* 디자인 토큰 — 하이파이 "틸 그로스" (C안, 2026-07-18 블라인드 평가+사용자 확정)
+   중립색은 녹색 기 그레이로 틴트, 액션·진척은 틸. 시급도는 정직성 원칙(빨강=상/호박=중/회색=하). */
+:root {
+  --ink: #14231f;
+  --sub: #5f6e67;
+  --line: #cdd8d2;
+  --bg: #e9eeea;
+  --paper: #fbfbf7;
+  --soft: #f0f3f0;
+  --gate: #e4ebe6;
+  --note: #f7faf6;
+  --primary: #0e7a6c; /* 1차 CTA·확정 액션 */
+  --primary-deep: #0b6459;
+  --accent: #0e9f8c; /* 진척·포커스·선택 */
+  --accent-soft: #dff2ec;
+  /* 그래프 위계 A안 (2026-07-19 컨설팅 확정) — 선수=틸(primary+아래 틴트)·후수=보라 2계열.
+     CVD ΔE·명도 램프·라이트엔드 대비 검증 통과값. ConceptGraph.tsx 상수와 동기화 유지 */
+  --graph-pre-far: #2fb5a6;
+  --graph-succ: #7c3aed;
+  --graph-succ-far: #a78bfa;
+  --graph-out: #dce1e8;
+  --urgent-hi: #be3a25;
+  --urgent-hi-bg: #fbe7e4;
+  --urgent-mid: #9c6b10;
+  --urgent-mid-bg: #fdf2d9;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+input {
+  font: inherit;
+}
+
+/* 모바일 퍼스트(390px 기준) — 데스크톱은 반응형 하한만: 중앙 1열 고정 */
+.screen {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  /* 노치·다이나믹 아일랜드 안전영역 — viewport-fit=cover 전제 (없으면 env=0 으로 무해) */
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+}
+
+.screen--gated {
+  background: var(--gate);
+}
+
+/* 공통 위계 부품 — 와이어프레임 공통 규약 */
+.btn-primary {
+  display: block;
+  width: 100%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.btn-secondary {
+  display: block;
+  width: 100%;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  padding: 11px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.txt-link {
+  color: var(--sub);
+  font-size: 12.5px;
+  text-decoration: underline;
+  text-align: center;
+  display: block;
+  background: none;
+  border: none;
+}
+
+.nav-back {
+  font-size: 13px;
+  color: var(--sub);
+  align-self: flex-start;
+  margin-bottom: 8px;
+  text-decoration: none;
+}
+
+/* 인라인 에러 카드 (03 ●7 · 카탈로그 공용) */
+.err-card {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--sub);
+  background: var(--soft);
+}
+
+.err-card .retry {
+  display: inline-block;
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  border-radius: 7px;
+  padding: 5px 16px;
+  font-size: 12.5px;
+  margin-top: 8px;
+}

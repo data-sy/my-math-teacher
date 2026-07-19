@@ -1,6 +1,6 @@
 # Milestone 7: 제품 피벗 — 자가진단 + 모바일 리디자인 (React)
 
-> **상태: 📝 Step 1 기획·Step 2 UX 설계·Step 3 기술 설계 완료(2026-07-13: spec-01·02·03 전부 확정, 리뷰 실체 대조 통과) — 다음 = Step 4 구현(첫 브랜치 `feat/m7-spec-01-diagnosis` + `/analyze-before-change`), 구현 미착수.** 라이브(M6) 서버 위에서 *서비스 미완의 근본 제약*(진단·맞춤이
+> **상태: 🚧 Step 4 구현 진행 — spec-01 백엔드 구현·머지 완료(2026-07-14, PR #48) → 프론트 재설계 트랙: v2 플로우 맵 + 와이어프레임 01~06 전 화면 사인오프 완료(2026-07-17, `docs/design/v2/`) → spec-02 재작성 초안 완료(2026-07-17, `docs/specs/m7/spec-02-react-mvp.md` — 사인오프 대기). 진행 상태 정본은 `ROADMAP.md` M7 항목.** 라이브(M6) 서버 위에서 *서비스 미완의 근본 제약*(진단·맞춤이
 > 의존하는 **문제 풀(problem pool)의 실부재**)을 우회하도록 **제품 정의 자체를 피벗**하는 마일스톤.
 > 본 문서는 방향을 굳히는 설계 단계이며, 코드/프론트 변경은 §결정 사인오프 이후 spec-first 로 진행한다.
 >
@@ -103,7 +103,7 @@ MBTI식 "클릭하면 답에 따라 다음 화면이 갈리는" 흐름 = 지식�
 | 폴더 | 내용 |
 |---|---|
 | `docs/prd/m7-prd.md` | **기획(PRD)** — 제품 요구사항 정의서 |
-| `docs/design/m7-*.html` | **UX 설계** — 와이어프레임·시안. **계층구조 정돈한 HTML**(추후 Figma 이관 염두, ASCII·직접 Figma 아님) |
+| `docs/design/m7-*.html` | **UX 설계** — 와이어프레임·시안. **계층구조 정돈한 HTML**(추후 Figma 이관 염두, ASCII·직접 Figma 아님). **매체 확정(2026-07-17, 재설계 트랙):** 로우파이 = Claude Code 작성 HTML 주석 와이어프레임(`docs/design/v2/`, 인터랙션 노트 포함) → 하이파이 비주얼 = Claude Design(claude.ai/design)으로 이관. Figma MCP 는 무료 사용량 한계로 제외 |
 | `docs/specs/m7/spec-*.md` | **기술 설계** — 백엔드/프론트 spec |
 | `docs/milestones/milestone-7-product-pivot.md` | 피벗 정본(본 문서) |
 

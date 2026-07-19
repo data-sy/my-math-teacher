@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M7 v2 · 와이어프레임 ② 영역 진입</title>
+<style>
+  :root {
+    --ink: #1a1a1a; --sub: #666; --line: #c8c8c8; --bg: #ececec;
+    --paper: #fff; --soft: #f5f5f5; --note: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding: 24px 16px 64px; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+
+  header.doc { margin-bottom: 20px; }
+  header.doc h1 { font-size: 19px; margin-bottom: 6px; }
+  header.doc .meta { font-size: 12px; color: var(--sub); }
+  header.doc .meta code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .status { display: inline-block; border: 1px solid var(--ink); padding: 1px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+
+  .cols { display: grid; grid-template-columns: 420px 1fr; gap: 24px; align-items: start; }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+
+  .phone { width: 390px; margin: 0 auto; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 24px; min-height: 720px; display: flex; flex-direction: column; position: relative; }
+  .statusbar { height: 22px; border-bottom: 1px dotted var(--line); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--sub); letter-spacing: .2em; flex: none; }
+  .body { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 20px; }
+
+  .co { position: absolute; background: var(--ink); color: #fff; font-size: 11px; width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; }
+  .rel { position: relative; }
+
+  .navrow { display: flex; align-items: center; margin-bottom: 8px; }
+  .navrow .back { font-size: 13px; color: var(--sub); }
+
+  .headline { font-size: 19px; font-weight: 800; line-height: 1.35; }
+  .subcopy { font-size: 12.5px; color: var(--sub); margin-top: 4px; margin-bottom: 12px; }
+
+  .grade-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .grade-chip { border: 1.5px solid var(--ink); border-radius: 16px; padding: 4px 12px; font-size: 12.5px; background: var(--soft); }
+  .grade-row .hint { font-size: 10.5px; color: var(--sub); }
+
+  .cond-frame { border: 1.5px dashed var(--sub); border-radius: 10px; padding: 4px; margin-bottom: 12px; }
+  .cond-frame .cond-tag { font-size: 9.5px; color: var(--sub); padding: 0 6px 3px; letter-spacing: .04em; }
+  .resume-note { border: 1px dashed var(--line); background: var(--soft); border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+  .resume-note .btns { display: flex; gap: 8px; margin-top: 7px; }
+  .resume-note .btns span { flex: 1; border: 1.5px solid var(--ink); border-radius: 7px; padding: 6px 0; font-size: 12px; text-align: center; background: var(--paper); }
+
+  .ladder-tag { font-size: 10.5px; color: var(--sub); margin-bottom: 6px; letter-spacing: .03em; }
+  .pick-item { border: 1.5px solid var(--line); border-radius: 8px; padding: 11px 12px; margin-bottom: 8px; font-size: 14px; background: var(--paper); display: flex; justify-content: space-between; align-items: center; }
+  .pick-item small { display: block; font-size: 11px; color: var(--sub); font-weight: 400; }
+  .pick-item.default { border: 2px solid var(--ink); background: var(--soft); }
+  .pick-item .reco { font-size: 10px; color: var(--sub); border: 1px solid var(--line); padding: 0 6px; border-radius: 8px; white-space: nowrap; }
+
+  .escape-row { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+  .btn-secondary { display: block; width: 100%; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); font-size: 13px; padding: 11px; border-radius: 8px; text-align: center; }
+
+  .notes h3 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 5px; margin-bottom: 12px; }
+  .note-item { display: flex; gap: 10px; background: var(--note); border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; font-size: 12.5px; }
+  .note-item .n { flex: none; background: var(--ink); color: #fff; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .note-item .src { color: var(--sub); font-size: 11px; }
+  .note-item dl { margin-top: 3px; }
+  .note-item dt { font-weight: 700; font-size: 11px; margin-top: 5px; }
+  .note-item dd { margin-left: 0; }
+  .note-item code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
+  .rules { margin-top: 20px; border: 1px dashed var(--line); background: var(--paper); padding: 10px 14px; font-size: 12px; color: var(--sub); }
+  .rules b { color: var(--ink); }
+  .rules li { margin: 4px 0 4px 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>M7 v2 · 와이어프레임 — SCREEN ② 영역 진입<span class="status">확정 — 검수 반영(2026-07-17)</span></h1>
+  <p class="meta">
+    작성 2026-07-17 · 정본 입력 = PRD §3.2 ②·F-3 + 플로우 맵 ●2·●3·●5 + spec-01 §4.2 · 로우파이(레이아웃·위계·인터랙션만)<br>
+    검수 확정 3건: ●3 학년 소스 = localStorage(최초 방문 선택) · ●4 폐기 확인탭 없음(백로그 이월 → 2026-07-18 백로그 구현: 조건부 확인 시트) · ●5 계단순 중간 정렬 채택
+  </p>
+</header>
+
+<div class="cols">
+
+<!-- ══════════ 프레임 ══════════ -->
+<div>
+<div class="phone">
+  <div class="statusbar">MMT · 390px · 무료(비로그인 도달 가능)</div>
+  <div class="body">
+
+    <!-- ●1 뒤로 -->
+    <div class="navrow rel">
+      <span class="co" style="top:-4px; left:-9px;">1</span>
+      <span class="back">‹ 홈</span>
+    </div>
+
+    <!-- ●2 헤드라인 -->
+    <div class="rel">
+      <span class="co" style="top:-4px; right:-6px;">2</span>
+      <div class="headline">지금 어디쯤이야?</div>
+      <div class="subcopy">진단하고 싶은 것을 고르세요.</div>
+    </div>
+
+    <!-- ●3 학년·학기 -->
+    <div class="grade-row rel">
+      <span class="co" style="top:-9px; left:-9px;">3</span>
+      <span class="grade-chip">중3 · 1학기 ▾</span>
+      <span class="hint">바꾸면 아래 후보가 갱신돼요</span>
+    </div>
+
+    <!-- ●4 진행 중 세션 (조건부) -->
+    <div class="cond-frame rel">
+      <span class="co" style="top:-9px; left:-9px;">4</span>
+      <div class="cond-tag">▼ 조건부 — 진행 중(미완주·미저장) 문답 세션이 있을 때만</div>
+      <div class="resume-note">
+        진행 중인 진단이 있어요 — '이차방정식' 4개 답변까지
+        <div class="btns"><span>이어서 진행</span><span>새로 시작</span></div>
+      </div>
+    </div>
+
+    <!-- ●5 pick-list -->
+    <div class="rel">
+      <span class="co" style="top:-8px; right:-6px;">5</span>
+      <div class="ladder-tag">계단순 (아래 단계 → 위 단계)</div>
+      <div class="pick-item"><span>인수분해 <small>중3 · 1학기 — 한 계단 아래</small></span></div>
+      <div class="pick-item default"><span>이차방정식 <small>중3 · 1학기</small></span><span class="reco">지금 시기 추천</span></div>
+      <div class="pick-item"><span>이차함수 <small>중3 · 2학기 — 한 계단 위</small></span></div>
+    </div>
+
+    <!-- ●6·●7 escape 두 갈래 -->
+    <div class="escape-row">
+      <div class="rel">
+        <span class="co" style="top:-9px; left:-9px;">6</span>
+        <div class="btn-secondary">여기 없음? — 다른 단원 직접 선택</div>
+      </div>
+      <div class="rel">
+        <span class="co" style="top:-9px; left:-9px;">7</span>
+        <div class="btn-secondary">모르겠어 → 전체 훑기</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 인터랙션 노트 ══════════ -->
+<div class="notes">
+  <h3>인터랙션 노트 (탭하면 무슨 일이)</h3>
+
+  <div class="note-item"><span class="n">1</span><div>
+    <b>‹ 홈</b> — 탭 → ① 홈. 진행 중 답변이 있어도 경고 없이 이동(localStorage에 맵이 있으니 유실 없음 — 재방문 시 ●4로 복구).
+    <span class="src">PRD F-2</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">2</span><div>
+    <b>헤드라인 "지금 어디쯤이야?" + 서브 "진단하고 싶은 것을 고르세요."</b> — 정적. "무엇을 배울지"가 아니라 <b>시작점</b>을 묻는 카피(확정). 서브카피는 짧게 — 진단 내부 동작(순회·프론티어) 설명 금지.
+    <span class="src">PRD F-3 · 2026-07-17 프로토타입 리뷰 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">3</span><div>
+    <b>학년·학기 칩 "중3 · 1학기 ▾"</b> — 탭 → 학년(중1~고3)·학기 선택 시트. 바꾸면 <code>GET /api/v1/chapters?grade&amp;semester</code> 재호출 → pick-list 후보 갱신. 시기 추정 default 는 이 값 기반 프론트 로직.
+    <dl>
+      <dt>값의 소스(확정)</dt><dd>비로그인이라 학년을 모름 → <b>최초 방문 시 이 칩이 미설정 상태로 시작, pick-list 자리엔 학년 선택이 먼저</b> 노출. 선택 즉시 localStorage 저장 → 재방문부터 기억값으로 바로 후보 표시. 서버 저장 없음.</dd>
+      <dt>현재 시점(월)</dt><dd>학기 내 시기 추정은 기기 날짜 기반 — 진도표 매핑 데이터는 R6(soft 제안일 뿐이라 오추정 흡수).</dd>
+    </dl>
+    <span class="src">스펙 계약 = 플로우 맵 API 표 ② · PRD R6 · 2026-07-17 02-entry 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">4</span><div>
+    <b>진행 중 세션 노트(조건부)</b> — 노출 조건: localStorage에 <b>미완주·미저장</b> answered-map 존재.
+    <dl>
+      <dt>"이어서 진행"</dt><dd>탭 → 그 단원의 ③으로, 저장된 맵 그대로 재개(다음 질문은 서버가 맵 전체로 재계산).</dd>
+      <dt>"새로 시작"</dt><dd>탭 → 맵 폐기, 이 노트가 사라지고 pick-list 그대로(화면 이동 없음 — 이후 원탭이 새 세션).</dd>
+      <dt>다른 단원 원탭</dt><dd>기존 맵 폐기 + 새 세션(새 진단 = 새 세션 확정). 이어갈 수 있는 건 <b>같은 단원</b>뿐이므로 노트에 단원명·답변 수를 표기해 판단 근거 제공.</dd>
+      <dt>확인 다이얼로그(확정 → 2026-07-18 구현)</dt><dd>MVP 검수 시점엔 "새로 시작"·다른 단원 탭 모두 확인탭 없이 즉시 폐기로 확정(백로그 이월)했으나, <b>백로그(<code>docs/backlog/m7-entry-discard-confirm-dialog.md</code>) 구현으로 현재는 진행 중 세션이 있을 때만 조건부 확인 시트</b>("진행 중인 진단을 지울까요?" — 단원명·답변 수 표기, [지우고 새로 시작]/[취소]). 세션이 없으면 원탭 즉시 시작 그대로. 폐기 경로 전부(새로 시작·pick-list·직접 선택 시트·전체 훑기)에 적용.</dd>
+    </dl>
+    <span class="src">플로우 맵 ② desc·●5 · 2026-07-17 확정(이어서/새로 시작 선택 제시) · 02-entry 검수 확정</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">5</span><div>
+    <b>pick-list (계단순 ±후보 3~4개)</b> — 항목 <b>원탭 → 즉시 ③ 문답 시작</b>(별도 확인 버튼 없음). 탭 시 <code>POST /api/v1/diagnosis/frontier {chapterId}</code> → 첫 질문으로.
+    <dl>
+      <dt>정렬·구성</dt><dd>선후 계단순(아래 단계 → 위 단계)로 default 앞뒤 ±1~2개, 총 3~4개. default 는 목록 중간이어도 <b>테두리 강조 + "지금 시기 추천" 배지</b>로 식별 — 미리 "선택된 상태"로 보이되 자동 시작하지 않음(소프트).</dd>
+      <dt>왜 3~4개면 충분한가</dt><dd>고른 단원 = 시작 프론티어(경계 아님) — "몰라요" drill-down 이 아래 관용을 흡수.</dd>
+    </dl>
+    <span class="src">PRD F-3 · 플로우 맵 ●2 · spec-01 §4.2</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">6</span><div>
+    <b>escape (a) "여기 없음? — 다른 단원 직접 선택"</b> — 탭 → 전체 단원 목록 바텀시트(학교급·학년별 그룹, 스크롤). 시트에서 단원 원탭 = ●5와 동일하게 즉시 ③. 시트 밖 탭 = 닫기.
+    <span class="src">PRD F-3 escape (a) · 플로우 맵 ●3</span>
+  </div></div>
+
+  <div class="note-item"><span class="n">7</span><div>
+    <b>escape (b) "모르겠어 → 전체 훑기"</b> — 탭 → 즉시 ③, entry scope=full(학교급 대표 단원 프론티어 합집합에서 시작). "특정 단원 없이 그냥 약점이 궁금한" 유저의 진입로 — 이 갈래가 있어서 단원 강제 선택이 되살아나지 않음.
+    <span class="src">PRD F-3 escape (b) · 플로우 맵 ●3 · spec-01 §4.2</span>
+  </div></div>
+
+  <div class="rules">
+    <b>화면 레벨 규칙</b>
+    <li>이 화면의 1차 행동 = pick-list 원탭(버튼형 1차 CTA 없음 — 리스트 자체가 행동). escape 2종은 보조 버튼 스타일로 위계 구분.</li>
+    <li>후보·escape가 한 화면(폴드 안)에 다 보여야 함 — 후보가 4개를 넘지 않는 이유이기도 함.</li>
+    <li>진입 경로 = ① 1차 CTA · ⑥ "내 약점 진단하기" · ④-B "다시 진단하기". 어느 경로든 동일 화면(파라미터 차이 없음).</li>
+  </div>
+</div>
+
+</div><!-- /cols -->
+</div>
+</body>
+</html>
