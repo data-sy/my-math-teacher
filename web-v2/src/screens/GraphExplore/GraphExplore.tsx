@@ -82,9 +82,15 @@ export default function GraphExplore() {
     enabled: !!scope && !!chapters,
   })
 
-  // 초기 선택 — 컨텍스트 없으면 스코프 대표 노드(단원 내 후수-최상위 = ② 프론티어와 동일 개념)
+  // 초기 선택 — 컨텍스트 없으면 스코프 대표 노드(단원 내 후수-최상위 = ② 프론티어와 동일 개념).
+  // 스코프당 1회만: 빈 곳 탭(선택 해제 → 무선택 모드)을 재선택으로 되돌리지 않는다 (2026-07-19 버그픽스)
+  const autoSelectedScope = useRef<string | null>(null)
   useEffect(() => {
-    if (selectedId || !graphQ.data || !scope) return
+    if (!graphQ.data || !scope) return
+    const scopeKey = scope.type === 'chapter' ? scope.chapterId : 'all'
+    if (autoSelectedScope.current === scopeKey) return
+    autoSelectedScope.current = scopeKey
+    if (selectedId) return // 진입 컨텍스트·검색이 이미 선택함
     const { concepts, edges } = graphQ.data
     const inScope =
       scope.type === 'chapter' ? concepts.filter((c) => c.chapterId === scope.chapterId) : concepts
