@@ -1,9 +1,10 @@
 # ADR 0012: 적응형 문항 선택 — 결정론적 KST 코어 (규칙 A·B·C, spec-01 §4.3 개정)
 
 ## Status
-Proposed
+Accepted (2026-07-24)
 
-*(2026-07-24, `feat/m7-item-selection` 브랜치 구현 세션에서 작성. 근거 = 격리 세션 컨설팅 리포트 [`docs/consulting/out/adaptive-question-selection-report.md`](../consulting/out/adaptive-question-selection-report.md) ④ 권장안 + 백로그 [`docs/backlog/m7-adaptive-traversal-question-selection.md`](../backlog/m7-adaptive-traversal-question-selection.md) 결함 3건. D1~D3 트레이드오프는 사용자 확정(2026-07-24, 아래 Decision-4).)*
+*(2026-07-24, `feat/m7-item-selection` 브랜치 구현 세션에서 작성 — 같은 세션에서 규칙 A·B·C 구현·단위 테스트 12건 green·실그래프 라이브 검증 완료 후 사용자 사인오프로 Accepted 승격.*
+*원 provenance:* 근거 = 격리 세션 컨설팅 리포트 [`docs/consulting/out/adaptive-question-selection-report.md`](../consulting/out/adaptive-question-selection-report.md) ④ 권장안 + 백로그 [`docs/backlog/m7-adaptive-traversal-question-selection.md`](../backlog/m7-adaptive-traversal-question-selection.md) 결함 3건. D1~D3 트레이드오프는 사용자 확정(2026-07-24, 아래 Decision-4).)*
 
 ## Context
 
