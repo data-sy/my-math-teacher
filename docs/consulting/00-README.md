@@ -44,3 +44,14 @@ Vue→React 이주 타당성·비용을 평가하기 위한 **컨설팅 프롬�
 
 - `01-design-ux-consult.md` — 디자인/UX 컨설팅 프롬프트
 - `02-vue-to-react-migration-scope.md` — Vue→React 이주 타당성·견적 프롬프트
+
+## 추가 컨설팅 (별도 주제 — 위 리디자인 묶음과 무관)
+
+- `03-adaptive-question-selection.md` — 적응형 문항 선택 알고리즘(KST/CAT/DKT 등) 서베이·권장 페르소나 프롬프트. 정본 백로그 = `docs/backlog/m7-adaptive-traversal-question-selection.md`. 리포 접근 없이 격리 세션에 붙여넣는 자기완결 프롬프트.
+- 결과·자료는 `out/` 아래:
+  - `adaptive-question-selection-report.md` — 권장안 정본 (2026-07-24 재실행, 2026-07-19판과 수렴)
+  - `adaptive-question-selection-report-2026-07-19.md` — 최초 실행판 (provenance)
+  - `question-selection-learning.html` — 후보 5계열 일반 학습자료
+  - `question-selection-explainer.html` — 배경지식 0 기준 쉬운 설명
+  - `kst-learning-material.html` — 지식공간이론(KST) 심화 학습자료 + 외부 링크
+- 구현 착수용 프롬프트 = 최상위 `🤖-문항선택-KST-구현.md` (이 컨설팅 결과 기반, 새 세션에서 실행).

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>적응형 문항 선택 알고리즘 — 학습자료</title>
+<style>
+  :root {
+    --ink: #1f2430;
+    --muted: #5b6472;
+    --line: #e3e6ec;
+    --accent: #2f6fed;
+    --accent-soft: #eef3fe;
+    --warn-soft: #fdf3e7;
+    --warn-ink: #9a5b13;
+    --ok-soft: #eaf6ef;
+    --ok-ink: #1e7a45;
+    --bg: #ffffff;
+    --card: #f7f8fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1 { font-size: 1.9rem; line-height: 1.3; margin: 0 0 8px; }
+  .subtitle { color: var(--muted); margin-bottom: 40px; }
+  h2 {
+    font-size: 1.45rem; margin: 64px 0 16px; padding-top: 24px;
+    border-top: 3px solid var(--ink);
+  }
+  h2 .chapter-no { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 1.12rem; margin: 32px 0 8px; }
+  p { margin: 10px 0; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 6px 0; }
+  .toc {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 24px; margin: 24px 0 8px;
+  }
+  .toc ol { margin: 8px 0 0; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .callout {
+    border-left: 4px solid var(--accent); background: var(--accent-soft);
+    border-radius: 0 10px 10px 0; padding: 14px 18px; margin: 18px 0;
+  }
+  .callout.warn { border-color: #e08c1f; background: var(--warn-soft); }
+  .callout.ok { border-color: #2c9a5b; background: var(--ok-soft); }
+  .callout .label { font-weight: 700; display: block; margin-bottom: 4px; }
+  .callout.warn .label { color: var(--warn-ink); }
+  .callout.ok .label { color: var(--ok-ink); }
+  dl.glossary dt {
+    font-weight: 700; margin-top: 22px; font-size: 1.02rem;
+  }
+  dl.glossary dt .en { font-weight: 400; color: var(--muted); font-size: 0.88rem; margin-left: 6px; }
+  dl.glossary dd { margin: 4px 0 0 0; padding-left: 14px; border-left: 3px solid var(--line); }
+  dl.glossary dd .ex { display: block; color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+  .table-wrap { overflow-x: auto; margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 720px; }
+  th, td { border: 1px solid var(--line); padding: 9px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--card); font-size: 0.88rem; }
+  td.center, th.center { text-align: center; }
+  .badge {
+    display: inline-block; font-size: 0.75rem; font-weight: 700; border-radius: 99px;
+    padding: 1px 10px; vertical-align: middle;
+  }
+  .badge.ok { background: var(--ok-soft); color: var(--ok-ink); }
+  .badge.warn { background: var(--warn-soft); color: var(--warn-ink); }
+  .badge.na { background: #f1e9f9; color: #6b3fa0; }
+  .dial-row td:first-child { font-weight: 600; }
+  .tag { font-size: 0.8rem; color: var(--muted); }
+  .divider { border: none; border-top: 1px dashed var(--line); margin: 28px 0; }
+  code {
+    background: var(--card); border: 1px solid var(--line); border-radius: 5px;
+    padding: 1px 6px; font-size: 0.86em;
+  }
+  .speech {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 22px; margin: 14px 0;
+  }
+  .speech .who { font-weight: 700; color: var(--accent); font-size: 0.88rem; margin-bottom: 4px; }
+  @media (max-width: 600px) { body { font-size: 15px; } main { padding: 32px 16px 64px; } }
+</style>
+</head>
+<body>
+<main>
+
+<h1>적응형 문항 선택 알고리즘 — 학습자료</h1>
+<p class="subtitle">MMT 3분 자가진단의 "다음 질문 고르기"를 어떻게 개선할 것인가 · 컨설팅 결과 정리본 (2026-07-19)</p>
+
+<div class="toc">
+  <strong>목차</strong>
+  <ol start="0">
+    <li><a href="#ch0">사전지식 — 이 문서에 나오는 키워드 사전</a></li>
+    <li><a href="#ch1">후보 서베이 — 5가지 접근 계열</a></li>
+    <li><a href="#ch2">비교표 — 결함 3건 × 후보 5개</a></li>
+    <li><a href="#ch3">판별 질문과 트레이드오프 심층 분석</a></li>
+    <li><a href="#ch4">권장안 — 단계적 채택 경로 (수정판)</a></li>
+    <li><a href="#ch5">쉬운 설명 — 아무것도 모르는 투자자에게 3분 안에</a></li>
+  </ol>
+</div>
+
+<div class="callout">
+  <span class="label">이 정리본에 반영된 사실 정정</span>
+  DKT(TF Serving)는 <strong>진단이 끝난 뒤 최종 결론을 낼 때 딱 한 번만</strong> 호출된다 — 답변할 때마다 부르는 구조가 아니다.
+  이에 따라 원 컨설팅의 "DKT 역이용" 후보 평가와 2단계 경로를 이 문서에서 수정했다 (3장 Q2, 4장 참조).
+</div>
+
+
+<!-- ============================================================ -->
+<h2 id="ch0"><span class="chapter-no">0.</span>사전지식 — 키워드 사전</h2>
+<p>본문을 읽기 전에 알아야 할 용어들이다. 순서대로 읽으면 뒤 용어가 앞 용어 위에 쌓이도록 배치했다.</p>
+
+<h3>0-1. 그래프 구조 용어</h3>
+<dl class="glossary">
+  <dt>선수 관계 <span class="en">prerequisite</span></dt>
+  <dd>"B를 배우려면 A를 먼저 알아야 한다"는 관계. A가 B의 <strong>선수</strong>, B가 A의 <strong>후수</strong>.
+    <span class="ex">예: 일차방정식(A) → 연립방정식(B). MMT의 지식 그래프는 수백 개 개념이 이 관계로 연결된 구조다.</span></dd>
+
+  <dt>DAG <span class="en">Directed Acyclic Graph · 방향 비순환 그래프</span></dt>
+  <dd>화살표(방향)가 있고, 따라가다 보면 제자리로 돌아오는 순환이 없는 그래프. 선수 관계는 "A 먼저, B 나중"이므로 자연히 DAG가 된다.</dd>
+
+  <dt>프론티어 <span class="en">frontier</span></dt>
+  <dd>선택한 단원 안에서 가장 "끝"에 있는 개념들 — 그 단원에서 자신을 선수로 삼는 개념이 더 없는, 후수 방향의 최상위 개념들. 현행 알고리즘은 여기서 질문을 시작한다.
+    <span class="ex">예: "이차방정식" 단원이면 "근과 계수의 관계" 같은 단원 종착점 개념.</span></dd>
+
+  <dt>선수 폐쇄 <span class="en">prerequisite closure</span></dt>
+  <dd>어떤 개념에서 선수 화살표를 <strong>끝까지 거슬러 올라가며 만나는 모든 개념의 집합</strong>. "이걸 알려면 알아야 하는 것 전부".
+    <span class="ex">예: 이차방정식의 선수 폐쇄 = {인수분해, 일차방정식, 제곱근, 식의 계산, …} — 직계 선수만이 아니라 선수의 선수까지 전부.</span></dd>
+
+  <dt>blockedDescendants <span class="en">막힌 후수 수</span></dt>
+  <dd>어떤 개념을 모를 때 <strong>그 때문에 학습이 막히는 후수 개념의 개수</strong>. 이 수가 클수록 그래프에서 "길목"에 있는 중요한 개념이다. 이 문서에서는 질문의 정보량을 어림하는 대용 지표(프록시)로 쓴다.
+    <span class="ex">예: "일차방정식"은 뒤로 수십 개 개념이 걸려 있어 값이 크고, 말단 개념은 0에 가깝다.</span></dd>
+</dl>
+
+<h3>0-2. 현행 알고리즘 용어 (spec-01 §4.3)</h3>
+<dl class="glossary">
+  <dt>R1 규칙 · 폐쇄 skip</dt>
+  <dd>학생이 어떤 개념을 "알아요"라고 답하면, <strong>그 개념의 선수 폐쇄 전체를 "이미 안다"고 추론하고 질문 대상에서 제외(skip)</strong>하는 현행 규칙. 위계가 강한 수학의 성질("이차방정식을 알면 일차방정식도 알 것이다")을 이용해 질문 수를 줄이는 장치인데, 학생의 자가보고 한 번을 너무 크게 믿는 것이 결함 2다.</dd>
+
+  <dt>후보 큐 <span class="en">candidate queue</span></dt>
+  <dd>"다음에 물어볼 개념" 대기줄. 프론티어로 시작해서, "몰라요"가 나오면 그 개념의 직계 선수들이 대기줄에 추가된다. 대기줄이 비면 진단 종료.</dd>
+
+  <dt>프로브 <span class="en">probe · 탐침 질문</span></dt>
+  <dd><strong>이 문서의 개선안에서 새로 도입하는 개념.</strong> "알아요"라는 답을 그대로 믿고 폐쇄를 통째로 skip하는 대신, 그 폐쇄 안에서 한두 개를 골라 <strong>"정말 아는지 확인 사살"하는 검증 질문</strong>. 의학에서 조직 일부만 떼어 검사하는 생검, 공항 세관의 무작위 검사와 같은 발상이다 — 전수 검사는 비싸니 표본으로 거짓말(착각)을 잡는다.
+    <span class="ex">예: "이차방정식 알아요" → 폐쇄를 잠정 통과시키되, 그 안에서 가장 길목인 "일차방정식" 하나만 추가로 물어본다. 여기서 "몰라요"가 나오면 앞의 "알아요"를 의심하고 되돌린다.</span></dd>
+
+  <dt>복원 <span class="en">restore</span></dt>
+  <dd>프로브가 실패했을 때(= 안다던 영역에서 "몰라요"가 나왔을 때), skip 처리했던 개념들을 다시 질문 대상으로 되돌리는 것. <strong>어디까지 되돌리느냐</strong>(그 개념 주변만 vs skip했던 폐쇄 전체)가 3장의 판별 질문 Q3다.</dd>
+
+  <dt>하한 K · 상한 N · 임계 m</dt>
+  <dd>개선안의 조절 상수 3개. <strong>K</strong> = 최소 질문 수(이보다 적게 묻고 끝나지 않게), <strong>N</strong> = 최대 질문 수(3분 약속을 지키는 하드캡), <strong>m</strong> = 폐쇄가 이 크기 이상이면 프로브를 1개가 아니라 2개 뽑는 기준. 셋 다 "정확도 ↔ 소요시간" 다이얼이다 (3장).</dd>
+</dl>
+
+<h3>0-3. 아키텍처 제약 용어</h3>
+<dl class="glossary">
+  <dt>stateless 순회 <span class="en">서버가 상태를 기억하지 않음</span></dt>
+  <dd>서버가 "이 학생이 몇 번째 질문 중인지"를 저장하지 않는다. 대신 프론트가 매 요청마다 <strong>지금까지의 답변 전체</strong>를 보내고, 서버는 그것만 보고 다음 질문을 계산한다. 서버 확장·장애 복구가 쉬워지는 대신, 알고리즘이 "답변 목록 → 다음 질문"의 순수 함수여야 한다.</dd>
+
+  <dt>결정론 <span class="en">determinism</span></dt>
+  <dd>같은 답변 목록을 넣으면 <strong>언제 누가 실행해도 항상 같은 다음 질문, 같은 결과</strong>가 나와야 한다는 계약. 미리보기(preview)와 저장된 결과가 일치해야 하기 때문. 무작위 추첨을 쓰면 이 계약이 깨진다.</dd>
+
+  <dt>tie-break <span class="en">동률 처리</span></dt>
+  <dd>정렬 기준이 같은 값일 때 순서를 확정하는 2차 규칙. 결정론을 지키려면 "동률이면 conceptId 작은 것 먼저" 같은 기계적 규칙이 반드시 필요하다.</dd>
+
+  <dt>콜드스타트 <span class="en">cold start</span></dt>
+  <dd>서비스에 <strong>실사용자 데이터가 아직 하나도 없는 상태</strong>. 데이터로 학습·보정하는 방법(IRT 보정, 밴딧)은 이 상태에서 원천적으로 쓸 수 없다. MMT는 런치 전이므로 지금이 콜드스타트다.</dd>
+</dl>
+
+<h3>0-4. 학술 계열 용어</h3>
+<dl class="glossary">
+  <dt>KST <span class="en">Knowledge Space Theory · 지식공간이론</span></dt>
+  <dd>학생의 실력을 점수 하나가 아니라 <strong>"아는 개념들의 집합(지식 상태)"</strong>으로 보는 이론. 선수 관계 때문에 가능한 집합의 모양이 제한되고(기초 없이 응용만 아는 상태는 불가능), 질문을 던질 때마다 가능한 상태의 후보가 줄어든다. 상용 서비스 ALEKS가 이 이론 기반이다.</dd>
+
+  <dt>반분 탐색 <span class="en">half-split</span></dt>
+  <dd>KST의 질문 선택 원리. 답이 "알아요"든 "몰라요"든 <strong>남은 후보 상태를 절반 가까이 쳐내는 개념</strong>을 골라 묻는다. 스무고개에서 "동물인가요?"처럼 어느 쪽 답이 나와도 절반이 걸러지는 질문이 좋은 질문인 것과 같은 원리.</dd>
+
+  <dt>CAT / IRT <span class="en">적응형 검사 / 문항반응이론</span></dt>
+  <dd>CAT = 답에 따라 다음 문항 난이도를 조절하는 검사(SAT·GRE 방식). IRT = 그 밑바탕 통계 모델로, 문항마다 난이도·변별도라는 <strong>모수(파라미터)</strong>를 갖는다. 이 모수는 문항당 수백 건의 실제 응답으로 <strong>보정(calibration)</strong>해야 얻어진다 — 콜드스타트에서는 불가능한 이유.</dd>
+
+  <dt>Fisher 정보량 <span class="en">Fisher information</span></dt>
+  <dd>IRT에서 "이 문항이 이 학생의 실력 추정을 얼마나 날카롭게 해 주는가"를 재는 값. CAT는 매 순간 이 값이 최대인 문항을 고른다. 직관적으로는 "너무 쉽지도 어렵지도 않은, 학생 실력 근처의 문항"이 정보량이 크다.</dd>
+
+  <dt>DKT <span class="en">Deep Knowledge Tracing · 딥러닝 지식 추적</span></dt>
+  <dd>학생의 풀이 기록(어떤 문제를 맞고 틀렸는지의 순서)을 신경망에 넣어 <strong>개념별로 "맞힐 확률 p"를 예측</strong>하는 모델. MMT는 기학습된 DKT를 TF Serving으로 띄워 두고, 진단 종료 후 자가응답을 정오답으로 매핑해 <strong>최종 1회</strong> 호출하여 개념별 시급도를 산출한다.</dd>
+
+  <dt>TF Serving</dt>
+  <dd>학습된 텐서플로 모델을 HTTP API로 서비스하는 전용 서버. MMT에서는 DKT 모델이 여기 올라가 있다.</dd>
+
+  <dt>불확실성 |p−0.5|</dt>
+  <dd>예측 확률 p가 0.5에 가까울수록 모델이 "모르겠다"는 뜻(50:50). |p−0.5|가 작은 개념일수록 물어봤을 때 얻는 정보가 크다 — DKT를 질문 선택에 쓸 때의 정렬 기준.</dd>
+
+  <dt>밴딧 <span class="en">multi-armed bandit · 탐색-활용</span></dt>
+  <dd>슬롯머신 여러 대 중 어느 손잡이(arm)를 당길지, 시도해 보며(탐색) 좋은 것에 몰아주는(활용) 것을 반복 학습하는 기법. 많은 사용자의 반응 데이터가 연료라서 콜드스타트에서는 돌릴 수 없다.</dd>
+</dl>
+
+
+<!-- ============================================================ -->
+<h2 id="ch1"><span class="chapter-no">1.</span>후보 서베이 — 5가지 접근 계열</h2>
+
+<h3>1-1. KST 계열 (ALEKS 식 지식 상태 탐색)</h3>
+<p>학생의 실력을 "아는 개념의 집합(지식 상태)"으로 보고, 가능한 상태들의 후보 공간을 질문으로 좁혀 간다. 좋은 질문 = 어느 쪽 답이 나와도 후보를 절반 가까이 쳐내는 개념(반분 탐색). MMT의 선수 관계 DAG와 개념적으로 동형이라 이식이 가장 자연스럽고, <strong>그래프 구조만으로 작동하므로 사용자 데이터 0에서도 유효</strong>하다. 단, 가능한 상태를 정확히 세는 것은 계산량이 지수적으로 폭발하므로 어림 계산(프록시)으로 근사해야 하며, 2주 안에는 근사 형태만 구현 가능하다.</p>
+
+<h3>1-2. CAT/IRT 계열</h3>
+<p>실력치를 추정하며 Fisher 정보량 최대 문항을 고르는 고전적 적응 검사(SAT·GRE). 전제는 문항 모수의 사전 보정인데, 보정에는 문항당 수백 건의 실응답이 필요하다. <strong>실사용자 0인 지금은 적용 자체가 불가능</strong>하다. 학년·단원 깊이로 난이도를 지어내면 그것은 IRT가 아니라 휴리스틱에 라벨을 붙인 것이다. "데이터가 쌓인 뒤"의 후보로만 유효하다.</p>
+
+<h3>1-3. DKT 역이용 <span class="badge warn">전제 미충족 판명</span></h3>
+<p>원 컨설팅의 아이디어: 답변할 때마다 DKT에 시퀀스를 넣어 개념별 확률 p를 얻고, 불확실성이 큰(p≈0.5) 개념부터 묻거나 skip된 폐쇄에서 p 낮은 개념을 프로브로 뽑는다. 그러나 <strong>실제 아키텍처는 DKT를 진단 종료 후 최종 1회만 호출</strong>한다 — 순회 중 매 스텝 호출은 현행 구조에 없는 새 의존성(지연·장애 폴백·모델 버전 고정)을 들여오는 아키텍처 변경이다. 따라서 이 계열은 "지금 후보"에서 "나중에 ADR을 쓰고 검토할 조건부 후보"로 강등된다 (3장 Q2).</p>
+
+<h3>1-4. 밴딧/탐색-활용 계열</h3>
+<p>질문 선택을 슬롯머신 손잡이로 보고 사용자 반응(진단 후 학습 지속·재방문)을 보상 삼아 정책을 학습한다(Duolingo 연습 세션 구성이 대표 사례). 다수 사용자의 로그가 필수인데 런치 전 0명이라 학습할 재료가 없고, 확률적 선택은 결정론 계약과 정면충돌한다. 런치 후 상수 튜닝 용도로나 재검토.</p>
+
+<h3>1-5. 휴리스틱 강화 (가장 싼 안)</h3>
+<p>현행 규칙을 유지한 채 패치 3개만 얹는다: ① 최소 질문 수 하한 K(미달이면 검증 질문을 계속 뽑음), ② R1의 폐쇄 통째 skip을 "잠정 앎 + 프로브 1~2개"로 완화, ③ 후보 순서를 conceptId 오름차순 대신 blockedDescendants 내림차순으로. <strong>전부 그래프 구조에서만 계산되므로 콜드스타트 무관, 결정론·stateless 그대로.</strong> 사실상 KST의 반분 원리를 결정론적으로 축약한 형태다.</p>
+
+
+<!-- ============================================================ -->
+<h2 id="ch2"><span class="chapter-no">2.</span>비교표 — 결함 3건 × 후보 5개</h2>
+
+<p>풀어야 할 결함 3건: <strong>결함1</strong> = 프론티어가 1개인 단원에서 질문 1개로 "약점 없음" 종료 · <strong>결함2</strong> = "알아요" 1번으로 폐쇄 전체를 믿는 과신 · <strong>결함3</strong> = 선수 질문 순서가 conceptId순(무근거).</p>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr>
+      <th>후보</th>
+      <th>결함1<br>1문 종료</th>
+      <th>결함2<br>skip 과신</th>
+      <th>결함3<br>순서 무근거</th>
+      <th>stateless·결정론·3분</th>
+      <th>콜드스타트<br>요구 데이터</th>
+      <th class="center">구현<br>증분</th>
+      <th>리스크</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>KST 근사</strong></td>
+      <td>상태 후보가 안 좁혀졌으면 계속 질문 → 구조적 해소</td>
+      <td>폐쇄를 통째 확정하지 않고 상태만 갱신 → 구조적 해소</td>
+      <td>반분 기준 = 원리 있는 순서</td>
+      <td><span class="badge ok">전부 양립</span></td>
+      <td>없음 (DAG만)</td>
+      <td class="center">중</td>
+      <td>근사 설계 실패 시 질문 수 폭증 → 3분 초과</td>
+    </tr>
+    <tr>
+      <td><strong>CAT/IRT</strong></td>
+      <td>정보량 기반 종료 규칙 내장</td>
+      <td>실력 재추정으로 완화</td>
+      <td>Fisher 정보량 순</td>
+      <td><span class="badge ok">양립 가능</span></td>
+      <td><strong>모수 보정 필수 — 현재 0</strong></td>
+      <td class="center">대</td>
+      <td>지금은 적용 자체 불가</td>
+    </tr>
+    <tr>
+      <td><strong>DKT 역이용</strong> <span class="badge warn">전제 미충족</span></td>
+      <td>p 신뢰 기반 종료 → 해소</td>
+      <td>폐쇄 중 p 낮은 개념 프로브 → 해소</td>
+      <td>|p−0.5| 순</td>
+      <td><span class="badge warn">순회 중 호출 필요 = 현행 아키텍처에 없음</span></td>
+      <td>없음 (기학습 재사용) — 단 자가보고 분포 불일치</td>
+      <td class="center">중~대</td>
+      <td>새 원격 의존성(지연·폴백·버전 고정) + 예측 품질 미검증</td>
+    </tr>
+    <tr>
+      <td><strong>밴딧</strong></td>
+      <td>직접 해소 없음</td>
+      <td>직접 해소 없음</td>
+      <td>학습된 순서 (데이터 필요)</td>
+      <td><span class="badge warn">확률 정책 = 결정론 충돌</span></td>
+      <td>다수 사용자 보상 로그 필수</td>
+      <td class="center">대</td>
+      <td>런치 전엔 무의미</td>
+    </tr>
+    <tr>
+      <td><strong>휴리스틱 강화</strong></td>
+      <td>하한 K + 검증 질문 → 해소</td>
+      <td>프로브 샘플링 → 완화 (완전 해소는 아님)</td>
+      <td>blockedDescendants 순 = 1차 근거</td>
+      <td><span class="badge ok">전부 양립</span></td>
+      <td>없음</td>
+      <td class="center"><strong>소</strong></td>
+      <td>상수(K·m·N)를 감으로 정함</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+<!-- ============================================================ -->
+<h2 id="ch3"><span class="chapter-no">3.</span>판별 질문과 트레이드오프 심층 분석</h2>
+
+<h3>Q1. 오진 방지 vs 3분 체감 — 심층 분석 <span class="tag">(성향: 체감 우선)</span></h3>
+
+<p>이 질문의 본질은 <strong>두 가지 실패의 비용 비교</strong>다. 진단이 틀리는 방향은 둘이고, 대칭이 아니다.</p>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th></th><th>실패 A — 오진 (약점을 놓침)</th><th>실패 B — 피로 (질문이 너무 많음)</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>발생 경로</strong></td>
+      <td>과대평가 성향 학생이 "알아요"를 남발 → 폐쇄 skip이 연쇄 → 질문 몇 개로 "약점 없음" 종료</td>
+      <td>프로브·하한을 과하게 걸어 질문이 20개 이상으로 늘어남 → "3분 진단" 약속 위반</td>
+    </tr>
+    <tr>
+      <td><strong>사용자가 겪는 것</strong></td>
+      <td>학습 큐가 비어 보임 → "이 서비스 나를 모르네" → 신뢰 하락</td>
+      <td>진단 도중 지루함 → <strong>이탈 (진단을 끝까지 안 함)</strong></td>
+    </tr>
+    <tr>
+      <td><strong>복구 가능성</strong></td>
+      <td><span class="badge ok">복구 가능</span> 재진단 유도, 다른 단원 진단으로 만회 기회 있음. 무료 자가진단이라 오진의 안전 비용도 낮음</td>
+      <td><span class="badge warn">복구 불가</span> 첫 경험에서 이탈한 사용자는 대개 돌아오지 않음. 퍼널 최상단 손실</td>
+    </tr>
+    <tr>
+      <td><strong>런치 전 제품에서의 무게</strong></td>
+      <td>중간 — 단, "질문 1개로 끝"은 별개 문제(아래)</td>
+      <td><strong>큼</strong> — 지금 제품의 최우선 과제는 "끝까지 하게 만들기"</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout ok">
+  <span class="label">분석 결론: "체감 우선"은 합리적 디폴트다</span>
+  런치 전 제품에서 이탈(실패 B)은 복구 불가능하고 오진(실패 A)은 복구 가능하므로, 비대칭은 체감 쪽 손을 들어준다.
+  <strong>단, 체감 우선이어도 물러설 수 없는 마지노선이 하나 있다</strong> — 결함 1(질문 1~2개 종료)은 체감 문제가 아니라 신뢰 문제다.
+  질문 1개짜리 진단은 "빨라서 좋다"가 아니라 "성의 없어 보인다"로 읽힌다. 너무 짧은 진단은 사용자가 결과 자체를 믿지 않는다.
+  그래서 <strong>하한 K는 체감 진영에서도 반드시 필요</strong>하며, 다이얼을 낮게(4~5) 잡을 뿐 끄지는 않는다.
+</div>
+
+<p>구체적으로, 개선안의 상수들은 전부 "정확도 ↔ 시간" 다이얼이다. OX 카드 1개의 체감 시간을 8~15초로 잡으면 질문 수를 시간으로 환산할 수 있다:</p>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>다이얼</th><th>체감 우선 세팅</th><th>정확도 우선 세팅</th><th>비용/효과</th></tr>
+  </thead>
+  <tbody>
+    <tr class="dial-row">
+      <td>하한 K (최소 질문 수)</td>
+      <td class="center"><strong>4~5</strong></td>
+      <td class="center">7~8</td>
+      <td>K를 1 올리면 최악 케이스에서 +10초 안팎. 낮아도 결함 1은 막힘</td>
+    </tr>
+    <tr class="dial-row">
+      <td>프로브 수 (폐쇄당)</td>
+      <td class="center"><strong>1개</strong> (폐쇄 크기 ≥ m이면 2개)</td>
+      <td class="center">2~3개</td>
+      <td>프로브 1개가 잡는 오염이 가장 크고(가장 길목인 개념을 고르므로) 2개째부터는 체감 대비 효율 급감</td>
+    </tr>
+    <tr class="dial-row">
+      <td>복원 범위 (Q3와 연동)</td>
+      <td class="center"><strong>프로브 개념의 직계 선수만</strong></td>
+      <td class="center">skip했던 폐쇄 전체</td>
+      <td>전체 복원은 최악 케이스 질문 수를 크게 키움 — 체감 우선이면 국소 복원</td>
+    </tr>
+    <tr class="dial-row">
+      <td>상한 N (하드캡)</td>
+      <td class="center"><strong>15</strong></td>
+      <td class="center">20~25</td>
+      <td>15문항 × 8~15초 ≈ 2~4분. 20문항이면 3분 약속을 넘길 수 있음</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>중요한 것은 이 선택이 <strong>번복 가능</strong>하다는 점이다. 상수 4개는 코드 구조가 아니라 설정값이므로, 런치 후 "몇 번째 질문에서 이탈하는가" 로그를 보고 다이얼만 다시 돌리면 된다. 지금 정확도 쪽으로 과하게 잡아 이탈을 키우는 것이 유일하게 되돌리기 어려운 선택이다.</p>
+
+<h3>Q2. 순회 중 DKT 호출 — <span class="badge na">답 확정: 하지 않는다</span></h3>
+<p>사실 확인 결과 DKT(TF Serving)는 <strong>진단 종료 후 최종 결론 산출 시 1회만</strong> 호출한다. 순회 중 매 답변마다 호출하는 것은 단순한 선택지가 아니라 <strong>새 아키텍처 의존성</strong>(스텝당 지연, 서빙 다운 시 폴백 규칙, preview–저장 동치를 위한 모델 버전 고정)을 들여오는 결정이다. 따라서:</p>
+<ul>
+  <li>순회 중 질문 선택은 <strong>그래프 구조 기반(휴리스틱 강화)만으로</strong> 한다 — 현행 아키텍처 무변경.</li>
+  <li>원 컨설팅의 "2단계 = DKT 역이용"은 <strong>조건부 미래 옵션</strong>으로 강등: 나중에 순회 중 호출을 허용하기로 결정한다면 그때 ADR을 쓰고 검토한다.</li>
+  <li>DKT의 역할은 지금처럼 <strong>진단 후 시급도 산출</strong>에 집중 — 질문 선택과 결과 산출의 책임이 깔끔히 분리되는 부수 이점도 있다.</li>
+</ul>
+
+<h3>Q3. 프로브 실패 시 복원 범위 — <span class="tag">미결 (권장: 국소 복원)</span></h3>
+<p>"알아요"라던 폐쇄에서 프로브가 "몰라요"로 판명되면 어디까지 의심을 되돌릴 것인가. <strong>국소 복원</strong>(그 프로브 개념의 직계 선수만 후보에 복귀)과 <strong>전체 복원</strong>(skip했던 폐쇄 전체 복귀)의 선택이며, Q1에서 체감 우선을 택했다면 일관되게 국소 복원이 맞다 — 전체 복원은 최악 케이스 질문 수를 키워 하드캡 N에 자주 부딪히게 만든다. 이것도 코드 구조가 아닌 정책 분기이므로 런치 후 데이터로 재검토 가능하다.</p>
+
+
+<!-- ============================================================ -->
+<h2 id="ch4"><span class="chapter-no">4.</span>권장안 — 단계적 채택 경로 (수정판)</h2>
+
+<div class="callout">
+  <span class="label">한 줄 요약</span>
+  지금은 <strong>휴리스틱 강화(KST 원리 차용) 단독</strong>으로 간다 — 체감 우선 다이얼로.
+  DKT 역이용은 조건부 미래 옵션, IRT·밴딧은 실데이터 축적 이후로 보류.
+</div>
+
+<h3>1단계 (지금, 수일 규모) — spec-01 §4.3 변경점 4개</h3>
+<ol>
+  <li><strong>R1 교체: 폐쇄 통째 skip → skip-with-probe.</strong> "알아요" 시 폐쇄를 "잠정 앎"으로 표시하되, 폐쇄 내 blockedDescendants 최대 개념 1개(폐쇄 크기 ≥ m이면 2개)를 검증 질문으로 후보 큐에 남긴다. 프로브 "몰라요" → 그 개념의 직계 선수만 복원(국소 복원, Q3). → <strong>결함 2 완화</strong></li>
+  <li><strong>종료 규칙에 하한 추가.</strong> 답변 수 &lt; K(=5)면 종료하지 않고 잠정-앎 영역에서 추가 프로브를 뽑아 계속. 후보 큐와 잠정 영역이 모두 소진됐을 때만 조기 종료 허용. → <strong>결함 1 해소</strong></li>
+  <li><strong>순서 규칙 교체.</strong> conceptId 오름차순 → blockedDescendants 내림차순, 동률 시 conceptId 오름차순(결정론 tie-break 유지). → <strong>결함 3 해소</strong></li>
+  <li><strong>상한 신설.</strong> 질문 수 ≤ N(=15) 하드캡 — 3분 계약 보전. 캡 도달 시 그 시점까지의 답변으로 결과 산출.</li>
+</ol>
+<p>이 4개는 전부 그래프 구조 계산만 쓰므로 stateless·결정론·API 계약·③ 화면 구조를 하나도 건드리지 않는다. DKT 호출 시점(최종 1회)도 무변경.</p>
+
+<h3>2단계 (런치 후) — 데이터로 다이얼 조정</h3>
+<ul>
+  <li>이탈 로그("몇 번째 질문에서 나가는가")와 진단 완료율로 K·m·N·프로브 수 다이얼을 재조정 — 코드 변경 없이 설정만.</li>
+  <li>프로브 적중률(프로브가 "몰라요"로 판명되는 비율)을 보면 R1 과신이 실제로 얼마나 심한지 정량화됨 → 프로브 수 증감의 근거.</li>
+</ul>
+
+<h3>3단계 (조건부, 원하면) — 모델 기반 업그레이드</h3>
+<ul>
+  <li><strong>순회 중 DKT 호출을 허용하기로 결정하는 경우에만</strong>: ADR 작성 후, 정렬 키를 blockedDescendants → DKT 불확실성 |p−0.5|로, 프로브 선정을 "폐쇄 내 p 최저"로 교체. 전제 = 모델 버전 고정 + 서빙 다운 시 1단계 규칙으로 자동 강등.</li>
+  <li>실응답 수천 건 축적 시: IRT 보정 또는 밴딧식 상수 튜닝 재평가 — 감으로 정한 K·m·N을 데이터로 대체.</li>
+</ul>
+
+
+<!-- ============================================================ -->
+<h2 id="ch5"><span class="chapter-no">5.</span>쉬운 설명 — 아무것도 모르는 투자자에게 3분 안에</h2>
+
+<p class="tag">전문용어 0으로, 위 권장안 전체를 다시 설명한 버전이다.</p>
+
+<div class="speech">
+  <div class="who">우리 서비스가 하는 일</div>
+  <p>저희는 학생에게 "3분 수학 건강검진"을 제공합니다. 수학 개념들을 하나씩 보여주고 "알아요 / 몰라요"만 고르게 한 뒤, 어느 기초가 구멍인지 찾아서 "여기부터 메우세요"라는 처방전을 줍니다. 수학은 기초 위에 다음 것이 쌓이는 과목이라, 구멍 난 기초 하나를 찾아주는 것이 학원 한 달치보다 값질 수 있습니다.</p>
+</div>
+
+<div class="speech">
+  <div class="who">지금 검진 방식의 문제</div>
+  <p>지금 검진은 이렇게 진행됩니다: 단원의 <strong>가장 어려운 개념부터</strong> 물어보고, 학생이 "알아요"라고 하면 <strong>"그럼 그 아래 기초들은 볼 것도 없이 다 알겠네"</strong> 하고 통째로 건너뜁니다. 효율적이지만 구멍이 세 개 있습니다.</p>
+  <ol>
+    <li><strong>검진이 한 문제 만에 끝날 수 있습니다.</strong> 첫 질문에 "알아요" 한 번이면 "당신은 약점이 없습니다"가 나옵니다. 한 문제짜리 건강검진을 누가 믿겠습니까.</li>
+    <li><strong>학생의 착각을 그대로 믿습니다.</strong> 자기 실력을 실제보다 높게 보는 학생은 어느 교실에나 있습니다. 그 학생의 "알아요" 한 번에 기초 수십 개를 통째로 "이상 없음" 처리하면, 처방전이 통째로 틀립니다.</li>
+    <li><strong>물어보는 순서에 근거가 없습니다.</strong> 지금은 사실상 개념의 등록 번호순으로 묻습니다. 전화번호부 순서로 문진하는 병원과 같습니다.</li>
+  </ol>
+</div>
+
+<div class="speech">
+  <div class="who">저희가 넣으려는 개선 — 세 가지 원칙</div>
+  <ol>
+    <li><strong>"검진은 최소 5문항"</strong> — 아무리 잘하는 학생이어도 최소한의 질문은 던져서, 한 문제짜리 검진이 나오지 않게 합니다. 대신 상한도 둡니다(최대 15문항) — "3분"이라는 약속은 반드시 지킵니다.</li>
+    <li><strong>"믿되, 확인한다"</strong> — 학생이 "알아요"라고 하면 일단 믿고 넘어가되, 건너뛰려던 기초들 중 <strong>가장 중요한 것 하나만 슬쩍 다시 물어봅니다.</strong> 공항 세관이 모든 짐을 열지 않고 표본만 검사해도 효과를 내는 것과 같은 원리입니다. 그 확인 질문에서 "몰라요"가 나오면, 아까의 "알아요"를 의심하고 그 주변을 다시 검진합니다.</li>
+    <li><strong>"중요한 것부터 묻는다"</strong> — 등록 번호순 대신, <strong>"이걸 모르면 뒤에서 막히는 개념이 가장 많은 것"</strong>부터 묻습니다. 같은 3분이라도 길목이 되는 개념부터 확인하면 처방전의 질이 올라갑니다.</li>
+  </ol>
+</div>
+
+<div class="speech">
+  <div class="who">왜 이 방식인가 — 세 가지 이유</div>
+  <ol>
+    <li><strong>돈이 안 듭니다.</strong> 세 원칙 모두 이미 갖고 있는 개념 지도(무엇이 무엇의 기초인지 연결한 데이터)만으로 계산됩니다. 새 서버도, 새 데이터 수집도, 이용자 확보 전 준비 기간도 필요 없습니다. ALEKS 같은 해외 유명 학습 서비스가 쓰는 이론의 핵심 원리를, 저희 규모에 맞게 가볍게 적용한 것입니다.</li>
+    <li><strong>사용자를 지치게 하지 않는 쪽에 우선순위를 뒀습니다.</strong> 검진이 틀리는 것(놓친 약점)은 재검진으로 만회할 수 있지만, 검진이 지루해서 중간에 나가버린 사용자는 돌아오지 않습니다. 그래서 "질문을 더 해서 정확도를 올리기"보다 "3분 약속을 지키면서 최소한의 확인 장치를 넣기"를 택했습니다.</li>
+    <li><strong>출시 후에 조여갈 수 있게 설계했습니다.</strong> "최소 5문항", "확인 질문 1개" 같은 숫자는 전부 조절 손잡이입니다. 실제 사용자가 몇 번째 질문에서 이탈하는지, 확인 질문이 착각을 얼마나 잡아내는지 데이터가 쌓이면, 시스템을 뜯어고치지 않고 손잡이만 돌려서 최적점을 찾습니다. 그리고 이미 확보해 둔 AI 예측 모델이 있어서, 다음 단계에는 이 검진을 AI가 실시간으로 이끄는 방식으로 키울 수 있는 확장 경로도 열려 있습니다.</li>
+  </ol>
+</div>
+
+<div class="callout ok">
+  <span class="label">한 문장으로</span>
+  "한 문제로 끝나는 검진을 없애고, 학생의 착각을 표본 검사로 걸러내고, 중요한 길목부터 묻는다 —
+  추가 비용 없이, 3분 약속을 지키면서."
+</div>
+
+</main>
+</body>
+</html>

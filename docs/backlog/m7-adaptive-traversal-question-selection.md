@@ -1,6 +1,6 @@
 # [M7] 적응형 문답 질문 선택 알고리즘 고찰 (spec-01 §4.3 보완)
 
-**등록:** 2026-07-17 (v2 클릭러블 프로토타입 리뷰 중 사용자 발견) · **상태:** 열림 — 비차단(와이어프레임·프론트 재설계는 진행)
+**등록:** 2026-07-17 (v2 클릭러블 프로토타입 리뷰 중 사용자 발견) · **상태:** 컨설팅·설계 완료 → **구현 대기**(2026-07-24). 권장안 = 결정론적 KST 코어, 구현 프롬프트 준비됨. 다음 = 구현 세션(D1~D3 확정 후 착수). 브랜치 `feat/m7-item-selection`.
 
 ## 발견된 보완 지점 (프로토타입 리뷰)
 
@@ -18,3 +18,13 @@
 
 - **프론트 화면 계약과 독립** — ③ 문답 화면(카드+2버튼+진척)·④ 결과 구조는 질문 선택 정책과 무관 → **와이어프레임/재설계 비차단.** (알고리즘 결과가 "확인 질문" 같은 UX 요소를 낳으면 ③ 에 미세 반영될 수 있으나 구조 동일.)
 - **백엔드** — 채택 시 spec-01 §4.3 개정 + `/diagnosis/next` 내부 로직 변경(API 계약은 유지 가능 전망). 플래그 뒤라 라이브 영향 없음.
+
+## 진행 경과 (2026-07-24 — 컨설팅·설계 완료)
+
+- **페르소나 컨설팅 실행 완료** (격리 세션, 2026-07-19 최초 + 2026-07-24 재실행 — 두 실행 수렴). 프롬프트·결과·학습자료를 `docs/consulting/` 로 이관:
+  - 프롬프트: [`docs/consulting/03-adaptive-question-selection.md`](../consulting/03-adaptive-question-selection.md)
+  - 권장안 정본: [`docs/consulting/out/adaptive-question-selection-report.md`](../consulting/out/adaptive-question-selection-report.md) (+ `-2026-07-19.md` provenance)
+  - 학습자료: `out/question-selection-learning.html`(후보 5계열)·`out/question-selection-explainer.html`(쉬운 설명)·`out/kst-learning-material.html`(KST 심화+링크)
+- **권장안 = 「휴리스틱 강화(=결정론적 KST 코어)」 즉시 채택, KST 전역 반분·DKT 역이용·IRT 는 실데이터 이후로 보류.** 콜드스타트·결정론·stateless 3제약이 IRT·밴딧을 탈락시키고, DAG 구조 계산만으로 결함 3건이 닫힘.
+- **결함별 해소** — ①(1문 종료)·③(순서 무근거)는 KST 원리(최소질문 하한 + blockedDescendants 정보량 순서)로 해소. ②(알아요 과신)는 **결정론 KST 코어로는 안 풀림** → 별도 검증 프로브 패치로 닫음(확률층 BLIM 은 데이터 필요라 보류).
+- **구현 착수 프롬프트 준비 완료:** 최상위 [`🤖-문항선택-KST-구현.md`](../../🤖-문항선택-KST-구현.md) — 범위 = 규칙 A(하한/상한)·B(순서)·C(skip-with-probe), 새 세션에서 실행. 착수 전 사용자 확정 필요 = D1 최소질문 K·D2 프로브 밀도·D3 복원 범위.
