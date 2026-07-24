@@ -68,21 +68,22 @@ class DiagnosisServiceTraversalTest {
     }
 
     @Test
-    @DisplayName("첫 질문 = 프론티어 최소 concept_id")
+    @DisplayName("첫 질문 = 프론티어 규칙 B 1위 (blocked 동점 → 깊이 큰 30)")
     void firstQuestionIsFrontierHead() {
         DiagnosisNextResponse res = service.next(chapter1(), List.of());
         assertThat(res.isDone()).isFalse();
+        // 프론티어 [30,31] 둘 다 blockedDescendants=0 → tie-break 깊이: 30(사슬 30→20→10→5=3) > 31(=1).
         assertThat(res.getNext().getConceptId()).isEqualTo(30);
     }
 
     @Test
-    @DisplayName("'몰라요' → 직계 선수로 drill-down (id 오름차순)")
-    void unknownDrillsDownToDirectPrerequisite() {
+    @DisplayName("규칙 B: '몰라요' drill-down 후 blockedDescendants 큰 개념 우선 (결함③)")
+    void unknownDrillsDownByInformation() {
         DiagnosisNextResponse res = service.next(chapter1(),
                 List.of(new AnsweredConcept(30, false)));
-        // 30 몰라요 → 직계 선수 20 push. 프론티어 잔여 31 이 먼저 등록돼 있으므로 next=31.
-        assertThat(res.getNext().getConceptId()).isEqualTo(31);
-        // 31 도 몰라요 → 직계 선수 21,22 push. 순서 = push 순서: 20(30의 선수) → 21 → 22.
+        // 30 몰라요 → 후보 {31, 20}. blocked(20)=1(30을 막음) > blocked(31)=0 → next=20.
+        assertThat(res.getNext().getConceptId()).isEqualTo(20);
+        // 30·31 몰라요 → 후보 {20,21,22}. blocked 전부 1 → tie-break 깊이: 20(20→10→5=2) > 21,22(=0).
         DiagnosisNextResponse res2 = service.next(chapter1(), List.of(
                 new AnsweredConcept(30, false),
                 new AnsweredConcept(31, false)));
