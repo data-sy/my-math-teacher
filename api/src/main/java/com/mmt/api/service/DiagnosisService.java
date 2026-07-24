@@ -7,6 +7,7 @@ import com.mmt.api.dto.diagnosis.DiagnosisNextResponse;
 import com.mmt.api.repository.concept.ConceptSummary;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.concept.KnowledgeEdge;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,7 @@ public class DiagnosisService {
     private final int maxQuestions;
     private final int probeThreshold;
 
+    @Autowired  // 생성자 다중(테스트용 오버로드) → Spring 이 주입할 생성자를 명시해야 함.
     public DiagnosisService(JdbcTemplateConceptRepository conceptRepository) {
         this(conceptRepository, DEFAULT_MIN_QUESTIONS, DEFAULT_MAX_QUESTIONS, DEFAULT_PROBE_THRESHOLD);
     }
