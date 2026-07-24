@@ -48,23 +48,32 @@ public class DiagnosisService {
     /** blockedDescendants 역방향 도달 깊이 상한 (spec-01 §4.5 CTE 와 동치). */
     static final int BLOCKED_DEPTH = 3;
 
-    /** 규칙 A 정책 상수 (ADR-0012 Decision-4, D1). 실데이터 축적 후 튜닝 대상. */
-    static final int DEFAULT_MIN_QUESTIONS = 8;   // K — 최소 질문 하한 (결함① 방지)
-    static final int DEFAULT_MAX_QUESTIONS = 20;  // N — 3분 하드캡
+    /** 정책 상수 (ADR-0012 Decision-4, D1·D2). 실데이터 축적 후 튜닝 대상. */
+    static final int DEFAULT_MIN_QUESTIONS = 8;    // K — 최소 질문 하한 (결함① 방지)
+    static final int DEFAULT_MAX_QUESTIONS = 20;   // N — 3분 하드캡
+    static final int DEFAULT_PROBE_THRESHOLD = 4;  // m — 폐쇄 크기 < m 이면 프로브 1개, 이상 √n (결함②)
 
     private final JdbcTemplateConceptRepository conceptRepository;
     private final int minQuestions;
     private final int maxQuestions;
+    private final int probeThreshold;
 
     public DiagnosisService(JdbcTemplateConceptRepository conceptRepository) {
-        this(conceptRepository, DEFAULT_MIN_QUESTIONS, DEFAULT_MAX_QUESTIONS);
+        this(conceptRepository, DEFAULT_MIN_QUESTIONS, DEFAULT_MAX_QUESTIONS, DEFAULT_PROBE_THRESHOLD);
     }
 
     /** 테스트용 — 작은 합성 그래프에서 하한/상한 동작을 검증할 수 있게 K·N 을 주입. */
     DiagnosisService(JdbcTemplateConceptRepository conceptRepository, int minQuestions, int maxQuestions) {
+        this(conceptRepository, minQuestions, maxQuestions, DEFAULT_PROBE_THRESHOLD);
+    }
+
+    /** 테스트용 — 프로브 임계 m 까지 주입. */
+    DiagnosisService(JdbcTemplateConceptRepository conceptRepository,
+                     int minQuestions, int maxQuestions, int probeThreshold) {
         this.conceptRepository = conceptRepository;
         this.minQuestions = minQuestions;
         this.maxQuestions = maxQuestions;
+        this.probeThreshold = probeThreshold;
     }
 
     /** 시작 프론티어 (spec-01 §4.2, F-3). */
@@ -76,7 +85,7 @@ public class DiagnosisService {
                 .collect(Collectors.toList()));
     }
 
-    /** 적응형 순회 — 다음 질문 1개 (spec-01 §4.3, ADR-0012 규칙 B). */
+    /** 적응형 순회 — 다음 질문 1개 (spec-01 §4.3, ADR-0012 규칙 A·B·C). */
     @Transactional(readOnly = true)
     public DiagnosisNextResponse next(DiagnosisEntry entry, List<AnsweredConcept> answered) {
         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
@@ -92,6 +101,8 @@ public class DiagnosisService {
         List<KnowledgeEdge> edges = conceptRepository.findAllEdges();
         Map<Integer, List<Integer>> prerequisitesOf = buildPrerequisiteAdjacency(edges);
         Map<Integer, List<Integer>> blockersOf = buildBlockerAdjacency(edges);
+        Comparator<Integer> order =
+                candidateOrder(blockersOf, prerequisitesOf, new HashMap<>(), new HashMap<>());
 
         // 순회 규칙 3: "알아요" → 선수 폐쇄 전체 inferred-known (visited-set BFS).
         Set<Integer> inferredKnown = new HashSet<>();
@@ -100,6 +111,19 @@ public class DiagnosisService {
                 bfsCollect(a.getConceptId(), prerequisitesOf, inferredKnown);
             }
         }
+        // 규칙 C(D3) 복원: 폐쇄가 known 이라 주장했으나 실제 "몰라요"인 개념(실패한 프로브)의
+        // 선수 서브트리만 inferred-known 에서 제거 → drill-down 재개방. 폐쇄 전체 아님(오염 국소).
+        for (AnsweredConcept a : answers) {
+            if (!a.isKnown() && inferredKnown.contains(a.getConceptId())) {
+                Set<Integer> subtree = new HashSet<>();
+                bfsCollect(a.getConceptId(), prerequisitesOf, subtree);
+                inferredKnown.removeAll(subtree);
+            }
+        }
+
+        // 규칙 C 프로브 선정: "알아요" 폐쇄마다 검증 프로브를 결정론적으로 고른다(D2).
+        // 프로브는 inferred-known 이어도 후보로 남긴다("잠정-앎"을 국소 검증).
+        LinkedHashSet<Integer> probes = selectProbes(answers, prerequisitesOf, order);
 
         // 순회 규칙 1·2: 시작 프론티어 + "몰라요" 직계 선수 → 후보 집합.
         LinkedHashSet<Integer> candidates = new LinkedHashSet<>();
@@ -112,13 +136,19 @@ public class DiagnosisService {
             }
         }
 
-        // 규칙 4: Undetermined(= answered·inferred-known 제외) 후보 중 규칙 B 순서 1위.
-        Map<Integer, Integer> blockedMemo = new HashMap<>();
-        Map<Integer, Integer> depthMemo = new HashMap<>();
-        List<Integer> ordered = candidates.stream()
-                .filter(id -> !answeredMap.containsKey(id) && !inferredKnown.contains(id))
-                .sorted(candidateOrder(blockersOf, prerequisitesOf, blockedMemo, depthMemo))
-                .collect(Collectors.toList());
+        // 규칙 4: primary 후보 = (프론티어·drill-down 중 Undetermined) ∪ (미답 프로브).
+        LinkedHashSet<Integer> primaryPool = new LinkedHashSet<>();
+        for (int id : candidates) {
+            if (!answeredMap.containsKey(id) && !inferredKnown.contains(id)) {
+                primaryPool.add(id);
+            }
+        }
+        for (int probe : probes) {
+            if (!answeredMap.containsKey(probe)) {
+                primaryPool.add(probe);
+            }
+        }
+        List<Integer> ordered = primaryPool.stream().sorted(order).collect(Collectors.toList());
         if (!ordered.isEmpty()) {
             return buildNext(ordered.get(0), asked, ordered.size());
         }
@@ -131,12 +161,38 @@ public class DiagnosisService {
         }
         List<Integer> floorFill = inferredKnown.stream()
                 .filter(id -> !answeredMap.containsKey(id))
-                .sorted(candidateOrder(blockersOf, prerequisitesOf, blockedMemo, depthMemo))
+                .sorted(order)
                 .collect(Collectors.toList());
         if (floorFill.isEmpty()) {
             return DiagnosisNextResponse.done();
         }
         return buildNext(floorFill.get(0), asked, floorFill.size());
+    }
+
+    /**
+     * 규칙 C 프로브 선정 (ADR-0012 D2, 결함②): "알아요" 폐쇄마다 검증 프로브를 남긴다.
+     * 프로브 수 = 폐쇄 크기 < m 이면 1개, ≥ m 이면 √(폐쇄크기)(내림). 선정 = 규칙 B
+     * 순서(blockedDescendants 최대 우선) 상위 — 전부 구조 순위라 결정론.
+     */
+    private LinkedHashSet<Integer> selectProbes(List<AnsweredConcept> answers,
+                                                Map<Integer, List<Integer>> prerequisitesOf,
+                                                Comparator<Integer> order) {
+        LinkedHashSet<Integer> probes = new LinkedHashSet<>();
+        for (AnsweredConcept a : answers) {
+            if (!a.isKnown()) {
+                continue;
+            }
+            Set<Integer> closure = new HashSet<>();
+            bfsCollect(a.getConceptId(), prerequisitesOf, closure);
+            if (closure.isEmpty()) {
+                continue;
+            }
+            int probeCount = closure.size() < probeThreshold
+                    ? 1
+                    : (int) Math.floor(Math.sqrt(closure.size()));
+            closure.stream().sorted(order).limit(probeCount).forEach(probes::add);
+        }
+        return probes;
     }
 
     /** next 응답 조립 — concept 메타 직조회 (규칙 5: description 소스 불변). */

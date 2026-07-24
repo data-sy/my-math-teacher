@@ -67,6 +67,29 @@ class DiagnosisServiceTraversalTest {
         return entry;
     }
 
+    private static DiagnosisEntry chain1() {
+        DiagnosisEntry entry = new DiagnosisEntry();
+        entry.setChapterId(2);
+        return entry;
+    }
+
+    /** len-사슬(1→2→…→len, 1 이 후수·len 이 최심 선수) 프론티어=[1] 인 격리 서비스. */
+    private DiagnosisService chainService(int len, int min, int max, int threshold) {
+        JdbcTemplateConceptRepository r = mock(JdbcTemplateConceptRepository.class);
+        List<KnowledgeEdge> edges = new ArrayList<>();
+        for (int i = 1; i < len; i++) {
+            edges.add(new KnowledgeEdge(i, i + 1));
+        }
+        when(r.findAllEdges()).thenReturn(edges);
+        when(r.findFrontierByChapterId(2))
+                .thenReturn(List.of(new ConceptSummary(1, "개념1", "설명1")));
+        when(r.findConceptSummaryById(anyInt())).thenAnswer(inv -> {
+            int id = inv.getArgument(0);
+            return Optional.of(new ConceptSummary(id, "개념" + id, "설명" + id));
+        });
+        return new DiagnosisService(r, min, max, threshold);
+    }
+
     @Test
     @DisplayName("첫 질문 = 프론티어 규칙 B 1위 (blocked 동점 → 깊이 큰 30)")
     void firstQuestionIsFrontierHead() {
@@ -90,23 +113,58 @@ class DiagnosisServiceTraversalTest {
         assertThat(res2.getNext().getConceptId()).isEqualTo(20);
     }
 
+    // ── 규칙 C: skip-with-probe (ADR-0012, 결함②) ──────────────────────────────
+
     @Test
-    @DisplayName("'알아요' 폐쇄는 primary 후보에서 제외되되 K 미달 시 floor-fill 로 검증됨")
-    void knownClosureSkippedFromPrimaryButProbedByFloor() {
-        // 30 알아요 → {20,10,5} primary 제외, 31 몰라요 → {21,22} drill-down. next=21(규칙 B).
+    @DisplayName("규칙 C: '알아요' 폐쇄에 검증 프로브가 남아 정보량 순으로 질문됨 (결함②)")
+    void knownClosureLeavesVerificationProbe() {
+        // 30 알아요 → 폐쇄 {20,10,5}(크기 3 < m=4) → 프로브 1개 = blocked 최대 5.
+        // 31 몰라요 → drill-down {21,22}. primary = {21,22,5}. 프로브 5(blocked3)가 21,22(blocked1)보다 우선.
         DiagnosisNextResponse res = service.next(chapter1(), List.of(
                 new AnsweredConcept(30, true),
                 new AnsweredConcept(31, false)));
-        assertThat(res.getNext().getConceptId()).isEqualTo(21);
-        // 21,22 답하면 primary 소진 — 하지만 asked=4 < K=8 이라 잠정-앎 {20,10,5} 에서
-        // 검증 질문(blocked 최대 5)이 나온다 (결함① — 얇게 끝나지 않음).
-        DiagnosisNextResponse resFloor = service.next(chapter1(), List.of(
+        assertThat(res.getNext().getConceptId()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("규칙 C(D2 √n): 폐쇄 크기 ≥ m 이면 √n 개 프로브")
+    void probeDensitySqrtForLargeClosure() {
+        // 7-사슬(1→2→…→7), 1 알아요 → 폐쇄 {2..7} 크기 6 → floor(√6)=2 프로브.
+        // 규칙 B(blocked desc, depth desc) 상위 2 = {4,5}. 첫 프로브 = 4(blocked3, depth3).
+        DiagnosisService chain = chainService(7, 8, 20, 4);
+        DiagnosisNextResponse res = chain.next(chain1(), List.of(new AnsweredConcept(1, true)));
+        assertThat(res.getNext().getConceptId()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("규칙 C(D3): 프로브 '몰라요' → 직계 선수 서브트리만 Undetermined 복원")
+    void probeFailureRestoresSubtree() {
+        // 7-사슬, 1 알아요 → 폐쇄 {2..7}, 프로브 {4,5}.
+        // 프로브 5 '몰라요' + 프로브 4 '알아요' → D3 로 5 의 선수 서브트리 {6,7} 재개방.
+        // 6 은 프로브가 아니며(잠정-앎이었음) drill-down 으로만 나온다 → 복원 증거.
+        DiagnosisService chain = chainService(7, 8, 20, 4);
+        DiagnosisNextResponse res = chain.next(chain1(), List.of(
+                new AnsweredConcept(1, true),
+                new AnsweredConcept(5, false),
+                new AnsweredConcept(4, true)));
+        assertThat(res.isDone()).isFalse();
+        assertThat(res.getNext().getConceptId()).isEqualTo(6);
+    }
+
+    @Test
+    @DisplayName("결정론: '알아요' 프로브 포함 시나리오도 간선 셔플 무관 동일 next")
+    void deterministicWithProbes() {
+        List<AnsweredConcept> answered = List.of(
                 new AnsweredConcept(30, true),
-                new AnsweredConcept(31, false),
-                new AnsweredConcept(21, true),
-                new AnsweredConcept(22, true)));
-        assertThat(resFloor.isDone()).isFalse();
-        assertThat(resFloor.getNext().getConceptId()).isEqualTo(5);
+                new AnsweredConcept(31, false));
+        int expected = service.next(chapter1(), answered).getNext().getConceptId();
+        for (int seed = 0; seed < 10; seed++) {
+            List<KnowledgeEdge> shuffled = new ArrayList<>(EDGES);
+            Collections.shuffle(shuffled, new java.util.Random(seed));
+            when(repo.findAllEdges()).thenReturn(shuffled);
+            assertThat(service.next(chapter1(), answered).getNext().getConceptId())
+                    .isEqualTo(expected);
+        }
     }
 
     @Test
