@@ -48,10 +48,23 @@ public class DiagnosisService {
     /** blockedDescendants 역방향 도달 깊이 상한 (spec-01 §4.5 CTE 와 동치). */
     static final int BLOCKED_DEPTH = 3;
 
+    /** 규칙 A 정책 상수 (ADR-0012 Decision-4, D1). 실데이터 축적 후 튜닝 대상. */
+    static final int DEFAULT_MIN_QUESTIONS = 8;   // K — 최소 질문 하한 (결함① 방지)
+    static final int DEFAULT_MAX_QUESTIONS = 20;  // N — 3분 하드캡
+
     private final JdbcTemplateConceptRepository conceptRepository;
+    private final int minQuestions;
+    private final int maxQuestions;
 
     public DiagnosisService(JdbcTemplateConceptRepository conceptRepository) {
+        this(conceptRepository, DEFAULT_MIN_QUESTIONS, DEFAULT_MAX_QUESTIONS);
+    }
+
+    /** 테스트용 — 작은 합성 그래프에서 하한/상한 동작을 검증할 수 있게 K·N 을 주입. */
+    DiagnosisService(JdbcTemplateConceptRepository conceptRepository, int minQuestions, int maxQuestions) {
         this.conceptRepository = conceptRepository;
+        this.minQuestions = minQuestions;
+        this.maxQuestions = maxQuestions;
     }
 
     /** 시작 프론티어 (spec-01 §4.2, F-3). */
@@ -68,6 +81,12 @@ public class DiagnosisService {
     public DiagnosisNextResponse next(DiagnosisEntry entry, List<AnsweredConcept> answered) {
         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
         Map<Integer, Boolean> answeredMap = toValidatedAnsweredMap(answers);
+        int asked = answers.size();
+
+        // 규칙 A 상한: 3분 하드캡 도달 시 강제 종료.
+        if (asked >= maxQuestions) {
+            return DiagnosisNextResponse.done();
+        }
 
         // 간선 1회 로드 (3.4k 행) → 선수 인접(from=후수→to=선수) + 역방향 인접(to=선수→from=후수).
         List<KnowledgeEdge> edges = conceptRepository.findAllEdges();
@@ -100,10 +119,24 @@ public class DiagnosisService {
                 .filter(id -> !answeredMap.containsKey(id) && !inferredKnown.contains(id))
                 .sorted(candidateOrder(blockersOf, prerequisitesOf, blockedMemo, depthMemo))
                 .collect(Collectors.toList());
-        if (ordered.isEmpty()) {
+        if (!ordered.isEmpty()) {
+            return buildNext(ordered.get(0), asked, ordered.size());
+        }
+
+        // 규칙 A 하한: 후보 소진이어도 asked < K 면 잠정-앎(inferred-known)에서 검증 질문을
+        // 더 뽑아 진단이 너무 얇게 끝나지 않게 한다 (결함① 방지). 잠정-앎도 소진되면
+        // (그래프가 K 보다 작은 극단) best-effort 로 종료한다.
+        if (asked >= minQuestions) {
             return DiagnosisNextResponse.done();
         }
-        return buildNext(ordered.get(0), answers.size(), ordered.size());
+        List<Integer> floorFill = inferredKnown.stream()
+                .filter(id -> !answeredMap.containsKey(id))
+                .sorted(candidateOrder(blockersOf, prerequisitesOf, blockedMemo, depthMemo))
+                .collect(Collectors.toList());
+        if (floorFill.isEmpty()) {
+            return DiagnosisNextResponse.done();
+        }
+        return buildNext(floorFill.get(0), asked, floorFill.size());
     }
 
     /** next 응답 조립 — concept 메타 직조회 (규칙 5: description 소스 불변). */

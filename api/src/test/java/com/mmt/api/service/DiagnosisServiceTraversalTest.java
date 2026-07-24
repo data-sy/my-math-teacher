@@ -91,20 +91,22 @@ class DiagnosisServiceTraversalTest {
     }
 
     @Test
-    @DisplayName("'알아요' → 선수 폐쇄 전체(깊이 무제한) inferred-known 으로 skip")
-    void knownSkipsEntirePrerequisiteClosure() {
-        // 30 알아요 → {20,10,5} 전부 제외, 31 몰라요 → {21,22} push.
+    @DisplayName("'알아요' 폐쇄는 primary 후보에서 제외되되 K 미달 시 floor-fill 로 검증됨")
+    void knownClosureSkippedFromPrimaryButProbedByFloor() {
+        // 30 알아요 → {20,10,5} primary 제외, 31 몰라요 → {21,22} drill-down. next=21(규칙 B).
         DiagnosisNextResponse res = service.next(chapter1(), List.of(
                 new AnsweredConcept(30, true),
                 new AnsweredConcept(31, false)));
         assertThat(res.getNext().getConceptId()).isEqualTo(21);
-        // 21, 22 까지 답하면 소진 — 20/10/5 는 절대 질문되지 않음.
-        DiagnosisNextResponse resDone = service.next(chapter1(), List.of(
+        // 21,22 답하면 primary 소진 — 하지만 asked=4 < K=8 이라 잠정-앎 {20,10,5} 에서
+        // 검증 질문(blocked 최대 5)이 나온다 (결함① — 얇게 끝나지 않음).
+        DiagnosisNextResponse resFloor = service.next(chapter1(), List.of(
                 new AnsweredConcept(30, true),
                 new AnsweredConcept(31, false),
                 new AnsweredConcept(21, true),
                 new AnsweredConcept(22, true)));
-        assertThat(resDone.isDone()).isTrue();
+        assertThat(resFloor.isDone()).isFalse();
+        assertThat(resFloor.getNext().getConceptId()).isEqualTo(5);
     }
 
     @Test
@@ -151,5 +153,42 @@ class DiagnosisServiceTraversalTest {
     void invalidEntryRejected() {
         assertThatThrownBy(() -> service.next(new DiagnosisEntry(), List.of()))
                 .isInstanceOf(DiagnosisException.class);
+    }
+
+    // ── 규칙 A: 최소 하한 K / 상한 N (ADR-0012, 결함①) ─────────────────────────
+
+    @Test
+    @DisplayName("규칙 A 하한: 전부 '알아요'라 후보가 비어도 K 미만이면 잠정-앎에서 검증 질문 (결함①)")
+    void floorPreventsThinTermination() {
+        // 프론티어 [30,31] 둘 다 알아요 → 후보 소진. 구 규칙이면 asked=2 에 done("약점 없음").
+        // 규칙 A: 기본 K=8 미달이라 잠정-앎(closure) 에서 blocked 최대(5)부터 검증 질문.
+        DiagnosisNextResponse res = service.next(chapter1(), List.of(
+                new AnsweredConcept(30, true),
+                new AnsweredConcept(31, true)));
+        assertThat(res.isDone()).isFalse();
+        assertThat(res.getNext().getConceptId()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("규칙 A best-effort: 도달 가능 개념이 K보다 적으면 소진 시 done")
+    void bestEffortDoneWhenGraphSmallerThanK() {
+        // 합성 그래프 전체 7개(30,31,20,10,5,21,22)를 전부 답하면 K=8 미달이어도 종료.
+        DiagnosisNextResponse res = service.next(chapter1(), List.of(
+                new AnsweredConcept(30, true), new AnsweredConcept(31, true),
+                new AnsweredConcept(20, true), new AnsweredConcept(10, true),
+                new AnsweredConcept(5, true), new AnsweredConcept(21, true),
+                new AnsweredConcept(22, true)));
+        assertThat(res.isDone()).isTrue();
+    }
+
+    @Test
+    @DisplayName("규칙 A 상한: asked = N 도달 시 후보가 남아도 강제 done")
+    void hardCapForcesDone() {
+        DiagnosisService capped = new DiagnosisService(repo, 1, 3); // K=1, N=3
+        DiagnosisNextResponse res = capped.next(chapter1(), List.of(
+                new AnsweredConcept(30, false),
+                new AnsweredConcept(31, false),
+                new AnsweredConcept(20, false))); // 몰라요 3개 → 후보 더 있음에도 N=3 캡
+        assertThat(res.isDone()).isTrue();
     }
 }
