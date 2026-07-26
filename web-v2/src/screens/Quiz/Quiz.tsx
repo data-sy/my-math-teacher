@@ -115,10 +115,10 @@ export default function Quiz() {
         ‹ 진입
       </Link>
 
-      {/* ●2 진척 — 숫자는 솔직하게, 바는 후퇴 금지 */}
+      {/* ●2 진척 — 답변 수만 표시(요동치는 "남은 예상"은 숨김, 규칙 A로 비단조라 오히려 혼란).
+          바는 후퇴 금지 유지 (maxRatio). */}
       <div className={s.progress}>
         <span>{session.answered.length}개 답변</span>
-        {phase.kind === 'question' && <span>남은 예상 ~{phase.remaining}</span>}
       </div>
       <div className={s.pbar}>
         <i style={{ width: barWidth }} />
