@@ -142,10 +142,31 @@
 }
 
 .pillNow {
-  border: 1.5px solid var(--accent);
-  color: var(--primary-deep);
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
   font-weight: 700;
   background: var(--paper);
+}
+
+/* 방향별 색 = 그래프 위계와 동기 (먼저=틸 · 지금=먹 · 다음=보라) — 아웃라인 버튼 */
+.colPre .pill {
+  border: 1.5px solid var(--primary);
+  color: var(--primary);
+  background: var(--paper);
+}
+.colPre .chainLabel {
+  color: var(--primary);
+}
+.colSucc .pill {
+  border: 1.5px solid var(--graph-succ);
+  color: var(--graph-succ);
+  background: var(--paper);
+}
+.colSucc .chainLabel {
+  color: var(--graph-succ);
+}
+.colNow .chainLabel {
+  color: var(--ink);
 }
 
 .chainArr {

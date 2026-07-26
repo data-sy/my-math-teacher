@@ -215,8 +215,9 @@ export default function GraphExplore() {
           <div className={s.grab} />
           <div className={s.sheetName}>{detail.concept.conceptName}</div>
           <div className={s.sheetDesc}>{detail.concept.description}</div>
+          {/* 색 = 그래프와 동기: 먼저(선수)=틸, 지금(선택)=먹, 다음(후수)=보라 (2026-07-26) */}
           <div className={s.chain}>
-            <div className={s.chainCol}>
+            <div className={`${s.chainCol} ${s.colPre}`}>
               <span className={s.chainLabel}>먼저</span>
               {pre.shown.map((p) => (
                 <button key={p.conceptId} className={s.pill} onClick={() => jumpTo(p)}>
@@ -227,12 +228,12 @@ export default function GraphExplore() {
               {pre.shown.length === 0 && <span className={s.pill}>—</span>}
             </div>
             <span className={s.chainArr}>→</span>
-            <div className={s.chainCol}>
+            <div className={`${s.chainCol} ${s.colNow}`}>
               <span className={s.chainLabel}>지금</span>
               <span className={`${s.pill} ${s.pillNow}`}>{detail.concept.conceptName}</span>
             </div>
             <span className={s.chainArr}>→</span>
-            <div className={s.chainCol}>
+            <div className={`${s.chainCol} ${s.colSucc}`}>
               <span className={s.chainLabel}>다음</span>
               {succ.shown.map((p) => (
                 <button key={p.conceptId} className={s.pill} onClick={() => jumpTo(p)}>
