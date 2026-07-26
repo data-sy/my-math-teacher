@@ -239,13 +239,16 @@ function EmptyResult({ totalAsked }: { totalAsked: number }) {
         <br />
         약점이 안 보여요! 👍
       </h1>
-      <p className={s.emptySub}>여기는 탄탄해요 — 한 계단 위로 올라가볼까요?</p>
+      {/* 다음 단원(단원 순서상 다음)이 있을 때만 "올라가볼까요?" 질문 노출 —
+          마지막 단원(고3 맨 끝 등 다음 없음)이면 질문을 숨긴다 (2026-07-26 사용자 결정) */}
+      <p className={s.emptySub}>여기는 탄탄해요{upChapter ? ' — 다음 단원으로 가볼까요?' : ''}</p>
 
       <div className={s.ctaWrap}>
-        {/* 게이트 CTA·저장 없음 — 빈 큐라 저장할 것이 없음 (04 ●12). 타게팅 불가 시 B′ 폴백 (A-6) */}
+        {/* 게이트 CTA·저장 없음 — 빈 큐라 저장할 것이 없음 (04 ●12).
+            다음 단원 있으면 그 단원으로, 없으면(마지막) 다른 단원 선택으로 */}
         {upChapter ? (
           <button className="btn-primary" onClick={startUp}>
-            한 계단 위 '{upChapter.name}' 진단하기
+            다음 단원 '{upChapter.name}' 진단하기
           </button>
         ) : (
           <button className="btn-primary" onClick={() => nav('/entry')}>
