@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>그래프 위계 콘셉트 비교 목업 — A 색 층위 · B 공간 재배치 · C 형태·크기</title>
+<style>
+  :root {
+    --surface: #FAFBFC;
+    --page: #EFF1F4;
+    --ink: #0F172A;
+    --ink-2: #475569;
+    --ink-3: #8A94A3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Apple SD Gothic Neo", "Pretendard", system-ui, sans-serif;
+    background: var(--page);
+    color: var(--ink);
+    padding: 28px 24px 48px;
+  }
+  header { max-width: 1320px; margin: 0 auto 20px; }
+  header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  header p { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; line-height: 1.6; }
+  .panels {
+    display: flex; gap: 20px; overflow-x: auto;
+    max-width: 1320px; margin: 0 auto; padding-bottom: 12px;
+  }
+  .panel {
+    flex: 0 0 auto; width: 414px;
+    background: var(--surface);
+    border: 1px solid #E2E6EB; border-radius: 16px;
+    padding: 16px 12px 14px;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+  }
+  .panel h2 { font-size: 14px; font-weight: 800; padding: 0 6px; }
+  .panel h2 small { font-weight: 600; color: var(--ink-3); font-size: 11px; margin-left: 6px; }
+  .panel .tagline { font-size: 11px; color: var(--ink-2); padding: 3px 6px 8px; }
+  .panel svg { display: block; background: var(--surface); border-radius: 10px; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 5px 10px;
+    padding: 10px 6px 2px; font-size: 10px; color: var(--ink-2);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .legend i {
+    width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+    border: 1.5px solid transparent;
+  }
+  .risk { font-size: 10px; color: var(--ink-3); padding: 8px 6px 0; line-height: 1.55; }
+  footer { max-width: 1320px; margin: 18px auto 0; font-size: 11px; color: var(--ink-3); line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>개념 그래프 시각 위계 — 콘셉트 3안 비교</h1>
+  <p>샘플 시나리오: <b>「일차방정식」 탭 직후</b> · 25노드 · 선수/후수 각 뎁스 3 · 측면(계보 밖) 8노드.<br>
+  콘셉트 A·C는 <b>좌표 동일</b>(스타일 차이만), B만 공간 재배치. 캔버스 390×450 = 모바일 실측 비율.</p>
+</header>
+
+<div class="panels">
+  <section class="panel" id="panel-A">
+    <h2>A. 색 층위 <small>Hue = 방향 · 명도 = 거리</small></h2>
+    <div class="tagline">위치는 그대로 — 색의 온도차 없이, 냉색 두 계열이 앞뒤를 가른다.</div>
+    <svg id="svg-A" width="390" height="450" viewBox="0 0 390 450"></svg>
+    <div class="legend">
+      <span><i style="background:#0F172A"></i>선택</span>
+      <span><i style="background:#0D9488"></i>선수·직접</span>
+      <span><i style="background:#2FB5A6"></i>선수·원거리</span>
+      <span><i style="background:#7C3AED"></i>후수·직접</span>
+      <span><i style="background:#A78BFA"></i>후수·원거리</span>
+      <span><i style="background:#DCE1E8"></i>계보 밖</span>
+    </div>
+    <div class="risk">리스크: 원거리 라이트 톤은 대비 2.4~2.6:1로 의도적 후퇴 — 라벨이 판독 보조 필수. 난색 미사용으로 경고 의미와 충돌 없음.</div>
+  </section>
+
+  <section class="panel" id="panel-B">
+    <h2>B. 공간 재배치 <small>위치 = 방향 · 명도 = 거리</small></h2>
+    <div class="tagline">탭하면 그래프가 재정렬 — 토대는 위, 열리는 길은 아래, 다른 갈래는 가장자리로.</div>
+    <svg id="svg-B" width="390" height="450" viewBox="0 0 390 450"></svg>
+    <div class="legend">
+      <span><i style="background:#0F172A"></i>선택</span>
+      <span><i style="background:#1D4ED8"></i>직접(±1)</span>
+      <span><i style="background:#3B82F6"></i>뎁스 2</span>
+      <span><i style="background:#7EB3F5"></i>뎁스 3</span>
+      <span><i style="background:#D6DBE1"></i>계보 밖(가장자리)</span>
+    </div>
+    <div class="risk">리스크: 탭마다 좌표가 바뀌어 공간 기억(지도 항상성)이 깨짐 + 전이 애니메이션 비용. 대신 "한 덩어리" 문제를 구조적으로 해소.</div>
+  </section>
+
+  <section class="panel" id="panel-C">
+    <h2>C. 형태·크기 <small>채움 = 방향 · 크기·명도 = 거리</small></h2>
+    <div class="tagline">색 최소주의 — 쌓인 토대는 꽉 찬 원, 아직 안 연 것은 빈 원.</div>
+    <svg id="svg-C" width="390" height="450" viewBox="0 0 390 450"></svg>
+    <div class="legend">
+      <span><i style="background:#0F172A"></i>선택</span>
+      <span><i style="background:#334155"></i>선수·직접(채움)</span>
+      <span><i style="background:#94A3B8"></i>선수·원거리</span>
+      <span><i style="background:#fff;border-color:#334155"></i>후수·직접(빈 원)</span>
+      <span><i style="background:#fff;border-color:#94A3B8"></i>후수·원거리</span>
+      <span><i style="background:#EEF1F5"></i>계보 밖</span>
+    </div>
+    <div class="risk">리스크: 빈 원은 축소·저줌에서 시각 무게가 급감 — 후수 진영이 먼저 사라져 보일 수 있음. CVD·흑백 인쇄에는 가장 안전.</div>
+  </section>
+</div>
+
+<footer>
+  팔레트는 dataviz 검증기(OKLab CVD 시뮬레이션) 통과: 방향 hue 쌍 #0D9488↔#7C3AED ΔE 21.0(deutan)·원거리 쌍 13.1, 명도 램프 모노톤·스텝 간격·라이트엔드 대비 PASS.
+  원거리 톤의 3:1 미만 대비는 "후퇴" 목적의 의도적 WARN — 릴리프는 라벨이 담당.
+</footer>
+
+<script>
+// ── 데이터: 25노드 · grp = 진영/뎁스 ──────────────────────────────
+// ax/ay = 콘셉트 A·C 공용 좌표(유기적 배치), bx/by = 콘셉트 B 재배치 좌표
+const NODES = [
+  { id:'P3a', label:'자연수 연산', grp:'p3', ax: 58, ay: 34, bx:195, by: 46 },
+  { id:'P3b', label:'분수·소수',   grp:'p3', ax:152, ay: 24, bx:118, by: 46 },
+  { id:'P2a', label:'정수·유리수', grp:'p2', ax: 94, ay: 96, bx:105, by: 98 },
+  { id:'P2b', label:'소인수분해',  grp:'p2', ax:180, ay: 62, bx:195, by: 98 },
+  { id:'P2c', label:'거듭제곱',    grp:'p2', ax:264, ay: 88, bx:285, by: 98 },
+  { id:'P1a', label:'문자와 식',   grp:'p1', ax:118, ay:168, bx:105, by:162 },
+  { id:'P1b', label:'일차식 계산', grp:'p1', ax:207, ay:140, bx:195, by:162 },
+  { id:'P1c', label:'등식의 성질', grp:'p1', ax:290, ay:174, bx:285, by:162 },
+  { id:'SEL', label:'일차방정식',  grp:'sel', ax:195, ay:236, bx:195, by:233 },
+  { id:'N1a', label:'연립방정식',  grp:'n1', ax:104, ay:302, bx:105, by:308 },
+  { id:'N1b', label:'일차부등식',  grp:'n1', ax:200, ay:322, bx:195, by:308 },
+  { id:'N1c', label:'일차함수',    grp:'n1', ax:288, ay:298, bx:285, by:308 },
+  { id:'N2a', label:'이차방정식',  grp:'n2', ax:126, ay:374, bx:115, by:368 },
+  { id:'N2b', label:'연립부등식',  grp:'n2', ax:214, ay:390, bx:205, by:368 },
+  { id:'N2c', label:'함수의 활용', grp:'n2', ax:305, ay:362, bx:295, by:368 },
+  { id:'N3a', label:'이차함수',    grp:'n3', ax:150, ay:434, bx:160, by:414 },
+  { id:'N3b', label:'무리함수',    grp:'n3', ax:300, ay:430, bx:245, by:414 },
+  { id:'S1', label:'작도와 도형', grp:'side', ax: 32, ay:194, bx: 32, by: 70 },
+  { id:'S2', label:'평면도형',    grp:'side', ax: 50, ay:266, bx: 32, by:140 },
+  { id:'S3', label:'입체도형',    grp:'side', ax: 32, ay:122, bx: 32, by:210 },
+  { id:'S6', label:'원과 부채꼴', grp:'side', ax: 80, ay:334, bx: 32, by:280 },
+  { id:'S7', label:'피타고라스',  grp:'side', ax:348, ay:132, bx:358, by: 90 },
+  { id:'S8', label:'삼각비',      grp:'side', ax:356, ay: 58, bx:358, by:160 },
+  { id:'S4', label:'자료의 정리', grp:'side', ax:354, ay:238, bx:358, by:250 },
+  { id:'S5', label:'확률',        grp:'side', ax:352, ay:308, bx:358, by:320 },
+];
+const EDGES = [
+  ['P3a','P2a'],['P3a','P2c'],['P3b','P2a'],['P3b','P2b'],
+  ['P2a','P1a'],['P2a','P1c'],['P2b','P1b'],['P2c','P1b'],
+  ['P1a','SEL'],['P1b','SEL'],['P1c','SEL'],
+  ['SEL','N1a'],['SEL','N1b'],['SEL','N1c'],
+  ['N1a','N2a'],['N1a','N2b'],['N1b','N2b'],['N1c','N2c'],
+  ['N2a','N3a'],['N2c','N3a'],['N2b','N3b'],
+  ['S1','S2'],['S2','S3'],['S2','S6'],['S6','S7'],['S7','S8'],['S4','S5'],
+];
+const byId = Object.fromEntries(NODES.map(n => [n.id, n]));
+const PRE = new Set(['p1','p2','p3']), POST = new Set(['n1','n2','n3']);
+
+function edgeKind(s, t) {
+  if (t.grp === 'sel') return 'directPre';
+  if (s.grp === 'sel') return 'directPost';
+  if (PRE.has(s.grp) && PRE.has(t.grp)) return 'farPre';
+  if (POST.has(s.grp) && POST.has(t.grp)) return 'farPost';
+  return 'side';
+}
+
+// ── 콘셉트별 스타일 스펙 ─────────────────────────────────────────
+const INK = '#0F172A';
+const CONCEPTS = {
+  A: {
+    coord: n => [n.ax, n.ay],
+    node: {
+      sel:  { r:20, fill:INK,       lab:12,  labW:800, labC:'#111827' },
+      p1:   { r:15, fill:'#0D9488', lab:10.5, labW:700, labC:'#1F2937' },
+      p2:   { r:11, fill:'#2FB5A6', lab:9,    labW:500, labC:'#5B6572' },
+      p3:   { r:9,  fill:'#2FB5A6', lab:9,    labW:500, labC:'#5B6572' },
+      n1:   { r:15, fill:'#7C3AED', lab:10.5, labW:700, labC:'#1F2937' },
+      n2:   { r:11, fill:'#A78BFA', lab:9,    labW:500, labC:'#5B6572' },
+      n3:   { r:9,  fill:'#A78BFA', lab:9,    labW:500, labC:'#5B6572' },
+      side: { r:7,  fill:'#DCE1E8', lab:8,    labW:400, labC:'#A6AEBA' },
+    },
+    edge: {
+      directPre:  { c:'#0D9488', w:2.5, arrow:true },
+      directPost: { c:'#7C3AED', w:2.5, arrow:true },
+      farPre:     { c:'#A5D8D2', w:1.5, arrow:true },
+      farPost:    { c:'#D4C6FD', w:1.5, arrow:true },
+      side:       { c:'#E8EBEF', w:1,   arrow:false },
+    },
+  },
+  B: {
+    coord: n => [n.bx, n.by],
+    bands: true,
+    node: {
+      sel:  { r:20, fill:INK,       lab:12,  labW:800, labC:'#111827' },
+      p1:   { r:15, fill:'#1D4ED8', lab:10.5, labW:700, labC:'#1F2937' },
+      p2:   { r:11, fill:'#3B82F6', lab:9,    labW:500, labC:'#5B6572' },
+      p3:   { r:9,  fill:'#7EB3F5', lab:9,    labW:500, labC:'#5B6572' },
+      n1:   { r:15, fill:'#1D4ED8', lab:10.5, labW:700, labC:'#1F2937' },
+      n2:   { r:11, fill:'#3B82F6', lab:9,    labW:500, labC:'#5B6572' },
+      n3:   { r:9,  fill:'#7EB3F5', lab:9,    labW:500, labC:'#5B6572' },
+      side: { r:7,  fill:'#D6DBE1', lab:7.5,  labW:400, labC:'#A6AEBA' },
+    },
+    edge: {
+      directPre:  { c:'#1D4ED8', w:2.5, arrow:true },
+      directPost: { c:'#1D4ED8', w:2.5, arrow:true },
+      farPre:     { c:'#A8C8F5', w:1.5, arrow:true },
+      farPost:    { c:'#A8C8F5', w:1.5, arrow:true },
+      side:       { c:'#E8EBEF', w:1,   arrow:false },
+    },
+  },
+  C: {
+    coord: n => [n.ax, n.ay],
+    node: {
+      sel:  { r:20, fill:INK,       lab:12,  labW:800, labC:'#111827' },
+      p1:   { r:15, fill:'#334155', lab:10.5, labW:700, labC:'#1F2937' },
+      p2:   { r:11, fill:'#64748B', lab:9,    labW:500, labC:'#5B6572' },
+      p3:   { r:9,  fill:'#94A3B8', lab:9,    labW:500, labC:'#5B6572' },
+      n1:   { r:15, fill:'#FFFFFF', stroke:'#334155', sw:2.5, lab:10.5, labW:700, labC:'#1F2937' },
+      n2:   { r:11, fill:'#FFFFFF', stroke:'#64748B', sw:2,   lab:9,    labW:500, labC:'#5B6572' },
+      n3:   { r:9,  fill:'#FFFFFF', stroke:'#94A3B8', sw:1.5, lab:9,    labW:500, labC:'#5B6572' },
+      side: { r:7,  fill:'#EEF1F5', lab:8,    labW:400, labC:'#A6AEBA' },
+    },
+    edge: {
+      directPre:  { c:'#334155', w:2.5, arrow:true },
+      directPost: { c:'#334155', w:2.5, arrow:true },
+      farPre:     { c:'#B9C2CE', w:1.5, arrow:true },
+      farPost:    { c:'#B9C2CE', w:1.5, arrow:true },
+      side:       { c:'#E8EBEF', w:1,   arrow:false },
+    },
+  },
+};
+
+// ── 렌더 ────────────────────────────────────────────────────────
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+}
+
+function render(key) {
+  const svg = document.getElementById('svg-' + key);
+  const C = CONCEPTS[key];
+  const defs = el('defs', {}, svg);
+
+  // 밴드 배경 (B 전용)
+  if (C.bands) {
+    el('rect', { x:58, y:14, width:274, height:180, rx:12, fill:'#F3F7FC' }, svg);
+    el('rect', { x:58, y:272, width:274, height:168, rx:12, fill:'#F3F7FC' }, svg);
+    const cap = (txt, x, y, anchor) => {
+      const t = el('text', { x, y, 'text-anchor':anchor, 'font-size':9, 'font-weight':700, fill:'#7C8796' }, svg);
+      t.textContent = txt;
+    };
+    cap('토대 (선수) — 여기서 올라왔다', 70, 28, 'start');
+    cap('열리는 길 (후수) — 여기로 이어진다', 70, 434, 'start');
+    cap('다른 갈래', 32, 24, 'middle');
+    cap('다른 갈래', 358, 24, 'middle');
+    // 흐름 셰브런
+    for (const y of [204, 262]) {
+      el('path', { d:`M 189 ${y} L 195 ${y+6} L 201 ${y}`, fill:'none', stroke:'#B9C7DA', 'stroke-width':2, 'stroke-linecap':'round' }, svg);
+    }
+  }
+
+  // 화살촉 마커 (색별)
+  const markers = {};
+  function markerFor(color) {
+    if (markers[color]) return markers[color];
+    const id = `arr-${key}-${Object.keys(markers).length}`;
+    const m = el('marker', { id, viewBox:'0 0 10 10', refX:8, refY:5, markerWidth:5.5, markerHeight:5.5, orient:'auto-start-reverse' }, defs);
+    el('path', { d:'M 0 0 L 10 5 L 0 10 z', fill:color }, m);
+    markers[color] = id;
+    return id;
+  }
+
+  // 엣지
+  for (const [sid, tid] of EDGES) {
+    const s = byId[sid], t = byId[tid];
+    const spec = C.edge[edgeKind(s, t)];
+    const [sx, sy] = C.coord(s), [tx, ty] = C.coord(t);
+    const dx = tx - sx, dy = ty - sy, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const rs = C.node[s.grp].r, rt = C.node[t.grp].r;
+    const pad = spec.arrow ? 4 : 1;
+    const attrs = {
+      x1: sx + ux * (rs + 1), y1: sy + uy * (rs + 1),
+      x2: tx - ux * (rt + pad), y2: ty - uy * (rt + pad),
+      stroke: spec.c, 'stroke-width': spec.w, 'stroke-linecap': 'round',
+    };
+    if (spec.arrow) attrs['marker-end'] = `url(#${markerFor(spec.c)})`;
+    el('line', attrs, svg);
+  }
+
+  // 노드 + 라벨
+  for (const n of NODES) {
+    const s = C.node[n.grp];
+    const [x, y] = C.coord(n);
+    if (n.grp === 'sel') {
+      el('circle', { cx:x, cy:y, r:s.r + 10, fill:'rgba(15,23,42,0.07)' }, svg);
+      el('circle', { cx:x, cy:y, r:s.r + 5, fill:'none', stroke:INK, 'stroke-width':1.5, opacity:0.55 }, svg);
+      el('circle', { cx:x, cy:y, r:s.r, fill:s.fill, stroke:'#FFFFFF', 'stroke-width':3 }, svg);
+    } else {
+      const attrs = { cx:x, cy:y, r:s.r, fill:s.fill };
+      if (s.stroke) { attrs.stroke = s.stroke; attrs['stroke-width'] = s.sw; }
+      el('circle', attrs, svg);
+    }
+    const above = y > 402;
+    const t = el('text', {
+      x, y: above ? y - s.r - 7 : y + s.r + (s.lab + 4),
+      'text-anchor': 'middle', 'font-size': s.lab, 'font-weight': s.labW,
+      fill: s.labC, stroke: '#FAFBFC', 'stroke-width': 3,
+      'paint-order': 'stroke', 'stroke-linejoin': 'round',
+    }, svg);
+    t.textContent = n.label;
+  }
+}
+render('A'); render('B'); render('C');
+</script>
+</body>
+</html>

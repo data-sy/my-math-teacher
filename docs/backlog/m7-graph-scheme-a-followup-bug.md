@@ -14,7 +14,7 @@
 
 ## 의도한 동작 (구현 시점의 스펙 — 이대로 동작해야 정상)
 
-정본 = `docs/design/v2/06-graph.html` ●4 절 + `🤖-그래프-위계-A안-핸드오프.md`. 요약:
+정본 = `docs/design/v2/06-graph.html` ●4 절 + `docs/handoff/m7-graph-scheme-a-handoff.md`. 요약:
 
 ### ⑥ 그래프 탐색 화면
 - **무선택**(빈 곳 탭 후): 전 노드 중립 단일 톤(종이색 채움·회록 테두리)·균일 크기 34px, **전 노드 이름 표시**(노드 하단).
@@ -46,4 +46,4 @@
 
 - 구현: `web-v2/src/components/ConceptGraph.tsx` (f6bc689), 토큰 `web-v2/src/index.css` `--graph-*`
 - 검증기: CVD·명도 램프·대비 계산 스크립트 (스크래치패드 소멸 — 재검증 필요 시 핸드오프 §과제1 조건으로 재작성)
-- 컨설팅 정본: `🤖-그래프-위계-A안-핸드오프.md` (리포 루트, 미추적)
+- 컨설팅 정본: `docs/handoff/m7-graph-scheme-a-handoff.md`

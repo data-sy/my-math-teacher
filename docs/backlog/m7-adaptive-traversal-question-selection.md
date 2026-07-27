@@ -27,4 +27,4 @@
   - 학습자료: `out/question-selection-learning.html`(후보 5계열)·`out/question-selection-explainer.html`(쉬운 설명)·`out/kst-learning-material.html`(KST 심화+링크)
 - **권장안 = 「휴리스틱 강화(=결정론적 KST 코어)」 즉시 채택, KST 전역 반분·DKT 역이용·IRT 는 실데이터 이후로 보류.** 콜드스타트·결정론·stateless 3제약이 IRT·밴딧을 탈락시키고, DAG 구조 계산만으로 결함 3건이 닫힘.
 - **결함별 해소** — ①(1문 종료)·③(순서 무근거)는 KST 원리(최소질문 하한 + blockedDescendants 정보량 순서)로 해소. ②(알아요 과신)는 **결정론 KST 코어로는 안 풀림** → 별도 검증 프로브 패치로 닫음(확률층 BLIM 은 데이터 필요라 보류).
-- **구현 착수 프롬프트 준비 완료:** 최상위 [`🤖-문항선택-KST-구현.md`](../../🤖-문항선택-KST-구현.md) — 범위 = 규칙 A(하한/상한)·B(순서)·C(skip-with-probe), 새 세션에서 실행. 착수 전 사용자 확정 필요 = D1 최소질문 K·D2 프로브 밀도·D3 복원 범위.
+- **구현 착수 프롬프트 (실행 완료 2026-07-24):** [`docs/handoff/m7-item-selection-kst-impl-prompt.md`](../handoff/m7-item-selection-kst-impl-prompt.md) — 범위 = 규칙 A(하한/상한)·B(순서)·C(skip-with-probe). 착수 시 확정값 = D1 최소질문 K8/N20·D2 프로브 밀도 임계4+√n·D3 복원=서브트리.
