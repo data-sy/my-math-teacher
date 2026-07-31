@@ -61,7 +61,7 @@
 ## 프로젝트 개요
 기간 : (v1) 2023.12 ~ 2024.07 (8개월), (v2) 2025.02 ~ (진행 중) <br/>
 개발 인원 : 1인 개발 <br/>
-서비스 링크 : https://www.my-math-teacher.com  <br/>
+서비스 링크 : https://www.my-math-teacher.com *(현재 v2 재정비 중 — 프로덕션 인프라 일시 정지, 재오픈 예정)* <br/>
 
 <!-- Introduction -->
 
