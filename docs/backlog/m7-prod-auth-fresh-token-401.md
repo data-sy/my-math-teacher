@@ -10,8 +10,8 @@
 - **남은 일 (전부 재런치 시점, 사람이 실행):**
   ① 복원된 RDS 에 DDL 적용(`api/sql/m7-apply-diagnosis-ddl-prod.sql`) ·
   ② 백엔드 **재빌드**·배포(구 이미지 `889390a` 는 마스킹 수정·하드닝 **미포함** — 재배포 없이는 무효) ·
-  ③ `verify-prod-jwt-isolation.sh` 로 검증.
-  실행 순서 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../../🤖-M7-티어다운-실행시퀀스.md) **§재런치 런북**.
+  ③ 수동 검증(스크립트는 mothball 때 삭제 — §재현/검증 자산 참조).
+  실행 순서 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../handoff/🤖-M7-티어다운-실행시퀀스.md) **§재런치 런북**.
 - **발견:** 2026-07-28, M7 런치 A4(OAuth 401 트리아지) 중
 - **영역:** 백엔드 JWT 인증 (`api/`, `com.mmt.api.jwt`). **M7 프론트 브랜치(`feat/m7-item-selection`)와 무관.**
 - **관련:** 이 문제로 web-v2 저장/큐/재로그인 등 모든 인증 기능이 프로덕션에서 실패. OAuth가 프론트의 유일 로그인 경로라 폴백 없음(비밀번호 로그인은 UI 미노출).
@@ -210,7 +210,7 @@ Spring 은 이를 **400** 으로 resolve 했는데 클라이언트는 **401** �
      `create.sql:161-206` 정본을 옮기되 **재실행 안전** — 테이블은 `IF NOT EXISTS`,
      ALTER 3건은 `information_schema` 가드. PREFLIGHT/POSTFLIGHT 로 적용 전후 상태 확인.
    - RDS 는 `publicly_accessible=false` → 맥에서 직접 못 붙는다. **EC2 호스트(app SG)에서** 적용.
-     실행 절차 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../../🤖-M7-티어다운-실행시퀀스.md)
+     실행 절차 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../handoff/🤖-M7-티어다운-실행시퀀스.md)
      **§재런치 런북 3** (명령 원문은 같은 문서 Phase 1 블록에 보존됨).
    - 전부 additive 이고 구 경로 미참조(ADR-0010)라 **구 기능 무영향**. 롤백 = `MMT_DIAGNOSIS_ENABLED=false`
      (테이블은 방치 가능, 필요 시 DROP).
@@ -225,7 +225,9 @@ Spring 은 이를 **400** 으로 resolve 했는데 클라이언트는 **401** �
    - 의사결정 기록: **ADR-0014** (커밋 `1a28723`) — residual ④ 종결 명시.
    - ⚠️ 배포 미반영 — 프로덕션 이미지는 `889390a`(수정 미포함). 재빌드·배포 필요.
 
-3. **검증 (재런치 후)** — `bash verify-prod-jwt-isolation.sh` 재실행.
+3. **검증 (재런치 후)** — ⚠️ 스크립트는 mothball 때 삭제됐다. **수동 curl** 로 아래를 확인
+   (절차 = §격리 결과 4단계. signup→login→토큰으로 호출. 토큰은 응답 **body** 에서 뽑을 것 —
+   헤더 추출은 CRLF 혼입으로 400 이 난다):
    기대: login 200 → `POST /auth/validation` 200 → `GET /learning-queues/me` **404 또는 200**
    (401 = 마스킹 미배포 / 500 = DDL 미적용). 무토큰 대조군은 401 유지.
    `GET /api/v1/hello/no-such-sub` 가 **404** 로 나오는지도 확인(마스킹 제거 확증 —
