@@ -3,9 +3,11 @@
 > 원 제목: "백엔드가 자기 발급 access 토큰을 401". 2026-07-28 세션 2 에서 **그 전제가 기각**되고
 > 진짜 원인이 특정돼 제목을 교체했다. 원문 진단은 §"백로그 원문에 대한 정정" 참조.
 
-- **상태:** 근본원인 2건 확정 / 수정 미착수 / **심각도: 런치 블로커**
+- **상태:** 근본원인 2건 확정 / **결함② 코드 완료(미배포)** · **결함① 미적용** / **심각도: 런치 블로커**
 - **인증 문제가 아니다.** ① M7 진단 테이블이 프로덕션 RDS 에 미적용(→ 500) + ② `/error` 마스킹이
   그 500 을 401 로 위장. 둘 다 고쳐야 한다. §"진짜 근본원인" 참조.
+- **남은 일 (전부 사람이 실행):** ① 프로덕션 RDS 에 DDL 적용 · 백엔드 재빌드·배포(현 프로덕션
+  이미지 `889390a` 는 ②·하드닝 미포함) · 배포 후 `verify-prod-jwt-isolation.sh` 로 검증.
 - **발견:** 2026-07-28, M7 런치 A4(OAuth 401 트리아지) 중
 - **영역:** 백엔드 JWT 인증 (`api/`, `com.mmt.api.jwt`). **M7 프론트 브랜치(`feat/m7-item-selection`)와 무관.**
 - **관련:** 이 문제로 web-v2 저장/큐/재로그인 등 모든 인증 기능이 프로덕션에서 실패. OAuth가 프론트의 유일 로그인 경로라 폴백 없음(비밀번호 로그인은 UI 미노출).
@@ -196,36 +198,39 @@ Spring 은 이를 **400** 으로 resolve 했는데 클라이언트는 **401** �
    `Table 'mmt.self_report_answers'/'mmt.learning_queues' doesn't exist` 확보.
    (에이전트는 SSM·프로덕션 HTTPS 접촉이 auto mode 분류기에 차단돼 사람이 맥에서 실행)
 
-1. **🔴 결함 ① — 프로덕션 RDS 에 M7 additive DDL 적용** (실제 기능 복구. 사람이 실행)
-   - 대상: `api/sql/create.sql:161-206` — `self_report_answers`, `learning_queues`,
-     `learning_queue_items` 3개 CREATE + `probabilities` 의 `user_test_id` 컬럼·FK·인덱스 ALTER 3건.
-   - **적용 전 확인:** 프로덕션에 이미 일부만 있는지(`SHOW TABLES LIKE ...`,
-     `SHOW COLUMNS FROM probabilities LIKE 'user_test_id'`) — 부분 적용 상태면 해당 문장만 골라 실행.
-     `ALTER TABLE probabilities ADD COLUMN` 은 멱등이 아니라 재실행 시 에러난다.
+1. **🔴 결함 ① — 프로덕션 RDS 에 M7 additive DDL 적용** (실제 기능 복구. **미완 · 사람이 실행**)
+   - 적용 스크립트 준비됨: **`api/sql/m7-apply-diagnosis-ddl-prod.sql`** (커밋 `687c29d`).
+     `create.sql:161-206` 정본을 옮기되 **재실행 안전** — 테이블은 `IF NOT EXISTS`,
+     ALTER 3건은 `information_schema` 가드. PREFLIGHT/POSTFLIGHT 로 적용 전후 상태 확인.
+   - RDS 는 `publicly_accessible=false` → 맥에서 직접 못 붙는다. **EC2 호스트(app SG)에서** 적용.
+     실행 순서 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../../🤖-M7-티어다운-실행시퀀스.md) Phase 1.
    - 전부 additive 이고 구 경로 미참조(ADR-0010)라 **구 기능 무영향**. 롤백 = `MMT_DIAGNOSIS_ENABLED=false`
      (테이블은 방치 가능, 필요 시 DROP).
-   - ⚠️ 프로덕션 DB 스키마 변경이므로 실행 주체·절차는 사용자 판단. `probabilities` ALTER 는
-     구 경로가 쓰는 테이블이라 잠금 시간 확인 권장(행 수에 비례).
 
-2. **🔴 결함 ② — 마스킹 제거** (관측 가능성 복구. 이게 없으면 다음 오류도 또 401 로 위장된다)
-   `/analyze-before-change` 완료(세션 2). 승인된 방안 = **(A) `/error` permitAll**. 트레이드오프는 §부록:
-   - (A) `SecurityConfig` 에 `.requestMatchers("/error").permitAll()` 추가 — 표준·최소 변경.
-   - (B) `JwtFilter` 에 `shouldNotFilterErrorDispatch()=false` override — ERROR 디스패치에서도 인증 유지.
-   - (A)+(B) 병행이 가장 정확하지만 표면이 넓어진다.
-   ※ 정보노출 점검: Boot 3 기본 `server.error.include-message=never` 유지 확인(예외 메시지 유출 방지).
-   ※ 회귀 테스트: 존재하지 않는 경로 → **404**, 무토큰 인증필수 → **401**, 유효토큰 → 정상.
+2. **✅ 결함 ② — 마스킹 제거 (완료)**
+   - 구현: 커밋 **`d0f4c41`** — `SecurityConfig` 에 `.requestMatchers("/error").permitAll()`.
+     `/analyze-before-change` 완료 후 승인된 (A)안. 트레이드오프·기각 대안은 §부록 및 **ADR-0014**.
+   - 회귀 테스트: 커밋 **`087fef2`** — `ErrorDispatchMaskingTest`
+     (permitAll 경로 핸들러 부재 → **404** / 무토큰 인증필수 → **401 유지** /
+     오류 바디에 예외 메시지·스택 미노출). `/error` permitAll 을 되돌리면
+     `expected 404 but was 401` 로 실패함을 확인 — **회귀를 실제로 잡는다**. 전체 스위트 통과.
+   - 의사결정 기록: **ADR-0014** (커밋 `1a28723`) — residual ④ 종결 명시.
+   - ⚠️ 배포 미반영 — 프로덕션 이미지는 `889390a`(수정 미포함). 재빌드·배포 필요.
 
 3. **①②  적용 후 검증** — `bash verify-prod-jwt-isolation.sh` 재실행.
    기대: login 200 → `POST /auth/validation` 200 → `GET /learning-queues/me` **404 또는 200**
    (401·500 이면 미해결). 무토큰 대조군은 401 유지.
    존재하지 않는 경로가 **404** 로 나오는지도 함께 확인(마스킹 제거 확증).
 
-4. **하드닝 (위와 독립적으로 진행 가치 있음, `/analyze-before-change` 후)**
-   - access 토큰에 `jti`(UUID)·`iat` 부여 → 발급마다 유일. 위 §잠재 결함 1의 자기-블랙리스트 경로가
-     원천 소멸. **배포 오버랩 안전**(추가 클레임은 구 인스턴스 검증에 무영향, 구 토큰도 신 인스턴스에서 검증됨).
-   - `RedisConfig` 에 `redisBlackListTemplate` 빈 명시 분리(또는 `RedisUtil` 을 단일 템플릿 +
-     키 프리픽스 `blacklist:` 로 정리 — 후자가 의도를 더 정확히 표현).
-   - 회귀 테스트: `validateToken(fresh)=true`, 같은 초 2회 발급 토큰이 **서로 다름**.
+4. **하드닝**
+   - ✅ **완료** — access 토큰에 `jti`(UUID)·`iat` 부여 (커밋 **`1c7c29e`**). 발급마다 유일해져
+     §잠재 결함 1의 자기-블랙리스트 경로가 원천 소멸. **배포 오버랩 안전**(추가 클레임은 구 인스턴스
+     검증에 무영향). 회귀 테스트 `TokenProviderJtiUniquenessTest` (커밋 `087fef2`) —
+     연속 발급 토큰 상이·jti 유일·기존 `sub`/`auth`/검증 경로 무영향.
+   - ⬜ **미완** — `RedisConfig` 에 `redisBlackListTemplate` 빈 명시 분리(또는 `RedisUtil` 을 단일
+     템플릿 + 키 프리픽스 `blacklist:` 로 정리 — 후자가 의도를 더 정확히 표현). 현재는 후보 빈이
+     하나뿐이라 두 필드가 **같은 빈**으로 주입돼 블랙리스트가 캐시·refresh 와 DB0 을 공유한다.
+     jti 도입으로 자기-무효화 경로는 사라졌으므로 **긴급도는 낮음**.
 5. **프론트(별도 판단):** `client.ts:80-92` 의 401→reissue 1회 재시도 → 실패 시 `clearAccessToken()`.
    ⚠️ **마스킹 때문에 프론트가 내부 오류(500)를 "토큰 만료"로 오해해 사용자 토큰을 지우고 강제
    재로그인시켰다** — 이게 백로그 원문 "재로그인 실패" 증상의 실제 발현 경로다. 결함 ② 제거로
