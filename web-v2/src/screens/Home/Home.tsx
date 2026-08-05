@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { fetchMyQueue } from '../../api/endpoints'
 import { useAuth } from '../../auth/AuthContext'
@@ -7,8 +7,16 @@ import s from './Home.module.css'
 
 export default function Home() {
   const nav = useNavigate()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, logout } = useAuth()
   const [params] = useSearchParams()
+  const qc = useQueryClient()
+
+  // 로그아웃 — 서버 블랙리스트 등록 실패해도 로컬 토큰은 비운다(AuthContext 가 finally 로 보장).
+  // 캐시된 큐를 지워야 재로그인 시 남의/구 데이터가 스치지 않는다.
+  const handleLogout = async () => {
+    await logout()
+    qc.removeQueries({ queryKey: ['queue', 'me'] })
+  }
 
   // OAuth 실패 콜백은 백엔드가 `/?error=` 로 보낸다 (2026-07-18 실코드 확인 — A-15 정정).
   // 인라인 실패 안내는 ⑤-A 소관(05 카탈로그) — 그대로 넘긴다.
@@ -29,14 +37,21 @@ export default function Home() {
 
   return (
     <div className="screen">
-      {/* ●7 조용한 로그인 링크 — 비로그인 시에만 (●1 배너와 상호 배타) */}
-      {!isLoggedIn && (
-        <div className={s.loginRow}>
+      {/* ●7 인증 상태 행 — 항상 노출.
+          구 규약(비로그인 시에만 노출 · ●1 배너와 상호 배타)은 "로그인 + 큐 없음" 조합에서
+          이 자리가 통째로 비어 사용자가 자기 로그인 여부를 알 방법이 없었다(2026-08-05 사용자 보고).
+          로그아웃 진입점도 전 화면에 없어 AuthContext.logout() 이 죽은 코드였다. */}
+      <div className={s.loginRow}>
+        {isLoggedIn ? (
+          <button className="txt-link" type="button" onClick={handleLogout}>
+            로그아웃
+          </button>
+        ) : (
           <Link className="txt-link" to="/login?from=home">
             로그인
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ●1 재진입 배너 — 로그인 + 활성 큐 보유 시에만. 완료 시 문구만 대체(A안) */}
       {isLoggedIn && queue && queue.items.length > 0 && (
