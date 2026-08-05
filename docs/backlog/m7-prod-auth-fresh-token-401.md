@@ -260,7 +260,7 @@ Spring 은 이를 **400** 으로 resolve 했는데 클라이언트는 **401** �
 
 ## 재현/검증 자산
 
-- 격리 테스트 절차 = 위 "격리 결과" curl 4단계. 프로덕션 진단 계정 `zdbg142854`·`zdbg2143235`(ROLE_USER) 는 정리 예정 — **수정 검증에 재사용하려면 하나 남겨둘 것**.
+- 격리 테스트 절차 = 위 "격리 결과" curl 4단계. 프로덕션 진단 계정 `zdbg142854`·`zdbg2143235`(ROLE_USER) 정리는 [`m7-diagnostic-test-accounts-cleanup.md`](m7-diagnostic-test-accounts-cleanup.md) 로 추적(재런치 후 — 검증에 하나 재사용 후 둘 다 삭제).
 - 진단 스크립트 — ⚠️ **2026-07-31 프로덕션 mothball 로 삭제됨**(EC2 종료로 실행 불가 · 계정ID 포함으로 미커밋 · 로컬 전용이었음). 무엇을 어떻게 했는지는 본 문서에 전부 서술돼 재작성 가능. *(원래: 리포 루트, 맥에서 사람이 실행 — 에이전트는 분류기 차단):*
   - `diagnose-backend-jwt.sh` — 배선·시크릿 지문·최근 30분 로그 (read-only, SSM 오케스트레이터)
   - `diagnose-backend-jwt-2.sh` — 기동 이후 전체 JWT 로그 + Redis 키 인벤토리 (read-only, SSM)
