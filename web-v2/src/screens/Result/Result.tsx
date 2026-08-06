@@ -4,10 +4,10 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   createQueue,
   fetchChapters,
-  fetchConceptGraph,
   fetchFrontier,
   fetchMyQueue,
   fetchPreview,
+  fetchQueueEdges,
   fetchSavedDiagnosis,
   saveDiagnosis,
   toggleQueueItemDone,
@@ -268,6 +268,9 @@ function EmptyResult({ totalAsked }: { totalAsked: number }) {
 
 // ══════════ ④-B 게이트 상태 (재열람·전환 도착) ══════════
 
+/** ●8 그래프 높이 — 라벨 상시 노출로 바뀌며 220 → 280 (계단 3~4층이 한 화면에 들어오는 최소치) */
+const GRAPH_H = 280
+
 function SavedResult() {
   const nav = useNavigate()
   const qc = useQueryClient()
@@ -285,15 +288,27 @@ function SavedResult() {
     retry: false,
   })
 
-  // 경로 하이라이트용 그래프 (④-B는 ⑥ 컴포넌트 공유 + pathIds 만 추가)
-  // 실서버는 전체 그래프 엔드포인트가 없어 중심 개념 서브그래프 — 중심 = "여기부터"(서버 파생 current)
+  // ●8 그래프 = **학습 큐 그 자체의 DAG** — 노드는 저장된 계단 항목만, 간선은 그들 사이 선수관계
+  // (2026-08-05 결정 D). 구현은 중심 개념 선수 폐쇄를 그리던 것이라 큐에 없는 개념이 대부분이고
+  // 큐 항목 상당수는 아예 빠져 있어, "학습 경로 보기"가 약속한 것과 화면이 어긋나 있었다.
   const currentItem = queue?.items.find((i) => i.current) ?? null
-  const graphCenter =
-    currentItem?.conceptId ?? queue?.items[0]?.conceptId ?? diagQ.data?.cards[0]?.conceptId ?? null
-  const graphQ = useQuery({
-    queryKey: ['concept-graph', 'path', graphCenter],
-    queryFn: () => fetchConceptGraph(graphCenter!),
-    enabled: !!graphCenter,
+  const cardIds = (diagQ.data?.cards ?? []).map((c) => c.conceptId)
+  const queueIds = queue?.items.map((i) => i.conceptId) ?? []
+  // 노드 집합은 done 토글로 바뀌지 않는다 — 시그니처를 키로 써서 체크할 때마다 재레이아웃되는 걸 막음
+  const nodeSig = queue?.items.map((i) => `${i.conceptId}:${i.conceptName}`).join('|') ?? ''
+  // deps 가 nodeSig 뿐인 건 의도 — queue 객체는 토글마다 새로 오지만 노드 집합은 그대로다
+  const graphNodes = useMemo(
+    () => queue?.items.map((i) => ({ conceptId: i.conceptId, conceptName: i.conceptName })) ?? [],
+    [nodeSig], // eslint-disable-line react-hooks/exhaustive-deps
+  )
+  const doneIds = useMemo(
+    () => queue?.items.filter((i) => i.done).map((i) => i.conceptId) ?? [],
+    [queue],
+  )
+  const edgesQ = useQuery({
+    queryKey: ['queue-graph', nodeSig, cardIds.join(',')],
+    queryFn: () => fetchQueueEdges(cardIds, queueIds),
+    enabled: cardIds.length > 0 && queueIds.length > 0,
   })
 
   const toggle = useMutation({
@@ -337,8 +352,7 @@ function SavedResult() {
     )
   }
 
-  const pathIds = queue?.items.map((i) => i.conceptId) ?? []
-  const selectedConcept = graphQ.data?.concepts.find((c) => c.conceptId === selectedId)
+  const selectedItem = queue?.items.find((i) => i.conceptId === selectedId) ?? null
   const cards = diagQ.data?.cards ?? []
   const more = diagQ.data?.more ?? []
 
@@ -350,22 +364,27 @@ function SavedResult() {
       {/* ●8 그래프 경로 (순서 1 — 게이트 독점 자산) */}
       <div className={s.secTag}>나의 학습 경로 (저장됨)</div>
       <div className={s.graphBox}>
-        {graphQ.data ? (
+        {graphNodes.length > 0 && edgesQ.data ? (
           <ConceptGraph
-            concepts={graphQ.data.concepts}
-            edges={graphQ.data.edges}
+            concepts={graphNodes}
+            edges={edgesQ.data}
             selectedId={selectedId}
             onSelect={setSelectedId}
-            pathIds={pathIds}
+            doneIds={doneIds}
+            currentId={currentItem?.conceptId ?? null}
             compact
-            height={220}
+            height={GRAPH_H}
           />
         ) : (
-          <div style={{ height: 220 }} />
+          <div style={{ height: GRAPH_H }} />
         )}
       </div>
       <div className={s.nodeInfo}>
-        {selectedConcept ? `${selectedConcept.conceptName} — ${selectedConcept.description}` : ' '}
+        {selectedItem
+          ? `${selectedItem.position}. ${selectedItem.conceptName} — ${
+              selectedItem.done ? '완료함' : selectedItem.current ? '여기부터' : '아직'
+            }`
+          : '노드를 탭하면 몇 번째 계단인지 보여줘요'}
       </div>
 
       {/* ●9 진단 카드 재열람 (순서 2 — 2차 버튼 없음, 외부링크는 그대로) */}
