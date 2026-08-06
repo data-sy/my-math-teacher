@@ -56,6 +56,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Later — 백로그 (아직 미착수, 검토 단계)
 
+- **⭐ [Infra] AMI 필터가 minimal 을 집어 SSM 에이전트 부재 + 전체 apply 의 EC2 교체 위험** (2026-08-07 등록 — **착수 대기 상위**) — `compute.tf` 의 `al2023-ami-*-x86_64` 필터가 **minimal 변형까지 매칭**해 재런치 때 **SSM 에이전트가 없는 이미지**를 집었고, 그게 2026-08-05 이후 CD 가 죽어 있던 진짜 원인이다(러닝 인스턴스는 `dnf install` 로 복구 — 재발 방지는 미착수). 더 큰 지뢰는 **`most_recent = true` 인데 `lifecycle` 블록이 없다**는 것 — 새 AL2023 AMI 가 나올 때마다 **전체 `terraform apply` 가 프로덕션 EC2 를 교체(destroy+create)하려 든다**(2026-08-07 IP 동기화는 `-target` 이라 무사했다). 결정 3건(필터 조이기·`ignore_changes=[ami]`·user_data 설치)은 순서가 중요 — **안전장치 먼저**
+  - 상세·실측·결정거리: [`docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md`](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md)
+
 - **⭐ [Infra] SSH 를 IP 고정 인그레스에서 SSM Session Manager 로** (2026-08-06 등록 — **착수 대기 상위**) — SG 의 SSH 인그레스가 `${var.my_ip}/32` 라 **공인 IP 가 바뀔 때마다 SSH·CD 가 통째로 막힌다.** 사이트(80/443)는 멀쩡해서 "서버는 사는데 왜 못 붙지"로 오진하기 쉽고, 실제로 2026-08-06 CD 실패 진단이 여기서 한 번 교착됐다. 재발이 구조에 내장돼 있어 임시 대응(`sync-my-ip.sh`)으로는 사람이 매번 돌려야 한다. **선행 조건 = SSM 등록 정상화**(순환 의존 — Session Manager 로 갈아타는 순간 접근 수단이 0이 되므로). 이관 본체는 인프라가 아니라 **SSH 를 쓰는 스크립트 5개 + 런북**이고, **비상 접근 경로 설계를 빼먹으면 같은 교착이 재발**한다
   - 상세·대안 기각 사유(terraform `http` data source 자동탐지 = plan 비결정성으로 보류): [`docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md`](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md)
 

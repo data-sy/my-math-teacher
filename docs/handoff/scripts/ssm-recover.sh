@@ -7,12 +7,16 @@
 # 전제: **SSH 가 열려 있어야 한다.** 막혀 있으면 먼저:  bash ~/sync-my-ip.sh --apply
 #       (SG 의 SSH 인그레스가 var.my_ip/32 라 공인 IP 가 바뀌면 통째로 막힌다)
 #
-# 무엇을 고치나 (ssm-deploy-diagnose.sh 2026-08-06 결과):
-#   태그·IAM instance profile = 정상 / SSM 등록 = 전무(ConnectionLost 아님 = 한 번도 등록 안 됨)
-#   egress 전체 허용 + AL2023(에이전트 기본 탑재)이라 네트워크·이미지 문제는 아니다.
-#   유력 가설 = instance profile 이 부팅 이후 attach 돼(compute.tf:70 "in-place 업데이트")
-#   에이전트가 자격증명 없이 뜬 상태. 재기동으로 잡히는지 본다.
-#   ⚠️ 재기동으로도 등록이 안 되면 이 가설이 틀린 것이고, [2] 가 찍는 로그가 다음 단서다.
+# 무엇을 고치나 (2026-08-07 SSH 복구 후 실측으로 원인 확정):
+#   **amazon-ssm-agent 가 아예 설치돼 있지 않다.** rpm 미설치 · systemd 유닛 없음 · 로그 파일 없음.
+#   인스턴스는 al2023-ami-**minimal** 로 떠 있는데(/etc/image-id), minimal 변형에는 SSM 에이전트가
+#   들어있지 않다. compute.tf 의 AMI 필터 "al2023-ami-*-x86_64" 가 minimal 까지 매칭하고
+#   most_recent=true 와 겹쳐 재런치 때 minimal 을 집었다(2026-07 성공 당시엔 표준 이미지였다).
+#   IMDSv2·인스턴스ID·IAM 롤(mmt-ec2-ssm-role)은 전부 정상이다 — 자격증명 문제가 아니다.
+#   *(초기 가설 "프로파일 후행 attach → 재기동으로 해결" 은 기각됐다. 재기동할 에이전트가 없었다.)*
+#
+#   → 그래서 이 스크립트는 **없으면 설치**하고, 있으면 재기동한다.
+#   재발 방지(AMI 필터·most_recent) = docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md
 #
 # 안전: 기본은 읽기만 한다(에이전트 상태·로그 조회). --apply 만 재기동한다.
 #       인프라·서빙 무관 — 백엔드 컨테이너를 건드리지 않는다.
@@ -76,16 +80,23 @@ if [ "$MODE" != "--apply" ]; then
   exit 0
 fi
 
-# ---------- 3. 재기동 ----------
+# ---------- 3. 설치(없으면) → 기동 ----------
 echo
-echo "[3] 에이전트 재기동"
-ssh -i "$KEY" -o ConnectTimeout=15 "$SSHU@$HOST" '
+echo "[3] 에이전트 설치/기동"
+ssh -i "$KEY" -o ConnectTimeout=60 "$SSHU@$HOST" '
+  if ! rpm -q amazon-ssm-agent >/dev/null 2>&1; then
+    echo "미설치 → dnf install (minimal AMI 라 기본 탑재가 아니다)"
+    sudo dnf install -y amazon-ssm-agent 2>&1 | tail -3
+  else
+    echo "이미 설치됨 → 재기동만"
+  fi
   sudo systemctl enable --now amazon-ssm-agent >/dev/null 2>&1
-  sudo systemctl restart amazon-ssm-agent
-  sleep 3
-  echo "재기동 후   : $(systemctl is-active amazon-ssm-agent 2>/dev/null)"
+  sudo systemctl restart amazon-ssm-agent 2>/dev/null
+  sleep 5
+  echo "rpm         : $(rpm -q amazon-ssm-agent 2>&1 | head -1)"
+  echo "agent 상태  : $(systemctl is-active amazon-ssm-agent 2>/dev/null) / $(systemctl is-enabled amazon-ssm-agent 2>/dev/null)"
 ' 2>&1 | grep -viE "post-quantum|store now|may need to be upgraded|^\*\*" | sed 's/^/      /'
-ok "재기동 명령 전송"
+ok "설치/기동 단계 완료"
 
 # ---------- 4. 등록 폴링 ----------
 echo
