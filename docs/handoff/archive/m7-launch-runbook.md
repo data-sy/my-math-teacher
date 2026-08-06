@@ -1,13 +1,13 @@
 # M7 런치 런북 — 프론트 web-v2 스왑 + 진단 플래그 ON (사람 실행분)
 
-> ⚠️ **SUPERSEDED (2026-07-31) — 이 런북대로 런치하지 마세요.** 이 절차로 A3(플래그 ON)까지 진행했고 A4 실검증에서 프로덕션 인증 버그(→ [`../backlog/m7-prod-auth-fresh-token-401.md`](../backlog/m7-prod-auth-fresh-token-401.md))에 막혔습니다. 이후 **프로덕션 인프라를 mothball(완전 종료, billable $0)** 했습니다 — 스냅샷 `mmt-mothball-2026-07-31` 보존. 앞으로의 정본은 **[`🤖-M7-티어다운-실행시퀀스.md`](🤖-M7-티어다운-실행시퀀스.md) §재런치 런북**(인프라 재프로비저닝 + 스냅샷 restore 포함). 아래 내용은 **런치 절차의 역사적 기록**으로만 보존.
+> ⚠️ **SUPERSEDED (2026-07-31) — 이 런북대로 런치하지 마세요.** 이 절차로 A3(플래그 ON)까지 진행했고 A4 실검증에서 프로덕션 인증 버그(→ [`../backlog/m7-prod-auth-fresh-token-401.md`](../../backlog/m7-prod-auth-fresh-token-401.md))에 막혔습니다. 이후 **프로덕션 인프라를 mothball(완전 종료, billable $0)** 했습니다 — 스냅샷 `mmt-mothball-2026-07-31` 보존. 앞으로의 정본은 **[`🤖-M7-티어다운-실행시퀀스.md`](../🤖-M7-티어다운-실행시퀀스.md) §재런치 런북**(인프라 재프로비저닝 + 스냅샷 restore 포함). 아래 내용은 **런치 절차의 역사적 기록**으로만 보존.
 
 > 이 문서 하나만 보고 따라 하면 M7 실런치를 끝낼 수 있게 쓴 절차서입니다.
 > 작성 2026-07-27. 대상 = 사용자님(호스트 접근·Docker Hub 로그인이 필요한 단계).
 
 ## 0. 지금까지 된 것 (읽고 시작)
 
-- ✅ **Phase 1 — CI 이미지 부팅 결함 수리**: 유출 대응이 지운 프로덕션 배선을 `application.yml` 안 profile-gated `secure` 문서로 복구(placeholder-only, 리터럴 시크릿 0). [ADR-0013](../adr/0013-restore-production-wiring-as-profile-gated-tracked-config.md). 커밋 `f432c53`.
+- ✅ **Phase 1 — CI 이미지 부팅 결함 수리**: 유출 대응이 지운 프로덕션 배선을 `application.yml` 안 profile-gated `secure` 문서로 복구(placeholder-only, 리터럴 시크릿 0). [ADR-0013](../../adr/0013-restore-production-wiring-as-profile-gated-tracked-config.md). 커밋 `f432c53`.
 - ✅ **A1 — 백엔드 다크 배포**: `feat/m7-item-selection`(KST 코어) 이미지 `mmt2024/mmt-backend:889390a` 를 **blue-green 무중단**으로 green 슬롯에 올림. 라이브 헬스 200·CTE 그래프 200 확인. **진단 플래그는 아직 OFF**(다크 — 라이브 기능 무영향).
 - ✅ **A2 준비**: web-v2 프론트 이미지 `mymathteacher/mmt-front:2.0.0` 를 **현재 소스로 재빌드 + 로컬 검증 완료**(SPA 200·라우팅·프록시 라우팅 확인). 사용자님 로컬 Docker 에 이미 존재 — **push 만 남음**.
 
@@ -79,7 +79,7 @@ docker push mymathteacher/mmt-front:2.0.0
 # docker push myaccount/mmt-front:2.0.0
 #   → 이 경우 아래 A2-2 의 이미지 이름도 myaccount/... 로 맞추세요.
 ```
-> 이 이미지는 제가 **현재 소스로 재빌드 + 로컬 검증**한 것입니다(2026-07-27). 태그 `2.0.0` 은 [ADR-0011](../adr/0011-react-web-v2-and-front-image-swap.md) 규약.
+> 이 이미지는 제가 **현재 소스로 재빌드 + 로컬 검증**한 것입니다(2026-07-27). 태그 `2.0.0` 은 [ADR-0011](../../adr/0011-react-web-v2-and-front-image-swap.md) 규약.
 
 ### A2-2. 호스트 compose 태그 전환 (사용자님, 호스트 셸)
 
@@ -104,7 +104,7 @@ docker compose up -d mmt-front
 
 ## A4. 실서비스 검증 (사용자님, 실제 계정)
 
-[기기 체크리스트](m7-frontend-v2-device-checklist.md) 병행. 최소 수거:
+[기기 체크리스트](../m7-frontend-v2-device-checklist.md) 병행. 최소 수거:
 
 - [ ] **OAuth 3사 각 1회** — 구글·네이버·카카오 로그인(소셜=가입). 실패 콜백(`/?error=`) 인라인 에러 노출 1회.
 - [ ] **게이트 경유 진단 완주 1회** — 문답 → 결과(등급/시급도) → 학습 큐.
