@@ -195,13 +195,17 @@ function CardView({ card, onPathTap }: { card: ResultCard; onPathTap?: () => voi
           이걸 모르면 위로 {card.urgencyBasis.blockedDescendants}개 개념이 막혀요
         </div>
       )}
-      <div className={s.links}>
-        {card.links.map((l) => (
-          <a key={l.url} href={l.url} target="_blank" rel="noreferrer">
-            {l.label} ↗
-          </a>
-        ))}
-      </div>
+      {/* 링크 결측이 계약 — 0개면 섹션 자체를 그리지 않는다(spec-03 §2.2). 빈 div 를 남기면
+          .links 의 margin-top 7px 만큼 죽은 여백이 생긴다 */}
+      {card.links.length > 0 && (
+        <div className={s.links}>
+          {card.links.map((l) => (
+            <a key={l.url} href={l.url} target="_blank" rel="noreferrer">
+              {l.title} ↗
+            </a>
+          ))}
+        </div>
+      )}
       {/* "학습 경로 보기 ›" 2차 — ●6 과 동일 게이트로 수렴. ④-B 재열람에선 없음 */}
       {onPathTap && (
         <button className={s.pathLink} onClick={onPathTap}>

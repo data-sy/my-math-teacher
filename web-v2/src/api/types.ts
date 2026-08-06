@@ -47,9 +47,15 @@ export type NextResponse =
 
 export type Urgency = 'HIGH' | 'MID' | 'LOW'
 
+/**
+ * M8 spec-03 §3.1 — 개념별 외부 자료 링크. 백엔드 concept_links 의 응답 shape 그대로.
+ * provider('EBS' 등)는 렌더하지 않지만 R4 점검·provider 단위 일괄 비노출의 그룹핑 키라 계약에 있다.
+ * 링크 결측은 계약이다 — 빈 배열이면 섹션을 통째로 생략한다(§2.2, "준비 중" 자리표시 금지).
+ */
 export interface ExternalLink {
-  label: string
+  title: string
   url: string
+  provider: string
 }
 
 export interface ResultCard {
