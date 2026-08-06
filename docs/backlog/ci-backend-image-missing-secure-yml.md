@@ -27,6 +27,23 @@
 > **⚠️ "SSM 등록 전 타이밍" 가설은 기각됐다 (2026-08-06 실측).** 대기를 30초→2분으로 올리고(`e1d2e95`)
 > 재실행한 [run 31078404015](https://github.com/data-sy/my-math-teacher/actions/runs/31078404015) 도
 > **build 성공 · deploy 동일 실패** — 하루 넘게 떠 있는 인스턴스이므로 에이전트 등록 지연이 아니다.
+> ### 🟢 SSM 복구 완료 (2026-08-07) — 남은 것은 CD 1회 실증뿐
+>
+> | 층 | 상태 |
+> |---|---|
+> | SG SSH 인그레스(공인 IP 드리프트) | ✅ 해소 — `sync-my-ip.sh --apply` |
+> | SSM 에이전트 | ✅ 해소 — **minimal AMI 라 미설치였다** → `dnf install` + enable, `PingStatus=Online` 확인(`i-098e63bf15a150633`) |
+> | CD deploy job 실증 | ⏳ **미완 — GitHub Actions 장애로 막힘** |
+>
+> 2026-08-07 재실행 [run 31117744990](https://github.com/data-sy/my-math-teacher/actions/runs/31117744990) 은
+> `The job was not acquired by Runner of type hosted` 로 **build 단계에서 실패**했고(deploy 는 시작도 못 함),
+> 곧이은 재-dispatch 는 `HTTP 500`. githubstatus 확인 결과 **Actions `partial_outage` + 인시던트 investigating**.
+> **우리 쪽 원인이 아니다** — 장애가 걷힌 뒤 아래 명령 한 줄로 재실행하면 된다:
+> ```bash
+> gh workflow run api-ci-cd-with-ec2.yml --ref feat/m7-item-selection -f skip_tests=true
+> ```
+> 재발 방지(=애초에 minimal 을 집게 만든 AMI 필터)는 [별도 백로그](ami-filter-picks-minimal-no-ssm-agent.md)로 분리했다.
+>
 > ### ✅ 진단 완료 (2026-08-06, `ssm-deploy-diagnose.sh` 실행 결과)
 >
 > | 후보 | 실측 |
