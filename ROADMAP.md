@@ -28,7 +28,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 - **[M8] 개념 학습자료 링크 (spec-03 승격 · 착수 대기)** — 2026-08-05 **별도 마일스톤으로 승격**(사용자 결정). M7 안에 "spec-03 층"으로 매달려 있던 것을 떼어낸다: **설계는 2026-07-13 U1~U6 사인오프로 이미 확정**됐고 미완인 것은 **구현 + 콘텐츠 수급**인데, DB 테이블·백엔드 조회에 더해 **사람 손 시드 작업**(병목 상위 30~50 개념 × 링크 3개)이 붙어 M7 잔여(프론트 폴리싱)와 무게·성격이 다르기 때문.
   - **설계 정본:** [`docs/specs/m7/spec-03-learning-path-links.md`](docs/specs/m7/spec-03-learning-path-links.md) — `concept_links` 테이블 · 병목 상위 30~50 시드 + 결측 허용 · source 귀속 = §4.6 타이브레이크 미러 · 개념당 링크 3개 · 월 1회 점검 · goal=primary. 구현 감시 2건(provenance NULL 누수 · nullable+앱 non-null)은 spec-03 §6
-  - **현재 상태 = 라이브에서 링크가 항상 빈 배열.** `concept_links` 테이블이 프로덕션에 없다(`information_schema` 확인 = 0). 프론트(`Result.tsx` CardView)는 **이미 `links` 를 렌더**하므로 데이터가 생기면 그대로 나온다 — 즉 남은 것은 전부 백엔드+콘텐츠
+  - **🚧 "링크만 먼저" 트랙 코드 완료 (2026-08-06, 브랜치 `feat/m8-concept-links` — 미머지·미배포):** 범위는 사용자 결정으로 **링크에 한정**했다(reason/goal = `source_concept_id`·`goal_concept_id` provenance 운반과 ⑥ 경로 강조는 후속 — spec-03 §3.2 자체가 "컬럼 하나 추가보다 무거운 변경"으로 경고). 커밋 4개(Task 분리): `5447a5f` 스키마 · `b77490e` 백엔드 부착 · `4efb18b` 프론트 계약 정렬 · `a545636` 시드 도구. 백엔드 181 테스트 green(로컬 인프라 기동) · mock e2e 18 passed
+    - **Analyze-Before-Change 실측:** `DiagnosisResultAssembler:50` 이 `List.of()` 하드코딩(=빈 배열의 진짜 원인) · `concepts.concept_id INT` ↔ spec 의 `concept_links.concept_id INT` 타입 정렬 확인 · **계약 불일치 발견·해소** = 프론트 `ExternalLink{label,url}` ↔ spec `{title,url,provider}` → spec 기준으로 정렬(사용자 결정) · 링크 0개일 때 빈 div 가 `margin-top:7px` 죽은 여백을 만들던 것도 §2.2 계약대로 수정
+    - **남은 것 2개 (둘 다 사람 몫):** ① **프로덕션 DDL 적용** — `api/sql/m8-apply-concept-links-ddl-prod.sql`(멱등, PREFLIGHT/POSTFLIGHT). RDS 가 `publicly_accessible=false` 라 EC2 호스트에서 실행 ② **콘텐츠 큐레이션** — 대상 개념은 `shared/scripts/select-bottleneck-concepts.sql` 로 뽑고(병목 상위 30~50), `shared/data/concept-links-seed.csv` 를 채운 뒤 `shared/scripts/concept-links-seed-to-sql.sh` 로 적재. **시드가 0이어도 안전하다** — 링크 결측이 계약이라 API·UI 는 그대로 동작(빈 배열 → 섹션 생략)
   - **파생 항목(같은 트랙에서 처리):** 카드 근거 문구를 숫자(`blockedDescendants`) 대신 **후수 개념명 지목**("'○○'을 배우려면 먼저 필요해요")으로 바꾸는 안 — 2026-08-05 결정 B 의 2단계. 백엔드 DTO 필드 + 대표 후수 선정 쿼리 필요. 1단계(0개면 문구 숨김)는 프론트에서 처리 완료
 
 - **[M5] 관측성 — Grafana/Prometheus 로 무중단 컷오버 재계측 (착수 대기)**
