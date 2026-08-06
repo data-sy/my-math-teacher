@@ -8,6 +8,7 @@ import type {
   Answer,
   Chapter,
   ConceptDetail,
+  ConceptEdge,
   ConceptGraphResponse,
   ConceptNode,
   ConceptSearchHit,
@@ -198,6 +199,38 @@ export async function fetchConceptGraph(centerConceptId: string): Promise<Concep
       .map((e) => ({ from: sid(e.data.source), to: sid(e.data.target) }))
       .filter((e) => ids.has(e.from) && ids.has(e.to)),
   }
+}
+
+/**
+ * ④-B 학습 큐 DAG — 노드 = 저장된 계단 항목만, 간선 = 그 항목들 사이의 선수관계.
+ *
+ * 전용 엔드포인트가 없어 카드별 `edges/{id}` 합집합을 큐 노드로 필터해 조립한다.
+ * **누락 없음이 보장된다**(2026-08-05 백엔드 실측):
+ *   · 큐 노드 집합 = 카드별 선수 폐쇄(depth 3) 합집합 − known (LearningQueueService)
+ *   · edges/{id} = `from_concept_id IN (선수 폐쇄)` — 즉 폐쇄 안 노드로 **들어오는** 간선 전부
+ *   · 따라서 두 끝점이 모두 큐에 있는 간선은 반드시 어느 카드의 응답에 포함된다
+ * 노드 라벨은 큐 항목이 이미 갖고 있어(conceptName) `nodes/{id}` 호출은 불필요.
+ */
+export async function fetchQueueEdges(
+  cardConceptIds: string[],
+  queueConceptIds: string[],
+): Promise<ConceptEdge[]> {
+  const inQueue = new Set(queueConceptIds)
+  const responses = await Promise.all(
+    cardConceptIds.map((id) => apiFetch<EdgeWire[]>(`/api/v1/concepts/edges/${id}`)),
+  )
+  const seen = new Set<string>()
+  const edges: ConceptEdge[] = []
+  for (const wire of responses.flat()) {
+    // source→target = 선수→후수 (knowledge_space rowMapper 가 to/from 을 뒤집어 매핑)
+    const from = sid(wire.data.source)
+    const to = sid(wire.data.target)
+    const key = `${from}->${to}`
+    if (!inQueue.has(from) || !inQueue.has(to) || seen.has(key)) continue // 카드 간 중복 제거
+    seen.add(key)
+    edges.push({ from, to })
+  }
+  return edges
 }
 
 export async function searchConcepts(query: string): Promise<ConceptSearchHit[]> {

@@ -20,6 +20,14 @@ resource "aws_db_instance" "app" {
   username          = var.db_username
   password          = var.db_password
 
+  # 재런치(2026-08, 결정 A1): mothball 스냅샷에서 복원한다. 이 줄이 없으면 apply 가
+  # 빈 mmt-db 를 새로 만들고, 별도 restore 는 식별자 충돌로 막힌다.
+  # ⚠️ ForceNew — 값을 바꾸거나 지우면 RDS replacement(=데이터 소멸)다. 고정할 것.
+  # 스냅샷은 M7 DDL **이전** 상태 → 복원 후 api/sql/m7-apply-diagnosis-ddl-prod.sql 필요.
+  # db_name·username·allocated_storage 는 restore API 가 받지 않아 스냅샷 값이 이긴다
+  # (20GB·mmtadmin·mmt 로 일치 확인, 2026-08-05). password 만 복원 후 modify 로 적용된다.
+  snapshot_identifier = "mmt-mothball-2026-07-31"
+
   multi_az            = false # Single-AZ (§9.3)
   skip_final_snapshot = true  # 학습/일회성 — 삭제 시 스냅샷 강제 안 함
   publicly_accessible = false # 앱(EC2)에서만 접근, 공인 노출 안 함

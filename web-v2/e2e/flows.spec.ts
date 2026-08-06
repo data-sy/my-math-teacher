@@ -158,7 +158,7 @@ test('③ undo — 직전 답 1개 되돌리기, 진척 후퇴는 undo 만 예�
   await expect(page.getByText('이차방정식의 활용')).toBeVisible() // 그 개념 질문으로 복귀
 })
 
-test('④ 약점 0 (B안) — 전부 알아요 → 한 계단 위 CTA', async ({ page }) => {
+test('④ 약점 0 (B안) — 전부 알아요 → 다음 단원 CTA', async ({ page }) => {
   await page.goto('/entry')
   await pickGradeAndDefault(page)
   await page.getByRole('button', { name: /^인수분해/ }).click()
@@ -167,10 +167,11 @@ test('④ 약점 0 (B안) — 전부 알아요 → 한 계단 위 CTA', async ({
 
   await expect(page).toHaveURL(/\/result/)
   await expect(page.getByText('약점이 안 보여요! 👍')).toBeVisible()
-  await expect(page.getByText('여기는 탄탄해요 — 한 계단 위로 올라가볼까요?')).toBeVisible()
-  // 게이트 CTA·저장 없음 — 1차 = 한 계단 위 진단 (ch08 다음 = ch09 이차방정식)
+  // 카피 정본 = a0298b0(2026-07-26) — 마지막 단원이면 이 질문 자체를 숨긴다
+  await expect(page.getByText('여기는 탄탄해요 — 다음 단원으로 가볼까요?')).toBeVisible()
+  // 게이트 CTA·저장 없음 — 1차 = 다음 단원 진단 (ch08 다음 = ch09 이차방정식)
   await expect(page.getByRole('button', { name: '저장하고 학습 경로 시작하기' })).toHaveCount(0)
-  await page.getByRole('button', { name: "한 계단 위 '이차방정식' 진단하기" }).click()
+  await page.getByRole('button', { name: "다음 단원 '이차방정식' 진단하기" }).click()
   await expect(page).toHaveURL(/\/quiz/)
   await expect(page.getByText('이차방정식의 활용')).toBeVisible()
 })

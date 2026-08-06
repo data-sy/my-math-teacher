@@ -77,6 +77,12 @@ public class SecurityConfig {
 //                                .requestMatchers("/api/v1/**").permitAll()
                                 // 인증 없이 접근 가능
                                 .requestMatchers("/", "/favicon.ico", "/api/v1/hello/**").permitAll()
+                                // (M7 A4) Spring 의 ERROR 디스패치(/error)를 permitAll 로 열어 마스킹 제거.
+                                // JwtFilter 는 ERROR 디스패치에서 안 돌아(SecurityContext 비어있음) /error 가
+                                // anyRequest().authenticated() 에 걸리면 404·500·모든 미처리 예외가 401 로 위장된다.
+                                // (server.error.include-message=Boot3 기본 never → 예외 메시지 유출 없음)
+                                // 정본: docs/backlog/m7-prod-auth-fresh-token-401.md
+                                .requestMatchers("/error").permitAll()
                                 // M4 spec-01: 무중단 배포 전환 게이트. 하위 리소스 없는 단일 GET 이므로
                                 // 와일드카드 없이 정확 매칭 + GET-only 로 표면 최소화 (G6)
                                 .requestMatchers(HttpMethod.GET, "/api/v1/health").permitAll()

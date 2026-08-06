@@ -54,9 +54,14 @@ public class TokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        //Access Token 생성
+        //Access Token 생성 — jti(UUID)+iat 부여로 발급마다 유일. (M7 A4 하드닝) access 는 원래
+        // {sub,auth,exp}뿐이라 같은 유저·같은 초 발급 시 바이트 동일 → reissue/logout 이 블랙리스트
+        // 키로 access 문자열을 쓰므로 "방금 낸 토큰을 블랙리스트에 올리는" 자기-무효화가 가능했다.
+        // 추가 클레임은 배포 오버랩 안전(구 인스턴스 검증에 무영향). 정본: docs/backlog/m7-prod-auth-fresh-token-401.md
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
+                .setId(UUID.randomUUID().toString())
+                .setIssuedAt(new Date(now))
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setExpiration(new Date(now + accessTokenValidityInMilliseconds))

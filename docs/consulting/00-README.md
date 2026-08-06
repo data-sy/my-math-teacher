@@ -44,3 +44,25 @@ Vue→React 이주 타당성·비용을 평가하기 위한 **컨설팅 프롬�
 
 - `01-design-ux-consult.md` — 디자인/UX 컨설팅 프롬프트
 - `02-vue-to-react-migration-scope.md` — Vue→React 이주 타당성·견적 프롬프트
+
+## 추가 컨설팅 (별도 주제 — 위 리디자인 묶음과 무관)
+
+- `03-adaptive-question-selection.md` — 적응형 문항 선택 알고리즘(KST/CAT/DKT 등) 서베이·권장 페르소나 프롬프트. 정본 백로그 = `docs/backlog/m7-adaptive-traversal-question-selection.md`. 리포 접근 없이 격리 세션에 붙여넣는 자기완결 프롬프트.
+- 결과·자료는 `out/` 아래:
+  - `adaptive-question-selection-report.md` — 권장안 정본 (2026-07-24 재실행, 2026-07-19판과 수렴)
+  - `adaptive-question-selection-report-2026-07-19.md` — 최초 실행판 (provenance)
+  - `question-selection-learning.html` — 후보 5계열 일반 학습자료
+  - `question-selection-explainer.html` — 배경지식 0 기준 쉬운 설명
+  - `kst-learning-material.html` — 지식공간이론(KST) 심화 학습자료 + 외부 링크
+- 구현 착수용 프롬프트 = `../handoff/m7-item-selection-kst-impl-prompt.md` (이 컨설팅 결과 기반 · 2026-07-24 실행 완료 → 핸드오프 아카이브).
+
+## 그래프 위계·뎁스 컨설팅 (별도 주제 — ⑥ 그래프 시각 위계, 2026-07-18)
+
+리포 접근 없이 격리 세션에 붙여넣는 자기완결 프롬프트. 결과 = A안(색 층위) 채택, web-v2 에 적용 완료.
+
+- `04-graph-hierarchy-consult.md` — 그래프 위계 백지 컨설팅 입력 프롬프트
+- `05-graph-depth-consult.md` — 그래프 뎁스(depth) 분리감 컨설팅 입력 프롬프트
+- 결과·자료는 `out/` 아래:
+  - `graph-hierarchy-report-2026-07-18.md` — 백지 컨설팅 결과 리포트
+  - `graph-hierarchy-mockup.html` — 시각 비교 목업
+- 채택안 실행 핸드오프 = `../handoff/m7-graph-scheme-a-handoff.md` (A안 적용 정본 · 2026-07-19 적용 완료).

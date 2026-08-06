@@ -108,18 +108,36 @@ ORDER BY c.concept_id
 ```
 req  { entry: {chapterId | scope:"full", schoolLevel?}, answered: [{conceptId, known}] }
 res  { next: {conceptId, conceptName, description}, progress: {asked, estimatedRemaining}, done: false }
-     { done: true }                                   // 프론티어 소진 → 클라가 preview/귀속 호출
+     { done: true }                                   // 종료(후보 소진 AND asked≥K, 또는 asked=N) → 클라가 preview/귀속 호출
 ```
 
-**순회 규칙** (전부 depth-1 스텝·결정론적 순서 = conceptId 오름차순):
+> **결정론적 KST 코어 개정 (2026-07-24, ADR-0012).** 구 규칙(프론티어 소진 = done, 순서 = conceptId 오름차순, 알아요 → 폐쇄 전체 skip)은 프로토타입 리뷰에서 결함 3건이 확인됨 — ① 단일 프론티어 1문 종료, ② 폐쇄 skip 과신, ③ 순서 무근거([`docs/backlog/m7-adaptive-traversal-question-selection.md`](../../backlog/m7-adaptive-traversal-question-selection.md)). 확률층(BLIM, 데이터 필요) 없이 **DAG 구조 계산만으로** 결함을 닫는 규칙 A·B·C 로 개정한다. **매 요청 재계산·stateless·결정론·API shape·③ 화면 계약은 전부 불변.** 전역 KST 반분·DKT 역이용·IRT 는 이번 범위 밖(런치 후, ADR-0012 제외 범위).
 
-1. 초기 프론티어 = §4.2 시작 프론티어.
-2. **"몰라요"(known=false)** → 그 개념의 **직계 선수**(`from_concept_id=C`의 `to_concept_id`)를 프론티어에 push. 무너진 토대의 바닥을 찾는 drill-down.
-3. **"알아요"(known=true)** → 그 개념의 **선수 폐쇄 전체를 inferred-known 마킹** → 이후 질문 대상에서 제외. 화면 수 급감의 핵심. **폐쇄 계산 = `knowledge_space` 전체 간선(실측 3,446행) 1회 로드 + 앱 계층 visited-set BFS** *(구현 시 확정 2026-07-13, 사인오프 2026-07-14 — 당초 `findPrerequisitesWithDepth(C, 10)` 재사용안은 ① 실그래프 폐쇄 최대 깊이 22(개념 5294)로 세션 `cte_max_recursion_depth=10`과 경계 충돌 — maxDepth=10 실행 시 MySQL ERROR 3636 "Recursive query aborted after 11 iterations" 실측 ② 상호선수 2-사이클 26쌍(간선 52)이 depth 상한 없인 재귀 증식 요인 — 으로 기각. visited-set BFS 는 사이클 면역·깊이 무제한. 이 경로는 `graph:v2:` Redis 캐시를 타지 않고 요청당 간선을 직로드한다(1,631 개념·3,446 간선 규모에서 무해 — 캐시는 성능 실측 후 후속). §4.4 취약 확장·§4.5 blockedDescendants 의 CTE(depth 3)는 상한 10 안에 있어 유지.)*
-4. 다음 질문 = 프론티어에서 (이미 answered ∪ inferred-known) 제외 후 첫 개념. 소진 시 `done`.
-5. `description` = `concepts.concept_description` 을 D5 "대표 예시" 1차 소스로 사용(공란·부실 개념의 보강은 spec-03 콘텐츠 트랙과 접점 — 계약만 예약).
+**세 상태 집합** (매 요청 answered[] 에서 재계산):
 
-무상태이므로 서버 세션·정합 부담 없음. 재계산 비용은 answered-map 크기에 선형 + 순회의 그래프 조회는 간선 직로드(무캐시, 위 3항)로 요청당 3,446행 — 현 규모에서 무해하며 캐시 도입은 성능 실측 후 후속.
+- `Known` = answered 중 known=true 개념 ∪ **그 선수 폐쇄 전체**(아래 폐쇄 계산). "알아요"는 선수를 안다는 폐쇄 규칙.
+- `Unknown` = answered 중 known=false 개념 (그 후손은 답 못 하므로 자연히 후보에서 배제).
+- `Undetermined` = 도메인 − Known − Unknown. 다음 질문은 여기서만 나온다.
+
+> **폐쇄 계산** = `knowledge_space` 전체 간선(실측 3,446행) 1회 로드 + 앱 계층 visited-set BFS *(2026-07-13 확정, 사인오프 2026-07-14 — `findPrerequisitesWithDepth(C, 10)` 재사용안은 ① 실그래프 폐쇄 최대 깊이 22 로 세션 `cte_max_recursion_depth=10` 충돌(MySQL ERROR 3636 실측) ② 상호선수 2-사이클 26쌍 재귀 증식 — 으로 기각. visited-set BFS 는 사이클 면역·깊이 무제한, `graph:v2:` 캐시 미경유·요청당 간선 직로드. §4.4 취약 확장·§4.5 blockedDescendants 의 CTE(depth 3)는 상한 10 안이라 유지.)*
+
+**신규 순회 규칙:**
+
+1. 초기 프론티어 = §4.2 시작 프론티어 (**불변**).
+2. **"몰라요"(known=false)** → 그 개념의 **직계 선수**(`from_concept_id=C`의 `to_concept_id`)를 후보에 push (**불변**). 정렬만 규칙 B 로 변경.
+3. **"알아요"(known=true)** → 폐쇄를 **inferred-known 마킹(Known)** 하되 규칙 C 대로 폐쇄 내 **검증 프로브를 후보에 남긴다**. 프로브가 "몰라요"면 규칙 C(D3)대로 국소 복원.
+4. **다음 질문** = (`Undetermined` ∩ 후보) 중 **규칙 B 순서 1위**. 후보가 비고 **asked ≥ K** 이면 `done`. asked < K 이면 규칙 A 대로 프로브를 더 뽑아 계속. **asked = N 도달 시 강제 `done`**.
+5. `description` = `concepts.concept_description` 을 D5 "대표 예시" 1차 소스로 사용 (**불변** — 공란·부실 개념 보강은 spec-03 접점, 계약만 예약).
+
+**규칙 A — 종료: 최소 하한 K + 상한 N (결함① 해소, D1).** 종료 = "후보 소진 AND asked ≥ K". `K=8`. 후보 소진 + asked < K 이면 프론티어 인접·잠정-앎 영역에서 프로브를 더 뽑아 계속. `N=20` 하드캡(3분 계약) — asked=N 강제 done, K ≤ N. `progress.estimatedRemaining` 산식은 하한/상한을 반영해 재계산하되 필드·shape 는 불변.
+
+**규칙 B — 순서: 정보량 순 (결함③ 해소, D2 tie-break).** 후보 정렬 = **`blockedDescendants` 내림차순**, tie-break = **DAG 깊이 내림차순 → conceptId 오름차순**(결정론 확정). `blockedDescendants` = **§4.5 역방향 CTE `countBlockedDescendants(conceptId, 3)`** 재사용(신규 인프라 0). 정렬은 리스트로만 — `HashSet`/`HashMap` 순회 순서에 의존하면 preview≠귀속(계약 위반).
+
+**규칙 C — skip-with-probe (결함② 해소, D2·D3).** "알아요" 폐쇄를 Known 마킹하되 **결정론 프로브를 남긴다**: 프로브 수(D2) = 폐쇄 크기 < 임계 m(=4) 이면 1개, ≥ m 이면 √(폐쇄크기)개(내림). 프로브 선정 = **blockedDescendants 최대 우선**(tie-break 규칙 B 동일). 프로브가 "몰라요"면(D3) 그 개념의 **직계 선수 서브트리만** Undetermined 로 복원(폐쇄 전체 아님 — 3분 계약 안전). 프로브 "몰라요"는 일반 known=false 답으로 answered[] 에 들어가 **결과 경로(§4.4)에 자연 반영**(결과 계약 무변경).
+
+> **결정론 필수 조건:** 프로브 선정·복원·정렬 모두 **구조 순위로 확정**(blockedDescendants → DAG 깊이 → conceptId). 랜덤·시각·해시맵 순회 순서 의존 금지 — preview==귀속(§8) 이 계약.
+
+무상태이므로 서버 세션·정합 부담 없음. 재계산 비용은 answered-map 크기에 선형 + 규칙 B 가 요청당 후보 개념별 `countBlockedDescendants` CTE(depth 3) 를 호출 — 현 규모(1,631 개념·3,446 간선)에서 무해하며 캐시(`graph:v2:blocked:`) 도입은 성능 실측 후 후속.
 
 ### 4.4 self-report→DKT 매핑 + 결과 계약 (D3-R)
 
@@ -252,3 +270,8 @@ learning_queue_items  (queue_item_id PK AUTO, queue_id FK, position INT,
 - **계단 불변식:** 생성된 큐의 모든 (선수, 후수) 쌍에서 선수 position < 후수 position (위상정렬 property 테스트). 시급도는 진입 순서에만 반영되는지.
 - **게이트 배선:** 비로그인으로 문답→preview 완주(무료 충족, §5.1 PRD) / 귀속·큐·done 은 인증+소유권 강제.
 - **구 경로 무접촉(R1 소멸 증명):** self-report 경로가 `answers`·`tests_items`·`items`·`findBefore`/`findAIInput` 을 **일절 참조하지 않고 완주**(property 테스트).
+- **KST 코어 (ADR-0012, §4.3 규칙 A·B·C):**
+  - *규칙 A (결함① 하한/상한):* 단일 프론티어 첫 "알아요"가 1문 종료되지 않고 asked ≥ K(=8) 까지 프로브를 뽑는지. asked=N(=20) 초과 없이 강제 done.
+  - *규칙 B (결함③ 순서):* 다중 선수에서 `blockedDescendants` 큰 개념이 먼저 나오는지(tie-break DAG 깊이 → conceptId). 간선 셔플·해시맵 순회 무관 동일 순서(결정론).
+  - *규칙 C (결함② 프로브):* "알아요" 폐쇄에 프로브가 남고(D2 임계 4 미만 1개·이상 √n), 프로브 "몰라요" 시 직계 선수 서브트리만 복원(D3), 프로브 답이 결과 카드에 반영되는지.
+  - *결정론 전 구간:* 같은 answered[] → 같은 next·같은 결과(입력 순서 섞어/반복해도). preview==귀속.

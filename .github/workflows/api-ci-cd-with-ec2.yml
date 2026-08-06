@@ -96,6 +96,10 @@ jobs:
       # 비밀 아님 — front 와 백엔드가 공유하는 compose user-defined 네트워크명(R3).
       # 미설정 시 compose 프로젝트 기본값(앱 디렉토리=ec2-user → ec2-user_default).
       COMPOSE_NET: ${{ vars.COMPOSE_NET || 'ec2-user_default' }}
+      # 비밀 아님 — nginx 가 실제 마운트하는 fragment 의 호스트 경로. switch-backend.sh 기본값은
+      # $SCRIPT_DIR/active-backend.conf(=~/deploy/active-backend.conf)이나, 현 프로덕션 호스트의
+      # nginx 는 ~/active-backend.conf 를 마운트한다 → 명시 전달로 정합(백로그 §함께처리).
+      FRAGMENT_HOST_FILE: ${{ vars.FRAGMENT_HOST_FILE || '/home/ec2-user/active-backend.conf' }}
       # §4 측정: t3.micro(1 vCPU)에서 부팅 JVM 이 코어를 독점(148%)해 서빙 JVM 을 굶겨
       # 컷오버 창에서 요청 타임아웃 발생(최대 11.4%, 502 아님·전송갭 아님·순수 CPU 경합).
       # 부팅 컨테이너를 반 코어로 캡하면 완전 무중단 0% 확증(§4 3단 결론). switch-backend.sh
@@ -125,8 +129,8 @@ jobs:
         # SSM 명령은 기본 root 로 실행되나 switch-backend.sh 는 ec2-user 홈의
         # 파일·상대경로·docker 그룹에 의존(ADR 0008 D1) → runuser 로 ec2-user
         # 정체성·작업디렉토리·그룹을 그대로 태워 실행한다.
-        # IMAGE_REPO/COMPOSE_NET/CPU_LIMIT/NEW_TAG 는 비밀 아닌 배포 토글(공백 없음)이라 인라인.
-        REMOTE="cd ~ && IMAGE_REPO=${IMAGE_REPO} COMPOSE_NET=${COMPOSE_NET} CPU_LIMIT=${CPU_LIMIT} NEW_TAG=${NEW_TAG} bash deploy/switch-backend.sh ${NEW_TAG}"
+        # IMAGE_REPO/COMPOSE_NET/FRAGMENT_HOST_FILE/CPU_LIMIT/NEW_TAG 는 비밀 아닌 배포 토글(공백 없음)이라 인라인.
+        REMOTE="cd ~ && IMAGE_REPO=${IMAGE_REPO} COMPOSE_NET=${COMPOSE_NET} FRAGMENT_HOST_FILE=${FRAGMENT_HOST_FILE} CPU_LIMIT=${CPU_LIMIT} NEW_TAG=${NEW_TAG} bash deploy/switch-backend.sh ${NEW_TAG}"
         FULL="runuser -l ec2-user -c '${REMOTE}'"
         PARAMS=$(jq -nc --arg c "$FULL" '{commands: [$c]}')
 

@@ -3,7 +3,10 @@
   margin-bottom: 4px;
 }
 
-.loginRow a {
+/* 로그인 링크(a)·로그아웃(button) 양쪽 — .txt-link 의 display:block/text-align:center 를 덮어
+   같은 우측 자리에 놓는다. a 만 잡던 구 셀렉터는 로그아웃 버튼을 가운데 전폭으로 흘렸다 (2026-08-05) */
+.loginRow a,
+.loginRow button {
   display: inline;
   color: var(--sub);
   font-size: 12.5px;

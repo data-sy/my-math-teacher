@@ -7,6 +7,7 @@ import com.mmt.api.dto.diagnosis.DiagnosisNextResponse;
 import com.mmt.api.repository.concept.ConceptSummary;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.concept.KnowledgeEdge;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import com.mmt.api.exception.DiagnosisException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,21 +29,53 @@ import java.util.stream.Collectors;
 /**
  * M7 spec-01 자가진단 — 그래프 적응형 문답 (§4.3 서버 주도 stateless 순회, D1-A).
  *
+ * 결정론적 KST 코어 (ADR-0012): 확률층 없이 DAG 구조 계산만으로 결함 3건을 닫는다.
+ * 규칙 B(순서) = blockedDescendants 내림차순 → DAG 깊이 내림차순 → conceptId 오름차순.
+ * 규칙 A(하한/상한)·규칙 C(skip-with-probe)는 후속 커밋에서 얹는다.
+ *
  * 결정론 계약: 동일 (entry, answered[]) → 항상 동일한 next. 순회의 모든 순서는
- * concept_id 오름차순 + answered[] 입력 순서로만 정해진다 (spec-01 §8 검증 대상).
+ * 구조 순위(blockedDescendants → 깊이 → conceptId)로 확정한다 — HashSet/HashMap
+ * 순회 순서에 의존하면 preview≠귀속(계약 위반, spec-01 §8).
  *
  * 그래프 조회는 CTE 플래그(mmt.migration.use-mysql-cte-for-graph)와 무관하게
- * MySQL 직행이다 (ADR-0010 Decision-3). 선수 폐쇄 전체는 depth 10 CTE 가 아니라
- * 전체 간선 로드 + visited-set BFS 로 계산한다 — 실그래프 폐쇄 깊이 22 로
- * cte_max_recursion_depth=10 과 충돌(ERROR 3636 실측)하기 때문 (2026-07-13 design-review).
+ * MySQL 직행이다 (ADR-0010 Decision-3). 선수 폐쇄·blockedDescendants·깊이는 전체
+ * 간선 1회 로드 후 앱 계층에서 계산한다 — 폐쇄는 visited-set BFS(실그래프 깊이 22 로
+ * cte_max_recursion_depth=10 충돌, 2026-07-13 design-review), blockedDescendants 는
+ * §4.5 역방향 CTE 와 동치인 depth 3 역방향 BFS(요청당 후보 N 개 CTE 왕복 회피).
  */
 @Service
 public class DiagnosisService {
 
-    private final JdbcTemplateConceptRepository conceptRepository;
+    /** blockedDescendants 역방향 도달 깊이 상한 (spec-01 §4.5 CTE 와 동치). */
+    static final int BLOCKED_DEPTH = 3;
 
+    /** 정책 상수 (ADR-0012 Decision-4, D1·D2). 실데이터 축적 후 튜닝 대상. */
+    static final int DEFAULT_MIN_QUESTIONS = 8;    // K — 최소 질문 하한 (결함① 방지)
+    static final int DEFAULT_MAX_QUESTIONS = 20;   // N — 3분 하드캡
+    static final int DEFAULT_PROBE_THRESHOLD = 4;  // m — 폐쇄 크기 < m 이면 프로브 1개, 이상 √n (결함②)
+
+    private final JdbcTemplateConceptRepository conceptRepository;
+    private final int minQuestions;
+    private final int maxQuestions;
+    private final int probeThreshold;
+
+    @Autowired  // 생성자 다중(테스트용 오버로드) → Spring 이 주입할 생성자를 명시해야 함.
     public DiagnosisService(JdbcTemplateConceptRepository conceptRepository) {
+        this(conceptRepository, DEFAULT_MIN_QUESTIONS, DEFAULT_MAX_QUESTIONS, DEFAULT_PROBE_THRESHOLD);
+    }
+
+    /** 테스트용 — 작은 합성 그래프에서 하한/상한 동작을 검증할 수 있게 K·N 을 주입. */
+    DiagnosisService(JdbcTemplateConceptRepository conceptRepository, int minQuestions, int maxQuestions) {
+        this(conceptRepository, minQuestions, maxQuestions, DEFAULT_PROBE_THRESHOLD);
+    }
+
+    /** 테스트용 — 프로브 임계 m 까지 주입. */
+    DiagnosisService(JdbcTemplateConceptRepository conceptRepository,
+                     int minQuestions, int maxQuestions, int probeThreshold) {
         this.conceptRepository = conceptRepository;
+        this.minQuestions = minQuestions;
+        this.maxQuestions = maxQuestions;
+        this.probeThreshold = probeThreshold;
     }
 
     /** 시작 프론티어 (spec-01 §4.2, F-3). */
@@ -53,14 +87,24 @@ public class DiagnosisService {
                 .collect(Collectors.toList()));
     }
 
-    /** 적응형 순회 — 다음 질문 1개 (spec-01 §4.3). */
+    /** 적응형 순회 — 다음 질문 1개 (spec-01 §4.3, ADR-0012 규칙 A·B·C). */
     @Transactional(readOnly = true)
     public DiagnosisNextResponse next(DiagnosisEntry entry, List<AnsweredConcept> answered) {
         List<AnsweredConcept> answers = answered == null ? List.of() : answered;
         Map<Integer, Boolean> answeredMap = toValidatedAnsweredMap(answers);
+        int asked = answers.size();
 
-        // 간선 1회 로드 (3.4k 행) → 선수 인접 리스트. from=후수, to=선수.
-        Map<Integer, List<Integer>> prerequisitesOf = buildPrerequisiteAdjacency(conceptRepository.findAllEdges());
+        // 규칙 A 상한: 3분 하드캡 도달 시 강제 종료.
+        if (asked >= maxQuestions) {
+            return DiagnosisNextResponse.done();
+        }
+
+        // 간선 1회 로드 (3.4k 행) → 선수 인접(from=후수→to=선수) + 역방향 인접(to=선수→from=후수).
+        List<KnowledgeEdge> edges = conceptRepository.findAllEdges();
+        Map<Integer, List<Integer>> prerequisitesOf = buildPrerequisiteAdjacency(edges);
+        Map<Integer, List<Integer>> blockersOf = buildBlockerAdjacency(edges);
+        Comparator<Integer> order =
+                candidateOrder(blockersOf, prerequisitesOf, new HashMap<>(), new HashMap<>());
 
         // 순회 규칙 3: "알아요" → 선수 폐쇄 전체 inferred-known (visited-set BFS).
         Set<Integer> inferredKnown = new HashSet<>();
@@ -69,34 +113,170 @@ public class DiagnosisService {
                 bfsCollect(a.getConceptId(), prerequisitesOf, inferredKnown);
             }
         }
-
-        // 순회 규칙 1·2: 시작 프론티어 + "몰라요" 직계 선수 push (입력 순서대로, 개념 내부는 id 오름차순).
-        LinkedHashSet<Integer> sequence = new LinkedHashSet<>();
-        for (ConceptSummary c : resolveFrontier(entry)) {
-            sequence.add(c.conceptId());
-        }
+        // 규칙 C(D3) 복원: 폐쇄가 known 이라 주장했으나 실제 "몰라요"인 개념(실패한 프로브)의
+        // 선수 서브트리만 inferred-known 에서 제거 → drill-down 재개방. 폐쇄 전체 아님(오염 국소).
         for (AnsweredConcept a : answers) {
-            if (!a.isKnown()) {
-                prerequisitesOf.getOrDefault(a.getConceptId(), List.of()).stream()
-                        .sorted()
-                        .forEach(sequence::add);
+            if (!a.isKnown() && inferredKnown.contains(a.getConceptId())) {
+                Set<Integer> subtree = new HashSet<>();
+                bfsCollect(a.getConceptId(), prerequisitesOf, subtree);
+                inferredKnown.removeAll(subtree);
             }
         }
 
-        // 순회 규칙 4: (answered ∪ inferred-known) 제외 후 첫 개념.
-        List<Integer> remaining = sequence.stream()
-                .filter(id -> !answeredMap.containsKey(id) && !inferredKnown.contains(id))
-                .collect(Collectors.toList());
-        if (remaining.isEmpty()) {
+        // 규칙 C 프로브 선정: "알아요" 폐쇄마다 검증 프로브를 결정론적으로 고른다(D2).
+        // 프로브는 inferred-known 이어도 후보로 남긴다("잠정-앎"을 국소 검증).
+        LinkedHashSet<Integer> probes = selectProbes(answers, prerequisitesOf, order);
+
+        // 순회 규칙 1·2: 시작 프론티어 + "몰라요" 직계 선수 → 후보 집합.
+        LinkedHashSet<Integer> candidates = new LinkedHashSet<>();
+        for (ConceptSummary c : resolveFrontier(entry)) {
+            candidates.add(c.conceptId());
+        }
+        for (AnsweredConcept a : answers) {
+            if (!a.isKnown()) {
+                candidates.addAll(prerequisitesOf.getOrDefault(a.getConceptId(), List.of()));
+            }
+        }
+
+        // 규칙 4: primary 후보 = (프론티어·drill-down 중 Undetermined) ∪ (미답 프로브).
+        LinkedHashSet<Integer> primaryPool = new LinkedHashSet<>();
+        for (int id : candidates) {
+            if (!answeredMap.containsKey(id) && !inferredKnown.contains(id)) {
+                primaryPool.add(id);
+            }
+        }
+        for (int probe : probes) {
+            if (!answeredMap.containsKey(probe)) {
+                primaryPool.add(probe);
+            }
+        }
+        List<Integer> ordered = primaryPool.stream().sorted(order).collect(Collectors.toList());
+        if (!ordered.isEmpty()) {
+            return buildNext(ordered.get(0), asked, ordered.size());
+        }
+
+        // 규칙 A 하한: 후보 소진이어도 asked < K 면 잠정-앎(inferred-known)에서 검증 질문을
+        // 더 뽑아 진단이 너무 얇게 끝나지 않게 한다 (결함① 방지). 잠정-앎도 소진되면
+        // (그래프가 K 보다 작은 극단) best-effort 로 종료한다.
+        if (asked >= minQuestions) {
             return DiagnosisNextResponse.done();
         }
-        int nextId = remaining.get(0);
-        ConceptSummary next = conceptRepository.findConceptSummaryById(nextId)
-                .orElseThrow(() -> new IllegalStateException("knowledge_space 가 참조하는 개념이 없음: " + nextId));
+        List<Integer> floorFill = inferredKnown.stream()
+                .filter(id -> !answeredMap.containsKey(id))
+                .sorted(order)
+                .collect(Collectors.toList());
+        if (floorFill.isEmpty()) {
+            return DiagnosisNextResponse.done();
+        }
+        return buildNext(floorFill.get(0), asked, floorFill.size());
+    }
+
+    /**
+     * 규칙 C 프로브 선정 (ADR-0012 D2, 결함②): "알아요" 폐쇄마다 검증 프로브를 남긴다.
+     * 프로브 수 = 폐쇄 크기 < m 이면 1개, ≥ m 이면 √(폐쇄크기)(내림). 선정 = 규칙 B
+     * 순서(blockedDescendants 최대 우선) 상위 — 전부 구조 순위라 결정론.
+     */
+    private LinkedHashSet<Integer> selectProbes(List<AnsweredConcept> answers,
+                                                Map<Integer, List<Integer>> prerequisitesOf,
+                                                Comparator<Integer> order) {
+        LinkedHashSet<Integer> probes = new LinkedHashSet<>();
+        for (AnsweredConcept a : answers) {
+            if (!a.isKnown()) {
+                continue;
+            }
+            Set<Integer> closure = new HashSet<>();
+            bfsCollect(a.getConceptId(), prerequisitesOf, closure);
+            if (closure.isEmpty()) {
+                continue;
+            }
+            int probeCount = closure.size() < probeThreshold
+                    ? 1
+                    : (int) Math.floor(Math.sqrt(closure.size()));
+            closure.stream().sorted(order).limit(probeCount).forEach(probes::add);
+        }
+        return probes;
+    }
+
+    /** next 응답 조립 — concept 메타 직조회 (규칙 5: description 소스 불변). */
+    private DiagnosisNextResponse buildNext(int conceptId, int asked, int estimatedRemaining) {
+        ConceptSummary c = conceptRepository.findConceptSummaryById(conceptId)
+                .orElseThrow(() -> new IllegalStateException("knowledge_space 가 참조하는 개념이 없음: " + conceptId));
         return new DiagnosisNextResponse(
-                new DiagnosisNextResponse.NextConcept(next.conceptId(), next.conceptName(), next.description()),
-                new DiagnosisNextResponse.Progress(answers.size(), remaining.size()),
+                new DiagnosisNextResponse.NextConcept(c.conceptId(), c.conceptName(), c.description()),
+                new DiagnosisNextResponse.Progress(asked, estimatedRemaining),
                 false);
+    }
+
+    /**
+     * 규칙 B 순서 (ADR-0012): blockedDescendants 내림차순 → DAG 깊이 내림차순 →
+     * conceptId 오름차순. 전부 구조 순위라 결정론(간선 셔플·해시맵 순회 무관).
+     */
+    private Comparator<Integer> candidateOrder(Map<Integer, List<Integer>> blockersOf,
+                                               Map<Integer, List<Integer>> prerequisitesOf,
+                                               Map<Integer, Integer> blockedMemo,
+                                               Map<Integer, Integer> depthMemo) {
+        Comparator<Integer> byBlocked =
+                Comparator.comparingInt((Integer c) -> countBlockedDescendants(c, blockersOf, blockedMemo));
+        Comparator<Integer> byDepth =
+                Comparator.comparingInt((Integer c) -> longestPrerequisiteDepth(c, prerequisitesOf, depthMemo));
+        return byBlocked.reversed()
+                .thenComparing(byDepth.reversed())
+                .thenComparingInt(c -> c);
+    }
+
+    /**
+     * blockedDescendants: "이 개념을 모르면 위로 몇 개가 막히는가" = depth 3 역방향
+     * 도달 개념 수(자기 제외). spec-01 §4.5 countBlockedDescendants CTE 와 동치를
+     * 이미 로드한 간선에서 인메모리 계산 (요청당 CTE 왕복 회피). 사이클 면역(visited-set).
+     */
+    private int countBlockedDescendants(int start, Map<Integer, List<Integer>> blockersOf,
+                                        Map<Integer, Integer> memo) {
+        Integer cached = memo.get(start);
+        if (cached != null) {
+            return cached;
+        }
+        Set<Integer> visited = new HashSet<>();
+        visited.add(start);
+        Deque<int[]> queue = new ArrayDeque<>();
+        queue.add(new int[]{start, 0});
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+            if (cur[1] >= BLOCKED_DEPTH) {
+                continue;
+            }
+            for (int blocked : blockersOf.getOrDefault(cur[0], List.of())) {
+                if (visited.add(blocked)) {
+                    queue.add(new int[]{blocked, cur[1] + 1});
+                }
+            }
+        }
+        int count = visited.size() - 1;
+        memo.put(start, count);
+        return count;
+    }
+
+    /** DAG 깊이(tie-break) = 가장 긴 선수 사슬 길이. 사이클 back-edge 는 0 기여(무한 방지). */
+    private int longestPrerequisiteDepth(int concept, Map<Integer, List<Integer>> prerequisitesOf,
+                                         Map<Integer, Integer> memo) {
+        return depthDfs(concept, prerequisitesOf, memo, new HashSet<>());
+    }
+
+    private int depthDfs(int concept, Map<Integer, List<Integer>> adj,
+                         Map<Integer, Integer> memo, Set<Integer> onStack) {
+        Integer cached = memo.get(concept);
+        if (cached != null) {
+            return cached;
+        }
+        if (!onStack.add(concept)) {
+            return 0; // 사이클 back-edge — 사슬 연장 중단
+        }
+        int best = 0;
+        for (int prerequisite : adj.getOrDefault(concept, List.of())) {
+            best = Math.max(best, 1 + depthDfs(prerequisite, adj, memo, onStack));
+        }
+        onStack.remove(concept);
+        memo.put(concept, best);
+        return best;
     }
 
     /**
@@ -135,6 +315,16 @@ public class DiagnosisService {
         Map<Integer, List<Integer>> adj = new HashMap<>();
         for (KnowledgeEdge e : edges) {
             adj.computeIfAbsent(e.fromConceptId(), k -> new ArrayList<>()).add(e.toConceptId());
+        }
+        adj.values().forEach(list -> list.sort(Integer::compareTo));
+        return adj;
+    }
+
+    /** 역방향 to(선수)→from(후수) 인접 리스트 — blockedDescendants 계산용. id 오름차순. */
+    static Map<Integer, List<Integer>> buildBlockerAdjacency(List<KnowledgeEdge> edges) {
+        Map<Integer, List<Integer>> adj = new HashMap<>();
+        for (KnowledgeEdge e : edges) {
+            adj.computeIfAbsent(e.toConceptId(), k -> new ArrayList<>()).add(e.fromConceptId());
         }
         adj.values().forEach(list -> list.sort(Integer::compareTo));
         return adj;

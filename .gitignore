@@ -30,8 +30,12 @@ m6-first-deploy-session-log.md
 *.tfstate
 *.tfstate.*
 .terraform/
-*.tfvars
+# `*.tfvars` 만으론 terraform.tfvars.bak.20260805 같은 접미 변형을 못 잡는다 (2026-08-05 실제 발생)
+*.tfvars*
 !*.tfvars.example
+# 저장된 plan 은 var 값(db_password)을 평문 임베드 → tfstate 와 동일 사유 (2026-08-05 재런치)
+*.tfplan
+*.tfplan.json
 # .terraform.lock.hcl 은 커밋 (provider 버전 잠금 공유)
 # M4 런 텔레메트리 raw 로그 (EIP/endpoint 평문 → tfstate 와 동일 사유로 비커밋)
 infra/terraform/run-logs/

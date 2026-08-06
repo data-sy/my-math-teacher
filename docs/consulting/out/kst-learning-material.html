@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지식공간이론(KST) 학습자료 — 스무고개로 지식을 진단하는 수학</title>
+<style>
+  :root {
+    --bg: #f7f8fa; --card: #ffffff; --ink: #1c2230; --muted: #5a6577; --line: #e4e8ef;
+    --accent: #3a6df0; --accent-soft: #eaf0ff; --good: #1f9d6b; --good-soft: #e6f6ef;
+    --warn: #d98324; --warn-soft: #fbf1e2; --purple:#7c5cdb; --purple-soft:#efeaff;
+    --code-bg:#f0f2f7; --shadow: 0 1px 2px rgba(20,30,50,.06), 0 6px 20px rgba(20,30,50,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12151c; --card:#1a1f29; --ink:#e8ecf3; --muted:#9aa6b8; --line:#2a313e;
+      --accent:#6f96ff; --accent-soft:#1e2740; --good:#4fd39b; --good-soft:#16311f;
+      --warn:#f0b25e; --warn-soft:#362a17; --purple:#a98bff; --purple-soft:#241d3d;
+      --code-bg:#232a36; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="dark"]{--bg:#12151c;--card:#1a1f29;--ink:#e8ecf3;--muted:#9aa6b8;--line:#2a313e;--accent:#6f96ff;--accent-soft:#1e2740;--good:#4fd39b;--good-soft:#16311f;--warn:#f0b25e;--warn-soft:#362a17;--purple:#a98bff;--purple-soft:#241d3d;--code-bg:#232a36;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.3);}
+  :root[data-theme="light"]{--bg:#f7f8fa;--card:#ffffff;--ink:#1c2230;--muted:#5a6577;--line:#e4e8ef;--accent:#3a6df0;--accent-soft:#eaf0ff;--good:#1f9d6b;--good-soft:#e6f6ef;--warn:#d98324;--warn-soft:#fbf1e2;--purple:#7c5cdb;--purple-soft:#efeaff;--code-bg:#f0f2f7;--shadow:0 1px 2px rgba(20,30,50,.06),0 6px 20px rgba(20,30,50,.05);}
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); line-height:1.72;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:840px; margin:0 auto; padding:32px 20px 90px; }
+  header.hero { text-align:center; padding:24px 0 8px; }
+  .kicker { display:inline-block; font-size:13px; font-weight:600; letter-spacing:.04em;
+    color:var(--purple); background:var(--purple-soft); padding:5px 12px; border-radius:999px; margin-bottom:18px; }
+  h1 { font-size:30px; line-height:1.32; margin:0 0 12px; letter-spacing:-.01em; }
+  .hero p.lead { font-size:17px; color:var(--muted); margin:0 auto; max-width:640px; }
+  .toc { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 20px;
+    margin:28px 0 8px; box-shadow:var(--shadow); font-size:15px; }
+  .toc b { display:block; font-size:13px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; }
+  .toc a { color:var(--accent); text-decoration:none; }
+  .toc ol { margin:0; padding-left:20px; columns:2; column-gap:28px; }
+  @media(max-width:560px){ .toc ol{ columns:1; } }
+  .toc li { margin:3px 0; }
+  .section { margin-top:46px; scroll-margin-top:20px; }
+  .section > h2 { font-size:22px; margin:0 0 6px; letter-spacing:-.01em; display:flex; align-items:center; gap:10px; }
+  .section > h2 .num { flex:none; width:30px; height:30px; border-radius:8px; background:var(--purple); color:#fff;
+    font-size:15px; font-weight:700; display:grid; place-items:center; }
+  .section > p.sub { color:var(--muted); margin:0 0 18px; padding-left:40px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px;
+    box-shadow:var(--shadow); margin-bottom:14px; }
+  .card h3 { margin:0 0 8px; font-size:17px; }
+  .card p { margin:0 0 10px; } .card p:last-child { margin-bottom:0; }
+  .analogy { background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:8px;
+    padding:12px 16px; margin:12px 0; font-size:15px; }
+  .analogy b { color:var(--accent); }
+  .def { border-left:3px solid var(--purple); background:var(--purple-soft); border-radius:8px; padding:12px 16px; margin:12px 0; }
+  .def .term { font-weight:700; color:var(--purple); }
+  code { background:var(--code-bg); padding:2px 6px; border-radius:5px; font-size:14px;
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace; }
+  .diagram { display:flex; flex-direction:column; align-items:center; padding:8px 0; overflow-x:auto; }
+  .dnode { border:1.5px solid var(--line); background:var(--card); border-radius:10px; padding:7px 14px;
+    font-size:14px; font-weight:600; white-space:nowrap; }
+  .dnode.top { border-color:var(--purple); color:var(--purple); }
+  .darrow { color:var(--muted); font-size:18px; line-height:1; padding:2px 0; }
+  .drow { display:flex; gap:12px; }
+  table.states { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
+  table.states th, table.states td { border:1px solid var(--line); padding:7px 10px; text-align:left; }
+  table.states th { background:var(--code-bg); font-weight:600; }
+  .pill { display:inline-block; font-size:12px; font-weight:600; padding:2px 8px; border-radius:6px; }
+  .pill.k { background:var(--good-soft); color:var(--good); }
+  .pill.u { background:var(--warn-soft); color:var(--warn); }
+  ul.clean { margin:8px 0; padding-left:20px; } ul.clean li { margin:5px 0; }
+  .maprow { display:flex; gap:12px; align-items:baseline; padding:9px 0; border-bottom:1px dashed var(--line); font-size:15px; }
+  .maprow:last-child { border-bottom:none; }
+  .maprow .kst { flex:none; width:210px; font-weight:600; color:var(--purple); }
+  @media(max-width:560px){ .maprow{ flex-direction:column; gap:2px; } .maprow .kst{ width:auto; } }
+  .res-group { margin-bottom:18px; }
+  .res-group > h3 { font-size:15px; margin:0 0 4px; display:flex; align-items:center; gap:8px; }
+  .res-group > h3 .badge { font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px;
+    background:var(--good-soft); color:var(--good); }
+  .res-group > h3 .badge.paid { background:var(--warn-soft); color:var(--warn); }
+  .reslist { list-style:none; margin:6px 0 0; padding:0; }
+  .reslist li { padding:9px 0; border-bottom:1px solid var(--line); }
+  .reslist li:last-child { border-bottom:none; }
+  .reslist a { color:var(--accent); text-decoration:none; font-weight:600; }
+  .reslist a:hover { text-decoration:underline; }
+  .reslist .meta { display:block; color:var(--muted); font-size:13px; margin-top:2px; }
+  .callout { background:var(--good-soft); border-radius:14px; padding:18px 22px; margin-top:16px; }
+  .callout h3 { margin:0 0 6px; color:var(--good); font-size:17px; }
+  .callout p { margin:0 0 8px; } .callout p:last-child{ margin:0; }
+  .warnbox { background:var(--warn-soft); border-radius:14px; padding:16px 20px; margin-top:12px; }
+  .warnbox b { color:var(--warn); }
+  footer.foot { margin-top:56px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted);
+    font-size:13px; text-align:center; }
+  strong { color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <span class="kicker">학습자료 · Knowledge Space Theory</span>
+    <h1>지식공간이론 (KST)<br>— 스무고개로 지식을 진단하는 수학</h1>
+    <p class="lead">ALEKS 같은 적응형 진단 시스템의 이론적 뿌리. 개념 정의부터 실제 작동, 우리 서비스(MMT) 적용, 그리고 검증된 학습 링크까지 정리했습니다.</p>
+  </header>
+
+  <nav class="toc">
+    <b>목차</b>
+    <ol>
+      <li><a href="#s1">한 문장 요약</a></li>
+      <li><a href="#s2">왜 만들어졌나</a></li>
+      <li><a href="#s3">핵심 개념 5가지</a></li>
+      <li><a href="#s4">지식공간 vs 학습공간</a></li>
+      <li><a href="#s5">어떻게 진단하나 (예시)</a></li>
+      <li><a href="#s6">확률층 (BLIM)</a></li>
+      <li><a href="#s7">우리 서비스(MMT)에 대입</a></li>
+      <li><a href="#s8">학습 자료 링크</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 -->
+  <section class="section" id="s1">
+    <h2><span class="num">1</span> 한 문장 요약</h2>
+    <div class="card">
+      <p>지식공간이론(<strong>KST, Knowledge Space Theory</strong>)은 <strong>1985년 Doignon &amp; Falmagne</strong>이 제안한 이론으로, "한 학생이 아는 것"을 점수(70점) 하나가 아니라 <strong>‘아는 개념들의 집합’</strong>으로 표현하고, 개념 사이의 <strong>선후(선수) 관계</strong>를 이용해 <strong>가장 적은 질문으로</strong> 그 집합을 알아내는 <strong>조합수학·확률론</strong> 기반 방법입니다.</p>
+      <div class="analogy"><b>비유:</b> <b>스무고개.</b> "동물인가요?"처럼 가능성을 절반씩 잘라내는 질문을 골라 던지면, 수많은 후보 중에서 빠르게 정답에 도달합니다. KST는 "이 학생이 있을 수 있는 지식상태 후보"를 질문으로 절반씩 좁혀갑니다.</div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="section" id="s2">
+    <h2><span class="num">2</span> 왜 만들어졌나 — 점수의 한계</h2>
+    <p class="sub">전통 시험은 "100점 만점에 몇 점"으로 요약합니다. 그런데 같은 70점이라도 아는 게 서로 다르죠.</p>
+    <div class="card">
+      <p>기존 심리측정(psychometrics)은 능력을 <strong>하나의 숫자로 잰다</strong>고 전제합니다. Doignon과 Falmagne는 이 전제 자체를 의심했어요. "학생 A와 B가 둘 다 70점이어도 <strong>아는 개념의 조합이 완전히 다를 수 있다</strong>. 그렇다면 점수 하나로는 <strong>‘무엇을 알고, 다음에 무엇을 배울 준비가 됐는지’</strong>를 말해줄 수 없다."</p>
+      <p>그래서 KST는 능력을 숫자가 아니라 <strong>‘아는 개념의 집합(지식상태)’</strong>으로 표현합니다. 이 접근의 가장 유명한 실제 시스템이 수백만 학생이 쓴 <strong>ALEKS</strong>(Assessment and LEarning in Knowledge Spaces)입니다.</p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="section" id="s3">
+    <h2><span class="num">3</span> 핵심 개념 5가지</h2>
+    <p class="sub">용어가 낯설지만, 실은 우리가 이미 직관적으로 아는 것들입니다.</p>
+
+    <div class="card">
+      <div class="def"><span class="term">① 문항 도메인 (Domain, Q)</span><br>진단하려는 <strong>개념(문항)의 전체 집합.</strong> 예: {곱셈, 인수분해, 일차함수, 이차함수}.</div>
+
+      <div class="def"><span class="term">② 지식상태 (Knowledge State, K)</span><br>한 학생이 <strong>실제로 아는 개념들의 부분집합.</strong> 단, 아무 부분집합이나 되는 게 아니라 <strong>선수관계로 ‘닫혀’ 있어야</strong> 합니다 — 이차함수를 안다면 그 선수인 일차함수·인수분해도 알아야 말이 되니까요.</div>
+
+      <div class="def"><span class="term">③ 선수관계 (Surmise / Prerequisite Relation)</span><br>"q′을 알면 q도 반드시 안다"는 개념 간 순서 관계 <code>q ≤ q′</code>. 곧 <strong>"이걸 배우려면 저걸 먼저"</strong>의 지도. 우리 서비스의 개념 DAG가 바로 이것입니다.</div>
+
+      <div class="def"><span class="term">④ 지식구조 (Knowledge Structure, 𝒦)</span><br>선수관계를 지키는 <strong>‘가능한 모든 지식상태’의 모음.</strong> 존재할 수 없는 상태(예: 선수 없이 후수만 아는 상태)는 여기서 빠집니다.</div>
+
+      <div class="def"><span class="term">⑤ 프린지 (Fringe)</span><br>지금 지식상태의 <strong>바로 바깥 경계.</strong> <strong>outer fringe</strong> = "지금 배울 준비가 된 다음 개념들"(선수를 다 갖췄음), <strong>inner fringe</strong> = "방금 배운 최전선 개념들". → 이게 곧 <strong>맞춤 학습 추천</strong>의 근거입니다.</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="section" id="s4">
+    <h2><span class="num">4</span> 지식공간 vs 학습공간 — 닫힘 성질</h2>
+    <p class="sub">지식구조가 특정 ‘닫힘(closure)’ 조건을 만족하면 더 좋은 이름과 성질을 얻습니다.</p>
+    <div class="card">
+      <p><strong>지식공간(Knowledge Space):</strong> 지식구조가 <strong>합집합에 닫혀</strong> 있을 때. 즉 두 학생의 지식상태를 합친 것도 가능한 상태여야 합니다.</p>
+      <div class="analogy"><b>합집합에 닫힘이 왜 자연스러운가:</b> 학생 x가 개념 묶음 A를 알고, 학생 y가 묶음 B를 안다면, <b>A와 B를 모두 아는 제3의 학생</b>이 존재할 수 있는 게 상식적이죠. 한 개념을 배운다고 다른 개념 학습이 막히지 않으니까요.</div>
+      <p style="margin-top:12px;"><strong>학습공간(Learning Space):</strong> 여기에 더해 <strong>비어 있지 않은 교집합에 닫혀</strong> 있고 <strong>wellgraded(잘 계층화됨)</strong> — 즉 어떤 상태에서든 개념을 <strong>한 번에 하나씩</strong> 배워 최종 상태까지 갈 수 있는 매끄러운 학습 경로가 보장됩니다. 이 성질이 <strong>fringe(다음에 배울 것) 개념을 성립</strong>시킵니다.</p>
+      <div class="warnbox"><b>수학적 보너스 (Birkhoff 정리):</b> 우리처럼 <b>이진 선수관계 하나</b>로 구조를 만들면, 그 지식공간은 자동으로 <b>합집합·교집합 모두에 닫힌</b> ‘quasi-ordinal 공간’이 됩니다. 즉 선수 DAG만 있으면 KST 이론이 그대로 얹힙니다.</div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="section" id="s5">
+    <h2><span class="num">5</span> 어떻게 진단하나 — 작은 예시</h2>
+    <p class="sub">개념 4개짜리 미니 도메인으로 "질문이 후보를 절반씩 자른다"를 직접 봅시다.</p>
+    <div class="card">
+      <p>도메인 <code>Q = {곱셈, 인수분해, 일차함수, 이차함수}</code>, 선수관계:</p>
+      <div class="diagram">
+        <div class="dnode top">이차함수</div>
+        <div class="darrow">▲</div>
+        <div class="drow"><div class="dnode">일차함수</div><div class="dnode">인수분해</div></div>
+        <div class="darrow">▲</div>
+        <div class="dnode">곱셈</div>
+      </div>
+      <p style="margin-top:12px;">선수관계를 지키는 <strong>가능한 지식상태</strong>는 아무 조합이나가 아니라 이 6개뿐입니다 (닫힌 것만):</p>
+      <table class="states">
+        <tr><th>상태</th><th>아는 개념</th><th>의미</th></tr>
+        <tr><td>S0</td><td>{ }</td><td>아무것도 모름</td></tr>
+        <tr><td>S1</td><td>{곱셈}</td><td>기초만</td></tr>
+        <tr><td>S2</td><td>{곱셈, 일차함수}</td><td>한쪽 가지</td></tr>
+        <tr><td>S3</td><td>{곱셈, 인수분해}</td><td>다른쪽 가지</td></tr>
+        <tr><td>S4</td><td>{곱셈, 일차함수, 인수분해}</td><td>양쪽 가지</td></tr>
+        <tr><td>S5</td><td>{곱셈, 일차함수, 인수분해, 이차함수}</td><td>전부 앎</td></tr>
+      </table>
+      <p><strong>진단 = 이 6개 중 학생이 어디인지 맞히기.</strong> 좋은 첫 질문은 6개를 최대한 반으로 가르는 개념 — <code>인수분해</code>를 물으면:</p>
+      <ul class="clean">
+        <li><span class="pill k">알아요</span> → 인수분해를 포함하는 상태만 남음: <strong>S3, S4, S5</strong> (그리고 곱셈도 안다고 자동 추론)</li>
+        <li><span class="pill u">몰라요</span> → 인수분해를 포함 못 하는 상태만 남음: <strong>S0, S1, S2</strong> (이차함수도 자동 탈락 — 인수분해가 그 선수니까)</li>
+      </ul>
+      <p>한 질문에 후보가 6→3으로 절반이 됐습니다. 이런 <strong>‘가장 크게 반 가르는 개념’</strong>을 반복해 몇 문항 만에 정확한 상태에 도달합니다. 이것이 KST 적응형 진단의 심장입니다.</p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="section" id="s6">
+    <h2><span class="num">6</span> 확률층 (BLIM) — 사람은 실수한다</h2>
+    <p class="sub">여기까지는 결정론(답이 100% 신뢰). 하지만 실제 학생은 아는데 찍기 실수, 모르는데 요행수를 냅니다.</p>
+    <div class="card">
+      <p>ALEKS 같은 실제 시스템은 <strong>확률적 지식구조(Probabilistic Knowledge Structure)</strong>를 씁니다. 대표 모델이 <strong>BLIM</strong>(Basic Local Independence Model)로, 문항마다 두 모수를 둡니다:</p>
+      <ul class="clean">
+        <li><strong>부주의 실수율(careless error)</strong> — 아는데 틀릴 확률</li>
+        <li><strong>요행 정답률(lucky guess)</strong> — 모르는데 맞힐 확률</li>
+      </ul>
+      <p>그러면 진단은 "후보를 딱 잘라내기"가 아니라 <strong>각 지식상태의 확률분포를 갱신</strong>하고, <strong>기대 정보량이 최대인 문항</strong>을 고르는 방식이 됩니다. 훨씬 견고하지만 —</p>
+      <div class="warnbox"><b>대가:</b> 부주의 실수율·요행 정답률 같은 모수를 추정하려면 <b>학생 수백 명의 실제 응답 데이터</b>가 필요합니다. 데이터가 없는 초기(콜드스타트)에는 이 확률층을 못 쓰고, <b>결정론적 코어(3·5절)만</b> 쓸 수 있습니다.</div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="section" id="s7">
+    <h2><span class="num">7</span> 우리 서비스(MMT)에 대입하면</h2>
+    <p class="sub">MMT의 개념 DAG와 "알아요/몰라요" 진단은 사실 KST와 거의 일대일로 대응합니다.</p>
+    <div class="card">
+      <div class="maprow"><span class="kst">KST 개념</span><span>MMT에서의 대응</span></div>
+      <div class="maprow"><span class="kst">Domain (문항 집합)</span><span>선택 단원에서 도달 가능한 개념 전체</span></div>
+      <div class="maprow"><span class="kst">Item (문항)</span><span>개념 1개 — "알아요 / 몰라요" 2택</span></div>
+      <div class="maprow"><span class="kst">Knowledge state</span><span>학생이 아는 개념 집합 (선수관계로 닫힘)</span></div>
+      <div class="maprow"><span class="kst">Surmise relation</span><span>우리의 선수관계 DAG 그 자체</span></div>
+      <div class="maprow"><span class="kst">Outer fringe</span><span>진단 후 "지금 배울 준비된 개념" = 학습 큐 / 약점 카드</span></div>
+    </div>
+
+    <div class="callout">
+      <h3>✓ 지금 당장 만든다면 = ‘확률층 뺀 결정론적 KST 코어’</h3>
+      <p><strong>매 요청마다</strong> 답변 목록에서 <code>Known</code>(알아요 + 선수 폐쇄), <code>Unknown</code>(몰라요 + 후손 폐쇄), <code>Undetermined</code>(나머지) 세 집합을 재계산합니다(서버 세션 없음 = stateless).</p>
+      <p><strong>다음 질문</strong> = <code>Undetermined</code> 중 남은 상태공간을 가장 반으로 가르는 개념. 정확한 상태 수 계산은 지수적이라, "미확정 선수 수와 후손 수가 가장 균형인 개념"이라는 DAG 구조 프록시로 근사(tie-break: 도달 후손 수 → conceptId → <strong>결정론</strong> 보장).</p>
+      <p><strong>종료</strong> = <code>Undetermined</code> 소진 (단 최소 K문 하한 · 최대 N문 상한으로 3분 계약 보전). <strong>결과</strong> = 최종 <code>Known</code> 상태의 outer fringe = 약점 카드·학습 큐.</p>
+    </div>
+
+    <div class="warnbox" style="margin-top:14px;">
+      <b>정직한 한계 — 결함 ②는 KST 코어로 안 풀립니다.</b> 결정론적 KST도 "알아요 → 선수 폐쇄 전체 앎"을 추론하므로 <b>현행 R1 규칙과 똑같이</b> 과대평가 학생에 취약합니다. 이걸 원리적으로 푸는 건 6절의 <b>확률층(BLIM)</b>인데 데이터가 필요하죠. 그래서 데이터 0인 지금은 <b>‘폐쇄 내 프로브(검증 질문)’ 패치를 KST 위에 얹어야</b> 결함 ②가 닫힙니다. → 결함 ①·③은 KST가 원리적으로 해소, 결함 ②는 별도 프로브 필요.
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="section" id="s8">
+    <h2><span class="num">8</span> 학습 자료 링크 (검증됨)</h2>
+    <p class="sub">입문 → 권위서 → 코드 실습 → 실제 시스템 순. <span class="pill k">무료</span> 표시는 바로 읽을 수 있는 것.</p>
+
+    <div class="card">
+      <div class="res-group">
+        <h3>🟢 입문 (여기서 시작) <span class="badge">무료</span></h3>
+        <ul class="reslist">
+          <li><a href="https://en.wikipedia.org/wiki/Knowledge_space" target="_blank" rel="noopener">Wikipedia — Knowledge space</a>
+            <span class="meta">가장 빠른 개관. 지식상태·합집합 닫힘·선수관계 정의를 한 페이지로. 여기부터 읽으세요.</span></li>
+          <li><a href="https://medium.com/adapted/introduction-to-knowledge-space-theory-ce4fd91ae1ae" target="_blank" rel="noopener">Introduction to Knowledge Space Theory — Lucas Oliveira (Medium)</a>
+            <span class="meta">개발자 눈높이의 친절한 입문 글. 이론을 제품 관점으로 풀어줌.</span></li>
+        </ul>
+      </div>
+
+      <div class="res-group">
+        <h3>🟢 원저자 서베이 (핵심 추천) <span class="badge">무료 PDF</span></h3>
+        <ul class="reslist">
+          <li><a href="https://arxiv.org/abs/1511.06757" target="_blank" rel="noopener">Knowledge Spaces and Learning Spaces — Doignon &amp; Falmagne (arXiv, 2015)</a>
+            <span class="meta">이론 창시자가 직접 쓴 무료 서베이. 공리·확률 과정·ALEKS까지 압축. <b>가장 권위 있으면서 무료</b>인 자료 — 입문 후 정독 추천. (PDF: arxiv.org/pdf/1511.06757)</span></li>
+          <li><a href="https://www.researchgate.net/publication/264947348_Learning_Spaces_and_How_to_Build_Them" target="_blank" rel="noopener">Learning Spaces, and How to Build Them — Doignon</a>
+            <span class="meta">학습공간을 실제로 ‘구성’하는 관점의 논문(무료 PDF). 구현 지향.</span></li>
+        </ul>
+      </div>
+
+      <div class="res-group">
+        <h3>🟠 권위서 (깊이 파고들 때) <span class="badge paid">유료/도서관</span></h3>
+        <ul class="reslist">
+          <li><a href="https://link.springer.com/book/10.1007/978-3-642-58625-5" target="_blank" rel="noopener">Knowledge Spaces — Doignon &amp; Falmagne (Springer, 1999)</a>
+            <span class="meta">이론의 정본 단행본. 후속판이 아래 <i>Learning Spaces</i>(2011).</span></li>
+          <li><a href="https://www.cambridge.org/core/books/abs/new-handbook-of-mathematical-psychology/knowledge-spaces-and-learning-spaces/975DA8F1D28C95CA1987EF254E63B4BC" target="_blank" rel="noopener">New Handbook of Mathematical Psychology, Ch.5 — Knowledge Spaces and Learning Spaces</a>
+            <span class="meta">최신 핸드북의 정리된 챕터. 이론적 위치를 조망하기 좋음.</span></li>
+        </ul>
+      </div>
+
+      <div class="res-group">
+        <h3>🟢 코드로 실습 (R 패키지) <span class="badge">무료</span></h3>
+        <ul class="reslist">
+          <li><a href="https://cran.r-project.org/web/packages/kst/vignettes/kst.pdf" target="_blank" rel="noopener">kst — Knowledge Space Theory (R, vignette PDF)</a>
+            <span class="meta">결정론적 지식구조를 생성·조작하는 기본 패키지. <b>vignette가 곧 실습형 튜토리얼</b> — 개념을 코드로 만져보기 최적.</span></li>
+          <li><a href="https://cran.r-project.org/package=pks" target="_blank" rel="noopener">pks — Probabilistic Knowledge Structures (R)</a>
+            <span class="meta">6절의 확률층(BLIM·SLM)을 직접 적합·검정. 데이터 생기면 볼 것.</span></li>
+          <li><a href="https://cran.r-project.org/web/packages/DAKS/vignettes/DAKS.pdf" target="_blank" rel="noopener">DAKS — Data Analysis Methods in KST (R, vignette PDF)</a>
+            <span class="meta">데이터에서 지식구조를 도출·시뮬레이션하는 방법과 예제 데이터셋.</span></li>
+          <li><a href="https://cran.r-project.org/web/views/Psychometrics.html" target="_blank" rel="noopener">CRAN Task View: Psychometric Models and Methods</a>
+            <span class="meta">KST 계열 포함 심리측정 R 패키지 전체 지도.</span></li>
+        </ul>
+      </div>
+
+      <div class="res-group">
+        <h3>🟢 실제 시스템 <span class="badge">무료</span></h3>
+        <ul class="reslist">
+          <li><a href="https://www.aleks.com/about_aleks/knowledge_space_theory" target="_blank" rel="noopener">The Research Behind ALEKS — Knowledge Space Theory</a>
+            <span class="meta">KST를 수백만 학생에게 적용한 대표 상용 시스템의 공식 설명. "이론이 제품이 되면 이렇게 된다"의 실물.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="analogy">
+      <b>추천 읽기 순서:</b> Wikipedia로 감 잡기 → Medium 입문 글 → <b>arXiv 서베이(1511.06757) 정독</b> → <code>kst</code> R vignette로 손으로 만져보기 → ALEKS 페이지로 실제 적용 확인. 여기까지면 MMT에 KST를 얹는 설계 판단은 충분합니다.
+    </div>
+  </section>
+
+  <footer class="foot">
+    지식공간이론(KST) 학습자료 · 2026-07-24 · MMT 수학 자가진단<br>
+    링크는 작성 시점 검색으로 실제 존재를 확인한 자료입니다. 관련 문서: <code>문항-선택-알고리즘-컨설팅-2026-07-24.md</code>
+  </footer>
+
+</div>
+</body>
+</html>
