@@ -60,8 +60,12 @@ fi
 echo
 echo "[2] amazon-ssm-agent 실물 점검"
 ssh -i "$KEY" -o ConnectTimeout=15 "$SSHU@$HOST" '
-  echo "instance-id : $(curl -s --max-time 5 http://169.254.169.254/latest/meta-data/instance-id)"
-  echo "iam role    : $(curl -s --max-time 5 http://169.254.169.254/latest/meta-data/iam/security-credentials/ || echo 없음)"
+  # AL2023 은 IMDSv2(토큰 필수) — 토큰 없이 물으면 빈 값이 와서 "롤 없음" 으로 오독하게 된다
+  T=$(curl -s -X PUT --max-time 5 "http://169.254.169.254/latest/api/token" \
+        -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+  echo "instance-id : $(curl -s --max-time 5 -H "X-aws-ec2-metadata-token: $T" http://169.254.169.254/latest/meta-data/instance-id)"
+  echo "iam role    : $(curl -s --max-time 5 -H "X-aws-ec2-metadata-token: $T" http://169.254.169.254/latest/meta-data/iam/security-credentials/ || echo 없음)"
+  echo "image       : $(grep -o '"'"'image_name=.*'"'"' /etc/image-id 2>/dev/null | head -1)"
   if ! systemctl list-unit-files 2>/dev/null | grep -q amazon-ssm-agent; then
     echo "agent       : 미설치 → 설치 필요 (AL2023 기본 탑재인데 없다면 이미지/부트스트랩 확인)"
     exit 0
