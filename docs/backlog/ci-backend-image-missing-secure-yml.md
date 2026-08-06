@@ -1,6 +1,34 @@
 # [Infra/Deploy] CI 빌드 백엔드 이미지가 프로덕션 부팅 불가 — application-secure.yml 매핑 소실
 
-**등록:** 2026-07-27 (M7 배포 마감 세션에서 A1 blue-green 다크 배포 시도 중 발견) · **상태:** 📌 **미착수 — 제대로 고치기로 결정(2026-07-27 사용자).** 별도 세션 착수. · **분류:** 선재 배포 결함(M7 코드와 무관) · **차단:** M7 백엔드 실배포를 막음(프론트 스왑·플래그 ON 이전 단계)
+**등록:** 2026-07-27 (M7 배포 마감 세션에서 A1 blue-green 다크 배포 시도 중 발견) · **분류:** 선재 배포 결함(M7 코드와 무관)
+
+> ## ✅ 근본 원인 해소 완료 (2026-07-27) — 아래 "미착수" 서술은 stale, 본 블록으로 정정 (2026-08-06 실측)
+>
+> 배선 소실은 **`f432c53` "fix(api): restore production wiring as profile-gated tracked config"** 로
+> 고쳐졌다(= 아래 수정 옵션 **1a** 채택). 결정 정본 = [ADR-0013](../adr/0013-restore-production-wiring-as-profile-gated-tracked-config.md) **Accepted**.
+> 배선은 `application.yml` 안 `spring.config.activate.on-profile: secure` 멀티도큐먼트로 들어갔고
+> **전부 `${ENV}` placeholder — 리터럴 시크릿 0**, 시크릿-보유 파일명(`application-secure*.yml`)은 재도입하지 않았다.
+>
+> **라이브 증명:** 현재 프로덕션 백엔드 `mmt2024/mmt-backend:ea94a1a…` 는 **CI 가 빌드한 이미지**이고
+> `f432c53` 를 조상으로 포함한다(`git merge-base --is-ancestor` 확인) — 즉 **CI 이미지가 프로덕션에서 실제로 부팅 중**이다.
+> ⚠️ "프로덕션은 수동 빌드 이미지라 문제가 가려져 있다"는 서술은 **틀렸다**(2026-08-06 정정).
+>
+> **CI 무중단배포 정합(아래 §함께 처리)도 대부분 해소:** repo variable `COMPOSE_NET=mmt-net` 설정됨(2026-07-27) ·
+> `FRAGMENT_HOST_FILE` 기본값이 `/home/ec2-user/active-backend.conf` 로 워크플로에 명시됨(`889390a`) ·
+> `deploy/switch-backend.sh`·`active-backend.conf` 리포에 존재. **CI 전체 성공 이력 = 2026-07-27·07-28 2회.**
+>
+> ### 🔵 남은 것 하나 — deploy job(SSM)이 **재런치된 인스턴스에서** 도는지 미증명
+>
+> 2026-08-05 실행([run 30972873738](https://github.com/data-sy/my-math-teacher/actions/runs/30972873738))은
+> **build-and-push 성공 · deploy 실패**:
+> ```
+> ::error::SSM 이 대상 인스턴스를 찾지 못함(Project=mmt running 인스턴스 부재?)
+> ```
+> 재런치 당일이라 **새 인스턴스가 아직 SSM 에 등록되기 전**이었을 가능성이 높다(워크플로의 인스턴스 해석
+> 대기가 15회×2초 = **30초뿐**). terraform 쪽 전제는 충족돼 있다 — `compute.tf` 가 `Project="mmt"` 태그와
+> `aws_iam_instance_profile.ec2_ssm`(AmazonSSMManagedInstanceCore)를 붙인다.
+> **따라서 남은 작업 = ① 인스턴스 해석 대기·에러 메시지 보강(선택) ② CI 1회 재실행으로 blue-green 실증.**
+> 그때 `api/` 는 `ea94a1a` 이후 무변경이라 사실상 동일 코드 재배포 = 저위험.
 
 > **한 줄:** 시크릿 유출 대응(`c7f608d`)이 `application-secure.yml` 을 **추적 해제**하면서, 그 안의 **비밀 아닌 env 매핑 구조까지** 사라졌다. 그 이후 CI 가 빌드하는 백엔드 이미지는 datasource 설정이 없어 프로덕션에서 **부팅 실패**한다. M7 이 그 조치 이후 첫 CI 백엔드 배포라 이때 처음 표면화.
 
