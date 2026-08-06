@@ -144,15 +144,30 @@ jobs:
         echo "SSM CommandId=$CMD_ID"
 
         # ── 실행된 인스턴스 ID 해석(get-command-invocation 에 필요) ────────
+        # 태그 타겟이라 매칭 인스턴스가 0개여도 send-command 는 CommandId 를 돌려준다
+        # → invocation 이 생길 때까지 폴링해야 "대상 없음"과 "아직 등록 전"이 갈린다.
+        # ⚠️ 재런치(terraform apply) 직후엔 새 인스턴스의 SSM 에이전트 등록에 수 분이 걸린다.
+        #    2026-08-05 run 30972873738 이 이 대기(구 30초)를 넘겨 실패했다 → 2분으로 상향.
         IID=""
-        for _ in $(seq 1 15); do
+        for _ in $(seq 1 60); do
           IID=$(aws ssm list-command-invocations --command-id "$CMD_ID" \
                   --query 'CommandInvocations[0].InstanceId' --output text 2>/dev/null || true)
           [ -n "$IID" ] && [ "$IID" != "None" ] && break
           sleep 2
         done
         if [ -z "$IID" ] || [ "$IID" = "None" ]; then
-          echo "::error::SSM 이 대상 인스턴스를 찾지 못함(Project=mmt running 인스턴스 부재?)"
+          echo "::error::SSM 이 2분 안에 대상 인스턴스를 찾지 못함 (CommandId=$CMD_ID)"
+          # 이 job 의 IAM 역할은 SendCommand/GetCommandInvocation/ListCommandInvocations 만
+          # 갖는다(iam.tf ci_deploy_perms) — ec2:DescribeInstances·ssm:DescribeInstanceInformation
+          # 이 없어 여기서 원인을 자동 판별할 수 없다. 사람이 가를 수 있게 명령을 남긴다.
+          echo "원인 후보 3가지 — 맥에서 아래로 가른다:"
+          echo "  1) 인스턴스 부재/정지:"
+          echo "     aws ec2 describe-instances --profile mmt-admin --region ap-northeast-2 \\"
+          echo "       --filters Name=tag:Project,Values=mmt Name=instance-state-name,Values=running"
+          echo "  2) Project=mmt 태그 누락: 위 출력이 비면 태그 문제 (terraform compute.tf 가 붙인다)"
+          echo "  3) SSM 에이전트 미등록(재런치 직후 흔함):"
+          echo "     aws ssm describe-instance-information --profile mmt-admin --region ap-northeast-2"
+          echo "     → 인스턴스가 목록에 뜰 때까지 기다렸다가 이 워크플로를 재실행"
           exit 1
         fi
         echo "Target instance=$IID"
