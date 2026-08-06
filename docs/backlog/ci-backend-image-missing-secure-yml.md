@@ -44,15 +44,19 @@
 > 에이전트가 자격증명 없이 뜬 상태**다 — `compute.tf:70` 이 스스로 *"attach 는 in-place 업데이트(교체 아님)"* 라고 적어 둔
 > 바로 그 경로다. 확인·복구하려면 **SSH 가 먼저 열려야 한다.**
 >
-> **다음 한 걸음(사람 몫 — MFA 필요):** 복구 스크립트가 IP 갱신 → SSH 복구 → 에이전트 점검/재기동 →
-> SSM 등록 확인까지 한 번에 한다. 기본은 **plan 까지만**이고 `--apply` 로만 실제 변경한다(대상 = SG 의
-> SSH 인그레스 규칙 1건, `-target` 한정, 가역, 서빙 무관).
+> **다음 한 걸음(사람 몫 — MFA 필요). 순서가 중요하다 — SSH 가 열려야 에이전트를 만질 수 있다:**
 > ```bash
-> cp ~/my-math-teacher/docs/handoff/scripts/ssm-recover.sh ~/ && bash ~/ssm-recover.sh
-> # plan 확인 후:  bash ~/ssm-recover.sh --apply
+> bash ~/sync-my-ip.sh          # ① 진단(변경 0) → 확인 후 --apply 로 SG 규칙 1건 적용
+> bash ~/ssm-recover.sh         # ② SSH 열린 뒤 에이전트 점검 → --apply 로 재기동·등록 폴링
 > ```
-> ⚠️ `my_ip` 는 **바뀔 때마다 재발**한다(집/카페 IP 변동). 재발 시 같은 스크립트를 다시 돌리면 된다.
-> 근본 대안(SSH 를 IP 고정 대신 SSM Session Manager 로 대체)은 SSM 이 살아난 뒤 별도 판단.
+> 두 스크립트 모두 기본은 **읽기 전용**이고 `--apply` 로만 바꾼다. 홈에 이미 배치돼 있다.
+>
+> ⚠️ **판정 기준은 tfvars 가 아니라 "SSH 가 실제로 되는가" 다.** `terraform.tfvars` 는 희망 상태일 뿐이라
+> apply 전에는 AWS 의 SG 와 다를 수 있다 — **2026-08-07 에 실제로 이 드리프트가 났다**(tfvars 만 새 IP,
+> SG 는 옛 IP → SSH 계속 막힘). tfvars 만 보고 "동기화됨"으로 판정하면 거짓 초록이 된다.
+>
+> ⚠️ `my_ip` 는 **IP 가 바뀔 때마다 재발**한다. 재발 시 `sync-my-ip.sh` 를 다시 돌리면 되고,
+> 구조적 제거는 [SSM Session Manager 이관 백로그](ssh-ingress-ip-pinning-to-session-manager.md)로 분리했다.
 >
 > **프로덕션 서빙에는 영향 없음** — 라이브는 정상이고 막힌 것은 "CI 로 배포하는 경로"뿐이다(현재는 수동 배포로 우회 가능).
 

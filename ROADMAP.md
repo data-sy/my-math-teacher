@@ -56,6 +56,9 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Later — 백로그 (아직 미착수, 검토 단계)
 
+- **⭐ [Infra] SSH 를 IP 고정 인그레스에서 SSM Session Manager 로** (2026-08-06 등록 — **착수 대기 상위**) — SG 의 SSH 인그레스가 `${var.my_ip}/32` 라 **공인 IP 가 바뀔 때마다 SSH·CD 가 통째로 막힌다.** 사이트(80/443)는 멀쩡해서 "서버는 사는데 왜 못 붙지"로 오진하기 쉽고, 실제로 2026-08-06 CD 실패 진단이 여기서 한 번 교착됐다. 재발이 구조에 내장돼 있어 임시 대응(`sync-my-ip.sh`)으로는 사람이 매번 돌려야 한다. **선행 조건 = SSM 등록 정상화**(순환 의존 — Session Manager 로 갈아타는 순간 접근 수단이 0이 되므로). 이관 본체는 인프라가 아니라 **SSH 를 쓰는 스크립트 5개 + 런북**이고, **비상 접근 경로 설계를 빼먹으면 같은 교착이 재발**한다
+  - 상세·대안 기각 사유(terraform `http` data source 자동탐지 = plan 비결정성으로 보류): [`docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md`](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md)
+
 - **[Infra/Data] 로컬 DB 초기화(시드) 정의** (spec-04 검증에서 발견, 2026-06-24)
   - 로컬 `mmt` DB 가 비어 있고(fresh 볼륨), `api/sql/` 시드 26개가 v1/non-v1 혼재·순서/FK 의존이 얽혀 "한 방에 채우는" 정본 초기화 절차가 없음. **`probabilities` 는 AI 예측 생성물이라 시드에 아예 없음**(weakness-diagnosis 가 의존). 그래서 결과 화면 실데이터 검증 때마다 수동 합성이 필요.
   - 범위: ① create.sql + 필요한 insert 들을 의존 순서로 묶은 **단일 초기화 스크립트**(또는 `docker-entrypoint-initdb.d` 마운트) ② depth-0 포함 대표적 진단 1건 + probabilities 합성 시드(데모/검증용) — [Data] depth-0 백로그와 통합. **M4 의 "RDS 스키마·시드 적재(R4)" 가 이 정본 시드를 재사용**하므로 M4 진입 전 정리하면 이득.
