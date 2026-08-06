@@ -101,4 +101,4 @@ K·N·m 은 상수/정책이라 실데이터 축적 후 재튜닝 가능(런치 
 - 컨설팅: `docs/consulting/out/adaptive-question-selection-report.md` (④ 권장안·단계 경로), `docs/consulting/out/kst-learning-material.html` (KST 코어 vs 확률층)
 - 백로그: `docs/backlog/m7-adaptive-traversal-question-selection.md` (결함 3건 발견 맥락)
 - 명세: `docs/specs/m7/spec-01-diagnosis-self-report-dkt.md` §4.2~§4.5 (개정 대상/참조)
-- 구현 프롬프트: `docs/handoff/m7-item-selection-kst-impl-prompt.md`
+- 구현 프롬프트: `docs/handoff/archive/m7-item-selection-kst-impl-prompt.md`

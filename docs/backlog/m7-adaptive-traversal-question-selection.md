@@ -1,6 +1,6 @@
 # [M7] 적응형 문답 질문 선택 알고리즘 고찰 (spec-01 §4.3 보완)
 
-**등록:** 2026-07-17 (v2 클릭러블 프로토타입 리뷰 중 사용자 발견) · **상태:** ✅ **구현 완료(2026-07-24, 브랜치 `feat/m7-item-selection`)** — 결정론적 KST 코어(규칙 A·B·C) 분리 커밋 + 결정론 단위 테스트 12건 green. D1=K8/N20·D2=임계4+√n·D3=서브트리 복원 확정. 정본 = [ADR-0012](../adr/0012-adaptive-question-selection-deterministic-kst-core.md)(Proposed, 사인오프 대기) + spec-01 §4.3. **잔여 = ADR Accepted 승격 · 라이브 `/diagnosis/next` 눈검증(Docker 필요) · 배포 재개.**
+**등록:** 2026-07-17 (v2 클릭러블 프로토타입 리뷰 중 사용자 발견) · **상태:** ✅ **구현 완료(2026-07-24, 브랜치 `feat/m7-item-selection`)** — 결정론적 KST 코어(규칙 A·B·C) 분리 커밋 + 결정론 단위 테스트 12건 green. D1=K8/N20·D2=임계4+√n·D3=서브트리 복원 확정. 정본 = [ADR-0012](../adr/0012-adaptive-question-selection-deterministic-kst-core.md)(Proposed, 사인오프 대기) + spec-01 §4.3. **🟢 종결(2026-08-06): 잔여 3건 전부 처리됨** — ADR-0012 `Accepted (2026-07-24)` 승격 완료 · 라이브 `/diagnosis/next` 눈검증 완료(실그래프 1,631개념·3,446간선, 규칙 A 하한/상한·B 순서·C 프로브 실동작) · PR [#50](https://github.com/data-sy/my-math-teacher/pull/50) 머지(main `590f6cc`) 후 프로덕션 배포 완료. **이 문서는 이력 아카이브 — 새 작업 아님.** 아래 "발견된 보완 지점" 3건은 KST 코어가 흡수했다(1·3 = 규칙 A·B, 2 = 규칙 C 프로브).
 
 ## 발견된 보완 지점 (프로토타입 리뷰)
 
@@ -27,4 +27,4 @@
   - 학습자료: `out/question-selection-learning.html`(후보 5계열)·`out/question-selection-explainer.html`(쉬운 설명)·`out/kst-learning-material.html`(KST 심화+링크)
 - **권장안 = 「휴리스틱 강화(=결정론적 KST 코어)」 즉시 채택, KST 전역 반분·DKT 역이용·IRT 는 실데이터 이후로 보류.** 콜드스타트·결정론·stateless 3제약이 IRT·밴딧을 탈락시키고, DAG 구조 계산만으로 결함 3건이 닫힘.
 - **결함별 해소** — ①(1문 종료)·③(순서 무근거)는 KST 원리(최소질문 하한 + blockedDescendants 정보량 순서)로 해소. ②(알아요 과신)는 **결정론 KST 코어로는 안 풀림** → 별도 검증 프로브 패치로 닫음(확률층 BLIM 은 데이터 필요라 보류).
-- **구현 착수 프롬프트 (실행 완료 2026-07-24):** [`docs/handoff/m7-item-selection-kst-impl-prompt.md`](../handoff/m7-item-selection-kst-impl-prompt.md) — 범위 = 규칙 A(하한/상한)·B(순서)·C(skip-with-probe). 착수 시 확정값 = D1 최소질문 K8/N20·D2 프로브 밀도 임계4+√n·D3 복원=서브트리.
+- **구현 착수 프롬프트 (실행 완료 2026-07-24):** [`docs/handoff/archive/m7-item-selection-kst-impl-prompt.md`](../handoff/archive/m7-item-selection-kst-impl-prompt.md) — 범위 = 규칙 A(하한/상한)·B(순서)·C(skip-with-probe). 착수 시 확정값 = D1 최소질문 K8/N20·D2 프로브 밀도 임계4+√n·D3 복원=서브트리.
