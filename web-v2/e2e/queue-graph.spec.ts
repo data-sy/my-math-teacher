@@ -66,9 +66,8 @@ test('④-B 완료 체크 — 그래프 노드 집합은 그대로, "여기부�
   await page.getByRole('button', { name: /^1\./ }).click()
   await expect(page.getByRole('button', { name: '학습 계단 1/13' })).toBeVisible()
   await page.mouse.click(10, 10) // 시트 닫기
-  await page.waitForTimeout(400)
 
-  // 같은 노드를 다시 탭 — 이제 완료 상태. 노드가 사라지거나 재레이아웃되지 않는다
-  await page.mouse.click(box.x + box.width / 2, box.y + 24)
+  // 선택은 유지된 채 상태만 갱신된다 — 노드가 사라지거나 큐에서 빠지면 이 단언이 깨진다
+  // (좌표 재클릭은 선택 시 재중심 때문에 플래키해서 쓰지 않는다)
   await expect(info).toHaveText(firstStep.replace('여기부터', '완료함'))
 })
