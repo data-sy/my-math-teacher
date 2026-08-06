@@ -65,7 +65,7 @@ HTTPS/인증서는 의도적으로 범위 밖(§비범위).
 - 성격 = **학습(chosen)** 경로. spec-01 §9 프로비저닝을 IaC 로 표현해 "Terraform 이 뭔지" 경험
 - **무과금의 진짜 선 = `apply` 를 안 누르는 것.** 계정 없는 현 시점은 **LocalStack** 으로 무계정 진입
 - Phase A(LocalStack, 무계정·무과금) → B(계정 후 real `plan`) → C(`apply` = G1 사람 게이트, spec-01 §9 실행)
-- 승격 출처 백로그: [`backlog/terraform-iac-for-m4-provisioning.md`](../backlog/terraform-iac-for-m4-provisioning.md)
+- 승격 출처 백로그 `terraform-iac-for-m4-provisioning` = **2026-08-06 흡수·폐기**(✅ M4 에서 소진: 최종 apply 18 리소스 → destroy 후 잔여 0, state+AWS 이중검증). 배경·경계는 위 3줄과 [spec-03](../specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) 머리말이 승계
 
 ---
 
@@ -151,5 +151,5 @@ DB 왕복이 있는 대표 GET**(`/api/v1/concepts/**` 등) — sub-ms `/health`
 - M2: Neo4j → MySQL CTE 마이그레이션(CTE-only 실서버 구성의 전제)
 - M3: 그래프 인프라 폐기(M4 → M3, M4 bring-up 이 폐기 go/no-go 입력)
 - M1: 성능 측정 관습(유실률 측정 기반)
-- backlog: [`terraform-iac-for-m4-provisioning.md`](../backlog/terraform-iac-for-m4-provisioning.md)
+- ~~backlog: `terraform-iac-for-m4-provisioning.md`~~ — 2026-08-06 흡수·폐기(위 §Terraform 로 이관)
 - ADR(예정): 배포 전략(blue-green) — 착수 시점 디스크 다음 빈 번호

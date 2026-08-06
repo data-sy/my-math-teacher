@@ -27,7 +27,7 @@
 - **html2pdf 포팅 — 하지 않음.** 사용처(DiagView·PersonalView)가 전부 D4 로 폐기. Chart.js 는 대상 자체가 없음(현행 미사용 — 2026-07-13 실측, 문서 정정 완료).
 - **이메일/비밀번호 로그인·회원가입 폼** — ⑤는 OAuth 3사 동급이 정본. 이메일 가입은 오픈 후 재검토.
 - **spec-03 몫** — `cards[].links` 채움·큐 항목 reason/goal·⑥ 경로 강조 모드 데이터 조립. 본 spec 은 부착 지점(컴포넌트·hook 옵션 타입)만 예약.
-- **검수 파생 백로그 3건(v2, MVP 미포함 확정)** — ① 완료 배너 탭 → 재진단 직행([backlog](../../backlog/m7-home-completed-banner-rediagnosis-cta.md)) ② 진행 세션 폐기 확인탭([backlog](../../backlog/m7-entry-discard-confirm-dialog.md)) ③ 완주·미저장 세션 재프리뷰([backlog](../../backlog/m7-result-completed-session-repreview.md)).
+- **검수 파생 백로그 3건(v2, MVP 미포함 확정)** — ① 완료 배너 탭 → 재진단 직행([backlog](../../backlog/m7-home-completed-banner-rediagnosis-cta.md)) ② 진행 세션 폐기 확인탭 — **✅ 구현 완료(2026-07-18)**: 진행 중(미완주·미저장) 세션이 있을 때만 조건부 확인 시트(`02-entry.html` ●4 정본 갱신·e2e 커버). 백로그 문서는 2026-08-06 흡수·폐기 ③ 완주·미저장 세션 재프리뷰([backlog](../../backlog/m7-result-completed-session-repreview.md)).
 - **③ 질문 선택 알고리즘 고도화** — 화면 계약과 독립([backlog](../../backlog/m7-adaptive-traversal-question-selection.md)).
 - **다크모드·데스크톱 전용 최적화·정량 계측 파이프라인** — PRD 비범위.
 
