@@ -187,7 +187,14 @@ function CardView({ card, onPathTap }: { card: ResultCard; onPathTap?: () => voi
           {badge}
         </span>
       </div>
-      <div className={s.basis}>이걸 모르면 위로 {card.urgencyBasis.blockedDescendants}개 개념이 막혀요</div>
+      {/* 근거 한 줄 — 0개면 숨긴다. 전체 개념의 35%(577/1,631)가 0개라 "급하다고 올려놓고
+          근거는 아무것도 안 막음"이 라이브에서 실제로 나왔다 (2026-08-05 실측·사용자 결정 B).
+          숫자 대신 후수 개념명을 지목하는 안은 백엔드 트랙([M8])으로 분리 */}
+      {card.urgencyBasis.blockedDescendants > 0 && (
+        <div className={s.basis}>
+          이걸 모르면 위로 {card.urgencyBasis.blockedDescendants}개 개념이 막혀요
+        </div>
+      )}
       <div className={s.links}>
         {card.links.map((l) => (
           <a key={l.url} href={l.url} target="_blank" rel="noreferrer">
