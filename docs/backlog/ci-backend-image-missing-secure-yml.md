@@ -27,18 +27,34 @@
 > **⚠️ "SSM 등록 전 타이밍" 가설은 기각됐다 (2026-08-06 실측).** 대기를 30초→2분으로 올리고(`e1d2e95`)
 > 재실행한 [run 31078404015](https://github.com/data-sy/my-math-teacher/actions/runs/31078404015) 도
 > **build 성공 · deploy 동일 실패** — 하루 넘게 떠 있는 인스턴스이므로 에이전트 등록 지연이 아니다.
-> 남은 원인 후보는 **① Project=mmt 태그 누락 ② IAM instance profile 미부착(→SSM 등록 불가)
-> ③ SSM 에이전트 미기동 ④ CI 역할의 SendCommand 조건** 중 하나다.
-> (`compute.tf`·`iam.tf` 는 태그·프로파일을 붙이도록 돼 있으므로, **재런치된 실물이 그 정의와
-> 어긋나 있는지**가 관건 — 예: terraform 밖에서 만들어진 인스턴스.)
+> ### ✅ 진단 완료 (2026-08-06, `ssm-deploy-diagnose.sh` 실행 결과)
 >
-> **다음 한 걸음(사람 몫 — AWS 읽기에 MFA 필요):**
+> | 후보 | 실측 |
+> |---|---|
+> | Project=mmt 태그 누락 | ❌ 아님 — 인스턴스 `i-098e63bf15a150633`(15.164.145.106)에 태그 정상 |
+> | IAM instance profile 미부착 | ❌ 아님 — `mmt-ec2-ssm-profile` 부착 확인 |
+> | SSM 등록 | ⚠️ **전무** — `describe-instance-information` 이 빈 목록. `ConnectionLost` 가 아니라 **한 번도 등록된 적 없음** |
+> | 호스트 SSH(22) | ⚠️ **timeout** |
+>
+> **SSH timeout 의 원인은 확정됐다:** `network.tf:51-58` 의 SSH 인그레스가 `${var.my_ip}/32`("SSH from my IP only")
+> 인데 **현재 공인 IP 가 `terraform.tfvars` 의 `my_ip` 와 다르다**(2026-08-06 대조 확인). 즉 SG 가 지금 IP 를 막고 있다.
+>
+> **SSM 미등록은 네트워크·이미지 문제가 아니다:** egress 는 전부 허용(`-1`, `0.0.0.0/0` — `network.tf:65-70`)이고
+> AMI 는 AL2023(에이전트 기본 탑재·활성). 남은 유력 가설은 **instance profile 이 부팅 이후 attach 돼
+> 에이전트가 자격증명 없이 뜬 상태**다 — `compute.tf:70` 이 스스로 *"attach 는 in-place 업데이트(교체 아님)"* 라고 적어 둔
+> 바로 그 경로다. 확인·복구하려면 **SSH 가 먼저 열려야 한다.**
+>
+> **다음 한 걸음(사람 몫 — MFA 필요):** 복구 스크립트가 IP 갱신 → SSH 복구 → 에이전트 점검/재기동 →
+> SSM 등록 확인까지 한 번에 한다. 기본은 **plan 까지만**이고 `--apply` 로만 실제 변경한다(대상 = SG 의
+> SSH 인그레스 규칙 1건, `-target` 한정, 가역, 서빙 무관).
 > ```bash
-> cp ~/my-math-teacher/docs/handoff/scripts/ssm-deploy-diagnose.sh ~/ && bash ~/ssm-deploy-diagnose.sh
+> cp ~/my-math-teacher/docs/handoff/scripts/ssm-recover.sh ~/ && bash ~/ssm-recover.sh
+> # plan 확인 후:  bash ~/ssm-recover.sh --apply
 > ```
-> 읽기 전용으로 위 4개 후보를 가른다(AWS 3종 + 호스트 SSH 로 에이전트 실물 확인). 스크립트 끝의
-> 판정 가이드가 어느 후보인지 지목한다. **프로덕션 서빙에는 영향 없음** — 라이브는 정상이고
-> 이건 "CI 로 배포하는 경로"만 막힌 상태다(현재는 수동 배포로 우회 가능).
+> ⚠️ `my_ip` 는 **바뀔 때마다 재발**한다(집/카페 IP 변동). 재발 시 같은 스크립트를 다시 돌리면 된다.
+> 근본 대안(SSH 를 IP 고정 대신 SSM Session Manager 로 대체)은 SSM 이 살아난 뒤 별도 판단.
+>
+> **프로덕션 서빙에는 영향 없음** — 라이브는 정상이고 막힌 것은 "CI 로 배포하는 경로"뿐이다(현재는 수동 배포로 우회 가능).
 
 > **한 줄:** 시크릿 유출 대응(`c7f608d`)이 `application-secure.yml` 을 **추적 해제**하면서, 그 안의 **비밀 아닌 env 매핑 구조까지** 사라졌다. 그 이후 CI 가 빌드하는 백엔드 이미지는 datasource 설정이 없어 프로덕션에서 **부팅 실패**한다. M7 이 그 조치 이후 첫 CI 백엔드 배포라 이때 처음 표면화.
 
