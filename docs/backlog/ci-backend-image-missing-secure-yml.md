@@ -24,11 +24,21 @@
 > ```
 > ::error::SSM 이 대상 인스턴스를 찾지 못함(Project=mmt running 인스턴스 부재?)
 > ```
-> 재런치 당일이라 **새 인스턴스가 아직 SSM 에 등록되기 전**이었을 가능성이 높다(워크플로의 인스턴스 해석
-> 대기가 15회×2초 = **30초뿐**). terraform 쪽 전제는 충족돼 있다 — `compute.tf` 가 `Project="mmt"` 태그와
-> `aws_iam_instance_profile.ec2_ssm`(AmazonSSMManagedInstanceCore)를 붙인다.
-> **따라서 남은 작업 = ① 인스턴스 해석 대기·에러 메시지 보강(선택) ② CI 1회 재실행으로 blue-green 실증.**
-> 그때 `api/` 는 `ea94a1a` 이후 무변경이라 사실상 동일 코드 재배포 = 저위험.
+> **⚠️ "SSM 등록 전 타이밍" 가설은 기각됐다 (2026-08-06 실측).** 대기를 30초→2분으로 올리고(`e1d2e95`)
+> 재실행한 [run 31078404015](https://github.com/data-sy/my-math-teacher/actions/runs/31078404015) 도
+> **build 성공 · deploy 동일 실패** — 하루 넘게 떠 있는 인스턴스이므로 에이전트 등록 지연이 아니다.
+> 남은 원인 후보는 **① Project=mmt 태그 누락 ② IAM instance profile 미부착(→SSM 등록 불가)
+> ③ SSM 에이전트 미기동 ④ CI 역할의 SendCommand 조건** 중 하나다.
+> (`compute.tf`·`iam.tf` 는 태그·프로파일을 붙이도록 돼 있으므로, **재런치된 실물이 그 정의와
+> 어긋나 있는지**가 관건 — 예: terraform 밖에서 만들어진 인스턴스.)
+>
+> **다음 한 걸음(사람 몫 — AWS 읽기에 MFA 필요):**
+> ```bash
+> cp ~/my-math-teacher/docs/handoff/scripts/ssm-deploy-diagnose.sh ~/ && bash ~/ssm-deploy-diagnose.sh
+> ```
+> 읽기 전용으로 위 4개 후보를 가른다(AWS 3종 + 호스트 SSH 로 에이전트 실물 확인). 스크립트 끝의
+> 판정 가이드가 어느 후보인지 지목한다. **프로덕션 서빙에는 영향 없음** — 라이브는 정상이고
+> 이건 "CI 로 배포하는 경로"만 막힌 상태다(현재는 수동 배포로 우회 가능).
 
 > **한 줄:** 시크릿 유출 대응(`c7f608d`)이 `application-secure.yml` 을 **추적 해제**하면서, 그 안의 **비밀 아닌 env 매핑 구조까지** 사라졌다. 그 이후 CI 가 빌드하는 백엔드 이미지는 datasource 설정이 없어 프로덕션에서 **부팅 실패**한다. M7 이 그 조치 이후 첫 CI 백엔드 배포라 이때 처음 표면화.
 
