@@ -2,6 +2,17 @@
 
 MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일스톤·spec 문서를 참조.
 
+> ## ▶ 다음 세션은 여기서 시작 (2026-08-07 갱신)
+>
+> **[`docs/handoff/🤖-M8-콘텐츠-CD실증-핸드오프.md`](docs/handoff/🤖-M8-콘텐츠-CD실증-핸드오프.md)**
+>
+> 순서 = ① CD 1회 실증(GitHub Actions 장애 해소 후) → ② zdbg 계정 정리 → ③ M8 프로덕션 DDL →
+> ④ M8 콘텐츠 큐레이션 → ⑤ M8 머지·배포.
+> **미머지 브랜치 2개** — `feat/m7-item-selection`(운영 스크립트·문서) · `feat/m8-concept-links`(M8 코드 5커밋).
+> ⚠️ `README.md` 미커밋 변경은 사용자 작업분 — 건드리지 말 것.
+>
+> *이 배너는 착수점 포인터만 둔다. 진행 상태의 정본은 아래 본문과 핸드오프다.*
+
 ---
 
 ## Now — 진행 중
@@ -95,6 +106,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
   - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).
   - 작업: ① IAM 콘솔 → 역할 → `mmt-terraform-admin` → 요약의 **최대 세션 기간(Maximum session duration)** 편집 → 8h (CLI: `aws iam update-role --role-name mmt-terraform-admin --max-session-duration 28800`) ② 로컬 `~/.aws/config` `[profile mmt-admin]` 의 `duration_seconds` 3600→28800 (role max ≥ config duration) ③ 검증 `aws sts get-caller-identity --profile mmt-admin`(MFA 입력 → assumed-role 신원).
   - 상한: **8h(28800) 채택**. 최대 12h(43200) 가능하나 세션 길수록 노출 창도 커져 8h 로.
+- **[Docs] README 포트폴리오 검수 잔여 4건** (2026-08-07) — 면접관 페르소나 검수 후 README 전면 재작성 완료(2026-08-05: 하이라이트 M7·M2·M4 재편, 아키텍처·ERD Mermaid 재작성, 셋업 → [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) 분리). 잔여 = ① 제품 스크린샷 확보(구 velog 이미지는 stale 확인·제거만 함) ② ADR-0008 Status Proposed→Accepted 승격(승인 필요) ③ 레포 description 의 "Vue 3" 갱신 ④ Postman 명세에 M7 진단 8경로 반영. 정본 = [`docs/backlog/readme-portfolio-followups.md`](docs/backlog/readme-portfolio-followups.md) · 검수 리포트 = [`docs/consulting/out/06-readme-portfolio-review.md`](docs/consulting/out/06-readme-portfolio-review.md)
 - DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
 - 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
 - CI/CD 파이프라인 정비 및 배포 자동화
