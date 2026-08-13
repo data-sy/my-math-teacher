@@ -39,8 +39,9 @@
 - 주요 도메인:
   - **user / auth** — 회원, OAuth2 로그인, 권한
   - **chapter** — 교과 단원
-  - **concept** — 수학 개념 (MySQL + Neo4j 양쪽에 존재)
-  - **knowledgeSpace** — 개념 간 선후 관계 (현재 Neo4j)
+  - **concept** — 수학 개념 (정본 = MySQL `concepts`. Neo4j 사본은 M2 이후 미사용, 실폐기는 M3)
+  - **knowledgeSpace** — 개념 간 선후 관계 (MySQL `knowledge_space` + 재귀 CTE 탐색. 프로덕션은 CTE-only)
+  - **diagnosis** — M7 자가진단(self-report OX) 순회·DKT 시급도·학습 큐. 플래그 `mmt.diagnosis.enabled` 뒤
   - **item** — 문제
   - **test / userTest** — 진단 테스트, 응시 이력, 답안
 
@@ -65,12 +66,14 @@
 
 ## 테스트 규칙
 
-현재 테스트 인프라는 최소 수준(`ApiApplicationTests`, `RedisUtilTest` 2개)이다. 본격적인 테스트 규칙·Testcontainers·쿼리 카운트 검증은 **Milestone 1**에서 도입된다. 그 이전까지는 아래를 지향 규칙으로 한다.
+테스트 인프라는 **M1에서 구축 완료**됐다(아래 §테스트 인프라). 현재 테스트 클래스 38개 — 통합(Testcontainers)·N+1 회귀·성능 회귀·결정론 단위가 모두 있다.
 
 - `@SpringBootTest` 남용 금지 — `@DataJpaTest` · `@WebMvcTest` 우선
-- 통합 테스트가 필요하면 Testcontainers 기반 준비 (Milestone 1 완료 후 강제)
-- N+1 쿼리 가능성이 있는 변경은 `QueryCountAssertions`로 검증
+- 통합 테스트는 Testcontainers 기반 (`TestcontainersConfig` 재사용)
+- N+1 쿼리 가능성이 있는 변경은 Hibernate `Statistics` 로 쿼리 수 검증 (`*N1Test.java` 패턴)
 - 테스트 없이 리포지토리 로직을 변경하지 말 것 — 최소 단위 테스트 동반
+- **결정론이 계약인 로직**(문항 선택 등)은 "같은 입력 → 같은 출력"을 테스트로 고정할 것
+- ⚠️ 단위 테스트는 생성자를 직접 호출하므로 **Spring DI 배선 실패를 못 잡는다** — 빈 생성자·설정 변경 시 `bootRun` 으로 실기동 확인 (M7 에서 실제로 다중 생성자 부팅 실패를 라이브가 먼저 잡음)
 
 ## 테스트 인프라 (M1 산출물)
 
