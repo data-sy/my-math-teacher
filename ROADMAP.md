@@ -9,7 +9,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 > 순서 = ① CD 1회 실증(GitHub Actions 장애 해소 후) → ② zdbg 계정 정리 → ③ M8 프로덕션 DDL →
 > ④ M8 콘텐츠 큐레이션 → ⑤ M8 머지·배포.
 > **미머지 브랜치 2개** — `feat/m7-item-selection`(운영 스크립트·문서) · `feat/m8-concept-links`(M8 코드 5커밋).
-> ⚠️ `README.md` 미커밋 변경은 사용자 작업분 — 건드리지 말 것.
+> ✅ README 포트폴리오 재작성은 **커밋 완료**(2026-08-13, `99ac30a`·`741493e`) — 더 이상 미커밋 아님. 잔여 4건 = [`readme-portfolio-followups.md`](docs/backlog/readme-portfolio-followups.md).
 >
 > *이 배너는 착수점 포인터만 둔다. 진행 상태의 정본은 아래 본문과 핸드오프다.*
 

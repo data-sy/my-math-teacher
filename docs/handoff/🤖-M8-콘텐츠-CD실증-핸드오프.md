@@ -18,7 +18,7 @@
 | M8 링크 | 🚧 코드 완료·미머지 (`feat/m8-concept-links`, 5커밋) · **콘텐츠 시드가 진짜 병목** |
 | CD 파이프라인 | 🟡 **두 층 복구 완료, 실증만 미완**(GitHub Actions 장애로 막힘) |
 
-⚠️ **`README.md` 에 미커밋 변경이 있다**(포트폴리오 리라이트 진행분). **건드리지 말 것.**
+✅ **README 포트폴리오 재작성 커밋 완료** (2026-08-13, `99ac30a`·`741493e` — 이 브랜치). 잔여 4건은 [`readme-portfolio-followups.md`](../backlog/readme-portfolio-followups.md) 로 분리돼 있고 이 핸드오프의 차단 요소가 아니다.
 ⚠️ 스크립트 4종은 `docs/handoff/scripts/` 에 있고 **`feat/m7-item-selection` 브랜치에만** 있다.
 `feat/m8-concept-links` 를 체크아웃하면 일부가 안 보인다 — 실행은 홈(`~/`) 사본으로 한다.
 
