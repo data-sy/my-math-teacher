@@ -47,4 +47,4 @@ IMDSv2·instance-id·IAM 롤(`mmt-ec2-ssm-role`)은 **전부 정상**이었다 �
 
 - 어떤 순서든 **`terraform plan` 전문을 읽고** `aws_instance.app` 에 `must be replaced` 가 뜨는지 먼저 확인한다.
 - RDS 는 별개지만, EC2 교체는 호스트 로컬 자산(`~/mmt-backend.env`·`~/active-backend.conf`·`~/deploy/`)을
-  전부 날린다 — 재런치 절차(`🤖-M7-티어다운-실행시퀀스.md`)를 다시 밟아야 한다.
+  전부 날린다 — 재런치 절차(`docs/handoff/🤖-M7-인프라-티어다운-재런치.md` §3)를 다시 밟아야 한다.
