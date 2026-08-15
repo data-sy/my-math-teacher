@@ -21,6 +21,32 @@ jobs:
     # skip_tests=false(기본)면 게이트 정상 작동 — 실패 시 아래 build 가 스킵된다.
     if: ${{ !inputs.skip_tests }}
     runs-on: ubuntu-latest
+    # 러너가 죽을 때까지 매달리지 않게 상한을 둔다. 2026-08-15 run 31879698138 은
+    # Redis 부재로 57분간 행 → 로그 업로드도 못 하고 실패해 원인 파악이 어려웠다.
+    # 전 스위트 로컬 실측이 4분대이므로 20분이면 정상 실행엔 충분하다.
+    timeout-minutes: 20
+    # MySQL·Neo4j 는 각 테스트가 Testcontainers 로 직접 띄우지만 Redis 는 그렇지 않다.
+    # RedisUtilTest·ConceptServiceCacheTest 등 8개가 로컬 localhost:6379 를 그냥 쓴다
+    # (자체 GenericContainer 를 띄우는 건 RedisCrossInstanceSerializerTest·
+    #  RefreshTokenRotationIntegrationTest 2개뿐). 로컬에선 mmt-redis 가 그 자리에 있어
+    # 통과하지만 러너엔 없어서 Lettuce 가 무한정 매달린다 — 그래서 이 스위트는 지금껏
+    # CI 에서 돈 적이 없고 skip_tests 우회가 상수처럼 쓰였다.
+    #
+    # test 프로파일은 비밀번호 없는 기본값(localhost:6379)을 기대한다:
+    # application.yml 의 redis 설정은 `on-profile: secure` 문서 안이라 테스트에서 미로드이고,
+    # `include: securelocal` 은 CI 에 그 파일이 없어(gitignore) no-op 이다.
+    # → 인증 없는 평범한 redis 로 충분. 근본 해법(Testcontainers Redis @ServiceConnection)은
+    #   Spring Boot 3.2+ 의존이라 백로그.
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
