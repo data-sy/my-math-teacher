@@ -9,11 +9,14 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 ## 모노레포 구조
 
 - `api/` — Spring Boot 기반 백엔드 서버 (활성 개발). 세부 규칙은 @api/CLAUDE.md 참조
-- `web/` — Vue 기반 프론트엔드 (활성 개발). 세부 규칙은 @web/CLAUDE.md 참조
+- `web-v2/` — **현행 프론트엔드** (React, 활성 개발). 세부 규칙은 @web-v2/CLAUDE.md 참조
+- `web/` — 구 Vue 프론트엔드 (**비활성** — 2026-08-06 프로덕션에서 web-v2 로 교체됨, 롤백 자산으로 보존). 세부 규칙은 @web/CLAUDE.md 참조
+- `infra/terraform/` — EC2/RDS/EIP 등 프로비저닝 IaC + 측정 하네스(`run-log.sh`)
+- `deploy/` — blue-green 전환 스크립트(`switch-backend.sh`)와 nginx upstream fragment
 - `ai/` — DKT 모델 학습 스크립트 (비활성). 결과 모델은 TensorFlow Serving으로 배포됨. 현재 건드리지 않음
 - `neo4j-deprecated/` — 초기 데이터 생성 및 Docker Hub 이미지 빌드용 (M2 검증 완료 — 디렉토리·인프라 제거는 M3 에서 진행 예정). 현재 건드리지 않음
 - `shared/` — 프로젝트 자산 저장소 (다이어그램, 스크립트, 시드 데이터). 코드가 아닌 운영 자산
-- `docs/` — 마일스톤·spec·ADR·roadmap
+- `docs/` — 마일스톤·spec·ADR·roadmap. 로컬 셋업은 @docs/DEVELOPMENT.md
 
 ## 인프라
 
@@ -60,7 +63,7 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 
 ## 금지 사항
 
-- `ai/`, `neo4j-deprecated/` 디렉토리는 사용자의 명시적 지시 없이 수정하지 말 것
+- `ai/`, `neo4j-deprecated/`, `web/`(구 Vue, 롤백 자산) 디렉토리는 사용자의 명시적 지시 없이 수정하지 말 것
 - `docker-compose.yml`의 서비스 구성은 ADR 없이 변경하지 말 것
 - 공용 CLAUDE.md·문서·커밋에 민감 정보(비밀번호, OAuth 시크릿, JWT 시크릿, API 키) 포함 금지
 - 로컬 절대경로(예: `/Users/...`)는 공용 CLAUDE.md에 포함 금지 — 개인 환경 기술은 `CLAUDE.local.md`로

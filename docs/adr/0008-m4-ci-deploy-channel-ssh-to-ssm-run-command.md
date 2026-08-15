@@ -2,7 +2,12 @@
 
 ## Status
 
-Proposed
+Accepted (2026-08-13 승격 — 사용자 승인)
+
+> 승격 근거: 본 ADR 의 결정(SSM Run Command + GitHub OIDC)은 M4 에서 구현·라이브 e2e 검증까지 완료됐다
+> — [`docs/benchmark/milestone-4-run-report.md`](../benchmark/milestone-4-run-report.md) 의 SSM→runuser→blue-green 컷오버 완주 기록.
+> 이후 재런치·CD 복구(2026-08-06~07)에서도 같은 채널을 그대로 사용 중이라 실운영으로 굳었다.
+> Proposed 로 남아 있던 것은 상태 갱신 누락이었다.
 
 ## Context
 
