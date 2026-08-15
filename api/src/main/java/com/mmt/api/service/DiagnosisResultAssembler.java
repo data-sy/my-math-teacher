@@ -1,6 +1,7 @@
 package com.mmt.api.service;
 
 import com.mmt.api.dto.diagnosis.DiagnosisResultResponse;
+import com.mmt.api.dto.diagnosis.ExternalLink;
 import com.mmt.api.repository.concept.ConceptCardMeta;
 import com.mmt.api.service.DiagnosisAnalysisService.DiagnosisComputation;
 
@@ -26,12 +27,15 @@ final class DiagnosisResultAssembler {
     static final double MID_CUT = 65.0;
     static final int TOP_FLOOR = 3;
     static final int TOP_CAP = 5;
+    /** M8 spec-03 U4 — 개념당 링크 노출 상한. 모바일 카드 폭·선택 과부하 방지. */
+    static final int LINK_CAP = 3;
 
     private DiagnosisResultAssembler() {}
 
     static DiagnosisResultResponse assemble(DiagnosisComputation computation,
                                             Map<Integer, ConceptCardMeta> metaByConcept,
-                                            Map<Integer, Integer> blockedByConcept) {
+                                            Map<Integer, Integer> blockedByConcept,
+                                            Map<Integer, List<ExternalLink>> linksByConcept) {
         List<DiagnosisResultResponse.ConceptCard> sorted = computation.minDepthByConcept().entrySet().stream()
                 .map(e -> {
                     int conceptId = e.getKey();
@@ -47,7 +51,10 @@ final class DiagnosisResultAssembler {
                                     blockedByConcept.getOrDefault(conceptId, 0)),
                             percent,
                             e.getValue(),
-                            List.of());
+                            // 결측 허용이 계약 — 링크 0개면 빈 배열 (§2.2). 상한 3 은 여기서 자른다.
+                            linksByConcept.getOrDefault(conceptId, List.of()).stream()
+                                    .limit(LINK_CAP)
+                                    .collect(Collectors.toList()));
                 })
                 .sorted(Comparator
                         .comparing((DiagnosisResultResponse.ConceptCard c) -> c.getProbabilityPercent() == null)

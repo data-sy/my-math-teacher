@@ -44,7 +44,9 @@ public class DiagnosisResultResponse {
         private UrgencyBasis urgencyBasis;
         private Double probabilityPercent; // 내부 용어 — 프론트 표기 금지 (PRD §4.2)
         private int toConceptDepth;        // 내부 용어 — 0 = "몰라요" 응답 개념
-        private List<Object> links;        // spec-03 예약 (항상 [])
+        // M8 spec-03: alive=TRUE, display_order 순, 개념당 최대 3 (U4).
+        // 링크 결측은 계약 — 0개면 빈 배열이고 UI 가 섹션을 통째로 생략한다 (§2.2).
+        private List<ExternalLink> links;
     }
 
     @Data

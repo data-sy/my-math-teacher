@@ -1,6 +1,7 @@
 package com.mmt.api.service;
 
 import com.mmt.api.dto.diagnosis.DiagnosisResultResponse;
+import com.mmt.api.dto.diagnosis.ExternalLink;
 import com.mmt.api.repository.concept.ConceptCardMeta;
 import com.mmt.api.service.DiagnosisAnalysisService.DiagnosisComputation;
 import org.junit.jupiter.api.DisplayName;
@@ -63,7 +64,8 @@ class DiagnosisResultAssemblerTest {
         depths.put(3, 0);
         depths.put(5, 0);
         DiagnosisComputation c = new DiagnosisComputation(4, List.of(3, 5), depths, Map.of(), false);
-        DiagnosisResultResponse res = DiagnosisResultAssembler.assemble(c, metas(depths.keySet()), Map.of());
+        DiagnosisResultResponse res = DiagnosisResultAssembler.assemble(
+                c, metas(depths.keySet()), Map.of(), Map.of());
         assertThat(res.isUrgencyAvailable()).isFalse();
         // 정렬: percent 결측 → depth asc, conceptId asc = [3(d0), 5(d0), 9(d1)]
         assertThat(res.getCards()).extracting(DiagnosisResultResponse.ConceptCard::getConceptId)
@@ -73,7 +75,7 @@ class DiagnosisResultAssemblerTest {
     }
 
     @Test
-    @DisplayName("headline: totalAsked·weakCount·top 1위 개념명, links 는 빈 배열 예약")
+    @DisplayName("headline: totalAsked·weakCount·top 1위 개념명, 링크 없으면 빈 배열")
     void headlineAndLinksReservation() {
         DiagnosisResultResponse res = assemble(Map.of(1, 10.0, 2, 90.0));
         assertThat(res.getHeadline().getTotalAsked()).isEqualTo(4);
@@ -84,10 +86,35 @@ class DiagnosisResultAssemblerTest {
     }
 
     @Test
+    @DisplayName("M8 links: 개념별 부착 + 상한 3 절단 + 결측 개념은 빈 배열 (§2.2 결측 허용)")
+    void linksAttachedWithCapAndMissingAllowed() {
+        // 개념 1 = 4개(상한 초과) · 개념 2 = 시드 없음
+        DiagnosisResultResponse res = assemble(Map.of(1, 10.0, 2, 20.0),
+                Map.of(1, List.of(
+                        new ExternalLink("무료 강의 (EBS)", "https://e.kr/1", "EBS"),
+                        new ExternalLink("개념 정리", "https://e.kr/2", "EBS"),
+                        new ExternalLink("연습 문제", "https://e.kr/3", "EBS"),
+                        new ExternalLink("넘치는 4번째", "https://e.kr/4", "EBS"))));
+
+        DiagnosisResultResponse.ConceptCard withLinks = res.getCards().get(0);
+        assertThat(withLinks.getConceptId()).isEqualTo(1);
+        assertThat(withLinks.getLinks()).hasSize(DiagnosisResultAssembler.LINK_CAP);
+        // 절단은 뒤에서 — 입력 순서(display_order) 보존
+        assertThat(withLinks.getLinks()).extracting(ExternalLink::getUrl)
+                .containsExactly("https://e.kr/1", "https://e.kr/2", "https://e.kr/3");
+        assertThat(withLinks.getLinks().get(0).getTitle()).isEqualTo("무료 강의 (EBS)");
+        assertThat(withLinks.getLinks().get(0).getProvider()).isEqualTo("EBS");
+
+        // 링크 0개 개념은 빈 배열 — "준비 중" 같은 자리표시 금지, UI 가 섹션을 생략한다
+        assertThat(res.getCards().get(1).getConceptId()).isEqualTo(2);
+        assertThat(res.getCards().get(1).getLinks()).isEmpty();
+    }
+
+    @Test
     @DisplayName("약점 없음: cards·more 빈 배열 + weakCount 0 (에러 아님)")
     void noWeaknessIsNormalResult() {
         DiagnosisResultResponse res = DiagnosisResultAssembler.assemble(
-                DiagnosisComputation.noWeakness(5), Map.of(), Map.of());
+                DiagnosisComputation.noWeakness(5), Map.of(), Map.of(), Map.of());
         assertThat(res.getCards()).isEmpty();
         assertThat(res.getMore()).isEmpty();
         assertThat(res.getHeadline().getWeakCount()).isZero();
@@ -99,6 +126,11 @@ class DiagnosisResultAssemblerTest {
 
     /** percent 맵으로 computation 구성 (depth: conceptId 홀수=0, 짝수=1 — 단순 합성). */
     private static DiagnosisResultResponse assemble(Map<Integer, Double> percents) {
+        return assemble(percents, Map.of());
+    }
+
+    private static DiagnosisResultResponse assemble(Map<Integer, Double> percents,
+                                                    Map<Integer, List<ExternalLink>> links) {
         Map<Integer, Integer> depths = new LinkedHashMap<>();
         percents.keySet().stream().sorted().forEach(id -> depths.put(id, id % 2 == 0 ? 1 : 0));
         List<Integer> unknown = depths.entrySet().stream()
@@ -106,7 +138,7 @@ class DiagnosisResultAssemblerTest {
         DiagnosisComputation c = new DiagnosisComputation(4, unknown, depths, percents, true);
         Map<Integer, Integer> blocked = depths.keySet().stream()
                 .collect(Collectors.toMap(id -> id, id -> id + 10));
-        return DiagnosisResultAssembler.assemble(c, metas(depths.keySet()), blocked);
+        return DiagnosisResultAssembler.assemble(c, metas(depths.keySet()), blocked, links);
     }
 
     private static Map<Integer, ConceptCardMeta> metas(java.util.Collection<Integer> ids) {

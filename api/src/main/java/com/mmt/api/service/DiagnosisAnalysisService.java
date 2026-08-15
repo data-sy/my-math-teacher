@@ -2,6 +2,9 @@ package com.mmt.api.service;
 
 import com.mmt.api.domain.diagnosis.SelfReportAnswer;
 import com.mmt.api.dto.diagnosis.AnsweredConcept;
+import com.mmt.api.domain.concept.ConceptLink;
+import com.mmt.api.dto.diagnosis.ExternalLink;
+import com.mmt.api.repository.concept.ConceptLinkRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.diagnosis.SelfReportAnswerRepository;
 import com.mmt.api.repository.probability.DiagnosisProbabilityRow;
@@ -51,6 +54,7 @@ public class DiagnosisAnalysisService {
     private final ProbabilityRepository probabilityRepository;
     private final UsersRepository usersRepository;
     private final DiagnosisDktClient dktClient;
+    private final ConceptLinkRepository conceptLinkRepository;
 
     public DiagnosisAnalysisService(DiagnosisService diagnosisService,
                                     JdbcTemplateConceptRepository conceptRepository,
@@ -58,7 +62,8 @@ public class DiagnosisAnalysisService {
                                     UserTestRepository userTestRepository,
                                     ProbabilityRepository probabilityRepository,
                                     UsersRepository usersRepository,
-                                    DiagnosisDktClient dktClient) {
+                                    DiagnosisDktClient dktClient,
+                                    ConceptLinkRepository conceptLinkRepository) {
         this.diagnosisService = diagnosisService;
         this.conceptRepository = conceptRepository;
         this.selfReportAnswerRepository = selfReportAnswerRepository;
@@ -66,6 +71,7 @@ public class DiagnosisAnalysisService {
         this.probabilityRepository = probabilityRepository;
         this.usersRepository = usersRepository;
         this.dktClient = dktClient;
+        this.conceptLinkRepository = conceptLinkRepository;
     }
 
     /**
@@ -175,7 +181,26 @@ public class DiagnosisAnalysisService {
             blockedByConcept.put(conceptId,
                     conceptRepository.countBlockedDescendants(conceptId, BLOCKED_DEPTH));
         }
-        return DiagnosisResultAssembler.assemble(computation, metaByConcept, blockedByConcept);
+        return DiagnosisResultAssembler.assemble(computation, metaByConcept, blockedByConcept,
+                findLinksByConcept(computation.minDepthByConcept().keySet()));
+    }
+
+    /**
+     * M8 spec-03 §3.1 — 카드 links 를 IN 일괄 조회 1쿼리로 부착 (개념 수와 무관하게 1회, N+1 금지).
+     * 카드는 top·more 를 통틀어 minDepthByConcept 에서 나오므로 그 키 집합이 곧 조회 대상이다.
+     * 개념당 상한 3(U4)은 조립 단계에서 자른다 — 여기서는 순서만 보존한다.
+     */
+    private Map<Integer, List<ExternalLink>> findLinksByConcept(Set<Integer> conceptIds) {
+        if (conceptIds.isEmpty()) {
+            return Map.of();
+        }
+        Map<Integer, List<ExternalLink>> byConcept = new LinkedHashMap<>();
+        for (ConceptLink link : conceptLinkRepository
+                .findByConceptIdInAndAliveTrueOrderByConceptIdAscDisplayOrderAscConceptLinkIdAsc(conceptIds)) {
+            byConcept.computeIfAbsent(link.getConceptId(), k -> new ArrayList<>())
+                    .add(new ExternalLink(link.getTitle(), link.getUrl(), link.getProvider()));
+        }
+        return byConcept;
     }
 
     /**

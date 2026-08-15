@@ -204,3 +204,23 @@ CREATE TABLE learning_queue_items (
 	FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),
 	UNIQUE KEY uk_lqi_queue_position (queue_id, position)
 );
+
+-- ============================================================
+-- M8 spec-03: 개념별 외부 학습자료 링크 — additive (구 경로 미참조)
+-- 롤백: 테이블 방치 가능. 링크 비노출만 원하면 alive=FALSE (배포 불요).
+-- ============================================================
+
+CREATE TABLE concept_links (
+	concept_link_id BIGINT auto_increment,
+	concept_id      INT          NOT NULL,
+	title           VARCHAR(120) NOT NULL,   -- 노출 문구 (예: "무료 강의 (EBS)")
+	url             VARCHAR(500) NOT NULL,
+	provider        VARCHAR(50)  NOT NULL,   -- 'EBS' 등 — 노출·점검 그룹핑 키
+	display_order   INT          NOT NULL DEFAULT 0,
+	alive           BOOLEAN      NOT NULL DEFAULT TRUE,  -- R4 점검 결과 (죽은 링크 비노출)
+	last_checked_at TIMESTAMP    NULL,
+	created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (concept_link_id),
+	CONSTRAINT fk_cl_concept FOREIGN KEY (concept_id) REFERENCES concepts (concept_id),
+	INDEX idx_cl_concept (concept_id)
+);

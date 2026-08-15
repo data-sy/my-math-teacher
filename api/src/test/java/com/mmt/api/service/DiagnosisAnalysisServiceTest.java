@@ -2,7 +2,9 @@ package com.mmt.api.service;
 
 import com.mmt.api.domain.diagnosis.SelfReportAnswer;
 import com.mmt.api.dto.diagnosis.AnsweredConcept;
+import com.mmt.api.domain.concept.ConceptLink;
 import com.mmt.api.repository.concept.ConceptDepth;
+import com.mmt.api.repository.concept.ConceptLinkRepository;
 import com.mmt.api.repository.concept.JdbcTemplateConceptRepository;
 import com.mmt.api.repository.diagnosis.SelfReportAnswerRepository;
 import com.mmt.api.repository.probability.DiagnosisProbabilityRow;
@@ -46,6 +48,7 @@ class DiagnosisAnalysisServiceTest {
     private ProbabilityRepository probRepo;
     private UsersRepository usersRepo;
     private DiagnosisDktClient dktClient;
+    private ConceptLinkRepository conceptLinkRepo;
     private DiagnosisAnalysisService service;
 
     /** IDENTITY 채번 시뮬레이션: 저장 순서대로 id 부여, ASC 재조회 = 저장 순서. */
@@ -60,8 +63,13 @@ class DiagnosisAnalysisServiceTest {
         probRepo = mock(ProbabilityRepository.class);
         usersRepo = mock(UsersRepository.class);
         dktClient = mock(DiagnosisDktClient.class);
+        conceptLinkRepo = mock(ConceptLinkRepository.class);
+        // M8: 시드가 없는 기본 상태 = 링크 결측(빈 배열). 링크 부착 검증은 아래 별도 테스트.
+        when(conceptLinkRepo
+                .findByConceptIdInAndAliveTrueOrderByConceptIdAscDisplayOrderAscConceptLinkIdAsc(any()))
+                .thenReturn(List.of());
         service = new DiagnosisAnalysisService(new DiagnosisService(conceptRepo), conceptRepo,
-                sraRepo, userTestRepo, probRepo, usersRepo, dktClient);
+                sraRepo, userTestRepo, probRepo, usersRepo, dktClient, conceptLinkRepo);
 
         when(usersRepo.findUserIdByUserEmail(anyString())).thenReturn(Optional.of(7L));
         when(userTestRepo.saveDiagnosisSession(anyLong())).thenReturn(42L);
@@ -97,6 +105,48 @@ class DiagnosisAnalysisServiceTest {
         double[] vec = new double[100];
         for (int i = 0; i < vec.length; i++) vec[i] = i;
         when(dktClient.predict(any())).thenReturn(vec);
+    }
+
+    @Test
+    @DisplayName("M8 links N+1: 카드가 몇 개든 링크 조회는 IN 일괄 1쿼리 (spec-03 §3.1)")
+    void linksFetchedInSingleBatchQuery() {
+        // 30 "몰라요" → 선수 확장으로 30·20·10 세 개념이 카드가 된다
+        when(conceptLinkRepo
+                .findByConceptIdInAndAliveTrueOrderByConceptIdAscDisplayOrderAscConceptLinkIdAsc(any()))
+                .thenReturn(List.of(
+                        link(30, "무료 강의 (EBS)", "https://e.kr/30", 0),
+                        link(10, "개념 정리 (EBS)", "https://e.kr/10", 0)));
+
+        com.mmt.api.dto.diagnosis.DiagnosisResultResponse res =
+                service.previewResult(List.of(new AnsweredConcept(30, false)));
+
+        // 핵심: 개념 수와 무관하게 정확히 1회 — 개념별 반복 조회면 여기서 깨진다
+        org.mockito.Mockito.verify(conceptLinkRepo, org.mockito.Mockito.times(1))
+                .findByConceptIdInAndAliveTrueOrderByConceptIdAscDisplayOrderAscConceptLinkIdAsc(any());
+
+        // 조회 대상 = 카드가 되는 전 개념(top+more) 집합
+        ArgumentCaptor<java.util.Collection<Integer>> captor = ArgumentCaptor.forClass(java.util.Collection.class);
+        org.mockito.Mockito.verify(conceptLinkRepo)
+                .findByConceptIdInAndAliveTrueOrderByConceptIdAscDisplayOrderAscConceptLinkIdAsc(captor.capture());
+        assertThat(captor.getValue()).containsExactlyInAnyOrder(30, 20, 10);
+
+        java.util.List<com.mmt.api.dto.diagnosis.DiagnosisResultResponse.ConceptCard> all =
+                new ArrayList<>(res.getCards());
+        all.addAll(res.getMore());
+        assertThat(all).hasSize(3);
+        // 시드 있는 개념만 채워지고 나머지는 빈 배열 (결측 허용 §2.2)
+        assertThat(all).filteredOn(c -> c.getConceptId() == 30)
+                .allSatisfy(c -> assertThat(c.getLinks()).hasSize(1));
+        assertThat(all).filteredOn(c -> c.getConceptId() == 10)
+                .allSatisfy(c -> assertThat(c.getLinks()).hasSize(1));
+        assertThat(all).filteredOn(c -> c.getConceptId() == 20)
+                .allSatisfy(c -> assertThat(c.getLinks()).isEmpty());
+    }
+
+    private static ConceptLink link(int conceptId, String title, String url, int order) {
+        ConceptLink l = new ConceptLink(conceptId, title, url, "EBS", order);
+        l.setConceptLinkId((long) (conceptId * 10 + order));
+        return l;
     }
 
     @Test

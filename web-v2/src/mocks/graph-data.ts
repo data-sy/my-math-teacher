@@ -105,11 +105,11 @@ export function fullScanFrontier(): string[] {
 /** 개념별 무료 외부자료 링크 — 카피는 와이어프레임 문구 그대로 */
 export function linksFor(id: string): ExternalLink[] {
   const links: ExternalLink[] = [
-    { label: 'EBS 무료 강의', url: `https://mid.ebs.co.kr/search?q=${encodeURIComponent(concept(id).conceptName)}` },
+    { title: 'EBS 무료 강의', url: `https://mid.ebs.co.kr/search?q=${encodeURIComponent(concept(id).conceptName)}`, provider: 'EBS' },
   ]
   // 짝수 인덱스 개념에만 두 번째 자료 — 카드별 링크 수 편차를 mock 에서도 재현
   if (Number(id.slice(1)) % 2 === 0) {
-    links.push({ label: '개념 정리 자료', url: `https://www.mathfactory.net/search?q=${encodeURIComponent(concept(id).conceptName)}` })
+    links.push({ title: '개념 정리 자료', url: `https://www.mathfactory.net/search?q=${encodeURIComponent(concept(id).conceptName)}`, provider: 'MathFactory' })
   }
   return links
 }
