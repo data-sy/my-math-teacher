@@ -66,7 +66,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Later — 백로그 (아직 미착수, 검토 단계)
 
-- **⏰ [Infra] certbot 자동갱신 타이머가 재런치 호스트에 살아 있는지 미확인 — TLS 만료 `2026-11-03`** (2026-08-15 등록 — **기한 있는 유일 항목**) — M6 에서 실증했던 systemd `certbot-renew.timer` 는 **mothball 로 terminate 된 옛 호스트의 것**이고, 2026-08-05 재런치 런북은 "인증서 재발급"만 지시할 뿐 **타이머 재등록을 적지 않았다**. 지금은 인증서가 유효해 증상이 0 — 만료 당일 사이트 전체가 막히는 형태로만 드러난다. 확인은 읽기 전용 3줄
+- **🔴 [Infra] 프로덕션에 TLS 자동갱신 경로가 **없다**(실측 확정) — 만료 `2026-11-03`** (2026-08-15 등록·같은 날 확정 — **기한 있는 유일 항목**) — 2026-08-15 호스트 실측: systemd 타이머 **0건** · 유닛 **0건** · cron **0건** · certbot 바이너리 **없음**. 즉 갱신을 돌릴 주체가 존재하지 않는다. M6 에서 실증했던 `certbot-renew.timer` 는 mothball 로 terminate 된 옛 호스트와 함께 소멸했고, 재런치는 docker certbot 으로 **1회성 발급만** 했다(런북 §5 가 "재발급"만 적고 "갱신"을 안 적은 탓 — 재발 방지가 본체). 지금은 인증서가 유효해 증상이 0 — 만료 당일 사이트 전체가 막히는 형태로만 드러난다. 결정 1건 = 갱신 주체(docker certbot + 타이머 / 호스트 설치)
   - 상세·확인 명령·재발 방지: [`docs/backlog/tls-cert-renewal-timer-after-relaunch.md`](docs/backlog/tls-cert-renewal-timer-after-relaunch.md)
 
 - **⭐ [Infra] AMI 필터가 minimal 을 집어 SSM 에이전트 부재 + 전체 apply 의 EC2 교체 위험** (2026-08-07 등록 — **착수 대기 상위**) — `compute.tf` 의 `al2023-ami-*-x86_64` 필터가 **minimal 변형까지 매칭**해 재런치 때 **SSM 에이전트가 없는 이미지**를 집었고, 그게 2026-08-05 이후 CD 가 죽어 있던 진짜 원인이다(러닝 인스턴스는 `dnf install` 로 복구 — 재발 방지는 미착수). 더 큰 지뢰는 **`most_recent = true` 인데 `lifecycle` 블록이 없다**는 것 — 새 AL2023 AMI 가 나올 때마다 **전체 `terraform apply` 가 프로덕션 EC2 를 교체(destroy+create)하려 든다**(2026-08-07 IP 동기화는 `-target` 이라 무사했다). 결정 3건(필터 조이기·`ignore_changes=[ami]`·user_data 설치)은 순서가 중요 — **안전장치 먼저**

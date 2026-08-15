@@ -24,7 +24,7 @@ else
 fi
 echo "=============================================="
 
-ssh -i "$KEY" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "$SSHU@$HOST" "bash -s -- $MODE" <<'REMOTE'
+ssh -i "$KEY" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o LogLevel=ERROR "$SSHU@$HOST" "bash -s -- $MODE" <<'REMOTE'
 set -u
 MODE=${1:-inspect}
 
@@ -50,7 +50,7 @@ set -a; . "$ENVF"; set +a
 export MYSQL_PWD="$RDS_PASSWORD"
 DB() { mysql -h "$RDS_HOST" -P "${RDS_PORT:-3306}" -u "$RDS_USERNAME" "$RDS_NAME" "$@"; }
 
-command -v mysql >/dev/null || { bad "호스트에 mysql 클라이언트 없음"; echo "⛔ 중단"; exit 1; }
+command -v mysql >/dev/null || { bad "호스트에 mysql 클라이언트 없음 — 먼저: bash ~/mmt-install-mysql.sh --apply"; echo "⛔ 중단"; exit 1; }
 DB -e "SELECT 1" >/dev/null 2>&1 && ok "RDS 접속 성공" || { bad "RDS 접속 실패"; echo "⛔ 중단"; exit 1; }
 
 # ---------- 1. 대상 계정 ----------
