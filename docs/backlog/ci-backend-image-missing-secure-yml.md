@@ -2,7 +2,7 @@
 
 **등록:** 2026-07-27 (M7 배포 마감 세션에서 A1 blue-green 다크 배포 시도 중 발견) · **분류:** 선재 배포 결함(M7 코드와 무관)
 
-> ## ✅ 근본 원인 해소 완료 (2026-07-27) — 아래 "미착수" 서술은 stale, 본 블록으로 정정 (2026-08-06 실측)
+> ## ✅ **종결 (2026-08-15)** — 배선 결함·SSM·CD 실증 전부 해소. 아래 "미착수" 서술은 stale, 본 블록으로 정정
 >
 > 배선 소실은 **`f432c53` "fix(api): restore production wiring as profile-gated tracked config"** 로
 > 고쳐졌다(= 아래 수정 옵션 **1a** 채택). 결정 정본 = [ADR-0013](../adr/0013-restore-production-wiring-as-profile-gated-tracked-config.md) **Accepted**.
@@ -27,22 +27,24 @@
 > **⚠️ "SSM 등록 전 타이밍" 가설은 기각됐다 (2026-08-06 실측).** 대기를 30초→2분으로 올리고(`e1d2e95`)
 > 재실행한 [run 31078404015](https://github.com/data-sy/my-math-teacher/actions/runs/31078404015) 도
 > **build 성공 · deploy 동일 실패** — 하루 넘게 떠 있는 인스턴스이므로 에이전트 등록 지연이 아니다.
-> ### 🟢 SSM 복구 완료 (2026-08-07) — 남은 것은 CD 1회 실증뿐
+> ### ✅ 전 층 해소 — CD 실증까지 완료 (2026-08-15). **이 백로그는 닫힌다.**
 >
 > | 층 | 상태 |
 > |---|---|
-> | SG SSH 인그레스(공인 IP 드리프트) | ✅ 해소 — `sync-my-ip.sh --apply` |
-> | SSM 에이전트 | ✅ 해소 — **minimal AMI 라 미설치였다** → `dnf install` + enable, `PingStatus=Online` 확인(`i-098e63bf15a150633`) |
-> | CD deploy job 실증 | ⏳ **미완 — GitHub Actions 장애로 막힘** |
+> | SG SSH 인그레스(공인 IP 드리프트) | ✅ 해소(2026-08-07) — `sync-my-ip.sh --apply` |
+> | SSM 에이전트 | ✅ 해소(2026-08-07) — **minimal AMI 라 미설치였다** → `dnf install` + enable, `PingStatus=Online` 확인(`i-098e63bf15a150633`) |
+> | CD deploy job 실증 | ✅ **완료(2026-08-15)** — [run 31872517144](https://github.com/data-sy/my-math-teacher/actions/runs/31872517144) |
 >
-> 2026-08-07 재실행 [run 31117744990](https://github.com/data-sy/my-math-teacher/actions/runs/31117744990) 은
-> `The job was not acquired by Runner of type hosted` 로 **build 단계에서 실패**했고(deploy 는 시작도 못 함),
-> 곧이은 재-dispatch 는 `HTTP 500`. githubstatus 확인 결과 **Actions `partial_outage` + 인시던트 investigating**.
-> **우리 쪽 원인이 아니다** — 장애가 걷힌 뒤 아래 명령 한 줄로 재실행하면 된다:
-> ```bash
-> gh workflow run api-ci-cd-with-ec2.yml --ref feat/m7-item-selection -f skip_tests=true
-> ```
-> 재발 방지(=애초에 minimal 을 집게 만든 AMI 필터)는 [별도 백로그](ami-filter-picks-minimal-no-ssm-agent.md)로 분리했다.
+> **실증 내용(12m02s, build→deploy 전 구간 성공):** SSM `send-command` → invocation 해석 1초(`i-098e63bf15a150633`)
+> → `switch-backend.sh` stdout 회수 성공 = 활성 blue → green 전환·헬스 OK(12/30)·데이터 smoke OK(14,178 bytes)
+> → nginx reload → 구버전 graceful 드레인(30s). 배포 후 라이브 `health`·`concepts/nodes/7925`·프론트 전부 200.
+> **파이프라인만 가른 깨끗한 실험이었다** — 직전 라이브 이미지 커밋(`ea94a1a`) → 배포된 `9ba37bf` 사이 `api/` 코드 변경 0건.
+>
+> 2026-08-07 실패([run 31117744990](https://github.com/data-sy/my-math-teacher/actions/runs/31117744990),
+> `The job was not acquired by Runner` + 재-dispatch `HTTP 500`)는 **GitHub Actions `partial_outage`** 였고
+> 우리 쪽 원인이 아니었음이 이 성공으로 확인됐다.
+>
+> 재발 방지(=애초에 minimal 을 집게 만든 AMI 필터)는 [별도 백로그](ami-filter-picks-minimal-no-ssm-agent.md)로 분리돼 **미착수로 남아 있다.**
 >
 > ### ✅ 진단 완료 (2026-08-06, `ssm-deploy-diagnose.sh` 실행 결과)
 >
