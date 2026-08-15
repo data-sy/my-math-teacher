@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시안 비교 (블라인드)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Apple SD Gothic Neo', Pretendard, sans-serif; background: #f0f0f2; color: #1a1a1a; padding: 28px 20px 60px; line-height: 1.5; }
+  .grid { max-width: 820px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  .tile { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .tile h2 { font-size: 16px; font-weight: 800; margin-bottom: 14px; }
+  .swatches { display: flex; gap: 6px; margin-bottom: 26px; }
+  .sw { flex: 1; height: 44px; border-radius: 8px; position: relative; border: 1px solid rgba(0,0,0,.08); }
+  .sw span { position: absolute; bottom: -16px; left: 0; font-size: 9px; color: #888; white-space: nowrap; }
+  .phone { border: 1px solid #ddd; border-radius: 18px; padding: 16px 14px; margin-top: 8px; }
+  .phone .hl { font-size: 17px; font-weight: 800; line-height: 1.3; }
+  .phone .sub { font-size: 11.5px; margin: 3px 0 12px; }
+  .phone .stairs { font-size: 11px; letter-spacing: 2px; margin-bottom: 12px; }
+  .bp { display: block; width: 100%; border: none; font: inherit; font-size: 13.5px; font-weight: 700; padding: 12px; border-radius: 9px; text-align: center; cursor: default; }
+  .bs { display: block; width: 100%; font: inherit; font-size: 11.5px; padding: 9px; border-radius: 9px; text-align: center; background: transparent; margin-top: 8px; cursor: default; }
+  .qcard { border-radius: 11px; padding: 12px; margin-top: 14px; }
+  .qcard .qc-label { font-size: 9.5px; letter-spacing: .05em; margin-bottom: 3px; }
+  .qcard .qc-q { font-size: 13.5px; font-weight: 700; }
+  .qcard .qc-btns { display: flex; gap: 7px; margin-top: 10px; }
+  .qcard .qc-btns i { flex: 1; font-style: normal; font-size: 12px; font-weight: 700; text-align: center; padding: 9px 0; border-radius: 8px; }
+  .prog { height: 5px; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 62%; border-radius: 3px; }
+  .prog-label { font-size: 9.5px; margin-top: 4px; }
+  .badges { display: flex; gap: 6px; margin-top: 14px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+  .step { display: flex; align-items: center; gap: 8px; border-radius: 9px; padding: 9px 10px; margin-top: 12px; font-size: 12px; font-weight: 600; }
+  .step .ck { width: 17px; height: 17px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; flex: none; }
+
+  .b .phone { background: #FAFBFE; }
+  .b .hl { color: #0F1B33; }
+  .b .sub { color: #5D6B85; }
+  .b .stairs { color: #C3CCDE; }
+  .b .bp { background: #16294D; color: #fff; }
+  .b .bs { border: 1.5px solid #C9D3E6; color: #33415C; }
+  .b .qcard { background: #fff; border: 1.5px solid #DEE5F2; }
+  .b .qc-label { color: #7C89A3; }
+  .b .qc-q { color: #0F1B33; }
+  .b .qc-btns i:first-child { background: #E4EBFA; color: #1D4ED8; }
+  .b .qc-btns i:last-child { background: #EEF1F7; color: #33415C; }
+  .b .prog { background: #E6EAF2; } .b .prog i { background: #2563EB; }
+  .b .prog-label { color: #7C89A3; }
+  .b .b-hi { background: #FCE7E7; color: #B91C1C; }
+  .b .b-mid { background: #FEF3D7; color: #A16207; }
+  .b .b-low { background: #EEF1F7; color: #5D6B85; }
+  .b .step { background: #F2F6FE; border: 1px solid #D8E3F8; color: #0F1B33; }
+  .b .step .ck { background: #2563EB; color: #fff; }
+
+  .c .phone { background: #FBFBF7; }
+  .c .hl { color: #14231F; }
+  .c .sub { color: #5F6E67; }
+  .c .stairs { color: #CBD5CE; }
+  .c .bp { background: #0E7A6C; color: #fff; }
+  .c .bs { border: 1.5px solid #CDD8D2; color: #3C4A44; }
+  .c .qcard { background: #fff; border: 1.5px solid #E2E9E4; }
+  .c .qc-label { color: #84928B; }
+  .c .qc-q { color: #14231F; }
+  .c .qc-btns i:first-child { background: #DFF2EC; color: #0B6459; }
+  .c .qc-btns i:last-child { background: #F0F3F0; color: #3C4A44; }
+  .c .prog { background: #E7EDE8; } .c .prog i { background: #0E9F8C; }
+  .c .prog-label { color: #84928B; }
+  .c .b-hi { background: #FBE7E4; color: #BE3A25; }
+  .c .b-mid { background: #FDF2D9; color: #9C6B10; }
+  .c .b-low { background: #F0F3F0; color: #5F6E67; }
+  .c .step { background: #F2F8F4; border: 1px solid #D9EADF; color: #14231F; }
+  .c .step .ck { background: #0E9F8C; color: #fff; }
+</style>
+</head>
+<body>
+  <div class="grid">
+
+    <div class="tile b">
+      <h2>시안 가</h2>
+      <div class="swatches">
+        <div class="sw" style="background:#0F1B33"><span>ink</span></div>
+        <div class="sw" style="background:#16294D"><span>primary</span></div>
+        <div class="sw" style="background:#2563EB"><span>accent</span></div>
+        <div class="sw" style="background:#E4EBFA"><span>soft</span></div>
+        <div class="sw" style="background:#FAFBFE"><span>paper</span></div>
+      </div>
+      <div class="phone">
+        <div class="stairs">▁▂▃▅▆</div>
+        <div class="hl">수학은 계단이다.<br>어느 칸이 비었는지 3분이면 보여요.</div>
+        <div class="sub">중·고 수학 개념을 계단처럼 연결해 약점을 찾아줘요</div>
+        <button class="bp">무료 진단 시작</button>
+        <button class="bs">개념 지도 둘러보기</button>
+        <div class="qcard">
+          <div class="qc-label">이차방정식 · 4/7</div>
+          <div class="qc-q">이차방정식의 풀이 — 설명할 수 있나요?</div>
+          <div class="qc-btns"><i>알아요</i><i>몰라요</i></div>
+        </div>
+        <div class="prog"><i></i></div>
+        <div class="prog-label">4개 답변 · 앞으로 2~3개</div>
+        <div class="badges"><span class="badge b-hi">시급도 상</span><span class="badge b-mid">중</span><span class="badge b-low">하</span></div>
+        <div class="step"><span class="ck">✓</span> 1. 이차방정식의 풀이 — 여기부터</div>
+      </div>
+    </div>
+
+    <div class="tile c">
+      <h2>시안 나</h2>
+      <div class="swatches">
+        <div class="sw" style="background:#14231F"><span>ink</span></div>
+        <div class="sw" style="background:#0E7A6C"><span>primary</span></div>
+        <div class="sw" style="background:#0E9F8C"><span>accent</span></div>
+        <div class="sw" style="background:#DFF2EC"><span>soft</span></div>
+        <div class="sw" style="background:#FBFBF7"><span>paper</span></div>
+      </div>
+      <div class="phone">
+        <div class="stairs">▁▂▃▅▆</div>
+        <div class="hl">수학은 계단이다.<br>어느 칸이 비었는지 3분이면 보여요.</div>
+        <div class="sub">중·고 수학 개념을 계단처럼 연결해 약점을 찾아줘요</div>
+        <button class="bp">무료 진단 시작</button>
+        <button class="bs">개념 지도 둘러보기</button>
+        <div class="qcard">
+          <div class="qc-label">이차방정식 · 4/7</div>
+          <div class="qc-q">이차방정식의 풀이 — 설명할 수 있나요?</div>
+          <div class="qc-btns"><i>알아요</i><i>몰라요</i></div>
+        </div>
+        <div class="prog"><i></i></div>
+        <div class="prog-label">4개 답변 · 앞으로 2~3개</div>
+        <div class="badges"><span class="badge b-hi">시급도 상</span><span class="badge b-mid">중</span><span class="badge b-low">하</span></div>
+        <div class="step"><span class="ck">✓</span> 1. 이차방정식의 풀이 — 여기부터</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
