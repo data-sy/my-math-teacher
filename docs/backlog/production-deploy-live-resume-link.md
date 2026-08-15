@@ -1,7 +1,7 @@
 # Backlog: 서버 올리기 — 프로덕션 상시 배포 (이력서 라이브 링크)
 
 **분류:** [Infra/GTM] — 백로그
-**관련:** M4 spec-01 §9(프리티어 프로비저닝), [`terraform-iac-for-m4-provisioning.md`](terraform-iac-for-m4-provisioning.md), M4 `run-log.sh` 하네스
+**관련:** M4 spec-01 §9(프리티어 프로비저닝), [M4 spec-03 Terraform IaC](../specs/m4/spec-03-terraform-plan-only-iac-sandbox.md), M4 `run-log.sh` 하네스
 **상태:** 📌 **미착수 — 검토 단계.** M4 에서 `apply→측정→destroy` 사이클로 라이브를 여러 번 띄웠다 내렸으므로 **프로비저닝 능력은 이미 있음**. 이 항목은 그걸 *상시(always-on)* 로 전환해 이력서에 걸 **공개 링크**로 만드는 것.
 
 > 목적: 채용용 라이브 데모 링크 확보. `https://www.my-math-teacher.com` 을 신규 AWS 계정의 EC2 한 대에 상시 서빙.

@@ -3,7 +3,7 @@
 **상위 마일스톤:** Milestone 4 (배포 무중단화)
 **대상 Phase:** 학습(chosen, spec-02 §2.1) — spec-01 §9 프로비저닝을 IaC 로 옮기는 *선택* 경로
 **선행:** [spec-01 §9](spec-01-zero-downtime-deployment.md)(리소스 정의), [spec-02 §5 G3](spec-02-harness-handoff-gates.md)(apply 게이트)
-**승격 출처:** [`docs/backlog/terraform-iac-for-m4-provisioning.md`](../../backlog/terraform-iac-for-m4-provisioning.md)
+**승격 출처:** 백로그 `terraform-iac-for-m4-provisioning`(2026-08-06 흡수·폐기) — **성격 = 학습(chosen) 경로**. 순수 ROI 로는 "한 번 깔고 안 건드리는 솔로 인프라"라 콘솔 30분이 맞지만, *Terraform 경험* 목적이면 좋은 첫 소재라 채택했다. 배경·경계 요약은 [ROADMAP `[Infra] Terraform`](../../../ROADMAP.md) 항목
 
 > ⚠️ **상태: 설계 제안서(spec) — 구현 미착수.** 본 문서는 plan-only 샌드박스의 *경계*를 못박고
 > HCL 구성을 제시한다. 갈리는 지점은 §3(결정 대기)에 트레이드오프+추천을 단다. 구현(HCL 작성·

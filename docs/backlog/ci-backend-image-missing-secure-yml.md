@@ -1,6 +1,83 @@
 # [Infra/Deploy] CI 빌드 백엔드 이미지가 프로덕션 부팅 불가 — application-secure.yml 매핑 소실
 
-**등록:** 2026-07-27 (M7 배포 마감 세션에서 A1 blue-green 다크 배포 시도 중 발견) · **상태:** 📌 **미착수 — 제대로 고치기로 결정(2026-07-27 사용자).** 별도 세션 착수. · **분류:** 선재 배포 결함(M7 코드와 무관) · **차단:** M7 백엔드 실배포를 막음(프론트 스왑·플래그 ON 이전 단계)
+**등록:** 2026-07-27 (M7 배포 마감 세션에서 A1 blue-green 다크 배포 시도 중 발견) · **분류:** 선재 배포 결함(M7 코드와 무관)
+
+> ## ✅ **종결 (2026-08-15)** — 배선 결함·SSM·CD 실증 전부 해소. 아래 "미착수" 서술은 stale, 본 블록으로 정정
+>
+> 배선 소실은 **`f432c53` "fix(api): restore production wiring as profile-gated tracked config"** 로
+> 고쳐졌다(= 아래 수정 옵션 **1a** 채택). 결정 정본 = [ADR-0013](../adr/0013-restore-production-wiring-as-profile-gated-tracked-config.md) **Accepted**.
+> 배선은 `application.yml` 안 `spring.config.activate.on-profile: secure` 멀티도큐먼트로 들어갔고
+> **전부 `${ENV}` placeholder — 리터럴 시크릿 0**, 시크릿-보유 파일명(`application-secure*.yml`)은 재도입하지 않았다.
+>
+> **라이브 증명:** 현재 프로덕션 백엔드 `mmt2024/mmt-backend:ea94a1a…` 는 **CI 가 빌드한 이미지**이고
+> `f432c53` 를 조상으로 포함한다(`git merge-base --is-ancestor` 확인) — 즉 **CI 이미지가 프로덕션에서 실제로 부팅 중**이다.
+> ⚠️ "프로덕션은 수동 빌드 이미지라 문제가 가려져 있다"는 서술은 **틀렸다**(2026-08-06 정정).
+>
+> **CI 무중단배포 정합(아래 §함께 처리)도 대부분 해소:** repo variable `COMPOSE_NET=mmt-net` 설정됨(2026-07-27) ·
+> `FRAGMENT_HOST_FILE` 기본값이 `/home/ec2-user/active-backend.conf` 로 워크플로에 명시됨(`889390a`) ·
+> `deploy/switch-backend.sh`·`active-backend.conf` 리포에 존재. **CI 전체 성공 이력 = 2026-07-27·07-28 2회.**
+>
+> ### 🔵 남은 것 하나 — deploy job(SSM)이 **재런치된 인스턴스에서** 도는지 미증명
+>
+> 2026-08-05 실행([run 30972873738](https://github.com/data-sy/my-math-teacher/actions/runs/30972873738))은
+> **build-and-push 성공 · deploy 실패**:
+> ```
+> ::error::SSM 이 대상 인스턴스를 찾지 못함(Project=mmt running 인스턴스 부재?)
+> ```
+> **⚠️ "SSM 등록 전 타이밍" 가설은 기각됐다 (2026-08-06 실측).** 대기를 30초→2분으로 올리고(`e1d2e95`)
+> 재실행한 [run 31078404015](https://github.com/data-sy/my-math-teacher/actions/runs/31078404015) 도
+> **build 성공 · deploy 동일 실패** — 하루 넘게 떠 있는 인스턴스이므로 에이전트 등록 지연이 아니다.
+> ### ✅ 전 층 해소 — CD 실증까지 완료 (2026-08-15). **이 백로그는 닫힌다.**
+>
+> | 층 | 상태 |
+> |---|---|
+> | SG SSH 인그레스(공인 IP 드리프트) | ✅ 해소(2026-08-07) — `sync-my-ip.sh --apply` |
+> | SSM 에이전트 | ✅ 해소(2026-08-07) — **minimal AMI 라 미설치였다** → `dnf install` + enable, `PingStatus=Online` 확인(`i-098e63bf15a150633`) |
+> | CD deploy job 실증 | ✅ **완료(2026-08-15)** — [run 31872517144](https://github.com/data-sy/my-math-teacher/actions/runs/31872517144) |
+>
+> **실증 내용(12m02s, build→deploy 전 구간 성공):** SSM `send-command` → invocation 해석 1초(`i-098e63bf15a150633`)
+> → `switch-backend.sh` stdout 회수 성공 = 활성 blue → green 전환·헬스 OK(12/30)·데이터 smoke OK(14,178 bytes)
+> → nginx reload → 구버전 graceful 드레인(30s). 배포 후 라이브 `health`·`concepts/nodes/7925`·프론트 전부 200.
+> **파이프라인만 가른 깨끗한 실험이었다** — 직전 라이브 이미지 커밋(`ea94a1a`) → 배포된 `9ba37bf` 사이 `api/` 코드 변경 0건.
+>
+> 2026-08-07 실패([run 31117744990](https://github.com/data-sy/my-math-teacher/actions/runs/31117744990),
+> `The job was not acquired by Runner` + 재-dispatch `HTTP 500`)는 **GitHub Actions `partial_outage`** 였고
+> 우리 쪽 원인이 아니었음이 이 성공으로 확인됐다.
+>
+> 재발 방지(=애초에 minimal 을 집게 만든 AMI 필터)는 [별도 백로그](ami-filter-picks-minimal-no-ssm-agent.md)로 분리돼 **미착수로 남아 있다.**
+>
+> ### ✅ 진단 완료 (2026-08-06, `ssm-deploy-diagnose.sh` 실행 결과)
+>
+> | 후보 | 실측 |
+> |---|---|
+> | Project=mmt 태그 누락 | ❌ 아님 — 인스턴스 `i-098e63bf15a150633`(15.164.145.106)에 태그 정상 |
+> | IAM instance profile 미부착 | ❌ 아님 — `mmt-ec2-ssm-profile` 부착 확인 |
+> | SSM 등록 | ⚠️ **전무** — `describe-instance-information` 이 빈 목록. `ConnectionLost` 가 아니라 **한 번도 등록된 적 없음** |
+> | 호스트 SSH(22) | ⚠️ **timeout** |
+>
+> **SSH timeout 의 원인은 확정됐다:** `network.tf:51-58` 의 SSH 인그레스가 `${var.my_ip}/32`("SSH from my IP only")
+> 인데 **현재 공인 IP 가 `terraform.tfvars` 의 `my_ip` 와 다르다**(2026-08-06 대조 확인). 즉 SG 가 지금 IP 를 막고 있다.
+>
+> **SSM 미등록은 네트워크·이미지 문제가 아니다:** egress 는 전부 허용(`-1`, `0.0.0.0/0` — `network.tf:65-70`)이고
+> AMI 는 AL2023(에이전트 기본 탑재·활성). 남은 유력 가설은 **instance profile 이 부팅 이후 attach 돼
+> 에이전트가 자격증명 없이 뜬 상태**다 — `compute.tf:70` 이 스스로 *"attach 는 in-place 업데이트(교체 아님)"* 라고 적어 둔
+> 바로 그 경로다. 확인·복구하려면 **SSH 가 먼저 열려야 한다.**
+>
+> **다음 한 걸음(사람 몫 — MFA 필요). 순서가 중요하다 — SSH 가 열려야 에이전트를 만질 수 있다:**
+> ```bash
+> bash ~/sync-my-ip.sh          # ① 진단(변경 0) → 확인 후 --apply 로 SG 규칙 1건 적용
+> bash ~/ssm-recover.sh         # ② SSH 열린 뒤 에이전트 점검 → --apply 로 재기동·등록 폴링
+> ```
+> 두 스크립트 모두 기본은 **읽기 전용**이고 `--apply` 로만 바꾼다. 홈에 이미 배치돼 있다.
+>
+> ⚠️ **판정 기준은 tfvars 가 아니라 "SSH 가 실제로 되는가" 다.** `terraform.tfvars` 는 희망 상태일 뿐이라
+> apply 전에는 AWS 의 SG 와 다를 수 있다 — **2026-08-07 에 실제로 이 드리프트가 났다**(tfvars 만 새 IP,
+> SG 는 옛 IP → SSH 계속 막힘). tfvars 만 보고 "동기화됨"으로 판정하면 거짓 초록이 된다.
+>
+> ⚠️ `my_ip` 는 **IP 가 바뀔 때마다 재발**한다. 재발 시 `sync-my-ip.sh` 를 다시 돌리면 되고,
+> 구조적 제거는 [SSM Session Manager 이관 백로그](ssh-ingress-ip-pinning-to-session-manager.md)로 분리했다.
+>
+> **프로덕션 서빙에는 영향 없음** — 라이브는 정상이고 막힌 것은 "CI 로 배포하는 경로"뿐이다(현재는 수동 배포로 우회 가능).
 
 > **한 줄:** 시크릿 유출 대응(`c7f608d`)이 `application-secure.yml` 을 **추적 해제**하면서, 그 안의 **비밀 아닌 env 매핑 구조까지** 사라졌다. 그 이후 CI 가 빌드하는 백엔드 이미지는 datasource 설정이 없어 프로덕션에서 **부팅 실패**한다. M7 이 그 조치 이후 첫 CI 백엔드 배포라 이때 처음 표면화.
 
@@ -52,4 +129,4 @@ blue-green 헬스 게이트가 컷오버 *전* 에 잡아 **abort no-op → 프�
 - 프로덕션 호스트: EC2 `i-0eb170169ac70ee05`(ap-northeast-2, tag `Project=mmt`). 네트워크 `mmt-net`. 컨테이너: `mmt-backend-blue`(=`mmt2024/mmt-backend:47063986…`, 현 활성)·`mmt-front`(=`mmt-front:m6`, **호스트 로컬 빌드**)·`mmt-redis`·`mmt-ai`. fragment `~/active-backend.conf` = `server mmt-backend-blue:8080;`.
 - env-file 키: `RDS_HOST/NAME/PORT/USERNAME/PASSWORD`·`REDIS_URL/PORT/PASSWORD`·`GOOGLE/NAVER/KAKAO_CLIENT_ID/SECRET`·`JWT_SECRET`·`EC2_DOMAIN_NAME1/2`. `MMT_DIAGNOSIS_*` 미설정(→ 다크 배포 OK).
 - push 된 broken 이미지: `mmt2024/mmt-backend:2859b9e1bd91ac18fff7b88aa273e08eaac34fd6`(secure.yml 없음 = 부팅 불가). 수정 후 재빌드 시 새 sha 태그로 대체 — 이 태그는 폐기(선택: Docker Hub 에서 삭제).
-- 메모리: `project_ci_image_missing_secure_yml`. M4 배포 인프라 맥락: [`terraform-iac-for-m4-provisioning.md`](terraform-iac-for-m4-provisioning.md), 유출 대응: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md).
+- 메모리: `project_ci_image_missing_secure_yml`. M4 배포 인프라 맥락: [`../milestones/milestone-4-zero-downtime-deployment.md`](../milestones/milestone-4-zero-downtime-deployment.md), 유출 대응: [`../specs/m6/oauth-and-secret-rotation-runbook.md`](../specs/m6/oauth-and-secret-rotation-runbook.md).

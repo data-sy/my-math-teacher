@@ -10,7 +10,7 @@
   그 500 을 401 로 위장. §"진짜 근본원인" 참조 — 아래 본문은 진단 과정 기록으로 보존한다.
 - **당시 남은 일 3건은 재런치 때 전부 실행됨:** ① 복원 RDS 에 DDL 적용
   (`api/sql/m7-apply-diagnosis-ddl-prod.sql`) · ② 백엔드 재빌드·배포 · ③ 수동 검증.
-  절차 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../handoff/🤖-M7-티어다운-실행시퀀스.md) **§재런치 런북**(재사용 가능).
+  절차 정본 = [`🤖-M7-인프라-티어다운-재런치.md`](../handoff/🤖-M7-인프라-티어다운-재런치.md) **§3 재런치**(재사용 가능).
 - **파생 잔여 1건 = [zdbg 테스트 계정 정리](m7-diagnostic-test-accounts-cleanup.md)** — 재런치로 트리거 조건 충족, 미처리.
 - **발견:** 2026-07-28, M7 런치 A4(OAuth 401 트리아지) 중
 - **영역:** 백엔드 JWT 인증 (`api/`, `com.mmt.api.jwt`). **M7 프론트 브랜치(`feat/m7-item-selection`)와 무관.**
@@ -210,7 +210,7 @@ Spring 은 이를 **400** 으로 resolve 했는데 클라이언트는 **401** �
      `create.sql:161-206` 정본을 옮기되 **재실행 안전** — 테이블은 `IF NOT EXISTS`,
      ALTER 3건은 `information_schema` 가드. PREFLIGHT/POSTFLIGHT 로 적용 전후 상태 확인.
    - RDS 는 `publicly_accessible=false` → 맥에서 직접 못 붙는다. **EC2 호스트(app SG)에서** 적용.
-     실행 절차 정본 = [`🤖-M7-티어다운-실행시퀀스.md`](../handoff/🤖-M7-티어다운-실행시퀀스.md)
+     실행 절차 정본 = [`🤖-M7-인프라-티어다운-재런치.md`](../handoff/🤖-M7-인프라-티어다운-재런치.md) §3
      **§재런치 런북 3** (명령 원문은 같은 문서 Phase 1 블록에 보존됨).
    - 전부 additive 이고 구 경로 미참조(ADR-0010)라 **구 기능 무영향**. 롤백 = `MMT_DIAGNOSIS_ENABLED=false`
      (테이블은 방치 가능, 필요 시 DROP).
