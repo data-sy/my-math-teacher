@@ -9,3 +9,7 @@
 ## 정본은 `v2/` (2026-07-17)
 
 재설계 정본 = [`v2/`](v2/): `00-flow-map.html`(화면 전이·인터랙션·API 매핑 SSOT) + `01-home`~`06-graph`(화면별 주석 와이어프레임, 전 화면 검수 사인오프 완료). 비교·근거 문서 = `01-home-variants.html`·`04-result-empty-variants.html`, 리뷰 전 스냅샷 = `00-flow-map-draft.html`.
+
+## 결정 근거는 `m7-web-v2-zerobase/` (2026-08-15 이관)
+
+`v2/`가 "무엇을 만들지"라면 [`m7-web-v2-zerobase/`](m7-web-v2-zerobase/)는 **왜 지금 모습인지**다 — 현행 팔레트 **C안 틸 그로스**를 고른 블라인드 평가 킷·결과, 제로베이스 빌드가 남긴 프론트 스펙·가정 로그·종료 리포트. 원격 백업이 없던 로컬 샌드박스(`~/my-math-teacher-zerobase`)를 폐기하며 이 리포에 사본이 없던 것만 건져왔다. 경위·정직한 갭은 그 폴더의 README 참조.

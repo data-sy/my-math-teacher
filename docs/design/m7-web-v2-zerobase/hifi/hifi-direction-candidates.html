@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MMT 하이파이 디자인 방향 후보 3안</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', Pretendard, sans-serif;
+    background: #f0f0f2; color: #1a1a1a; padding: 28px 20px 60px; line-height: 1.5;
+  }
+  .intro { max-width: 1200px; margin: 0 auto 24px; }
+  .intro h1 { font-size: 20px; font-weight: 800; }
+  .intro p { font-size: 13px; color: #666; margin-top: 4px; }
+  .grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+
+  .tile { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  .tile h2 { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .tile h2 .no { font-size: 11px; background: #1a1a1a; color: #fff; border-radius: 10px; padding: 1px 8px; }
+  .tile .concept { font-size: 12px; color: #666; margin: 6px 0 14px; min-height: 54px; }
+
+  .swatches { display: flex; gap: 6px; margin-bottom: 14px; }
+  .sw { flex: 1; height: 44px; border-radius: 8px; position: relative; border: 1px solid rgba(0,0,0,.08); }
+  .sw span { position: absolute; bottom: -16px; left: 0; font-size: 9px; color: #888; white-space: nowrap; }
+  .swatches { margin-bottom: 26px; }
+
+  /* 미니 폰 목업 공통 골격 */
+  .phone { border: 1px solid #ddd; border-radius: 18px; padding: 16px 14px; margin-top: 8px; }
+  .phone .hl { font-size: 17px; font-weight: 800; line-height: 1.3; }
+  .phone .sub { font-size: 11.5px; margin: 3px 0 12px; }
+  .phone .stairs { font-size: 11px; letter-spacing: 2px; margin-bottom: 12px; }
+  .bp { display: block; width: 100%; border: none; font: inherit; font-size: 13.5px; font-weight: 700; padding: 12px; border-radius: 9px; text-align: center; cursor: default; }
+  .bs { display: block; width: 100%; font: inherit; font-size: 11.5px; padding: 9px; border-radius: 9px; text-align: center; background: transparent; margin-top: 8px; cursor: default; }
+
+  .qcard { border-radius: 11px; padding: 12px; margin-top: 14px; }
+  .qcard .qc-label { font-size: 9.5px; letter-spacing: .05em; margin-bottom: 3px; }
+  .qcard .qc-q { font-size: 13.5px; font-weight: 700; }
+  .qcard .qc-btns { display: flex; gap: 7px; margin-top: 10px; }
+  .qcard .qc-btns i { flex: 1; font-style: normal; font-size: 12px; font-weight: 700; text-align: center; padding: 9px 0; border-radius: 8px; }
+
+  .prog { height: 5px; border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 62%; border-radius: 3px; }
+  .prog-label { font-size: 9.5px; margin-top: 4px; }
+
+  .badges { display: flex; gap: 6px; margin-top: 14px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+
+  .step { display: flex; align-items: center; gap: 8px; border-radius: 9px; padding: 9px 10px; margin-top: 12px; font-size: 12px; font-weight: 600; }
+  .step .ck { width: 17px; height: 17px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; flex: none; }
+
+  /* ───────── A안: 조용한 모노 + 시그널 바이올렛 ───────── */
+  .a .phone { background: #FBFBFA; }
+  .a .hl { color: #17171C; }
+  .a .sub { color: #6E6E76; }
+  .a .stairs { color: #C9C9CE; }
+  .a .bp { background: #5B3DF5; color: #fff; }
+  .a .bs { border: 1.5px solid #D6D6DB; color: #47474E; }
+  .a .qcard { background: #fff; border: 1.5px solid #E8E8EC; }
+  .a .qc-label { color: #8E8E96; }
+  .a .qc-q { color: #17171C; }
+  .a .qc-btns i:first-child { background: #EFEBFF; color: #4A2FD6; }
+  .a .qc-btns i:last-child { background: #F4F4F6; color: #47474E; }
+  .a .prog { background: #ECECEF; } .a .prog i { background: #5B3DF5; }
+  .a .prog-label { color: #8E8E96; }
+  .a .b-hi { background: #FDE8E8; color: #C0341D; }
+  .a .b-mid { background: #FFF3DC; color: #A16207; }
+  .a .b-low { background: #F4F4F6; color: #6E6E76; }
+  .a .step { background: #F7F6FD; border: 1px solid #E5E0FA; color: #17171C; }
+  .a .step .ck { background: #5B3DF5; color: #fff; }
+
+  /* ───────── B안: 딥블루 지성 ───────── */
+  .b .phone { background: #FAFBFE; }
+  .b .hl { color: #0F1B33; }
+  .b .sub { color: #5D6B85; }
+  .b .stairs { color: #C3CCDE; }
+  .b .bp { background: #16294D; color: #fff; }
+  .b .bs { border: 1.5px solid #C9D3E6; color: #33415C; }
+  .b .qcard { background: #fff; border: 1.5px solid #DEE5F2; }
+  .b .qc-label { color: #7C89A3; }
+  .b .qc-q { color: #0F1B33; }
+  .b .qc-btns i:first-child { background: #E4EBFA; color: #1D4ED8; }
+  .b .qc-btns i:last-child { background: #EEF1F7; color: #33415C; }
+  .b .prog { background: #E6EAF2; } .b .prog i { background: #2563EB; }
+  .b .prog-label { color: #7C89A3; }
+  .b .b-hi { background: #FCE7E7; color: #B91C1C; }
+  .b .b-mid { background: #FEF3D7; color: #A16207; }
+  .b .b-low { background: #EEF1F7; color: #5D6B85; }
+  .b .step { background: #F2F6FE; border: 1px solid #D8E3F8; color: #0F1B33; }
+  .b .step .ck { background: #2563EB; color: #fff; }
+
+  /* ───────── C안: 틸 그로스 (계단·성장) ───────── */
+  .c .phone { background: #FBFBF7; }
+  .c .hl { color: #14231F; }
+  .c .sub { color: #5F6E67; }
+  .c .stairs { color: #CBD5CE; }
+  .c .bp { background: #0E7A6C; color: #fff; }
+  .c .bs { border: 1.5px solid #CDD8D2; color: #3C4A44; }
+  .c .qcard { background: #fff; border: 1.5px solid #E2E9E4; }
+  .c .qc-label { color: #84928B; }
+  .c .qc-q { color: #14231F; }
+  .c .qc-btns i:first-child { background: #DFF2EC; color: #0B6459; }
+  .c .qc-btns i:last-child { background: #F0F3F0; color: #3C4A44; }
+  .c .prog { background: #E7EDE8; } .c .prog i { background: #0E9F8C; }
+  .c .prog-label { color: #84928B; }
+  .c .b-hi { background: #FBE7E4; color: #BE3A25; }
+  .c .b-mid { background: #FDF2D9; color: #9C6B10; }
+  .c .b-low { background: #F0F3F0; color: #5F6E67; }
+  .c .step { background: #F2F8F4; border: 1px solid #D9EADF; color: #14231F; }
+  .c .step .ck { background: #0E9F8C; color: #fff; }
+</style>
+</head>
+<body>
+  <div class="intro">
+    <h1>MMT 하이파이 디자인 방향 후보 3안</h1>
+    <p>공통: Pretendard/시스템 산세리프 · 모바일 퍼스트 390px · 시급도 배지는 3안 모두 정직성 원칙(빨강=상 / 호박=중 / 회색=하) 유지. 다른 건 팔레트와 온도만.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- A안 -->
+    <div class="tile a">
+      <h2><span class="no">A안</span> 조용한 모노 + 시그널 바이올렛</h2>
+      <p class="concept">현재 그레이스케일 골격을 거의 그대로 두고, CTA·포커스·진척에만 바이올렛 한 색을 시그널로 쓴다. 가장 절제된 진화 — "조용한 도구" 느낌, 리스크 최소.</p>
+      <div class="swatches">
+        <div class="sw" style="background:#17171C"><span>ink</span></div>
+        <div class="sw" style="background:#5B3DF5"><span>signal</span></div>
+        <div class="sw" style="background:#EFEBFF"><span>signal-soft</span></div>
+        <div class="sw" style="background:#F4F4F6"><span>soft</span></div>
+        <div class="sw" style="background:#FBFBFA"><span>paper</span></div>
+      </div>
+      <div class="phone">
+        <div class="stairs">▁▂▃▅▆</div>
+        <div class="hl">수학은 계단이다.<br>어느 칸이 비었는지 3분이면 보여요.</div>
+        <div class="sub">중·고 수학 개념을 계단처럼 연결해 약점을 찾아줘요</div>
+        <button class="bp">무료 진단 시작</button>
+        <button class="bs">개념 지도 둘러보기</button>
+        <div class="qcard">
+          <div class="qc-label">이차방정식 · 4/7</div>
+          <div class="qc-q">이차방정식의 풀이 — 설명할 수 있나요?</div>
+          <div class="qc-btns"><i>알아요</i><i>몰라요</i></div>
+        </div>
+        <div class="prog"><i></i></div>
+        <div class="prog-label">4개 답변 · 앞으로 2~3개</div>
+        <div class="badges"><span class="badge b-hi">시급도 상</span><span class="badge b-mid">중</span><span class="badge b-low">하</span></div>
+        <div class="step"><span class="ck">✓</span> 1. 이차방정식의 풀이 — 여기부터</div>
+      </div>
+    </div>
+
+    <!-- B안 -->
+    <div class="tile b">
+      <h2><span class="no">B안</span> 딥블루 지성</h2>
+      <p class="concept">네이비 잉크 + 코발트 블루. 학습 서비스의 신뢰·지성 문법에 정면으로 올라타는 정공법. 학부모에게도 안심을 주는 톤 — 가장 "서비스다운" 안.</p>
+      <div class="swatches">
+        <div class="sw" style="background:#0F1B33"><span>ink</span></div>
+        <div class="sw" style="background:#16294D"><span>primary</span></div>
+        <div class="sw" style="background:#2563EB"><span>accent</span></div>
+        <div class="sw" style="background:#E4EBFA"><span>accent-soft</span></div>
+        <div class="sw" style="background:#FAFBFE"><span>paper</span></div>
+      </div>
+      <div class="phone">
+        <div class="stairs">▁▂▃▅▆</div>
+        <div class="hl">수학은 계단이다.<br>어느 칸이 비었는지 3분이면 보여요.</div>
+        <div class="sub">중·고 수학 개념을 계단처럼 연결해 약점을 찾아줘요</div>
+        <button class="bp">무료 진단 시작</button>
+        <button class="bs">개념 지도 둘러보기</button>
+        <div class="qcard">
+          <div class="qc-label">이차방정식 · 4/7</div>
+          <div class="qc-q">이차방정식의 풀이 — 설명할 수 있나요?</div>
+          <div class="qc-btns"><i>알아요</i><i>몰라요</i></div>
+        </div>
+        <div class="prog"><i></i></div>
+        <div class="prog-label">4개 답변 · 앞으로 2~3개</div>
+        <div class="badges"><span class="badge b-hi">시급도 상</span><span class="badge b-mid">중</span><span class="badge b-low">하</span></div>
+        <div class="step"><span class="ck">✓</span> 1. 이차방정식의 풀이 — 여기부터</div>
+      </div>
+    </div>
+
+    <!-- C안 -->
+    <div class="tile c">
+      <h2><span class="no">C안</span> 틸 그로스</h2>
+      <p class="concept">틸(청록) + 웜 그레이 페이퍼. "계단을 오른다 = 자란다"는 제품 서사를 색으로 말하는 안. 교육 앱 레드오션(파랑 일색)에서 조용히 구별되고, 성적 압박보다 성장 격려 톤.</p>
+      <div class="swatches">
+        <div class="sw" style="background:#14231F"><span>ink</span></div>
+        <div class="sw" style="background:#0E7A6C"><span>primary</span></div>
+        <div class="sw" style="background:#0E9F8C"><span>accent</span></div>
+        <div class="sw" style="background:#DFF2EC"><span>accent-soft</span></div>
+        <div class="sw" style="background:#FBFBF7"><span>paper</span></div>
+      </div>
+      <div class="phone">
+        <div class="stairs">▁▂▃▅▆</div>
+        <div class="hl">수학은 계단이다.<br>어느 칸이 비었는지 3분이면 보여요.</div>
+        <div class="sub">중·고 수학 개념을 계단처럼 연결해 약점을 찾아줘요</div>
+        <button class="bp">무료 진단 시작</button>
+        <button class="bs">개념 지도 둘러보기</button>
+        <div class="qcard">
+          <div class="qc-label">이차방정식 · 4/7</div>
+          <div class="qc-q">이차방정식의 풀이 — 설명할 수 있나요?</div>
+          <div class="qc-btns"><i>알아요</i><i>몰라요</i></div>
+        </div>
+        <div class="prog"><i></i></div>
+        <div class="prog-label">4개 답변 · 앞으로 2~3개</div>
+        <div class="badges"><span class="badge b-hi">시급도 상</span><span class="badge b-mid">중</span><span class="badge b-low">하</span></div>
+        <div class="step"><span class="ck">✓</span> 1. 이차방정식의 풀이 — 여기부터</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
