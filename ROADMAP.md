@@ -7,7 +7,8 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 > **[`docs/handoff/🤖-M8-콘텐츠-CD실증-핸드오프.md`](docs/handoff/🤖-M8-콘텐츠-CD실증-핸드오프.md)**
 >
 > ✅ **① CD 1회 실증 완료 (2026-08-15)** — [run 31872517144](https://github.com/data-sy/my-math-teacher/actions/runs/31872517144) build→deploy 전 구간 성공, blue→green 무중단 전환·라이브 200. **배포 수단 확보됨.**
-> 남은 순서 = ② zdbg 계정 정리 → ③ M8 프로덕션 DDL → ④ M8 콘텐츠 큐레이션 → ⑤ M8 머지·배포.
+> ✅ **② zdbg 계정 정리 완료** (2026-08-15, 계정 0개 확인) · ✅ **③ concept_links 프로덕션 DDL 적용 완료** (2026-08-15, POSTFLIGHT 3/3).
+> 남은 순서 = ④ M8 콘텐츠 큐레이션(파일럿 10개념 초안 완료·검수 중) → ⑤ M8 머지·배포.
 > **미머지 브랜치 2개** — `feat/m7-item-selection`(운영 스크립트·문서) · `feat/m8-concept-links`(M8 코드 5커밋, **origin 부재**).
 >
 > *이 배너는 착수점 포인터만 둔다. 진행 상태의 정본은 아래 본문과 핸드오프다.*
