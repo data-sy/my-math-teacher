@@ -73,7 +73,7 @@ MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일�
 
 ## Later — 백로그 (아직 미착수, 검토 단계)
 
-- **🔴 [Infra] 프로덕션에 TLS 자동갱신 경로가 **없다**(실측 확정) — 만료 `2026-11-03`** (2026-08-15 등록·같은 날 확정 — **기한 있는 유일 항목**) — 2026-08-15 호스트 실측: systemd 타이머 **0건** · 유닛 **0건** · cron **0건** · certbot 바이너리 **없음**. 즉 갱신을 돌릴 주체가 존재하지 않는다. M6 에서 실증했던 `certbot-renew.timer` 는 mothball 로 terminate 된 옛 호스트와 함께 소멸했고, 재런치는 docker certbot 으로 **1회성 발급만** 했다(런북 §5 가 "재발급"만 적고 "갱신"을 안 적은 탓 — 재발 방지가 본체). 지금은 인증서가 유효해 증상이 0 — 만료 당일 사이트 전체가 막히는 형태로만 드러난다. 결정 1건 = 갱신 주체(docker certbot + 타이머 / 호스트 설치)
+- **✅ [Infra] TLS 자동갱신 — 해소 완료 (2026-08-19)** — 재런치가 인증서 재발급만 하고 갱신 경로를 안 옮겨 만료(`2026-11-03`) 80일 전까지 **증상 없이** 방치돼 있었다(08-15 실측 발견: 타이머 0·유닛 0·cron 0·certbot 바이너리 없음). `certbot-renew.timer`(주 1회·`Persistent`·`enabled`) + `nginx -s reload` 등록하고 **dry-run "all simulated renewals succeeded" 까지 실증**. 재발 방지로 재런치 런북 §5 에 "재발급 ≠ 갱신 재등록" 을 명시 단계로 추가 — 그게 이번 건의 본체였다
   - 상세·확인 명령·재발 방지: [`docs/backlog/tls-cert-renewal-timer-after-relaunch.md`](docs/backlog/tls-cert-renewal-timer-after-relaunch.md)
 
 - **⭐ [Infra/Test] 테스트 스위트가 CI 에서 못 돈다 — `skip_tests` 우회가 상수가 된 진짜 이유** (2026-08-15 등록 — **원인 3종 실측 완료**) — 전 스위트가 CI 에서 성공한 적이 **한 번도 없다**. M4 §4 측정용 *한시* 우회로 도입된 `skip_tests` 가 되돌리면 통과하지 못해 사실상 상수로 굳었고, 로컬에서만 초록이다. 원인 = ① **프로파일 의존**(`include: securelocal` 이 CI 에선 no-op → `${...}` 미해결로 컨텍스트 로드 실패, 7개 클래스) ② ~~Redis 부재~~ ✅ PR [#56](https://github.com/data-sy/my-math-teacher/pull/56) 로 해소 ③ **Testcontainers 컨테이너 기동 실패**(클래스마다 MySQL·Neo4j 를 새로 띄워 러너 자원 압박, 1개 클래스). ①이 `Later` 의 "프로파일·로깅 위생 정리" 본체다. **`timeout-minutes` 를 넣은 뒤에야 로그가 남아 진단이 됐다** — 첫 실패(57분 행)는 러너 소실로 로그 blob 조차 없었다

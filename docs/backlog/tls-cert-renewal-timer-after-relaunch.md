@@ -1,10 +1,20 @@
 # [Infra] 프로덕션에 TLS 자동갱신 경로가 **없다** (실측 확정) — 만료 2026-11-03
 
-- **상태:** 🔴 **확정 · 기한 있음** — 만료 `2026-11-03 02:48 GMT`(실측), 약 80일 남음
+- **상태:** ✅ **해소 완료 (2026-08-19)** — 주간 systemd 타이머 등록 + dry-run 실증. 이 백로그는 닫힌다
 - **등록:** 2026-08-15 (`/refresh-ops-docs` — 소비 문서 정리 중 아카이브에만 묻혀 있던 만료일을 발견)
 - **확정:** 2026-08-15 호스트 실측(`host-readiness-check.sh`)
 
-> ## 실측 결과 — 가설이 아니라 사실이다
+> ## ✅ 해소 (2026-08-19)
+>
+> `certbot-renew.timer` 등록 — **주 1회**(첫 실행 Mon 2026-08-24 04:13:53) · `Persistent=true`(놓친 회차 부팅 후 실행) · `enabled`(재부팅 유지).
+> `certbot-renew.service` = `docker certbot renew --webroot` + `docker exec mmt-front nginx -s reload`.
+> **dry-run 실증: "Congratulations, all simulated renewals succeeded"** — 타이머 등록만으로 끝내지 않았다.
+> 만료(11/3)까지 갱신 기회 10회 이상. 스크립트 = [`setup-tls-renewal.sh`](../handoff/scripts/setup-tls-renewal.sh).
+>
+> **재발 방지(본체) 완료:** 재런치 런북 §5 에 *"재발급과 자동갱신 재등록은 별개 — 둘 다"* 를 명시 단계로 추가.
+> 전제 확인(`/.well-known/acme-challenge/` 가 80 에서 404)도 함께 적었다 — 301 이면 갱신이 리다이렉트에 먹힌다.
+>
+> ## 실측 결과 (발견 당시) — 가설이 아니라 사실이었다
 >
 > | 항목 | 실측 |
 > |---|---|
