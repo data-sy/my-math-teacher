@@ -8,38 +8,39 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 
 ## 모노레포 구조
 
-- `api/` — Spring Boot 기반 백엔드 서버 (활성 개발). 세부 규칙은 @api/CLAUDE.md 참조
-- `web-v2/` — **현행 프론트엔드** (React, 활성 개발). 세부 규칙은 @web-v2/CLAUDE.md 참조
-- `web/` — 구 Vue 프론트엔드 (**비활성** — 2026-08-06 프로덕션에서 web-v2 로 교체됨, 롤백 자산으로 보존). 세부 규칙은 @web/CLAUDE.md 참조
-- `infra/terraform/` — EC2/RDS/EIP 등 프로비저닝 IaC + 측정 하네스(`run-log.sh`)
-- `deploy/` — blue-green 전환 스크립트(`switch-backend.sh`)와 nginx upstream fragment
-- `ai/` — DKT 모델 학습 스크립트 (비활성). 결과 모델은 TensorFlow Serving으로 배포됨. 현재 건드리지 않음
-- `neo4j-deprecated/` — 초기 데이터 생성 및 Docker Hub 이미지 빌드용 (M2 검증 완료 — 디렉토리·인프라 제거는 M3 에서 진행 예정). 현재 건드리지 않음
-- `shared/` — 프로젝트 자산 저장소 (다이어그램, 스크립트, 시드 데이터). 코드가 아닌 운영 자산
-- `docs/` — 마일스톤·spec·ADR·roadmap. 로컬 셋업은 @docs/DEVELOPMENT.md
+| 디렉토리 | 무엇 | 상태 |
+|---|---|---|
+| `api/` | Spring Boot 백엔드 (@api/CLAUDE.md) | 활성 |
+| `web-v2/` | **현행 프론트엔드** — React (@web-v2/CLAUDE.md) | 활성 |
+| `web/` | 구 Vue 프론트엔드 (@web/CLAUDE.md) | 비활성 — 롤백 자산 |
+| `infra/terraform/` | EC2/RDS/EIP 프로비저닝 IaC + 측정 하네스(`run-log.sh`) | 활성 |
+| `deploy/` | blue-green 전환 스크립트 + nginx upstream fragment | 활성 |
+| `ai/` | DKT 모델 학습 스크립트 (결과 모델은 TF Serving 배포) | 비활성 |
+| `neo4j-deprecated/` | 초기 데이터 생성·이미지 빌드 (실폐기는 M3) | 비활성 |
+| `shared/` | 다이어그램·스크립트·시드 데이터 등 운영 자산 | — |
+| `docs/` | 마일스톤·spec·ADR·백로그 | — |
 
-## 인프라
+## 로컬 개발
 
-`docker-compose.yml`에 MySQL·Neo4j·Redis·TF Serving·백엔드·프론트 6종이 정의되어 있으나, 로컬 개발 워크플로우는 **인프라 3종만 컨테이너로 띄우고 백엔드·프론트는 호스트에서 직접 실행**한다.
+**절차·명령의 정본은 @docs/DEVELOPMENT.md 하나다.** 같은 명령을 여기 복제하지 않는다 — 복제본이 곧 stale 서술이 된다.
 
-- 로컬 인프라 기동: `docker compose up -d mmt-mysql mmt-neo4j mmt-redis`
-- 백엔드 실행: `cd api && ./gradlew bootRun` (securelocal 프로파일 자동 활성화)
-- 프론트 실행: `cd web && npm install && npm run dev`
-- 접근 포트: API `8080`, Web `5173`, MySQL `3306`, Neo4j `7474/7687`, Redis `6379`
+요지만: 인프라는 컨테이너(MySQL·Redis·TF Serving), 백엔드·프론트는 호스트에서 직접 실행.
+그래프 탐색은 MySQL 재귀 CTE 라 **Neo4j 는 기본 기동 대상이 아니다**(구 경로 비교 시에만 띄운다).
 
-`docker-compose.yml`과 `api/src/main/resources/application-securelocal.yml`(로컬)·`application-secure.yml`(프로덕션)은 자격증명을 포함하므로 `.gitignore` 대상이다. 이 파일들은 별도 경로로 공유받거나 기존 환경에서 복사한다.
+`docker-compose.yml` 과 `api/src/main/resources/application-secure*.yml` 계열은 자격증명을 포함하므로 `.gitignore` 대상이다. 별도 경로로 공유받거나 기존 환경에서 복사한다.
 
 ## 작업 규칙 (전역)
 
-- 모든 작업은 `ROADMAP.md`의 활성 마일스톤 컨텍스트 안에서 진행
-- 스키마 변경·마이그레이션·레이어 간 리팩토링은 반드시 **Analyze-Before-Change** 패턴 준수 (`/analyze-before-change` 커맨드)
-- 중요한 의사결정은 ADR 작성. 위치: `docs/adr/`, 템플릿: `docs/adr/_template.md`
+- 모든 작업은 [ROADMAP.md](ROADMAP.md) 의 활성 마일스톤 컨텍스트 안에서 진행
+- 중요한 의사결정은 ADR 작성 (`docs/adr/`, 템플릿 `_template.md`, `/write-adr`)
 - 커밋은 Task 단위로 분리. 여러 Task를 하나의 커밋에 묶지 말 것
 - 각 CLAUDE.md 파일은 200줄 이내로 유지. 초과 시 `@` 참조로 외부 문서 분리
+- 진행 상태(어디까지 했나·다음 = X)는 **CLAUDE.md 계열에 쓰지 않는다** — 정본은 ROADMAP·백로그.
+  갱신 누락 시 stale 서술이 "현재"인 척 오도하기 때문(2026-07-17 규칙)
 
-## 마이그레이션·스키마 변경 규칙
+## Analyze-Before-Change
 
-모든 마이그레이션·스키마 변경·레이어 간 리팩토링은 "Analyze-Before-Change" 패턴을 준수한다:
+스키마 변경·마이그레이션·레이어 간 리팩토링은 **반드시** 아래를 먼저 수행한다 (`/analyze-before-change` 로 강제):
 
 1. 변경 대상 코드의 모든 참조 지점을 먼저 조사
 2. 영향받는 테스트 목록 작성
@@ -47,19 +48,13 @@ MMT(My Math Teacher)는 수학 지식 간 선/후 관계를 그래프로 제공�
 4. 분석 결과를 ADR 또는 PR 설명에 포함
 5. 이후 실제 변경 착수
 
-이 규칙은 `/analyze-before-change` 슬래시 커맨드로 강제된다.
-
 ## 피처 플래그 정책
 
-위험도 중간 이상의 마이그레이션은 다음 조건을 만족해야 한다:
+위험도 중간 이상의 마이그레이션은 다음을 만족해야 한다:
+
 - 구버전·신버전 병행 가능한 구조 (피처 플래그 또는 조건 분기)
 - 즉시 롤백 가능한 배포 단위
 - 변경 전 성능 기준선 측정 완료 (Milestone 1 산출물)
-
-## 현재 활성 작업
-
-- 정본 = [ROADMAP.md](ROADMAP.md) — 현재 마일스톤·진행 상태·다음 단계는 항상 로드맵에서 읽는다.
-- **진행할 때마다 갱신해야 하는 시점성 정보(어디까지 했나·다음 = X)는 본 파일에 기록하지 않는다** — 갱신 누락 시 stale 서술이 "현재"인 척 오도하기 때문(2026-07-17 규칙). 본 파일에는 시간을 타지 않는 규칙·구조만 둔다.
 
 ## 금지 사항
 

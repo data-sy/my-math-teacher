@@ -1,68 +1,31 @@
-# MMT Web (Vue)
+# MMT Web (Vue) — 은퇴한 워크스페이스
 
-루트 규칙은 @/CLAUDE.md 참조. 이 문서는 `web/` 워크스페이스에만 적용되는 규칙이다.
+루트 규칙은 @/CLAUDE.md 참조.
 
-> ## ⚠️ 이 워크스페이스는 프로덕션에서 내려갔다 (2026-08-06)
-> M7 프론트 재작성이 완료되어 **현행 프론트 = [`web-v2/`](../web-v2/CLAUDE.md) (React)** 이고, 프로덕션은 `mmt-front:2.0.2` 로 서빙 중이다.
-> 여기 구 Vue 는 **롤백 자산으로 보존**한다 — **신규 개발·리팩토링 금지**, 사용자의 명시적 지시 없이 수정하지 말 것.
-> 아래 서술은 보존된 코드를 읽어야 할 때를 위한 참고이며, 현행 프론트 규칙은 `web-v2/CLAUDE.md` 를 본다.
-> 디렉토리 정리(삭제) 시점은 미정 — [ADR-0011](../docs/adr/0011-react-web-v2-and-front-image-swap.md) Consequences 참조.
+> ## ⚠️ 프로덕션에서 내려갔다 (2026-08-06)
+> 현행 프론트 = **[`web-v2/`](../web-v2/CLAUDE.md) (React)**, 프로덕션은 `mmt-front:2.0.2` 로 서빙 중이다.
+> 여기 구 Vue 는 **롤백 자산으로만 보존**한다 — **신규 개발·리팩토링 금지.**
+> 사용자의 명시적 지시 없이 수정하지 말 것. 근거 = [ADR-0011](../docs/adr/0011-react-web-v2-and-front-image-swap.md).
+> 디렉토리 삭제 시점은 미정(ADR-0011 Consequences).
 
-## 기술 스택
+아래는 **보존된 코드를 읽어야 할 때만** 필요한 최소 정보다. 작업 규칙은 `web-v2/CLAUDE.md` 를 본다.
 
-- Vue 3 (`^3.2.41`)
-- Vite 4 (`^4.2.1`) — 빌드/개발 서버
-- Vuex 4 (`^4.0.2`) — 상태 관리 (Pinia 아님; 전환은 ADR 필요)
-- vue-router 4
-- PrimeVue 3.39.0 + PrimeFlex + PrimeIcons — UI 컴포넌트
-- **Cytoscape** (+ `cytoscape-klay`) — 개념 지식 그래프 시각화 (서비스 핵심 기능)
-- html2pdf.js — 학습지 PDF 다운로드 (DiagView·PersonalView — M7 D4 로 폐기 예정)
-- axios — HTTP 클라이언트
+## 무엇으로 만들어졌나
 
-*(2026-07-13 정정: 구 서술의 Chart.js·vue-cookies 는 **미설치·미사용** — 결과 차트는 숫자+CSS 막대로 대체됐고, refreshToken 은 HttpOnly 쿠키라 JS 라이브러리 불요(`withCredentials` 만 사용).)*
+Vue 3 + Vite 4 · Vuex 4(Pinia 아님) · vue-router 4 · PrimeVue 3 + PrimeFlex ·
+**Cytoscape**(+`cytoscape-klay`, 지식 그래프) · html2pdf.js(학습지 PDF) · axios.
+테스트 프레임워크는 도입된 적 없다.
 
-## 개발 명령
+## 어디에 무엇이 있나
 
-- 개발 서버: `npm run dev` (Vite, 기본 포트 `5173`)
-- 프로덕션 빌드: `npm run build`
-- 빌드 결과 미리보기: `npm run preview`
-- 린트 (자동 수정 포함): `npm run lint`
-- **테스트 스크립트는 현재 없음** — 테스트 프레임워크 도입은 별도 마일스톤/ADR에서 결정
+- `views/` — 라우트 단위 페이지 (`HomeView` `ConceptView` `DiagView` `ResultView` `PersonalView` `RecordView` `SignUpView` `UserEditView` `OauthLogin` `ErrorView`)
+- `layout/` — 공통 셸 (`AppLayout` `AppTopbar` `AppLearningSteps` `AppBottomTabs` `AppFooter` + `composables/layout.js`)
+- `composables/` — `api.js`(HTTP 래퍼 `useApi()`) · `useConceptGraph.js`(Cytoscape 렌더링) · `htmlToPdf.js` · `useLoginDialog.js` · `useUserForm.js`
+- `store/`(Vuex) · `router/` · `service/`(`AuthService` `TitleService`) · `constants/contact.js`
+- 경로 alias `@` → `./src`
 
-## 디렉토리 구조
+## 백엔드 연동 (읽을 때 주의)
 
-`src/` 하위 실제 구조:
-
-- `App.vue`, `main.js` — 엔트리
-- `assets/` — 정적 리소스
-- `views/` — 라우트 단위 페이지 (`HomeView`, `ConceptView`, `DiagView`, `ResultView`, `PersonalView`, `RecordView`, `SignUpView`, `UserEditView`, `OauthLogin`, `ErrorView`)
-- `layout/` — 공통 레이아웃 (`AppLayout`, `AppTopbar`, `AppLearningSteps`, `AppBottomTabs`, `AppFooter` + `composables/layout.js`) *(2026-07-13 정정: 구 서술의 `AppMenu`/`AppSidebar` 는 존재하지 않음. `AppBottomTabs` = 960px 미만 모바일 하단 탭바)*
-- `router/` — vue-router 설정 (`index.js`)
-- `store/` — Vuex 스토어 (`index.js`)
-- `service/` — 도메인별 서비스 모듈 (`AuthService`, `TitleService`)
-- `composables/` — 재사용 가능 훅 (`api.js` HTTP 래퍼, `htmlToPdf.js`)
-
-경로 alias: `@` → `./src` (`vite.config.js`에 설정됨)
-
-## 코딩 컨벤션
-
-- 컴포넌트 파일명: PascalCase (`.vue`)
-- Props는 명시적 타입·필수 여부 선언
-- 린트·프리티어 준수 — 커밋 전 `npm run lint` 수행 권장
-- 공통 레이아웃은 `layout/` 재사용, 페이지별 중복 구성 금지
-- Cytoscape 그래프 초기화/파괴는 뷰 라이프사이클과 정렬 (메모리 누수 주의)
-
-## 백엔드 연동
-
-- HTTP 호출은 **`composables/api.js`의 `useApi()` 훅 경유**. view/service에서 `axios`를 직접 import해 호출하지 말 것
-- 현재 baseURL은 `composables/api.js`에 **`http://localhost:8080` 하드코딩** 상태. `.env` 환경변수 이관은 향후 개선 항목 (이관 시 ADR 작성)
-- 인증:
-  - accessToken은 `localStorage`에 저장, 요청 interceptor가 `Authorization: Bearer` 헤더에 자동 주입
-  - refreshToken은 HTTP-only 쿠키로 주고받음 (`withCredentials: true`)
-- 백엔드 엔드포인트·응답 규약은 @/api/CLAUDE.md의 controller 계층 참조
-
-## 빌드·배포
-
-- 정적 자산 빌드 산출물은 `dist/`
-- Nginx 서빙용 설정은 `web/nginx.conf`, 이미지 빌드는 `web/Dockerfile`
-- `docker-compose.yml`의 `mmt-front` 서비스가 빌드된 이미지를 사용 (현재 로컬 개발에서는 컨테이너 대신 `npm run dev` 사용)
+- HTTP 호출은 전부 `composables/api.js` 의 `useApi()` 경유. baseURL 은 `http://localhost:8080` **하드코딩**
+- accessToken = `localStorage`, 요청 interceptor 가 `Authorization: Bearer` 주입 / refreshToken = HttpOnly 쿠키(`withCredentials`)
+- 빌드 산출물 `dist/` → `web/Dockerfile` + `web/nginx.conf` 로 이미지화 (현재 미사용)
