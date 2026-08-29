@@ -1,11 +1,14 @@
 # 🤖 [MMT] zdbg 정리 → M8 콘텐츠 → M8 머지·배포
 
 > **새 세션에 이 파일을 지목하며 "이 핸드오프 시작하자" 라고 말하면 시작한다.**
-> 작성: 2026-08-07 · **기준 갱신 2026-08-15** = `feat/m7-item-selection` `1c05026`(미푸시 9 — **전부 문서**) · `feat/m8-concept-links` `dcd1894`(미푸시 5, **origin 부재**) · 프로덕션 라이브
+> 작성: 2026-08-07 · **기준 갱신 2026-08-15** · 프로덕션 라이브
+> (작성 시점의 브랜치 상태 = `feat/m7-item-selection` `1c05026`(미푸시 9) · `feat/m8-concept-links` `dcd1894`(미푸시 5·origin 부재)
+>  → **둘 다 push·PR·머지 완료**, 아래 본문의 '미푸시/미머지' 서술은 전부 그 시점의 기록이다)
 > ## ✅ 소비 완료 (2026-08-15) — ①~⑤ 전부 끝났다. 이력 문서로만 참조한다.
 > 남은 것은 ⑥(선택) 인프라 지뢰뿐이고 그건 백로그가 소유한다.
 > **다음 착수점은 [`🤖-문서-구조-정돈.md`](🤖-문서-구조-정돈.md)** — ROADMAP 배너 참조.
-> ⚠️ `feat/m8-concept-links` 는 origin 에 없다 — CD 는 원격 ref 를 돌리므로 ⑤ 는 push 가 전제다.
+> ~~⚠️ `feat/m8-concept-links` 는 origin 에 없다 — CD 는 원격 ref 를 돌리므로 ⑤ 는 push 가 전제다.~~
+> → **해소:** push 후 PR [#53](https://github.com/data-sy/my-math-teacher/pull/53)·[#54](https://github.com/data-sy/my-math-teacher/pull/54) 머지(2026-08-15). 코드는 main 에 있다.
 
 ---
 
@@ -18,7 +21,7 @@
 |---|---|
 | 프로덕션 | 🟢 정상 — `mmt-front:2.0.2` · 백엔드 `mmt-backend:9ba37bf…`(CD 배포분, 활성 슬롯=green) |
 | M7 제품 | ✅ 종료 — 남은 건 폴리싱 백로그뿐 |
-| M8 링크 | 🚧 코드 완료·미머지 (`feat/m8-concept-links`, 5커밋) · **콘텐츠 시드가 진짜 병목** |
+| M8 링크 | ✅ 머지·배포 완료 (PR #53·#54, 2026-08-15) · **잔여는 콘텐츠 시드 — 커버리지 10/1,631** |
 | CD 파이프라인 | ✅ **실증 완료 (2026-08-15)** — 배포 수단 확보 |
 
 ✅ **README 포트폴리오 재작성 커밋 완료** (2026-08-13, `99ac30a`·`741493e` — 이 브랜치). 잔여 4건은 [`readme-portfolio-followups.md`](../backlog/readme-portfolio-followups.md) 로 분리돼 있고 이 핸드오프의 차단 요소가 아니다.
@@ -83,7 +86,7 @@ cp ~/my-math-teacher/docs/handoff/scripts/zdbg-cleanup.sh ~/ && bash ~/zdbg-clea
 
 ## 4. ③④⑤ [M8] 개념 학습자료 링크
 
-**설계 정본:** [`../specs/m7/spec-03-learning-path-links.md`](../specs/m7/spec-03-learning-path-links.md) · **브랜치:** `feat/m8-concept-links`(미푸시 5커밋)
+**설계 정본:** [`../specs/m7/spec-03-learning-path-links.md`](../specs/m7/spec-03-learning-path-links.md) · **브랜치:** `feat/m8-concept-links` (당시 미푸시 5커밋 → **머지 완료**)
 
 **이번 세션에 끝낸 것(코드):** `concept_links` 테이블 · JPA 리포지토리 · 결과 카드 부착(IN 일괄 1쿼리) ·
 프론트 계약 정렬 · 시드 도구. 백엔드 181 green · mock e2e 18 passed.
@@ -114,6 +117,7 @@ mysql ... < /tmp/seed.sql
 ### ⑤ 머지·배포
 `feat/m8-concept-links` push → PR. 백엔드 변경이 있으므로 배포 수단이 필요한데 **①이 끝나 확보됐다**(2026-08-15).
 ⚠️ CD 는 **원격 ref** 를 돌린다 — 미푸시 5커밋 상태로는 실증에 M8 코드가 올라가지 않는다. push 가 전제다.
+→ 실제로 그렇게 했다: push → PR #53·#54 머지 → 라이브 `links 0→3` 실측 (2026-08-15).
 
 ---
 
