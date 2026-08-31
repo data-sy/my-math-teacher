@@ -39,3 +39,14 @@ m6-first-deploy-session-log.md
 # .terraform.lock.hcl 은 커밋 (provider 버전 잠금 공유)
 # M4 런 텔레메트리 raw 로그 (EIP/endpoint 평문 → tfstate 와 동일 사유로 비커밋)
 infra/terraform/run-logs/
+
+# --- 보안 위생 작업 문서 (2026-08-31) ---
+# 로컬 전용. 값이 로테이션되기 전까지 유출 위치·범위를 public 저장소에 두지 않는다.
+# 파일은 로컬에 그대로 있으므로 착수에는 지장이 없다 — ROADMAP 이 그렇게 안내한다.
+/🤖-시크릿-위생-로테이션.md
+/docs/backlog/secret-hygiene-public-runbook-and-session-logs.md
+
+# --- 루트 작업 부산물 ---
+# 스크린샷은 세션 중 확인용이라 이력에 남기지 않는다.
+/스크린샷*.png
+/Screenshot*.png

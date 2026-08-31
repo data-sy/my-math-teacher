@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>25배는 어디서 왔나</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;1,400&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#FCFCFD; --surface:#F4F5F7; --surface-2:#EDEFF2; --sunken:#E8EBEF;
+  --ink:#14181D; --ink-2:#4B535F; --ink-3:#79818E;
+  --rule:#E0E4EA; --rule-strong:#C8CFD8;
+  --accent:#00707D; --accent-ink:#005A65; --accent-wash:#E4F1F2;
+  --s1:#009AAA; --s2:#C07800; --s3:#8E44AD;
+  --sev-hi:#A5342A; --sev-hi-wash:#F8E7E4;
+  --sev-md:#96650F; --sev-md-wash:#F8EFDD;
+  --sev-lo:#5C6470; --sev-lo-wash:#ECEEF1;
+  --code-bg:#111519; --code-ink:#D6DCE3; --code-dim:#7C8894;
+  --shadow:0 1px 2px rgba(20,24,29,.05), 0 8px 24px -12px rgba(20,24,29,.14);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1215; --surface:#161A1F; --surface-2:#1C2127; --sunken:#12161A;
+    --ink:#E7EBF0; --ink-2:#A4ADBA; --ink-3:#78818E;
+    --rule:#242A31; --rule-strong:#333B45;
+    --accent:#3FB2BE; --accent-ink:#66C6D0; --accent-wash:#12262A;
+    --s1:#0FA5B6; --s2:#C58209; --s3:#A25AC2;
+    --sev-hi:#E08277; --sev-hi-wash:#2C1A18;
+    --sev-md:#D2A24C; --sev-md-wash:#2A2318;
+    --sev-lo:#98A1AE; --sev-lo-wash:#1D2228;
+    --code-bg:#0A0D10; --code-ink:#C9D1DA; --code-dim:#6B7683;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1215; --surface:#161A1F; --surface-2:#1C2127; --sunken:#12161A;
+  --ink:#E7EBF0; --ink-2:#A4ADBA; --ink-3:#78818E;
+  --rule:#242A31; --rule-strong:#333B45;
+  --accent:#3FB2BE; --accent-ink:#66C6D0; --accent-wash:#12262A;
+  --s1:#0FA5B6; --s2:#C58209; --s3:#A25AC2;
+  --sev-hi:#E08277; --sev-hi-wash:#2C1A18;
+  --sev-md:#D2A24C; --sev-md-wash:#2A2318;
+  --sev-lo:#98A1AE; --sev-lo-wash:#1D2228;
+  --code-bg:#0A0D10; --code-ink:#C9D1DA; --code-dim:#6B7683;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;
+  font-weight:400; font-size:16.5px; line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px; margin:0 auto; padding:0 28px 120px}
+@media (max-width:640px){ .wrap{padding:0 18px 80px} body{font-size:16px} }
+
+/* ---------- masthead ---------- */
+.mast{padding:76px 0 40px; border-bottom:1px solid var(--rule)}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; font-weight:500;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink);
+  display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+}
+.eyebrow span:not(:last-child)::after{content:""; display:inline-block; width:3px; height:3px; border-radius:50%; background:var(--rule-strong); margin-left:12px; vertical-align:middle}
+h1{
+  font-family:Spectral,"Apple SD Gothic Neo",Georgia,serif; font-weight:600;
+  font-size:clamp(2.4rem,6.2vw,3.75rem); line-height:1.08; letter-spacing:-.022em;
+  margin:.42em 0 .3em; text-wrap:balance;
+}
+.dek{font-size:1.1rem; color:var(--ink-2); max-width:64ch; line-height:1.68; margin:0}
+.dek strong{color:var(--ink); font-weight:500}
+
+/* ---------- verdict strip ---------- */
+.verdicts{display:grid; grid-template-columns:repeat(auto-fit,minmax(255px,1fr)); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:10px; overflow:hidden; margin:44px 0 0; box-shadow:var(--shadow)}
+.vc{background:var(--surface); padding:22px 22px 24px; display:flex; flex-direction:column; gap:9px}
+.vc-q{font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3)}
+.vc-a{font-family:Spectral,Georgia,serif; font-size:1.32rem; font-weight:600; line-height:1.26; letter-spacing:-.01em}
+.vc-a.yes{color:var(--sev-hi)} .vc-a.no{color:var(--accent-ink)}
+.vc-n{font-size:.87rem; color:var(--ink-2); line-height:1.55}
+
+/* ---------- sections ---------- */
+section{padding-top:64px}
+.sec-head{display:flex; gap:16px; align-items:baseline; border-bottom:1px solid var(--rule); padding-bottom:12px; margin-bottom:30px}
+.sec-num{font-family:"IBM Plex Mono",monospace; font-size:.82rem; font-weight:600; color:var(--accent); letter-spacing:.06em; flex:none; padding-top:2px}
+h2{font-family:Spectral,"Apple SD Gothic Neo",Georgia,serif; font-weight:600; font-size:1.72rem; line-height:1.24; letter-spacing:-.016em; margin:0; text-wrap:balance}
+h3{font-family:"IBM Plex Sans KR",sans-serif; font-weight:600; font-size:1.02rem; letter-spacing:-.005em; margin:40px 0 14px; color:var(--ink)}
+p{margin:0 0 1.05em; max-width:72ch}
+a{color:var(--accent-ink)}
+
+/* ---------- code / paths ---------- */
+code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.855em; background:var(--surface-2); padding:.12em .4em; border-radius:4px; color:var(--ink); word-break:break-word}
+.term{background:var(--code-bg); color:var(--code-ink); border-radius:9px; padding:18px 20px; overflow-x:auto; margin:18px 0 24px; box-shadow:var(--shadow)}
+.term pre{margin:0; font-family:"IBM Plex Mono",monospace; font-size:12.4px; line-height:1.62; white-space:pre}
+.term .dim{color:var(--code-dim)}
+.term .hl{color:#F2A365; font-weight:500}
+.term .ok{color:#63C9B0}
+.term-cap{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--code-dim); margin-bottom:10px}
+
+/* ---------- evidence panel ---------- */
+.ev{border:1px solid var(--rule); border-left:3px solid var(--accent); border-radius:0 9px 9px 0; background:var(--surface); padding:18px 22px; margin:22px 0 26px}
+.ev-l{font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-ink); margin-bottom:8px}
+.ev p{margin:0; font-size:.95rem; max-width:none}
+.ev p + p{margin-top:.7em}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto; margin:22px 0 28px; border:1px solid var(--rule); border-radius:9px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.9rem; min-width:520px}
+th,td{text-align:left; padding:11px 15px; border-bottom:1px solid var(--rule); vertical-align:top}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-3); background:var(--surface-2); white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:none}
+.num{text-align:right; font-variant-numeric:tabular-nums; font-family:"IBM Plex Mono",monospace; white-space:nowrap}
+.mono{font-family:"IBM Plex Mono",monospace; font-size:.87em}
+td.path{font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--ink-2); line-height:1.5}
+
+/* ---------- chips ---------- */
+.chip{display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; padding:3px 8px; border-radius:4px; white-space:nowrap}
+.chip.hi{background:var(--sev-hi-wash); color:var(--sev-hi)}
+.chip.md{background:var(--sev-md-wash); color:var(--sev-md)}
+.chip.lo{background:var(--sev-lo-wash); color:var(--sev-lo)}
+.chip.rx{background:var(--accent-wash); color:var(--accent-ink)}
+
+/* ---------- charts ---------- */
+figure{margin:26px 0 30px; border:1px solid var(--rule); border-radius:10px; background:var(--surface); padding:24px 24px 20px; box-shadow:var(--shadow)}
+figcaption{font-size:.85rem; color:var(--ink-2); line-height:1.6; margin-top:18px; padding-top:14px; border-top:1px solid var(--rule)}
+.ch-title{font-family:"IBM Plex Sans KR",sans-serif; font-weight:600; font-size:1rem; margin:0 0 4px; letter-spacing:-.005em}
+.ch-sub{font-size:.85rem; color:var(--ink-3); margin:0 0 20px}
+.legend{display:flex; gap:18px; flex-wrap:wrap; margin-bottom:18px}
+.lg{display:flex; align-items:center; gap:7px; font-size:.82rem; color:var(--ink-2)}
+.sw{width:11px; height:11px; border-radius:3px; flex:none}
+
+/* stacked bar */
+.stack{display:flex; gap:2px; height:38px; margin-bottom:8px}
+.seg{border-radius:2px; position:relative}
+.stack .seg:first-child{border-radius:4px 2px 2px 4px}
+.stack .seg:last-child{border-radius:2px 4px 4px 2px}
+.axis{display:flex; justify-content:space-between; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--ink-3); font-variant-numeric:tabular-nums; border-top:1px solid var(--rule); padding-top:6px}
+
+/* row bars */
+.rows{display:flex; flex-direction:column; gap:11px}
+.row{display:grid; grid-template-columns:minmax(120px,190px) 1fr auto; gap:14px; align-items:center}
+.row-l{font-size:.85rem; color:var(--ink-2); line-height:1.35}
+.row-l b{display:block; color:var(--ink); font-weight:500; font-size:.88rem}
+.track{background:var(--sunken); border-radius:4px; height:22px; position:relative; overflow:hidden}
+.fill{height:100%; border-radius:3px 4px 4px 3px}
+.row-v{font-family:"IBM Plex Mono",monospace; font-size:.82rem; font-variant-numeric:tabular-nums; color:var(--ink); white-space:nowrap; font-weight:500}
+@media (max-width:600px){ .row{grid-template-columns:1fr; gap:5px} .row-v{justify-self:end;margin-top:-24px;margin-right:8px} }
+
+/* ---------- callout ---------- */
+.callout{background:var(--accent-wash); border:1px solid color-mix(in srgb, var(--accent) 26%, transparent); border-radius:10px; padding:22px 24px; margin:28px 0}
+.callout .ev-l{color:var(--accent-ink)}
+.callout p{margin:0; max-width:none}
+.callout p + p{margin-top:.8em}
+
+/* ---------- list ---------- */
+ul,ol{max-width:72ch; padding-left:1.25em; margin:0 0 1.1em}
+li{margin-bottom:.5em}
+li::marker{color:var(--ink-3)}
+
+.foot{margin-top:80px; padding-top:26px; border-top:1px solid var(--rule); font-size:.85rem; color:var(--ink-3); line-height:1.65}
+.foot p{max-width:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow"><span>MMT · Milestone 2</span><span>원인 분석</span><span>2026-08-29</span></div>
+  <h1>25배는 어디서 왔나</h1>
+  <p class="dek">M2 리포트는 그래프 탐색 <strong>p95 14.034 ms → 0.556 ms</strong> 를 “작은 그래프에서는 MySQL 인덱스 JOIN 이 Neo4j native 탐색보다 빠르다”로 해석했다. 코드와 실행계획을 다시 재면, 그 배율의 대부분은 <strong>Neo4j 안에서 일어나지 않는다</strong>. 리액티브 리포지토리를 블로킹 스택에서 <code>.block()</code> 으로 소비하는 클라이언트 경로가 한쪽에만 얹혀 있었고, 비교 대상인 CTE 경로에는 그 비용이 없다.</p>
+
+  <div class="verdicts">
+    <div class="vc">
+      <div class="vc-q">Q1 · 호출 방식</div>
+      <div class="vc-a yes">리액티브 + block 이 맞다</div>
+      <div class="vc-n"><code>ConceptRepository</code> 는 <code>ReactiveNeo4jRepository</code>. 서블릿 스택(<code>starter-web</code>)에서 <code>Flux</code> 를 전부 <code>.block()</code> 으로 회수한다.</div>
+    </div>
+    <div class="vc">
+      <div class="vc-q">Q2 · 측정 지점</div>
+      <div class="vc-a yes">브리지 비용이 포함된다</div>
+      <div class="vc-n">baseline 표의 2·3·4·5행은 <code>.collectList().block()</code> 을 잰다. 1행(2.088 ms)만 드라이버 직접. CTE 쪽은 <code>JdbcTemplate</code> — 브리지 없음.</div>
+    </div>
+    <div class="vc">
+      <div class="vc-q">Q3 · 컨테이너 메모리</div>
+      <div class="vc-a no">디폴트지만 교란요인 아님</div>
+      <div class="vc-n">스토어 792 KB &lt; 페이지캐시 512 MB, PROFILE page cache 0/0. 각주는 필요하되 “왜곡 없음”을 못박는 형태여야 한다.</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════ 1 ══════════════════ -->
+<section>
+  <div class="sec-head"><div class="sec-num">01</div><h2>Neo4j 경로는 무엇으로 호출됐나</h2></div>
+
+  <p>그래프 탐색은 전부 <strong>리액티브 리포지토리</strong>다. <code>Neo4jClient</code> 나 드라이버 직접 사용은 프로덕션 경로에 없다.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>근거</th><th>파일 : 라인</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>리포지토리 타입</td><td class="path">ConceptRepository.java:11</td><td class="mono">extends ReactiveNeo4jRepository&lt;Concept, Integer&gt;</td></tr>
+      <tr><td>반환 타입</td><td class="path">ConceptRepository.java:14, 19, 21, 25, 28, 31</td><td>모든 그래프 메서드가 <code>Flux&lt;…&gt;</code></td></tr>
+      <tr><td>의존성</td><td class="path">api/build.gradle:31</td><td class="mono">spring-boot-starter-data-neo4j</td></tr>
+      <tr><td>웹 스택</td><td class="path">api/build.gradle:38</td><td class="mono">spring-boot-starter-web <span style="color:var(--sev-hi)">(WebFlux 아님 — 서블릿)</span></td></tr>
+      <tr><td>reactor 출처</td><td class="path">runtimeClasspath</td><td>명시 선언 없음. <code>spring-data-neo4j:7.1.6</code> → <code>reactor-core:3.5.12</code>, <code>neo4j-java-driver:5.13.0</code> → <code>reactor-core:3.5.10</code> 로 <strong>전이 유입만</strong></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><code>.block()</code> 호출 지점 — 프로덕션 2곳, 전량 그래프 경로</h3>
+
+  <div class="tw"><table>
+    <thead><tr><th>파일 : 라인</th><th>호출</th><th>맥락</th></tr></thead>
+    <tbody>
+      <tr><td class="path">ConceptService.java:194</td><td class="mono">idsFlux.collectList().block()</td><td><code>findPrerequisitesAsDepthMap</code> 의 플래그 OFF(Neo4j) 분기</td></tr>
+      <tr><td class="path">KnowledgeSpaceService.java:39</td><td class="mono">conceptIdFlux.distinct().collectList().block()</td><td><code>findEdgesByConceptId</code> — 시각화 엣지 조회</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>테스트 쪽 <code>.block()</code> 은 35곳이며 그중 <strong>성능 측정 코드가 9곳</strong>(<code>GraphQueryPerformanceTest.java:149, 156, 163, 172, 225–227, 245, 250</code>)이다. 이 9곳이 §2 의 쟁점이다.</p>
+
+  <div class="callout">
+    <div class="ev-l">결론 · Q1</div>
+    <p><strong>리액티브 API + block 변환이었다.</strong> 그리고 이건 리액티브를 쓰는 최악의 형태다 — 논블로킹 런타임(WebFlux)이 없으니 <code>Flux</code> 조립·구독·<code>block()</code> park/unpark 비용은 전부 지불하면서, 리액티브가 주는 이득은 하나도 회수하지 못한다. reactor 를 <em>선택해서</em> 넣은 흔적도 없다 — 전이 의존성으로 딸려온 API 를 리포지토리 인터페이스가 그대로 노출한 것에 가깝다.</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 2 ══════════════════ -->
+<section>
+  <div class="sec-head"><div class="sec-num">02</div><h2>측정은 어디를 쟀나</h2></div>
+
+  <p>벤치마크 정본은 <code>docs/benchmark/milestone-1-baseline.md</code>, 측정 코드는 <code>api/src/test/java/com/mmt/api/performance/</code> 하위 3개 클래스다. 같은 표 안에서 <strong>측정 경로가 섞여 있다.</strong></p>
+
+  <div class="tw"><table>
+    <thead><tr><th>baseline 표</th><th class="num">avg</th><th class="num">p95</th><th>측정 경로</th><th>브리지</th></tr></thead>
+    <tbody>
+      <tr><td>1 · findById</td><td class="num">2.088</td><td class="num">3.043</td><td class="path">driver.session().run() <span style="color:var(--ink-3)">— GQPT:137–142</span></td><td><span class="chip lo">없음</span></td></tr>
+      <tr><td>2 · 깊이 2</td><td class="num">4.800</td><td class="num">8.289</td><td class="path">Flux.collectList().block() <span style="color:var(--ink-3)">— GQPT:149</span></td><td><span class="chip rx">포함</span></td></tr>
+      <tr><td>3 · 깊이 3</td><td class="num">5.392</td><td class="num">14.034</td><td class="path">Flux.collectList().block() <span style="color:var(--ink-3)">— GQPT:156</span></td><td><span class="chip rx">포함</span></td></tr>
+      <tr><td>4 · 깊이 5</td><td class="num">5.302</td><td class="num">12.898</td><td class="path">Flux.collectList().block() <span style="color:var(--ink-3)">— GQPT:163</span></td><td><span class="chip rx">포함</span></td></tr>
+      <tr><td>5 · 선수 개념</td><td class="num">5.662</td><td class="num">9.224</td><td class="path">Flux.collectList().block() <span style="color:var(--ink-3)">— GQPT:172</span></td><td><span class="chip rx">포함</span></td></tr>
+      <tr><td>비교군 · CTE 깊이 3</td><td class="num">—</td><td class="num">0.556</td><td class="path">JdbcTemplate.query() <span style="color:var(--ink-3)">— CteGQPT:105</span></td><td><span class="chip lo">없음</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <p>25배 계산에 쓰인 <strong>14.034 ms 는 3행</strong>, 즉 리액티브 경로다. <strong>0.556 ms 는 <code>JdbcTemplate</code></strong> 경로다. 두 숫자는 같은 계층을 재고 있지 않다.</p>
+
+  <h3>브리지 비용의 크기 — baseline 표 안에 이미 증거가 있다</h3>
+
+  <figure>
+    <p class="ch-title">결과 크기가 8.5배 달라져도 측정값은 안 움직인다</p>
+    <p class="ch-sub">M1 baseline 5개 측정의 avg (ms) · 반환 행 수 병기</p>
+    <div class="legend">
+      <div class="lg"><span class="sw" style="background:var(--s2)"></span>드라이버 직접</div>
+      <div class="lg"><span class="sw" style="background:var(--s1)"></span>리액티브 + <code>.block()</code></div>
+    </div>
+    <div class="rows">
+      <div class="row">
+        <div class="row-l"><b>findById</b>1 행</div>
+        <div class="track"><div class="fill" style="width:36.9%; background:var(--s2)"></div></div>
+        <div class="row-v">2.088</div>
+      </div>
+      <div class="row">
+        <div class="row-l"><b>깊이 2</b>37 행</div>
+        <div class="track"><div class="fill" style="width:84.8%; background:var(--s1)"></div></div>
+        <div class="row-v">4.800</div>
+      </div>
+      <div class="row">
+        <div class="row-l"><b>깊이 3</b>105 행</div>
+        <div class="track"><div class="fill" style="width:95.2%; background:var(--s1)"></div></div>
+        <div class="row-v">5.392</div>
+      </div>
+      <div class="row">
+        <div class="row-l"><b>깊이 5</b>316 행</div>
+        <div class="track"><div class="fill" style="width:93.6%; background:var(--s1)"></div></div>
+        <div class="row-v">5.302</div>
+      </div>
+      <div class="row">
+        <div class="row-l"><b>선수 개념</b>소량</div>
+        <div class="track"><div class="fill" style="width:100%; background:var(--s1)"></div></div>
+        <div class="row-v">5.662</div>
+      </div>
+    </div>
+    <figcaption>리액티브 4개는 반환 행 수가 37 → 316 으로 <strong>8.5배</strong> 변하는데도 4.800–5.662 ms 안에 뭉친다(변동 18%). 유일한 드라이버 직접 측정만 2.088 ms 로 떨어진다. 워크로드 크기에 둔감한 채 리액티브 경로에만 붙는 <strong>약 3 ms 의 고정 가산</strong> — 쿼리 비용이 아니라 호출 규약 비용의 서명이다.</figcaption>
+  </figure>
+
+  <h3>서버측 Cypher 는 실제로 얼마나 걸리나</h3>
+
+  <p>같은 이미지(<code>neo4j:5.12</code>)·같은 CSV 로 격리 컨테이너를 띄워 동일 데이터를 재현했다 — <strong>노드 1631 / 관계 3446</strong>, baseline 문서와 정확히 일치. 여기서 프로덕션 Cypher 를 그대로 돌린 서버측 한계비용(프로토콜 바닥값 차감)은 다음과 같다.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>쿼리</th><th class="num">총 왕복</th><th class="num">− 프로토콜 바닥</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">RETURN 1</td><td class="num">4.006</td><td class="num">— (바닥값)</td><td>cypher-shell 문장당 오버헤드</td></tr>
+      <tr><td>깊이 3 · 배포된 그대로</td><td class="num">5.343</td><td class="num"><strong>1.337</strong></td><td>105행 반환</td></tr>
+      <tr><td>깊이 3 · DISTINCT (14행)</td><td class="num">4.982</td><td class="num">0.976</td><td>UNWIND 증폭 제거 시</td></tr>
+      <tr><td>깊이 3 · 라벨 + 인덱스 시크</td><td class="num">5.058</td><td class="num">1.052</td><td>전수 스캔 제거 시</td></tr>
+      <tr><td>깊이 5 · 배포된 그대로</td><td class="num">6.146</td><td class="num">1.863</td><td>316행 반환</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>서버에서 깊이 3 은 <strong>약 1.3 ms</strong>다. baseline 이 기록한 avg 5.392 ms 의 <strong>4분의 1</strong>, p95 14.034 ms 의 <strong>10분의 1</strong>이다.</p>
+
+  <figure>
+    <p class="ch-title">깊이 3 · 14.034 ms 의 귀속</p>
+    <p class="ch-sub">서버측은 실측, 나머지 둘은 baseline 문서의 avg·p95 에서 차감한 귀속 추정</p>
+    <div class="legend">
+      <div class="lg"><span class="sw" style="background:var(--s1)"></span>서버측 Cypher 실행 · 1.34 ms</div>
+      <div class="lg"><span class="sw" style="background:var(--s2)"></span>JVM 클라이언트 스택 · 4.05 ms</div>
+      <div class="lg"><span class="sw" style="background:var(--s3)"></span>p95 tail (JIT · park/unpark 지터) · 8.64 ms</div>
+    </div>
+    <div class="stack">
+      <div class="seg" style="flex:1.337; background:var(--s1)"></div>
+      <div class="seg" style="flex:4.055; background:var(--s2)"></div>
+      <div class="seg" style="flex:8.642; background:var(--s3)"></div>
+    </div>
+    <div class="axis"><span>0 ms</span><span>14.034 ms</span></div>
+    <div style="margin-top:22px">
+      <div class="row" style="grid-template-columns:minmax(120px,190px) 1fr auto">
+        <div class="row-l"><b>MySQL CTE 깊이 3</b>14 행 · JdbcTemplate</div>
+        <div class="track" style="height:14px"><div class="fill" style="width:3.96%; background:var(--ink-3)"></div></div>
+        <div class="row-v">0.556</div>
+      </div>
+    </div>
+    <figcaption>Neo4j 안에서 일어나는 일은 <strong>1.34 ms — 전체의 9.5%</strong> 다. 나머지 90% 는 Bolt 소켓과 호출자 사이의 JVM 구간에서 발생한다: 105개 레코드 수신 → SDN 객체 매핑 → <code>Flux</code> 조립/구독 → <code>block()</code> 스레드 park/unpark. CTE 경로(회색)는 이 구간 자체가 없다.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <div class="ev-l">결론 · Q2</div>
+    <p><strong>Neo4j p95 8~14 ms 안에 리액티브 브리지 비용이 포함된다.</strong> 그리고 비교 대상인 CTE 쪽 0.556 ms 에는 포함되지 않는다 — 비대칭은 한 방향으로만 작동한다.</p>
+    <p>코드베이스는 이 함정을 이미 한 번 문서화했다. <code>QueryTimingAspect.java:22–23</code> — <em>“Reactive 리포지토리는 <code>@Around</code> 가 Flux/Mono 조립 시간만 측정. 실제 Neo4j 쿼리 실행 시간은 측정되지 않음.”</em> 관측 애스펙트에는 적용된 주의가 벤치마크에는 적용되지 않았다.</p>
+  </div>
+
+  <h3>같은 파일이 스스로 반증하는 warmup 설정</h3>
+
+  <p>여기에 두 번째 비대칭이 겹친다. baseline 표는 <code>WARMUP_RUNS = 3</code>, <code>MEASURED_RUNS = 100</code> 으로 산출됐다(<code>GraphQueryPerformanceTest.java:60–61</code>). 그런데 <strong>같은 파일의 회귀 테스트는 warmup 을 20으로 올려 놓았고, 그 이유를 명시한다</strong>:</p>
+
+  <div class="term">
+    <div class="term-cap">GraphQueryPerformanceTest.java:239–241</div>
+<pre><span class="dim">// Task 2.2: 회귀 감지 테스트 — warmup 20 + 측정 30 회의 p50 (median) 이 ceiling 미만이어야 함.</span>
+<span class="dim">// median 을 쓰는 이유: isolated 실행 시 cold JVM 의 첫 몇 회가 크게 튀어 avg 가 오염됨.</span>
+<span class="dim">// </span><span class="hl">warmup 20 은 Reactor + Neo4j driver 파이프라인 JIT 컴파일이 수렴할 때까지 필요.</span></pre>
+  </div>
+
+  <p>그리고 baseline 문서 116행은 실제 관측을 기록해 뒀다 — <em>“cold JVM 의 첫 수 회가 튀어 avg 가 오염 <strong>(depth3 avg=15ms, 베이스라인의 3배)</strong>”.</em></p>
+
+  <div class="ev">
+    <div class="ev-l">이것이 p95 에 무엇을 하는가</div>
+    <p>100회 측정을 정렬했을 때 p95 는 86–100번째 값이다. warmup 3회로 JIT 이 수렴하지 않았다면 <strong>느린 초기 반복들이 정렬 후 정확히 그 구간에 앉는다.</strong> 즉 <code>p95 = 14.034 ms</code> 는 “95%의 요청이 이 안에 들어온다”가 아니라 “JIT 미수렴 반복의 값”일 수 있다.</p>
+    <p>CTE 쪽도 warmup 3회지만(<code>CteGraphQueryPerformanceTest.java:52</code>) 데워야 할 코드 경로가 <code>JdbcTemplate</code> + HikariCP 로 훨씬 짧고, Spring 컨텍스트 기동 중 이미 상당 부분 데워져 있다. 같은 warmup 값이 두 경로에 같은 효과를 주지 않는다.</p>
+  </div>
+
+  <p>정황도 들어맞는다. 깊이 3 은 avg 5.392 대비 p95 14.034 로 <strong>tail 이 2.6배</strong>다. 결정론적 쿼리 작업이 만드는 모양이 아니라, 스케줄링 지터와 JIT 전이가 만드는 모양이다. 반면 CTE 쪽 p95 0.556 ms 에는 그런 tail 이 없다.</p>
+</section>
+
+<!-- ══════════════════ 3 ══════════════════ -->
+<section>
+  <div class="sec-head"><div class="sec-num">03</div><h2>Testcontainers 메모리 설정</h2></div>
+
+  <p><strong>명시하지 않았다 — 양쪽 다 디폴트다.</strong></p>
+
+  <div class="term">
+    <div class="term-cap">TestcontainersConfig.java:18–40</div>
+<pre>new MySQLContainer&lt;&gt;(<span class="ok">"mysql:8.0"</span>)
+    .withDatabaseName(<span class="ok">"mmt_test"</span>)
+    .withReuse(<span class="hl">true</span>);            <span class="dim">// 메모리 설정 없음</span>
+
+new Neo4jContainer&lt;&gt;(<span class="ok">"neo4j:5.12"</span>)
+    .withoutAuthentication()
+    .withCopyFileToContainer(…)
+    .withReuse(<span class="hl">true</span>);            <span class="dim">// 힙·페이지캐시 env 없음</span></pre>
+  </div>
+
+  <p>격리 컨테이너에서 그 디폴트가 실제로 무엇인지 확인했다.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>항목</th><th>실측값</th><th>함의</th></tr></thead>
+    <tbody>
+      <tr><td>페이지캐시 디폴트</td><td class="mono">server.memory.pagecache.size=512M</td><td rowspan="3">데이터가 <strong>전량 메모리 상주</strong>. 디스크 I/O 가 개입할 여지 자체가 없다.</td></tr>
+      <tr><td>실제 스토어 크기</td><td class="mono">792 KB</td></tr>
+      <tr><td>PROFILE page cache hits/misses</td><td class="mono">0 / 0 <span style="color:var(--ink-3)">(전 연산자)</span></td></tr>
+      <tr><td>컨테이너 메모리 상한</td><td class="mono">없음 (0 = unlimited)</td><td>힙은 JVM ergonomic 디폴트</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <div class="ev-l">의견 · Q3 — 각주는 필요하다. 단, 지금 떠오르는 형태로는 안 된다.</div>
+    <p>“컨테이너 디폴트 메모리 설정”이라고만 적은 각주는 <strong>없는 의심을 만든다</strong>. 읽는 사람은 “튜닝을 안 해서 Neo4j 가 손해 봤나?”를 떠올리고, 그건 위 실측이 이미 기각한 가설이다. 792 KB 스토어가 512 MB 페이지캐시 안에 통째로 들어 있고 page cache 접근이 0회다.</p>
+    <p>각주는 <strong>사실 + 기각</strong> 두 절을 함께 담아야 한다. 예: <em>“양쪽 컨테이너 모두 메모리 디폴트로 실행(Neo4j 페이지캐시 512 MB, MySQL 버퍼풀 128 MB). 스토어 792 KB 로 전량 상주하며 PROFILE 상 page cache 접근 0회 — 메모리 미튜닝은 본 비교의 교란요인이 아니다.”</em> 사실만 적으면 재현성은 남지만 오독을 부르고, 기각만 적으면 근거가 사라진다.</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 4 ══════════════════ -->
+<section>
+  <div class="sec-head"><div class="sec-num">04</div><h2>후보별 기여 가능성</h2></div>
+
+  <p>먼저 실행계획 실측 하나를 더 놓고 시작한다. 이게 직관과 가장 어긋나는 지점이다.</p>
+
+  <div class="term">
+    <div class="term-cap">PROFILE · 깊이 3 · conceptId=6646 · 배포된 Cypher 그대로</div>
+<pre>+-----------------------+---------------------------------------+------+---------+
+| Operator              | Details                               | Rows | DB Hits |
++-----------------------+---------------------------------------+------+---------+
+| +Unwind               | connected_nodes AS node               |  105 |       0 |
+| +Projection           | nodes((start_node)-[*]-&gt;(n))          |   31 |       0 |
+| +VarLengthExpand(All) | (n)&lt;-[anon_0*0..3]-(start_node)       |   31 |      <span class="ok">44</span> |
+| +Filter               | n.concept_id = $autoint_0             |    1 |    <span class="hl">1631</span> |
+| +AllNodesScan         | n                                     | 1631 |    <span class="hl">1632</span> |
++-----------------------+---------------------------------------+------+---------+
+<span class="dim">Total database accesses: 3307        Page Cache Hits/Misses: 0/0</span></pre>
+  </div>
+
+  <p>실제 그래프 탐색은 <strong>44 DB hit</strong>. 나머지 <strong>3263 (98.7%) 은 앵커를 찾는 전수 스캔</strong>이다. 원인은 두 겹이다:</p>
+
+  <ol>
+    <li><code>concept.concept_id</code> 에 <strong>인덱스가 없다</strong> — <code>init.cypher</code> 에도, 벤치마크 시드에도 <code>CREATE INDEX</code> 가 없다. 확인된 인덱스는 시스템 LOOKUP 2개뿐.</li>
+    <li>인덱스를 만들어도 <strong>쓰이지 않는다.</strong> 패턴 <code>(n {concept_id: $conceptId})</code> 에 <strong>라벨이 없어서</strong> 플래너가 라벨-속성 인덱스를 잡을 수 없다. 실제로 <code>CREATE INDEX</code> 후 재프로파일해도 DB hits 는 3307 그대로였다. <code>(n:concept {…})</code> 로 라벨을 붙이면 <code>NodeIndexSeek</code> 2 hits 로 떨어지고 총합이 <strong>3307 → 46</strong> 이 된다.</li>
+  </ol>
+
+  <p>그런데 <strong>이 72배의 DB 작업 감소가 벽시계로는 약 0.3 ms 밖에 안 된다</strong>(위 §2 표: 1.337 → 1.052 ms). 1631 노드는 전수 스캔해도 메모리 안에서 끝나기 때문이다. 이것이 이 분석의 핵심 반전이다 — <strong>인덱스 부재는 사실이지만 25배의 원인이 아니다.</strong></p>
+
+  <h3>기여 가능성 평가표</h3>
+
+  <div class="tw"><table>
+    <thead>
+      <tr><th style="width:23%">후보</th><th style="width:12%">기여</th><th style="width:11%">확신도</th><th>코드 근거 · 실측</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>리액티브 브리지</strong><br><span style="color:var(--ink-3);font-size:.88em">Flux 조립·구독 + block park/unpark + SDN 매핑</span></td>
+        <td><span class="chip hi">지배적</span></td>
+        <td><span class="chip lo">높음</span></td>
+        <td>결과 크기 8.5배 차이에도 리액티브 4개가 4.8–5.7 ms 에 뭉침 vs 드라이버 직접 2.088 ms → 워크로드 무관 고정 가산 ~3 ms. 서버측 실측 1.34 ms 를 빼면 avg 의 75%가 이 구간. <code>QueryTimingAspect.java:22</code> 가 같은 함정을 이미 인정.</td>
+      </tr>
+      <tr>
+        <td><strong>warmup 3회 + p95 보고</strong><br><span style="color:var(--ink-3);font-size:.88em">JIT 미수렴 반복이 p95 구간을 점유</span></td>
+        <td><span class="chip hi">높음</span></td>
+        <td><span class="chip md">중상</span></td>
+        <td><code>GQPT:60</code> warmup=3 으로 baseline 산출. 같은 파일 <code>:241</code> 이 “warmup 20 은 Reactor + 드라이버 파이프라인 JIT 수렴에 필요”라고 명시. baseline:116 이 3배 오염(depth3 avg=15 ms) 관측 기록. avg 대비 p95 tail 2.6배 — CTE 쪽엔 없는 모양.</td>
+      </tr>
+      <tr>
+        <td><strong>MySQL covering index</strong><br><span style="color:var(--ink-3);font-size:.88em">(from_concept_id, to_concept_id)</span></td>
+        <td><span class="chip md">중간 · ~4×</span></td>
+        <td><span class="chip lo">높음</span></td>
+        <td>프로젝트 자체 3-way 측정이 이미 분리: no-index 2.232 → with-index 0.556 ms. <code>regression_snapshot_schema.sql:46–47</code> vs <code>_no_index.sql</code>. <strong>이 항목만이 잘 통제된 진짜 엔진측 이득이다.</strong></td>
+      </tr>
+      <tr>
+        <td><strong>결과셋 형태 차이</strong><br><span style="color:var(--ink-3);font-size:.88em">UNWIND 다중경로 105행 vs GROUP BY 14행</span></td>
+        <td><span class="chip md">중간</span></td>
+        <td><span class="chip md">중간</span></td>
+        <td>PROFILE Unwind Rows=105, distinct 14 → <strong>7.5배</strong>(깊이 5 는 316 vs 16, <strong>20배</strong>). 서버측 절감은 0.36 ms 뿐이지만, 클라이언트에서는 행마다 SDN 매핑 + Flux 통과이므로 브리지 비용을 배수로 증폭. <strong>엔진 차이가 아니라 쿼리 작성 차이다.</strong> M2 리포트는 이 multiset/set 차이를 <em>정합성</em> 항목으로만 다루고 <em>비용</em> 항목으로는 계상하지 않았다.</td>
+      </tr>
+      <tr>
+        <td><strong>Cypher 앵커 라벨 누락</strong><br><span style="color:var(--ink-3);font-size:.88em">→ AllNodesScan, 인덱스 사실상 부재</span></td>
+        <td><span class="chip lo">낮음 · ~1.3×</span></td>
+        <td><span class="chip lo">높음</span></td>
+        <td>DB hits 로는 98.7%(3263/3307)를 차지하지만 벽시계 절감은 1.337 → 1.052 ms. 1631 노드가 전량 페이지캐시 상주라 스캔이 싸다. <strong>규모가 커지면 1순위로 올라올 항목</strong> — 지금은 아니다.</td>
+      </tr>
+      <tr>
+        <td><strong>데이터 규모</strong><br><span style="color:var(--ink-3);font-size:.88em">1,631 노드 / 3,446 엣지</span></td>
+        <td><span class="chip lo">배율 원인 아님</span></td>
+        <td><span class="chip lo">높음</span></td>
+        <td>M2 리포트가 든 주된 해석. 방향은 맞지만 <strong>배율의 원인이 아니라 전제조건</strong>이다 — 이 규모라서 Neo4j 의 구조적 이점(index-free adjacency 상각)이 회수되지 않고, 동시에 전수 스캔도 견딜 만해진다. 규모를 키운다고 25배가 유지되지도, 뒤집히지도 않는다.</td>
+      </tr>
+      <tr>
+        <td><strong>컨테이너 메모리 설정</strong></td>
+        <td><span class="chip lo">무시 가능</span></td>
+        <td><span class="chip lo">높음</span></td>
+        <td>스토어 792 KB &lt; 페이지캐시 512 MB, PROFILE page cache 0/0. §3 참조.</td>
+      </tr>
+      <tr>
+        <td><strong>Cypher/Bolt 고정 오버헤드</strong><br><span style="color:var(--ink-3);font-size:.88em">파싱·플래닝·프로토콜</span></td>
+        <td><span class="chip lo">낮음</span></td>
+        <td><span class="chip md">중간</span></td>
+        <td>플랜 캐시가 도는 warm 상태에서 서버측 총합이 1.34 ms 이므로 이 항목의 상한이 곧 1.34 ms. JDBC 쪽에도 대응 비용이 있어 순차익은 더 작다.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout">
+    <div class="ev-l">한 문장으로</div>
+    <p>25배 중 <strong>Neo4j 엔진 안에서 설명되는 몫은 약 10%</strong>이고, 그 10% 안에서도 절반 이상은 <strong>엔진이 아니라 쿼리 작성</strong>(라벨 누락 + UNWIND 증폭)이 만든 것이다. 나머지 90%는 한쪽 경로에만 얹힌 <strong>리액티브 클라이언트 스택</strong>과, 그 스택을 3회 warmup 으로 재서 p95 로 보고한 <strong>측정 설계</strong>가 만든 것이다.</p>
+  </div>
+
+  <h3>M2 결정은 여전히 옳다</h3>
+  <p>이 분석은 <strong>마이그레이션을 되돌릴 근거가 아니다.</strong> 운영 DB 1종 감축, 재귀 CTE 의 충분한 성능(깊이 5 p95 0.471 ms, 기준 100 ms), 결과 동치성 15/15 통과 — 모두 그대로다. 정정 대상은 <strong>결정</strong>이 아니라 <strong>서술</strong>이다. “Neo4j 가 이 워크로드에 느리다”가 아니라 <strong>“리액티브 리포지토리를 블로킹 스택에서 <code>.block()</code> 으로 쓰던 구조가 느렸고, 이관하면서 그 구조도 함께 걷어냈다”</strong> 가 실제로 일어난 일이다. 후자가 더 값진 교훈이기도 하다 — 다음에 또 저지를 수 있는 실수를 짚어 주기 때문이다.</p>
+
+  <h3>이걸 확정할 실험 하나</h3>
+  <p>위 귀속 추정에서 남는 불확실성은 실험 하나로 닫힌다. <strong>프로덕션 코드는 건드리지 않는다.</strong></p>
+  <ul>
+    <li><code>GraphQueryPerformanceTest</code> 에 벤치마크 1개 추가 — <code>findNodesIdByConceptIdDepth3</code> 와 <b>동일한 Cypher</b> 를 <code>driver.session().run(…).list()</code> 로 실행(이미 <code>benchmarkFindById:137–142</code> 가 쓰는 패턴 그대로).</li>
+    <li>양쪽 다 <code>WARMUP_RUNS = 20</code> 으로 올려서 측정.</li>
+    <li>두 값의 차이 = 리액티브 브리지 비용. warmup 3 대 20 의 차이 = JIT 기여분.</li>
+    <li>baseline 문서 표에 <strong>avg 와 p95 를 함께</strong> 싣고, 각 행에 측정 경로(드라이버 직접 / 리액티브)를 컬럼으로 명시.</li>
+  </ul>
+</section>
+
+<div class="foot">
+  <p><strong>이 분석의 한계.</strong> 서버측 실측은 2026-08-29 격리 컨테이너(<code>neo4j:5.12</code>, 동일 CSV, 노드 1631 / 관계 3446 재현 확인)에서 <code>cypher-shell</code> 로 300회 반복 후 <code>RETURN 1</code> 바닥값을 차감해 얻은 한계비용이다. JVM 드라이버가 아니고, 2026-04-24 baseline 과 Docker 상태도 다르며(측정 중 타 스택 구동), 같은 머신이지만 동일 조건 재현은 아니다. 따라서 “서버측 약 1.3 ms”는 <strong>자릿수 주장</strong>으로 읽어야 하고, 14.034 ms 의 3분할은 실측 1개 + baseline 문서의 avg·p95 로 구성한 <strong>귀속 추정</strong>이다. PROFILE 의 DB hits·행 수·플랜 연산자, 그리고 코드 인용은 모두 직접 확인한 사실이다. 프로브 컨테이너는 측정 후 제거했고 저장소 파일은 수정하지 않았다.</p>
+  <p style="margin-top:1em"><strong>참조.</strong> <code>docs/benchmark/milestone-1-baseline.md</code> · <code>docs/reports/m2-cte-migration.md</code> · <code>api/src/test/java/com/mmt/api/performance/{GraphQueryPerformanceTest, CteGraphQueryPerformanceTest, CteGraphQueryNoIndexPerformanceTest}.java</code> · <code>api/src/main/java/com/mmt/api/repository/concept/{ConceptRepository, JdbcTemplateConceptRepository}.java</code> · <code>api/src/main/java/com/mmt/api/service/{ConceptService, KnowledgeSpaceService}.java</code> · <code>api/src/test/java/com/mmt/api/config/TestcontainersConfig.java</code></p>
+</div>
+
+</div>
+</body>
+</html>
