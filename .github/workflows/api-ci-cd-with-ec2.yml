@@ -15,6 +15,14 @@ on:
         description: 'Skip the test gate (M4 §4 measurement bypass — revert after)'
         type: boolean
         default: false
+      # 테스트 게이트만 돌리고 배포는 안 나가게 하는 스위치. 원인 C(러너 자원)를 고치는 동안
+      # CI 신호를 반복해서 봐야 하는데, 이 워크플로는 test 가 초록이면 build→deploy 까지
+      # 이어져 프로덕션 blue-green 전환이 딸려 나온다. 정본: docs/backlog/test-suite-not-portable-to-ci.md
+      # skip_tests 와 함께 켜면 아무 job 도 돌지 않는다(의미 없는 조합).
+      tests_only:
+        description: 'Run the test gate only (no build/deploy)'
+        type: boolean
+        default: false
 
 jobs:
   test:
@@ -68,7 +76,8 @@ jobs:
     needs: test
     # test 가 성공했거나(게이트 통과) skip_tests 로 스킵됐을 때만 진행.
     # test 가 실제로 실패하면(result==failure) 여기서 멈춰 게이트가 유지된다.
-    if: ${{ always() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    # tests_only 면 초록이어도 여기서 멈춘다 — deploy 는 이 job 을 needs 하므로 함께 스킵된다.
+    if: ${{ always() && !inputs.tests_only && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     # 가장 최신의 Ubuntu 러너를 사용합니다.
 
