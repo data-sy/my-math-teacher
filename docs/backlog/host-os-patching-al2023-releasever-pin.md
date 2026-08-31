@@ -1,6 +1,6 @@
 # [Infra] 호스트가 OS 보안 패치를 받지 않는다 — AL2023 releasever 가 AMI 스냅샷에 고정
 
-**등록:** 2026-08-31 (AMI 필터 지뢰 제거 중 파생 발견) · **상태:** 🔴 **미착수 — 결정 필요** ·
+**등록:** 2026-08-31 (AMI 필터 지뢰 제거 중 파생 발견) · **상태:** ✅ **해결 (2026-08-31)** — 러닝 호스트 적용 완료 + 다음 런치 배선 ·
 **분류:** 운영 위생 / 보안 · **관련:** [AMI 필터 지뢰](ami-filter-picks-minimal-no-ssm-agent.md)
 
 > **한 줄:** `dnf check-update` 가 **0건**이라 안전해 보이지만, AL2023 은 releasever 를
@@ -81,3 +81,68 @@ AL2023 은 "deterministic upgrades" 를 표방해 `/etc/dnf/vars/releasever` 로
 - 되돌리기 어렵다 — `dnf history undo` 가 있으나 커널·런타임 계열은 실전 롤백이 지저분하다.
   **적용 전 스냅샷/AMI 를 떠 두는 편이 안전**하다.
 - 순서 권장: 보안만 우선 적용 → 서비스 확인 → 커널/런타임은 창을 잡아 별도로.
+
+## 해결 (2026-08-31)
+
+결정: **P1 = (a) 핀 해제** · **P2/P3 = 전체 적용 + 재부팅을 창 한 번에** ·
+**자동화 = 감지만 자동, 적용은 사람** · **P4 = user_data 반영**.
+
+### 적용한 것
+
+| | 무엇 | 어디 |
+|---|---|---|
+| 핀 해제 | `/etc/dnf/vars/releasever` = `latest` | 러닝 호스트 (SSM) + `user_data` |
+| 전체 업데이트 | 11건 적용 (Upgraded 10 · Installed 1) | 러닝 호스트 |
+| 감지 자동화 | `dnf-automatic` — `download_updates=yes` / `apply_updates=no` / `emit_via=motd,stdio`, 타이머 활성 | 러닝 호스트 + `user_data` |
+| 다음 런치 배선 | 위 3개를 부트스트랩에 | `compute.tf` user_data (커밋 `4004886`) |
+
+`ignore_changes = [ami, user_data]` 덕분에 user_data 변경은 러닝 인스턴스를 건드리지 않았다
+(plan `0 to destroy`). 러닝 호스트에는 같은 내용을 SSM 으로 별도 적용했다.
+
+### 검증
+
+```
+실행 커널  6.18.39-79.141  →  6.18.41-94.142   (재부팅 반영)
+docker     25.0.16  ·  containerd  2.2.5        (Important 권고 2건 해소)
+openssh    9.9p1-10  ·  system-release 20260817
+releasever = latest  (system-release 업그레이드를 넘어 잔존)
+
+계기판이 진실을 말하는가
+  dnf check-update                    → 0건
+  dnf --releasever=latest check-update → 0건   ← 두 값이 일치 = 거짓 0 해소
+  보안 권고 잔여                        → 0건
+
+서비스
+  https://www.my-math-teacher.com/                   → 200
+  https://www.my-math-teacher.com/api/v1/concepts/5814 → 200 (정상 JSON)
+  컨테이너 4개 전부 복귀 · redis 해석 정상 · HikariPool Start completed
+  재부팅 이후 ERROR 1건 = 아래 기존 버그를 직접 찔러 만든 것
+```
+
+롤백 보험으로 착수 전 루트 EBS 스냅샷 `snap-048134aa5a4e4db7e` 를 떴다(completed).
+문제가 없었으므로 **불필요해지면 지우면 된다** — 남겨두면 스토리지 요금이 계속 붙는다.
+
+### 다운타임 실측
+
+두 번 났고 둘 다 자동 복귀했다. 컨테이너 `restart: unless-stopped` + `docker.service` 부팅
+활성이 이걸 받아냈다 — **프리플라이트에서 이걸 먼저 확인한 게 결정적이었다.** 이게 아니었으면
+재부팅이 무기한 중단이 됐다.
+
+1. **docker/containerd 업그레이드 (02:53)** — 데몬 재시작으로 컨테이너 4개가 함께 재기동.
+   백엔드 로그에 `mmt-redis: Name does not resolve` 가 몇 건 찍혔으나 재기동 완료 후 소멸(현재 0건).
+2. **재부팅 (02:56)** — 약 1분. 복귀 후 전 항목 정상.
+
+### 확인된 것 — 이건 회귀가 아니다
+
+`/api/v1/concepts/{없는 id}` → **500**(`EmptyResultDataAccessException: expected 1, actual 0`).
+404 미처리라는 **기존 버그**이며, 같은 예외가 패치 착수(02:45) 전인 **02:11 에도** 찍혀 있다.
+실존 id(5814·5485)로는 200 이 나온다. 별도 항목으로 남는다.
+
+### 남은 것
+
+- **알림이 호스트 안에만 머문다.** `emit_via = motd,stdio` 라 대기 업데이트를 보려면
+  호스트에 들어가야 한다. 사용자에게 닿는 경로(메일·CloudWatch 등)는 배선하지 않았다 —
+  **"감지 자동"은 현재 "호스트가 알고 있다"까지고, "내가 안다"까지는 아니다.**
+- **적용 창은 여전히 사람이 잡는다**(설계상 의도). docker/containerd 권고가 또 뜨면
+  같은 다운타임을 다시 치러야 한다.
+- 스냅샷 `snap-048134aa5a4e4db7e` 정리 여부.
