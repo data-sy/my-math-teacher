@@ -48,3 +48,24 @@ IMDSv2·instance-id·IAM 롤(`mmt-ec2-ssm-role`)은 **전부 정상**이었다 �
 - 어떤 순서든 **`terraform plan` 전문을 읽고** `aws_instance.app` 에 `must be replaced` 가 뜨는지 먼저 확인한다.
 - RDS 는 별개지만, EC2 교체는 호스트 로컬 자산(`~/mmt-backend.env`·`~/active-backend.conf`·`~/deploy/`)을
   전부 날린다 — 재런치 절차(`docs/handoff/🤖-M7-인프라-티어다운-재런치.md` §3)를 다시 밟아야 한다.
+
+## 재확인 — 예측이 실측이 됐다 (2026-08-31)
+
+RDS Extended Support 과금 대응 중 `terraform plan`(읽기 전용)을 돌리자 **D2 가 경고한 그대로**가 떴다:
+
+```
+  # aws_eip_association.app must be replaced
+      ~ instance_id = "i-098e63bf15a150633" -> (known after apply) # forces replacement
+  # aws_instance.app must be replaced
+      ~ ami = "ami-07ed1042cd8928bd3" -> "ami-072139fac78f90345"   # forces replacement
+Plan: 2 to add, 0 to change, 2 to destroy.
+```
+
+새 AL2023 AMI 가 릴리스되면서 `most_recent = true` 가 새 id 를 집었다. **지금 전체 apply 를 돌리면
+프로덕션 EC2 와 EIP 연결이 교체된다** — 위 "결함 2" 가 가설이 아니라 현재 상태라는 뜻이다.
+
+이 때문에 RDS 8.0→8.4 업그레이드는 **터라폼 apply 경로를 포기**하고 RDS API 직접 `modify-db-instance`
++ `terraform apply -refresh-only`(리소스 무변경, state 만 갱신)로 우회했다. 우회는 이번 한 번을 넘겼을 뿐
+**이 항목을 해결하지 않는다.** `-refresh-only` 가 아닌 apply 가 필요한 다음 인프라 작업은 전부 이 지뢰 위에 선다.
+
+→ 권장 순서(D2 → D3 → D1)는 그대로. 우선순위만 **📌 미착수 → 🔴 다음 인프라 변경의 선행조건**으로 올린다.

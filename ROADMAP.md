@@ -3,9 +3,13 @@
 **이 문서는 인덱스다.** 무엇을 하고 있고 다음이 무엇인지만 둔다 —
 과정·이력은 링크된 정본 문서와 git 히스토리에 있다. 여기 옮겨 적지 않는다.
 
-> ## ▶ 다음 세션은 여기서 시작 (2026-08-26 갱신)
+> ## ▶ 다음 세션은 여기서 시작 (2026-08-31 갱신)
 >
-> **1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
+> 🔴 **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md)가 실측으로 확인됐다.**
+> 지금 `terraform apply`(전체)를 돌리면 **프로덕션 EC2 와 EIP 연결이 교체된다**
+> (`Plan: 2 to add, 0 to change, 2 to destroy`). 다음 인프라 변경의 **선행조건**이다.
+>
+> **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
 > ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
 > **사용자와 대화로 정한 뒤** 착수한다. 혼자 판단해 파일을 옮기지 말 것.
 >
@@ -22,7 +26,7 @@
 | 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
 | 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
 | 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
-| ⚠️ 알려진 구멍 | CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 · AMI 필터 지뢰 |
+| ⚠️ 알려진 구멍 | **AMI 필터 지뢰 — 전체 `terraform apply` 가 프로덕션 EC2 를 교체한다(실측 2026-08-31)** · CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 |
 
 ---
 
@@ -93,6 +97,7 @@
 
 | | 무엇 | 결과 |
 |---|---|---|
+| **[Ops]** 2026-08-31 | RDS MySQL 8.0 → 8.4 업그레이드 | Extended Support 과금 종료 — 8월 gross **$146.77**(전체 usage 의 72.7%, 만근 $175/월). 크레딧 소진으로 9월부터 전액 카드 청구였다. 다운타임 ~6분 ([백로그](docs/backlog/rds-mysql-8-0-extended-support-billing.md)) |
 | **[M8]** 2026-08-15 | 개념 학습자료 링크 1차 | `concept_links` + 파일럿 10개념 26링크 라이브 ([#54](https://github.com/data-sy/my-math-teacher/pull/54)) — 2차 시드는 Now |
 | **[M7]** 2026-08-06 | 자가진단 피벗 + React 재작성 | 프로덕션 프론트를 `mmt-front:2.0.2` 로 스왑 ([ADR-0011](docs/adr/0011-react-web-v2-and-front-image-swap.md)) |
 | **[M6]** 2026-07-11 | 프로덕션 상시 배포 | 이력서용 라이브 링크 + TLS + OAuth 3사 + 예산 알람 ([#47](https://github.com/data-sy/my-math-teacher/pull/47)) |
