@@ -5,40 +5,14 @@
 
 > ## ▶ 다음 세션은 여기서 시작 (2026-08-31 갱신)
 >
-> ✅ **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md) 제거 완료** (D2·D3·D1,
-> 커밋 `64bb710`·`b067cca`·`1cee5e7`). `terraform plan` 이 `0 to destroy` 로 떨어졌다 —
-> 전체 apply 가 다시 안전하다. AWS apply 는 불요했다(전부 plan-time/create-time 변경).
-> AMI 는 `ignore_changes` 로 고정됐다 — 올릴 때는 사람이 의도적으로 교체한다.
-> 이건 **보안 패치를 잃은 게 아니다**: terraform 에서 AMI 가 바뀌면 in-place 패치가 아니라
-> 인스턴스 교체였고, 자동 apply 도 없어 애초에 자가 패치 경로가 아니었다.
+> **1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
+> ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·scripts 위치·체크리스트 자리·
+> 외부 독자 가중치·README 진입 동선)을 **사용자와 대화로 정한 뒤** 착수한다. 혼자 판단해 파일을 옮기지 말 것.
+> 🚧 **브랜치는 새로 딴다** — 준비 커밋만 있던 `docs/handoff-structure-tidy` 는 [#59](https://github.com/data-sy/my-math-teacher/pull/59) 로 머지됐고
+> **본작업(결정 6건)은 미착수**다.
 >
-> ✅ **[호스트 OS 패치](docs/backlog/host-os-patching-al2023-releasever-pin.md)도 같은 세션에서 해결**했다.
-> AMI 고정을 따지다 진짜 구멍이 드러났다 — AL2023 이 releasever 를 AMI 스냅샷에 고정해
-> `dnf check-update` 가 26일째 무패치인 호스트에 0건을 보고하고 있었다(거짓 계기판).
-> 핀을 풀고 11건 적용 + 재부팅했고, `dnf-automatic` 을 감지 전용으로 걸었다.
-> ⚠️ **적용은 여전히 사람 몫이고, 알림이 호스트 motd 안에만 머문다** — 대기 항목을
-> 알려면 호스트에 들어가야 한다. "내가 안다"까지의 배선은 남아 있다.
->
-> ✅ **홈(`~/`) 일회성 스크립트 정리 완료 (2026-08-31)** — 16개 → 1개(`mmt-aws-session.sh`, 재발성 MFA 세션).
-> 정리 중 드러난 것: 아카이브(소진 자산)에 있던 프론트 배포 스크립트가 실은 **매 배포마다 쓰는 물건**이었다
-> → `docs/handoff/scripts/deploy-front.sh` 로 승격(번들 검증 문자열을 `MARKER` 로 뽑음).
->
-> **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
-> ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
-> **사용자와 대화로 정한 뒤** 착수한다. 혼자 판단해 파일을 옮기지 말 것.
-> 🚧 **브랜치는 없다 — 새로 딴다.** 준비 커밋만 있던 `docs/handoff-structure-tidy` 는 CI 이식성 작업과
-> 함께 실려 [#59](https://github.com/data-sy/my-math-teacher/pull/59) 로 머지됐다(`7578353`·`20db7e7` 은 main 에 있다).
-> **본작업(결정 6건)은 여전히 미착수**다.
->
-> ✅ **CI 이식성 원인 A 완주 (2026-08-31)** — 프로파일 미지정 클래스를 `test` 프로파일 +
-> MySQL-only 컨테이너로 자기완결화(`162054c`). 4개인 줄 알았으나 실제 대상은 2개였다.
-> CI 조건 재현 5/5 · 로컬 전 스위트 **`181/0`**(첫 전체 초록).
-> ✅ **그리고 CI 에서도 초록이다 (2026-08-31)** — run [33372615775](https://github.com/data-sy/my-math-teacher/actions/runs/33372615775)
-> `181 tests · 0 failures` (9m03s). 워크플로에 `tests_only` 스위치를 더해 **배포 없이** 게이트만 돌렸다.
-> **원인 C(러너 자원)는 발현하지 않았다** — 25분 타임아웃은 원인 A 가 살아 있던 상태의 측정이었다.
-> ✅ **게이트 복구 완료** — 4회 연속 초록(`181/0`, 실행분 편차 10초)을 근거로 `skip_tests` 우회를 제거했다.
-> 이제 배포는 테스트를 실제로 통과해야 한다. `tests_only` 는 배포 없이 게이트만 보는 용도로 남겼다.
-> [정본](docs/backlog/test-suite-not-portable-to-ci.md)
+> 2026-08-31 세션에서 닫힌 것(AMI 필터·호스트 OS 패치·홈 스크립트 정리·CI 테스트 게이트)은
+> **아래 Done 표와 각 백로그 파일**에 있다 — 과정은 여기 옮겨 적지 않는다.
 
 ---
 
@@ -49,7 +23,7 @@
 | 서비스 | 🟢 라이브 — https://www.my-math-teacher.com |
 | 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
 | 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
-| 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
+| 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command (**테스트 게이트 활성** — 배포는 전 스위트 통과가 전제) |
 | ⚠️ 알려진 구멍 | SSH 인그레스가 내 IP 고정 · 패치 알림이 호스트 motd 안에만 머문다(사용자에게 닿는 경로 미배선) |
 
 ---
@@ -100,7 +74,6 @@
   [스테일 큐 첫 탭 403](docs/backlog/m7-stale-queue-403-first-tap.md) ·
   [완주 세션 재프리뷰](docs/backlog/m7-result-completed-session-repreview.md) ·
   [홈 완료 배너 재진단](docs/backlog/m7-home-completed-banner-rediagnosis-cta.md) ·
-  [적응 순회 문항 선택](docs/backlog/m7-adaptive-traversal-question-selection.md) ·
   [카피 방향](docs/backlog/m7-copy-direction-highschool-persona.md)(열린 결정, 현행 유지)
 - **데이터·백엔드** — [지식그래프 상호 선수 사이클 26쌍](docs/backlog/knowledge-space-mutual-prerequisite-cycles.md) ·
   로컬 DB 초기화 시드 정본 부재 · 샘플 진단 depth-0 행 누락 · `RedisUtil` value serializer 격리 ·
@@ -120,7 +93,9 @@
 | | 무엇 | 결과 |
 |---|---|---|
 | **[Ops]** 2026-08-31 | RDS MySQL 8.0 → 8.4 업그레이드 | Extended Support 과금 종료 — 8월 gross **$146.77**(전체 usage 의 72.7%, 만근 $175/월). 크레딧 소진으로 9월부터 전액 카드 청구였다. 다운타임 ~6분 ([백로그](docs/backlog/rds-mysql-8-0-extended-support-billing.md)) |
-| **[Infra]** 2026-08-31 | 테스트 CI 이식성 | 전 스위트가 CI 에서 처음 초록(`181/0`, 4회 연속). `skip_tests` 우회 제거로 배포 게이트 복구 ([#61](https://github.com/data-sy/my-math-teacher/pull/61)) |
+| **[Infra]** 2026-08-31 | 테스트 CI 이식성 | 전 스위트가 CI 에서 처음 초록(`181/0`, 4회 연속). `skip_tests` 우회 제거로 **배포 게이트 복구** ([#59](https://github.com/data-sy/my-math-teacher/pull/59)·[#61](https://github.com/data-sy/my-math-teacher/pull/61)·[#62](https://github.com/data-sy/my-math-teacher/pull/62)) |
+| **[Infra]** 2026-08-31 | AMI 필터 지뢰 + 호스트 OS 패치 | `terraform plan` 이 `0 to destroy` 로 복귀(AMI `ignore_changes` 고정) · releasever 핀 해제 후 11건 적용·재부팅, `dnf-automatic` 감지 전용 ([AMI](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md) · [패치](docs/backlog/host-os-patching-al2023-releasever-pin.md)) |
+| **[Ops]** 2026-08-31 | 홈(`~/`) 일회성 스크립트 정리 | 16개 → 1개(`mmt-aws-session.sh`). 아카이브에 묻혀 있던 프론트 배포 스크립트가 실은 매 배포 사용분이라 [`docs/handoff/scripts/deploy-front.sh`](docs/handoff/scripts/deploy-front.sh) 로 승격 |
 | **[M8]** 2026-08-15 | 개념 학습자료 링크 1차 | `concept_links` + 파일럿 10개념 26링크 라이브 ([#54](https://github.com/data-sy/my-math-teacher/pull/54)) — 2차 시드는 Now |
 | **[M7]** 2026-08-06 | 자가진단 피벗 + React 재작성 | 프로덕션 프론트를 `mmt-front:2.0.2` 로 스왑 ([ADR-0011](docs/adr/0011-react-web-v2-and-front-image-swap.md)) |
 | **[M6]** 2026-07-11 | 프로덕션 상시 배포 | 이력서용 라이브 링크 + TLS + OAuth 3사 + 예산 알람 ([#47](https://github.com/data-sy/my-math-teacher/pull/47)) |
