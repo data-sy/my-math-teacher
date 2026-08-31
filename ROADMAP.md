@@ -11,11 +11,22 @@
 > AMI 는 `ignore_changes` 로 고정됐다 — 올릴 때는 사람이 의도적으로 교체한다.
 > 이건 **보안 패치를 잃은 게 아니다**: terraform 에서 AMI 가 바뀌면 in-place 패치가 아니라
 > 인스턴스 교체였고, 자동 apply 도 없어 애초에 자가 패치 경로가 아니었다.
-> ⚠️ 대신 **진짜 구멍이 따로 드러났다** → [호스트 OS 패치](docs/backlog/host-os-patching-al2023-releasever-pin.md)
+>
+> ✅ **[호스트 OS 패치](docs/backlog/host-os-patching-al2023-releasever-pin.md)도 같은 세션에서 해결**했다.
+> AMI 고정을 따지다 진짜 구멍이 드러났다 — AL2023 이 releasever 를 AMI 스냅샷에 고정해
+> `dnf check-update` 가 26일째 무패치인 호스트에 0건을 보고하고 있었다(거짓 계기판).
+> 핀을 풀고 11건 적용 + 재부팅했고, `dnf-automatic` 을 감지 전용으로 걸었다.
+> ⚠️ **적용은 여전히 사람 몫이고, 알림이 호스트 motd 안에만 머문다** — 대기 항목을
+> 알려면 호스트에 들어가야 한다. "내가 안다"까지의 배선은 남아 있다.
 >
 > **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
 > ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
 > **사용자와 대화로 정한 뒤** 착수한다. 혼자 판단해 파일을 옮기지 말 것.
+>
+> **보안 위생 1건 — [`🤖-시크릿-위생-로테이션.md`](🤖-시크릿-위생-로테이션.md)** (루트)
+> public main 에 로컬 DB 자격증명이 평문으로 있다(2026-07-11부터). 프로덕션은 무사 —
+> 실피해는 로컬 컨테이너뿐이라 **차단 요소가 아니다.** 세션 단위가 작고(🤖 몫 2건 + 👤 몫 2건)
+> 독립적이라 위 두 건 사이에 끼워 넣어도 된다. 정본 = [백로그](docs/backlog/secret-hygiene-public-runbook-and-session-logs.md)
 >
 > **이어서 가능 — CI 이식성 잔여**(테스트 4개 클래스). 선행 조건 = 3306·6379 를 다른 도커 스택이
 > 비워야 검증이 된다. 절차·결정거리 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
@@ -30,7 +41,7 @@
 | 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
 | 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
 | 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
-| ⚠️ 알려진 구멍 | **호스트가 OS 보안 패치를 받지 않는다 — AL2023 releasever 가 AMI 스냅샷에 고정(실측 2026-08-31, 11건 대기)** · CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 |
+| ⚠️ 알려진 구멍 | CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 · 패치 알림이 호스트 motd 안에만 머문다(사용자에게 닿는 경로 미배선) |
 
 ---
 
@@ -49,6 +60,16 @@
     학생일수록 카드가 초등으로 내려가 링크를 못 받는다) ② 링크 생존 점검 재설계
     ([HTTP 200 이 위장 green](docs/backlog/concept-links-liveness-check-false-green.md)) ③ 카드 근거 문구를 후수 개념명으로
   - ⚠️ **승인 대기:** ①②는 spec-03 수정을 동반한다(규범 문서 = 승인 후 반영)
+
+- **[보안 위생] public 노출 자격증명 + 세션 로그 시크릿 로테이션** — ⬜ **미착수.** 🟡 위생 수준
+  - GitGuardian 8/29 알림(**오탐**) 검증차 공개 레포 10개를 전 히스토리 스캔하다 **별건**으로 나왔다.
+  - `first-deploy-runbook.md:44` 가 **로컬 MySQL 자격증명을 평문으로 public main 에** 두고 있다
+    (커밋 `c33fa60`, 2026-07-11). **프로덕션 RDS 는 무사** — 비번은 `tfvars`(커밋 0)에만 있고 SG 가 IP 핀이다.
+  - 조사 중 마스킹 정규식이 두 번 뚫려 **redis 비번·위 값이 세션 로그에 평문으로 남았다**(커밋 0, 로컬+API 한정).
+    → 교훈: 값 형태를 예상해 마스킹하지 말고 `grep -c`·길이·해시로만 확인한다.
+  - 정본: [백로그](docs/backlog/secret-hygiene-public-runbook-and-session-logs.md) ·
+    실행 프롬프트: [`🤖-시크릿-위생-로테이션.md`](🤖-시크릿-위생-로테이션.md)
+  - 🤖 몫 = 런북 44행 실값 제거·트랜스크립트 스크럽 / 👤 몫 = 로컬 MySQL·redis 비번 로테이션(박스 접근)
 
 - **[M5] 관측성 — Grafana/Prometheus 재계측** — ⬜ **파킹.** 브랜치만 있고 spec 미작성.
   M4 무중단은 이미 로그로 증명됐으므로 **차단 요소가 아니다**(관측성 학습 목적).
@@ -72,7 +93,6 @@
 
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
-| 🔴 호스트 OS 패치 부재 | `dnf check-update` 가 0건이라 안전해 보이지만 releasever 가 AMI 스냅샷에 고정된 거짓 0. `--releasever=latest` 로는 11건(openssh·kernel·docker) 대기 | [파일](docs/backlog/host-os-patching-al2023-releasever-pin.md) |
 | 🟡 테스트 CI 이식성 | 전 스위트가 CI 에서 성공한 적이 없다. **원인 A·B 해결, C 미착수** — 프로파일 미지정 4개 클래스도 남음 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
