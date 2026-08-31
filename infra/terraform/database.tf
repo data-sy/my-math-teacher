@@ -30,7 +30,14 @@ resource "aws_db_instance" "app" {
 
   multi_az            = false # Single-AZ (§9.3)
   skip_final_snapshot = true  # 학습/일회성 — 삭제 시 스냅샷 강제 안 함
-  publicly_accessible = false # 앱(EC2)에서만 접근, 공인 노출 안 함
+
+  # 자동 백업 7일(2026-08-31). 그 전까지 retention=0 이라 **PITR 이 아예 없었고**
+  # 복원점은 수동 스냅샷뿐이었다. 실사용 2.5GB 는 할당 20GB 무료 백업 한도 안이라 비용 ~$0
+  # (실단가 $0.095/GB-월). ⚠️ 이 값을 0 으로 되돌리면 RDS 가 인스턴스를 재시작한다(0↔비영 전환).
+  # 백업 창은 03:00-03:30 KST(=18:00 UTC) — 구 22:09 KST 는 서비스 활성 시간대였다.
+  backup_retention_period = 7
+  backup_window           = "18:00-18:30"
+  publicly_accessible     = false # 앱(EC2)에서만 접근, 공인 노출 안 함
 
   # app SG 출발지로만 3306 을 여는 전용 db SG(아래)만 사용. 공인/기본SG 노출 안 함.
   vpc_security_group_ids = [aws_security_group.db.id]
