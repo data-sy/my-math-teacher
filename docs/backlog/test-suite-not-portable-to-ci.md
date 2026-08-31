@@ -1,7 +1,7 @@
 # [Infra/Test] 테스트 스위트가 CI 에서 못 돈다 — `skip_tests` 우회가 상수가 된 진짜 이유
 
-- **상태:** 🟢 **CI 전 스위트 초록 달성** (2026-08-31, run [33372615775](https://github.com/data-sy/my-math-teacher/actions/runs/33372615775) — `181 tests, 0 failures`).
-  남은 것은 `skip_tests` 가드 제거 여부(결정) 하나
+- **상태:** ✅ **종결 (2026-08-31)** — CI 전 스위트 초록 4회 연속(`181 tests, 0 failures`) 후
+  `skip_tests` 우회를 제거해 **배포 게이트를 복구**했다. 잔여 없음(아래 §종결)
 - **갱신:** 2026-08-31 — 원인 A 사각지대까지 해소(`162054c`, 브랜치 `fix/ci-test-profile-include`) · 로컬 전 스위트 `181/0`.
   ⚠️ **실제 CI 초록은 아직 미증명** — 로컬에서 CI 조건을 재현한 것까지다. 아래 §남은 것
 - **등록:** 2026-08-15 (M8 배포 시도 중 두 번 연속 CI 실패로 확정)
@@ -138,18 +138,28 @@ deploy          ⏭ skipped  ← build-and-push 를 needs
 9분에 끝났다. 즉 **C 를 별도 원인으로 상정할 근거가 약해졌다.** 1회 관측이라 flaky 가능성은 남는다 —
 특히 성능 회귀 테스트는 러너 성능에 민감하고, 워크플로 주석도 `skip_tests` 도입 사유로 "perf flaky"를 적어뒀다.
 
-### ▶ 다음 세션은 여기서부터
+### ▶ 종결 — `skip_tests` 제거 (2026-08-31)
 
 **선행 조건(환경):** 3306·6379 를 다른 도커 스택이 잡고 있으면 검증이 불가능하다.
 `docker ps` 로 확인하고 남의 스택이면 `docker compose stop`(데이터 보존) 후 MMT 인프라를 띄운다 —
 `CLAUDE.local.md` 참조. **2026-08-26 세션은 이 조건이 안 맞아 여기서 멈췄다.**
 
-**남은 것은 결정 하나다: `skip_tests` input 과 `if: ${{ !inputs.skip_tests }}` 가드를 제거할 것인가.**
-제거하면 워크플로 주석이 원래 약속한 상태로 돌아가고, 배포가 테스트 게이트를 실제로 통과해야 한다.
-대신 flaky 한 테스트 하나가 배포를 막는다.
+흔들림을 먼저 실측했다 — `tests_only=true` 로 4회(1회 + 병렬 3회):
 
-- **흔들림을 먼저 재고 싶으면** `tests_only=true` 로 2~3회 더 돌린다 — 배포 영향 0, 회당 ~9분
-- 제거하더라도 `tests_only` 는 남긴다 — 배포 없이 게이트만 보는 용도로 계속 쓸모가 있다
+| run | job 시간 | 테스트 |
+|---|---|---|
+| [33372615775](https://github.com/data-sy/my-math-teacher/actions/runs/33372615775) | 9m03s | `181 · 0 fail · 0 ignored` (2m10.32s) |
+| [33374492956](https://github.com/data-sy/my-math-teacher/actions/runs/33374492956) | 7m09s | `181 · 0 fail · 0 ignored` (2m03.10s) |
+| [33374495386](https://github.com/data-sy/my-math-teacher/actions/runs/33374495386) | 8m33s | `181 · 0 fail · 0 ignored` (2m11.08s) |
+| [33374498369](https://github.com/data-sy/my-math-teacher/actions/runs/33374498369) | 6m58s | `181 · 0 fail · 0 ignored` (2m13.45s) |
+
+**테스트 실행분 편차는 10초**(2m03~2m13) — 걱정했던 성능 회귀 테스트의 러너 민감성은 나타나지 않았다.
+job 총시간의 2분 편차는 테스트가 아니라 앞단(체크아웃·JDK·의존성·이미지 pull)이고 20분 상한까지 여유가 크다.
+
+그래서 `skip_tests` input 과 `if` 가드를 제거했다. **이제 배포는 테스트를 실제로 통과해야 한다.**
+`tests_only` 는 남겼다 — 배포 없이 게이트만 보는 용도.
+
+- 되돌리는 비용은 낮다(input 재추가 1커밋). flaky 가 나타나면 그때 대응한다
 - ⚠️ dispatch 는 **원격 ref** 를 돈다. 워크플로를 고쳤으면 push 후 그 브랜치를 `--ref` 로 지정한다
 
 **검증 방법(로컬 재현):** `application-securelocal.yml` 을 치워 CI 조건을 만들고 **고치기 전에
@@ -178,7 +188,7 @@ deploy          ⏭ skipped  ← build-and-push 를 needs
    2026-08-31 프로파일 미지정 2개 클래스(`162054c`, 위 §남은 것 표)
 2. ~~**원인 C** — 컨테이너 재사용/싱글톤으로 러너 자원 압박 완화~~
    → 2026-08-31 CI 실측에서 **발현하지 않았다**(9분 완주, 위 §CI 실측). 미착수로 두되 차단 요소가 아니다
-3. `skip_tests` input 과 `if: ${{ !inputs.skip_tests }}` 가드를 **제거** — 남은 결정(위 §다음 세션)
+3. ~~`skip_tests` input 과 `if: ${{ !inputs.skip_tests }}` 가드를 **제거**~~ → ✅ 2026-08-31 완료(위 §종결)
 4. 그 전까지 배포는 `skip_tests=true` + **로컬 전 스위트 실측**을 근거로 한다(현행)
 
 ## 현재 우회의 위험

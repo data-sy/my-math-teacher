@@ -36,8 +36,9 @@
 > ✅ **그리고 CI 에서도 초록이다 (2026-08-31)** — run [33372615775](https://github.com/data-sy/my-math-teacher/actions/runs/33372615775)
 > `181 tests · 0 failures` (9m03s). 워크플로에 `tests_only` 스위치를 더해 **배포 없이** 게이트만 돌렸다.
 > **원인 C(러너 자원)는 발현하지 않았다** — 25분 타임아웃은 원인 A 가 살아 있던 상태의 측정이었다.
-> 🚧 **남은 것은 결정 하나** = `skip_tests` 가드를 제거할지(제거하면 배포가 게이트를 실제로 통과해야 한다).
-> [정본](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
+> ✅ **게이트 복구 완료** — 4회 연속 초록(`181/0`, 실행분 편차 10초)을 근거로 `skip_tests` 우회를 제거했다.
+> 이제 배포는 테스트를 실제로 통과해야 한다. `tests_only` 는 배포 없이 게이트만 보는 용도로 남겼다.
+> [정본](docs/backlog/test-suite-not-portable-to-ci.md)
 
 ---
 
@@ -49,7 +50,7 @@
 | 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
 | 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
 | 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
-| ⚠️ 알려진 구멍 | CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 · 패치 알림이 호스트 motd 안에만 머문다(사용자에게 닿는 경로 미배선) |
+| ⚠️ 알려진 구멍 | SSH 인그레스가 내 IP 고정 · 패치 알림이 호스트 motd 안에만 머문다(사용자에게 닿는 경로 미배선) |
 
 ---
 
@@ -91,7 +92,6 @@
 
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
-| 🟢 테스트 CI 이식성 | **CI 전 스위트 초록 달성** (`181/0`, run 33372615775). 남은 것은 `skip_tests` 가드 제거 여부 결정뿐 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
 ### 그 외
@@ -120,6 +120,7 @@
 | | 무엇 | 결과 |
 |---|---|---|
 | **[Ops]** 2026-08-31 | RDS MySQL 8.0 → 8.4 업그레이드 | Extended Support 과금 종료 — 8월 gross **$146.77**(전체 usage 의 72.7%, 만근 $175/월). 크레딧 소진으로 9월부터 전액 카드 청구였다. 다운타임 ~6분 ([백로그](docs/backlog/rds-mysql-8-0-extended-support-billing.md)) |
+| **[Infra]** 2026-08-31 | 테스트 CI 이식성 | 전 스위트가 CI 에서 처음 초록(`181/0`, 4회 연속). `skip_tests` 우회 제거로 배포 게이트 복구 ([#61](https://github.com/data-sy/my-math-teacher/pull/61)) |
 | **[M8]** 2026-08-15 | 개념 학습자료 링크 1차 | `concept_links` + 파일럿 10개념 26링크 라이브 ([#54](https://github.com/data-sy/my-math-teacher/pull/54)) — 2차 시드는 Now |
 | **[M7]** 2026-08-06 | 자가진단 피벗 + React 재작성 | 프로덕션 프론트를 `mmt-front:2.0.2` 로 스왑 ([ADR-0011](docs/adr/0011-react-web-v2-and-front-image-swap.md)) |
 | **[M6]** 2026-07-11 | 프로덕션 상시 배포 | 이력서용 라이브 링크 + TLS + OAuth 3사 + 예산 알람 ([#47](https://github.com/data-sy/my-math-teacher/pull/47)) |
