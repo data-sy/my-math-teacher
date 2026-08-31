@@ -9,13 +9,20 @@
 
 # AL2023 AMI 조회(data source = plan 시점 read, R-T2 → LocalStack 엣지로).
 # Phase B(real)에서는 실제 최신 AL2023 을 조회. most_recent 로 갱신 추종.
+#
+# ⚠️ 필터에 "2023." 을 박은 이유(백로그 D1): "al2023-ami-*-x86_64" 는 표준 이미지 외에
+# al2023-ami-minimal-* / al2023-ami-ecs-hvm-* / al2023-ami-ecs-neuron-hvm-* 까지 매칭한다
+# (2026-08-31 describe-images 로 4계열 확인). minimal 과 ECS 변형은 용도가 다르고,
+# minimal 에는 SSM 에이전트가 없어 ADR 0008 의 CD 채널이 죽는다 — 2026-08-05 재런치가
+# 실제로 minimal 을 집었다. 표준 이미지 이름만 "al2023-ami-2023.<날짜>-kernel-*-x86_64"
+# 형태라 "2023." 을 붙이면 변형이 전부 배제된다.
 data "aws_ami" "al2023" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-x86_64"]
   }
 }
 
