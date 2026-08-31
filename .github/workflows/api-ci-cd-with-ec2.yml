@@ -6,19 +6,9 @@ on:
   # 필요 시 GitHub UI 의 "Run workflow" 버튼으로 수동 실행 가능.
   workflow_dispatch:
     inputs:
-      # M4 spec-01 §4: 임시 게이트 우회. 이 워크플로는 M2 이후 dormant 였고
-      # ./gradlew test 전수가 CI 에서 처음 도는데, 선재 테스트/CI 비호환
-      # (test 프로파일 placeholder·ApiApplicationTests·perf flaky)로 첫 배포가 막힌다.
-      # 무중단 배포 §4 측정을 먼저 끝내기 위해 test 게이트만 한시적으로 스킵한다.
-      # ⚠️ 측정·destroy 후 되돌린다(이 input + 아래 if 가드 제거). test 의 CI-호환은 후속.
-      skip_tests:
-        description: 'Skip the test gate (M4 §4 measurement bypass — revert after)'
-        type: boolean
-        default: false
-      # 테스트 게이트만 돌리고 배포는 안 나가게 하는 스위치. 원인 C(러너 자원)를 고치는 동안
-      # CI 신호를 반복해서 봐야 하는데, 이 워크플로는 test 가 초록이면 build→deploy 까지
-      # 이어져 프로덕션 blue-green 전환이 딸려 나온다. 정본: docs/backlog/test-suite-not-portable-to-ci.md
-      # skip_tests 와 함께 켜면 아무 job 도 돌지 않는다(의미 없는 조합).
+      # 테스트 게이트만 돌리고 배포는 안 나가게 하는 스위치. test 가 초록이면 build→deploy 로
+      # 이어져 프로덕션 blue-green 전환이 딸려 나오므로, 게이트 신호만 보고 싶을 때 쓴다.
+      # 정본: docs/backlog/test-suite-not-portable-to-ci.md
       tests_only:
         description: 'Run the test gate only (no build/deploy)'
         type: boolean
@@ -26,8 +16,9 @@ on:
 
 jobs:
   test:
-    # skip_tests=false(기본)면 게이트 정상 작동 — 실패 시 아래 build 가 스킵된다.
-    if: ${{ !inputs.skip_tests }}
+    # 게이트는 항상 돈다. 실패하면 아래 build 가 스킵되어 배포가 막힌다.
+    # (2026-08-15~08-31 존재하던 skip_tests 우회는 제거됐다 — 도입 사유였던 원인 A·B·C 가
+    #  전부 해소되고 전 스위트가 CI 에서 4회 연속 초록이었다. 정본: 위 백로그)
     runs-on: ubuntu-latest
     # 러너가 죽을 때까지 매달리지 않게 상한을 둔다. 2026-08-15 run 31879698138 은
     # Redis 부재로 57분간 행 → 로그 업로드도 못 하고 실패해 원인 파악이 어려웠다.
@@ -37,12 +28,11 @@ jobs:
     # RedisUtilTest·ConceptServiceCacheTest 등 8개가 로컬 localhost:6379 를 그냥 쓴다
     # (자체 GenericContainer 를 띄우는 건 RedisCrossInstanceSerializerTest·
     #  RefreshTokenRotationIntegrationTest 2개뿐). 로컬에선 mmt-redis 가 그 자리에 있어
-    # 통과하지만 러너엔 없어서 Lettuce 가 무한정 매달린다 — 그래서 이 스위트는 지금껏
-    # CI 에서 돈 적이 없고 skip_tests 우회가 상수처럼 쓰였다.
+    # 통과하지만 러너엔 없어서 Lettuce 가 무한정 매달린다 — 2026-08-15 의 57분 행이 그것이다.
     #
     # test 프로파일은 비밀번호 없는 기본값(localhost:6379)을 기대한다:
     # application.yml 의 redis 설정은 `on-profile: secure` 문서 안이라 테스트에서 미로드이고,
-    # `include: securelocal` 은 CI 에 그 파일이 없어(gitignore) no-op 이다.
+    # securelocal 은 `spring.profiles.default` 라 @ActiveProfiles("test") 면 아예 안 걸린다.
     # → 인증 없는 평범한 redis 로 충분. 근본 해법(Testcontainers Redis @ServiceConnection)은
     #   Spring Boot 3.2+ 의존이라 백로그.
     services:
@@ -74,10 +64,9 @@ jobs:
 
   build-and-push:
     needs: test
-    # test 가 성공했거나(게이트 통과) skip_tests 로 스킵됐을 때만 진행.
-    # test 가 실제로 실패하면(result==failure) 여기서 멈춰 게이트가 유지된다.
-    # tests_only 면 초록이어도 여기서 멈춘다 — deploy 는 이 job 을 needs 하므로 함께 스킵된다.
-    if: ${{ always() && !inputs.tests_only && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    # test 가 실패하면 needs 로 여기서 멈춘다 — 그것이 게이트다.
+    # tests_only 면 초록이어도 멈춘다 — deploy 는 이 job 을 needs 하므로 함께 스킵된다.
+    if: ${{ !inputs.tests_only }}
     runs-on: ubuntu-latest
     # 가장 최신의 Ubuntu 러너를 사용합니다.
 
