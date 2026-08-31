@@ -5,11 +5,10 @@
 
 > ## ▶ 다음 세션은 여기서 시작 (2026-08-31 갱신)
 >
-> 🔴 **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md)가 실측으로 확인됐다.**
-> 지금 `terraform apply`(전체)를 돌리면 **프로덕션 EC2 와 EIP 연결이 교체된다**
-> (`Plan: 2 to add, 0 to change, 2 to destroy`). 다음 인프라 변경의 **선행조건**이다.
-> **착수 프롬프트 = [`🤖-다음세션-AMI필터-지뢰-제거.md`](🤖-다음세션-AMI필터-지뢰-제거.md)** (그대로 읽히면 된다).
-> ⚠️ D2(`ignore_changes`)는 트레이드오프다 — 혼자 정하지 말고 사용자와 합의 후 착수.
+> ✅ **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md) 제거 완료** (D2·D3·D1,
+> 커밋 `64bb710`·`b067cca`·`1cee5e7`). `terraform plan` 이 `0 to destroy` 로 떨어졌다 —
+> 전체 apply 가 다시 안전하다. AWS apply 는 불요했다(전부 plan-time/create-time 변경).
+> 대가로 **AMI 가 `ignore_changes` 로 고정**됐다 — 올릴 때는 사람이 의도적으로 교체한다.
 >
 > **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
 > ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
@@ -28,7 +27,7 @@
 | 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
 | 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
 | 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
-| ⚠️ 알려진 구멍 | **AMI 필터 지뢰 — 전체 `terraform apply` 가 프로덕션 EC2 를 교체한다(실측 2026-08-31)** · CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 |
+| ⚠️ 알려진 구멍 | CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 · AMI 가 `ignore_changes` 로 고정돼 보안 업데이트는 수동 |
 
 ---
 
@@ -71,7 +70,6 @@
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
 | 🟡 테스트 CI 이식성 | 전 스위트가 CI 에서 성공한 적이 없다. **원인 A·B 해결, C 미착수** — 프로파일 미지정 4개 클래스도 남음 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
-| AMI 필터 지뢰 | `al2023-ami-*` 가 minimal 을 집어 SSM 부재. **`most_recent=true` + `lifecycle` 부재라 전체 apply 가 프로덕션 EC2 를 교체할 수 있다** | [파일](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
 ### 그 외
