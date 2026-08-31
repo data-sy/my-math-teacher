@@ -1,7 +1,8 @@
 # [Infra/Test] 테스트 스위트가 CI 에서 못 돈다 — `skip_tests` 우회가 상수가 된 진짜 이유
 
-- **상태:** 🟡 부분 해소 — **원인 A·B 해결, C 미착수** · 비차단(배포는 `skip_tests=true` 로 가능)
-- **갱신:** 2026-08-26 — 원인 A 수정(`222c8d9`, 브랜치 `fix/ci-test-profile-include`). ⚠️ **CI 전체 초록은 아직 아니다** — 아래 §남은 것
+- **상태:** 🟡 부분 해소 — **원인 A·B 해결(사각지대 포함), C 미착수** · 비차단(배포는 `skip_tests=true` 로 가능)
+- **갱신:** 2026-08-31 — 원인 A 사각지대까지 해소(`162054c`, 브랜치 `fix/ci-test-profile-include`) · 로컬 전 스위트 `181/0`.
+  ⚠️ **실제 CI 초록은 아직 미증명** — 로컬에서 CI 조건을 재현한 것까지다. 아래 §남은 것
 - **등록:** 2026-08-15 (M8 배포 시도 중 두 번 연속 CI 실패로 확정)
 - **관련:** [프로파일·로깅 위생 정리](../../ROADMAP.md) `Later` 항목(이것이 원인 A 의 본체) · Testcontainers Redis `@ServiceConnection`(Spring Boot 3.2+ 의존)
 
@@ -85,25 +86,37 @@ ContainerLaunchException → RetryCountExceededException
 러너 자원(디스크·메모리)에 부딪힌 것으로 보인다. **컨테이너 재사용**(`withReuse`·싱글톤 패턴)이나
 클래스별 컨텍스트 캐싱 정비가 후보. 로컬에선 자원이 넉넉해 드러나지 않는다.
 
-## 남은 것 — 왜 아직 CI 전체 초록이 아닌가 (2026-08-26)
+## 남은 것 — 왜 아직 CI 전체 초록이 아닌가 (2026-08-31)
 
-원인 A 를 고치는 과정에서 **A 의 사각지대**가 드러났다. 고친 것은 `@ActiveProfiles("test")` 를
-붙인 클래스뿐이고, **프로파일을 아예 안 붙인 4개 클래스**는 여전히 주변 환경에 의존한다:
+**원인 A 는 사각지대까지 닫혔다. 남은 것은 원인 C(러너 자원) 하나**이고, 그래서 아직 `skip_tests` 를 못 뗀다.
 
-| 클래스 | 활성 프로파일 | 의존 |
+2026-08-26 에 "프로파일 미지정 4개 클래스"로 적어둔 목록을 CI 조건 재현으로 실측하니
+**실제로 손댈 대상은 2개**였다:
+
+| 클래스 | CI 조건 재현 (2026-08-31) | 처리 |
 |---|---|---|
-| `ApiApplicationTests` | (없음) → `default`=securelocal | 실 MySQL·Redis |
-| `RedisUtilTest` | (없음) | 실 Redis |
-| `ConceptServiceTest` | (없음) | — (로컬 통과) |
-| `RedisCrossInstanceSerializerTest` | (없음) | 자체 `GenericContainer` |
+| `ApiApplicationTests` | ❌ `DataSourceBeanCreationException` | ✅ `@ActiveProfiles("test")` + MySQL-only 컨테이너 |
+| `RedisUtilTest` | ❌ 같은 원인 | ✅ 동일 |
+| `ConceptServiceTest` | — 실행 자체가 없음 | 대상 아님 — 테스트 메서드 없는 의도적 빈 클래스(M1 defer 기록용) |
+| `RedisCrossInstanceSerializerTest` | ✅ 통과 | 대상 아님 — 자체 `GenericContainer` |
 
-CI 에는 securelocal 파일이 없으므로 이 4개에 대해서는 **수정 전후가 동일**하다(개선도 악화도 아님).
-`@ActiveProfiles("test")` 를 붙이면 원인 A 와 같은 방식으로 풀리지만, `ApiApplicationTests` 는
-Testcontainers 를 어떤 조합으로 물릴지(전체 / MySQL-only) 결정이 필요해 **여기서 멈췄다** — 테스트 설계 판단이다.
+> 함께 확인: `HealthControllerTest` · `AuthControllerReissueTest` 도 프로파일이 없지만 CI 조건에서
+> 통과한다(전체 컨텍스트를 안 띄운다). 즉 "프로파일 미지정" 자체가 아니라 **전체 컨텍스트 기동 여부**가 갈림선이다.
 
-> ⚠️ **원인 B 의 "실패 목록에서 사라졌다"와 위 표는 서로 안 맞는다.** `RedisUtilTest` 는 프로파일이
-> 없어 `${spring.redis.host}` 를 채울 소스가 CI 에 없는데, run 2 로그에서는 실패 목록에 없었다고 기록돼 있다.
-> 둘 중 하나가 틀렸다 — **다음에 CI 를 실제로 돌려 로그로 확정할 것.** 추정으로 메우지 말 것.
+**실패 원인은 플레이스홀더가 아니라 DataSource 부재였다.** 최초 진단(`${...}` 미해결)은
+`profiles.default` 전환으로 이미 해소됐고, 남아 있던 두 클래스는 그 다음 층에서 죽었다 —
+`test` 프로파일을 안 쓰니 Testcontainers 도 안 물려 datasource 자체가 없었다.
+
+**`ApiApplicationTests` 의 열린 결정은 `MySqlOnlyTestcontainersConfig` 로 닫혔다**(2026-08-31, 사용자 승인).
+근거: 프로덕션이 M2 이후 CTE-only + 더미 `GDB_*` 로 뜨므로 **실 Neo4j 를 띄운 형상은 어디에도 없다.**
+Neo4j 리포지토리·드라이버 빈은 이 구성에서도 배선되므로(lazy connect) 배선 보증은 유지되고, 잃는 것은
+*실제 접속* 하나인데 그건 프로덕션도 하지 않는다. 접속 부재 상태의 기동 무결성은
+`Neo4jAbsentBootSmokeTest`(M4 spec-01 R1)가 플래그 ON 쪽에서 이미 지킨다. 러너 자원(원인 C)에도
+유리하고 M3 폐기 방향과도 정합이다.
+
+> ⚠️ **원인 B 기록과의 불일치는 아직 안 닫혔다.** run 2 로그에는 `RedisUtilTest` 가 실패 목록에
+> 없었다고 적혀 있는데, 2026-08-31 로컬 CI-조건 재현에서는 **실패했다**(DataSource 부재).
+> 로컬 재현이 CI 를 대신하지는 못한다 — **실제 CI 로그로 확정할 것.** 추정으로 메우지 말 것.
 
 ### ▶ 다음 세션은 여기서부터
 
@@ -111,21 +124,30 @@ Testcontainers 를 어떤 조합으로 물릴지(전체 / MySQL-only) 결정이 
 `docker ps` 로 확인하고 남의 스택이면 `docker compose stop`(데이터 보존) 후 MMT 인프라를 띄운다 —
 `CLAUDE.local.md` 참조. **2026-08-26 세션은 이 조건이 안 맞아 여기서 멈췄다.**
 
-**할 일:** 위 표의 4개 클래스에 `@ActiveProfiles("test")` 를 붙여 원인 A 와 같은 방식으로 푼다.
-셋은 기계적이지만 **`ApiApplicationTests` 하나가 결정을 요구한다** — 이 클래스는 전체 컨텍스트를
-띄우므로 DB 가 필요한데, `TestcontainersConfig`(MySQL+Neo4j) 를 물릴지 `MySqlOnlyTestcontainersConfig`
-를 물릴지가 갈린다. Neo4j 는 M2 이후 미사용이라 안 띄우는 쪽이 러너 자원(=원인 C)에도 유리하지만,
-`contextLoads()` 가 Neo4j 빈까지 포함한 전체 배선을 보증하던 성격을 잃는다. **사용자와 정할 것.**
+**남은 것은 원인 C 하나다.** 원인 A 는 닫혔고(위 표) 로컬 전 스위트도 초록이다.
 
-**검증 방법:** 2026-08-26 과 동일하게 — `application-securelocal.yml` 을 잠시 치워 CI 조건을
-재현하고, **고치기 전에 먼저 실패를 확인**한 뒤 수정 후 green 을 본다(백업·md5 원복 확인 필수).
+**⚠️ 아직 증명 안 된 것:** 그 초록은 **로컬에서 CI 조건을 재현한 것**이지 실제 CI 실행이 아니다.
+러너 자원 압박은 로컬에서 재현되지 않는다 — 57분 행이 그 증거다.
 
-### 로컬 전 스위트의 현재 실측 (2026-08-26)
+**할 일 (순서)**
+1. **실제 CI 를 한 번 돌려 현재 위치를 확정한다** — `skip_tests=false` 로 dispatch,
+   `timeout-minutes` 유지(러너가 죽으면 로그가 안 남는다). 초록이면 원인 C 는 이미 해소됐을 수 있고,
+   붉으면 로그가 C 의 실체를 준다. ⚠️ 워크플로·브랜치 변경은 **push 후** 원격 ref 로 돈다
+2. 붉으면 컨테이너 재사용(`withReuse`·싱글톤)으로 자원 압박 완화
+3. 초록이면 `skip_tests` input 과 `if: ${{ !inputs.skip_tests }}` 가드를 제거
 
-`181 tests, 7 failed` — 실패 7건은 **선재 환경 문제이지 이 변경 탓이 아니다**(같은 환경에서
-main 을 돌려 동일 실패 확인). 근본 원인 = `Access denied for user 'mmt2024'` — 3306 을
-다른 도커 스택이 점유해 MMT MySQL 이 아니었다(`CLAUDE.local.md` 의 알려진 포트 충돌).
-**MMT 인프라를 띄운 상태의 전 스위트 초록은 아직 미실측.**
+**검증 방법(로컬 재현):** `application-securelocal.yml` 을 치워 CI 조건을 만들고 **고치기 전에
+실패를 먼저 확인**한 뒤 green 을 본다. 백업·md5 원복 확인 필수(스크립트가 `trap` 으로 항상 원복하게 짠다).
+로컬 redis 에 requirepass 가 걸려 있으면 `TEST_REDIS_PASSWORD` 로 넘긴다 — application-test.yml 이 설계한 경로다.
+
+### 로컬 전 스위트의 현재 실측 (2026-08-31)
+
+**`181 tests, 0 failed`** (42 클래스, `cleanTest` 강제, 3m44s) — **MMT 인프라를 띄운 상태의 첫 전 스위트 초록**이다.
+2026-08-26 의 `181 tests, 7 failed` 는 예고대로 환경 문제였다: 3306 을 다른 도커 스택이 점유해
+`Access denied for user 'mmt2024'` 가 났던 것이고, MMT MySQL 을 띄우니 사라졌다.
+
+> 전 스위트를 돌리면 `shared/benchmark/neo4j-snapshot-<날짜>.json` 의 `generated_at` 이 갱신된다(내용은 동일).
+> 커밋 전 `git status` 에서 걸러낼 것.
 
 ## 왜 지금까지 안 보였나
 
@@ -136,8 +158,8 @@ main 을 돌려 동일 실패 확인). 근본 원인 = `Access denied for user '
 ## 조치 (순서 있음)
 
 1. ~~**원인 A 먼저** — `include: securelocal` 을 `!test` 조건부로. 7개 클래스가 한 번에 풀린다~~
-   → ✅ **2026-08-26 완료**(`222c8d9`). 단 `!test` 조건부가 아니라 `profiles.default` 로 — 위 §원인 A 참조.
-   프로파일 미지정 4개 클래스는 미해결(§남은 것)
+   → ✅ **완료.** 2026-08-26 `profiles.default` 전환(`222c8d9`, `!test` 조건부가 아님 — 위 §원인 A) +
+   2026-08-31 프로파일 미지정 2개 클래스(`162054c`, 위 §남은 것 표)
 2. **원인 C** — 컨테이너 재사용/싱글톤으로 러너 자원 압박 완화
 3. 둘 다 되면 `skip_tests` input 과 `if: ${{ !inputs.skip_tests }}` 가드를 **제거** — 워크플로 주석이
    원래 약속한 상태로 되돌린다
