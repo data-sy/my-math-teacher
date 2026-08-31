@@ -49,6 +49,23 @@ locals {
     dnf install -y amazon-ssm-agent
     systemctl enable --now amazon-ssm-agent
 
+    # --- OS 패치 위생 (백로그 host-os-patching-al2023-releasever-pin) ---
+    # AL2023 은 releasever 를 AMI 빌드 스냅샷에 고정한다("deterministic upgrades").
+    # 그래서 가만두면 dnf check-update 가 영원히 0건을 보고하며 무패치로 늙는다 —
+    # 2026-08-31 에 러닝 호스트가 26일째 무패치인 채로 그 0건을 보고하고 있었다.
+    # 핀을 풀어 계기판이 진실을 말하게 하고, 최초 부팅 때 한 번 최신으로 맞춘다.
+    echo latest > /etc/dnf/vars/releasever
+    dnf -y update
+
+    # 감지는 자동, 적용은 사람(2026-08-31 결정). apply_updates = no 인 이유:
+    # 이 호스트의 보안 권고는 docker/containerd 로 몰리는데, 무인 적용은 컨테이너
+    # 런타임을 재시작해 예고 없는 전 서비스 중단을 만든다. 적용 창은 사람이 잡는다.
+    dnf install -y dnf-automatic
+    sed -i -e 's/^download_updates *=.*/download_updates = yes/' \
+           -e 's/^apply_updates *=.*/apply_updates = no/' \
+           -e 's/^emit_via *=.*/emit_via = motd,stdio/' /etc/dnf/automatic.conf
+    systemctl enable --now dnf-automatic.timer
+
     # --- Docker + compose v2 플러그인 (AL2023) ---
     dnf install -y docker
     systemctl enable --now docker
