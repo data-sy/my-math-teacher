@@ -84,7 +84,8 @@ docker ps  # redis·mmt-ai Up 확인
 
 ### Phase 2 — 백엔드 이미지 확보 (👤 트리거)
 
-정상 경로 = GH Actions `Backend CI CD with EC2` → **Run workflow**(`skip_tests=true`) → `build-and-push` 가 `mymathteacher/mmt-backend:<github.sha>` 를 push.
+정상 경로 = GH Actions `Backend CI CD with EC2` → **Run workflow**(입력 없음) → `test` 게이트 통과 후 `build-and-push` 가 `mmt2024/mmt-backend:<github.sha>` 를 push.
+> ⚠️ **2026-08-31 정정 (작성 시점과 달라진 것 2가지).** ⑴ `skip_tests` 입력은 **제거됐다** — 넘기면 `HTTP 422: Unexpected inputs provided` 로 dispatch 자체가 거부된다. 배포는 전 스위트(181) 통과가 전제이고, 배포 없이 게이트만 보려면 `tests_only=true`. 근거: [`test-suite-not-portable-to-ci`](../../backlog/test-suite-not-portable-to-ci.md). ⑵ 이미지 경로는 `mymathteacher/` 가 아니라 **`mmt2024/`**(개인 계정) — 아래 §실제 편차 1 과 같은 정정이다.
 ⚠️ 같은 워크플로의 `deploy` 잡이 SSM 으로 `switch-backend.sh` 를 부르지만, **아직 front 부재라 무해하게 실패**(nginx -t 단계에서 blue 자기정리 후 exit 1 — 부수효과 0). 목적은 **이미지 push 뿐**. push 된 `<sha>` 를 기록.
 - 사전 👤: 레포 변수 `COMPOSE_NET=mmt-net` 설정(미설정 시 GH Actions 기본 `ec2-user_default` 로 어긋남). Docker Hub `mymathteacher/mmt-backend` 가 private 면 박스 `docker login` 필요.
 

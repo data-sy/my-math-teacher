@@ -19,7 +19,7 @@
 - **텔레메트리** `infra/terraform/run-logs/2026-07-06T01-35-41Z/`. **큐레이션** = `docs/benchmark/milestone-4-run-report.md` "3차 재검증" 섹션.
 - **teardown**: 사용자 추가 ssh/scp allow 룰 2개 회수 완료.
 
-> **M4 종료.** ✅ PR #45 머지됨(main `4706398`). 남은 후속(비차단): ⓐ `skip_tests` input+가드 제거(측정 종료됨 → 착수 가능, 단 test CI-비호환 선결 필요) ⓑ CPU_LIMIT 값 튜닝(0.6/0.75) 재측정=선택. 둘 다 [roadmap] 참조.
+> **M4 종료.** ✅ PR #45 머지됨(main `4706398`). 남은 후속(비차단): ⓐ ~~`skip_tests` input+가드 제거~~ → ✅ **2026-08-31 완료**(PR [#62](https://github.com/data-sy/my-math-teacher/pull/62)) — 전제였던 test CI-비호환도 함께 해소(전 스위트가 CI 에서 `181/0`). 정본 [`test-suite-not-portable-to-ci`](../../backlog/test-suite-not-portable-to-ci.md) ⓑ CPU_LIMIT 값 튜닝(0.6/0.75) 재측정=선택. 둘 다 [roadmap] 참조.
 > **관측성 백로그(신설):** `docs/backlog/observability-grafana-prometheus-for-zero-downtime.md` — Grafana/Prometheus 로 무중단 컷오버 재계측(측정가능한 것 다 모으기: nginx/JVM/컨테이너 상관 + 복합인덱스 EXPLAIN 스크린샷). k6 web dashboard(구 A)는 여기 접힘. 인프라 사이클 1회 추가.
 > **시각 리포트 산출물:** `docs/benchmark/milestone-4-zero-downtime-report-{eng,ko}.html`(self-contained, Before 60.3%→After 0% + CPU 캡 경계 + ①② 검증).
 
