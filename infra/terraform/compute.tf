@@ -35,6 +35,13 @@ locals {
       echo '/swapfile none swap sw 0 0' >> /etc/fstab
     fi
 
+    # --- SSM 에이전트 보장 (백로그 D3) ---
+    # ADR 0008 의 CD 채널이 SSM Run Command 라 에이전트가 없으면 배포가 죽는다.
+    # AMI 필터가 표준 이미지를 집도록 조였지만(D1), 변형이 섞여 들어와도 살아남게
+    # user_data 에서 한 번 더 보장한다. 표준 이미지에서는 설치 완료 상태라 no-op.
+    dnf install -y amazon-ssm-agent
+    systemctl enable --now amazon-ssm-agent
+
     # --- Docker + compose v2 플러그인 (AL2023) ---
     dnf install -y docker
     systemctl enable --now docker
@@ -85,8 +92,15 @@ resource "aws_instance" "app" {
   # 전부 소멸시킨다 — 재런치 절차를 처음부터 밟아야 한다.
   # 대가: AMI 가 현재 값에 고정돼 보안 업데이트가 자동으로 따라오지 않는다.
   # AMI 를 올릴 때는 이 블록을 일시 제거하거나 taint 로 사람이 의도적으로 교체한다.
+  #
+  # user_data 를 함께 무시하는 이유(백로그 D3): provider 5.x 는 user_data 변경을
+  # 교체가 아닌 in-place 업데이트로 처리하는데, 그 구현이 stop → ModifyInstanceAttribute
+  # → start 라 상시 서비스에 다운타임이 생긴다. 게다가 cloud-init 은 최초 부팅에만
+  # 실행되므로 러닝 인스턴스에는 아무 효과가 없다 — 다운타임만 내고 얻는 게 없다.
+  # ignore_changes 는 create 에는 적용되지 않으므로 다음 런치는 최신 user_data 로 뜬다.
+  # 러닝 인스턴스의 에이전트 복구는 docs/handoff/scripts/ssm-recover.sh --apply 몫이다.
   lifecycle {
-    ignore_changes = [ami]
+    ignore_changes = [ami, user_data]
   }
 
   tags = {
