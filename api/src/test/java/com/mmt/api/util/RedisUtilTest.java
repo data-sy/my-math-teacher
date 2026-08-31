@@ -7,12 +7,33 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
+
+import com.mmt.api.config.MySqlOnlyTestcontainersConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * CI 이식성 — 프로파일 미지정이면 {@code spring.profiles.default: securelocal}(gitignore) 에
+ * 의존해 CI 에서 DataSource 가 없다. {@code test} 프로파일 + MySQL 컨테이너로 자기완결화한다.
+ * MySQL-only 근거는 {@code ApiApplicationTests} 주석 참조.
+ * 정본: {@code docs/backlog/test-suite-not-portable-to-ci.md}
+ *
+ * <p>Redis 는 주변 환경의 6379 를 쓴다 — CI 는 워크플로의 redis 서비스, 로컬은 requirepass 가
+ * 걸려 있으면 {@code TEST_REDIS_PASSWORD} 로 넘긴다(application-test.yml).
+ */
 @Slf4j
 @SpringBootTest
+@ActiveProfiles("test")
+@Import(MySqlOnlyTestcontainersConfig.class)
+@TestPropertySource(properties = {
+    "spring.neo4j.uri=bolt://localhost:7687",
+    "spring.neo4j.authentication.username=neo4j",
+    "spring.neo4j.authentication.password=dummy"
+})
 class RedisUtilTest {
     final String KEY = "key";
     final String VALUE = "value";

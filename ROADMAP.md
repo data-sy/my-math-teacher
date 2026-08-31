@@ -19,12 +19,21 @@
 > ⚠️ **적용은 여전히 사람 몫이고, 알림이 호스트 motd 안에만 머문다** — 대기 항목을
 > 알려면 호스트에 들어가야 한다. "내가 안다"까지의 배선은 남아 있다.
 >
+> ✅ **홈(`~/`) 일회성 스크립트 정리 완료 (2026-08-31)** — 16개 → 1개(`mmt-aws-session.sh`, 재발성 MFA 세션).
+> 정리 중 드러난 것: 아카이브(소진 자산)에 있던 프론트 배포 스크립트가 실은 **매 배포마다 쓰는 물건**이었다
+> → `docs/handoff/scripts/deploy-front.sh` 로 승격(번들 검증 문자열을 `MARKER` 로 뽑음).
+>
 > **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
 > ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
 > **사용자와 대화로 정한 뒤** 착수한다. 혼자 판단해 파일을 옮기지 말 것.
+> 🚧 **브랜치 `docs/handoff-structure-tidy` 가 이미 열려 있다** — 위 스크립트 승격 커밋(`7578353`) 1건만
+> 올라간 준비 상태이고 **본작업(결정 6건)은 미착수**다. 미푸시 · PR 없음.
 >
-> **이어서 가능 — CI 이식성 잔여**(테스트 4개 클래스). 선행 조건 = 3306·6379 를 다른 도커 스택이
-> 비워야 검증이 된다. 절차·결정거리 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
+> ✅ **CI 이식성 원인 A 완주 (2026-08-31)** — 프로파일 미지정 클래스를 `test` 프로파일 +
+> MySQL-only 컨테이너로 자기완결화(`162054c`). 4개인 줄 알았으나 실제 대상은 2개였다.
+> CI 조건 재현 5/5 · 로컬 전 스위트 **`181/0`**(첫 전체 초록).
+> 🚧 **남은 것은 원인 C(러너 자원)** — 다음 한 수 = 실제 CI 를 `skip_tests=false` 로 1회 돌려 위치 확정.
+> ⚠️ 위 초록은 **CI 조건 재현이지 CI 실행이 아니다**. 절차 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
 
 ---
 
@@ -78,7 +87,7 @@
 
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
-| 🟡 테스트 CI 이식성 | 전 스위트가 CI 에서 성공한 적이 없다. **원인 A·B 해결, C 미착수** — 프로파일 미지정 4개 클래스도 남음 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
+| 🟡 테스트 CI 이식성 | 전 스위트가 **CI 에서** 성공한 적이 없다. 원인 A·B 는 사각지대까지 해소(로컬 `181/0`), **C(러너 자원) 미착수** — 실제 CI 1회 실행이 다음 한 수 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
 ### 그 외
@@ -94,7 +103,6 @@
   로컬 MySQL root 비번 강화(compose 초기값 그대로 — 로컬 전용이라 비차단) ·
   Testcontainers Redis `@ServiceConnection`(Spring Boot 3.2+ 의존)
 - **운영·문서** — [README 포트폴리오 잔여 2건](docs/backlog/readme-portfolio-followups.md)(레포 description·Postman) ·
-  [진단 테스트 계정 정리](docs/backlog/m7-diagnostic-test-accounts-cleanup.md) ·
   `mmt-terraform-admin` 세션 8h 연장 · M4 측정 하네스(`run-log.sh`)를 별도 레포로 이관(cross-repo)
 - **[GTM] 실사용자 확보 컨설팅 1회** — 격리 세션용 [프롬프트](docs/consulting/🤖-user-acquisition-consulting-prompt-draft.md) 준비됨(draft, 브리핑 최신화 전제)
 
