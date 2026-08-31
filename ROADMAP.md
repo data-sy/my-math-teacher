@@ -29,8 +29,11 @@
 > 🚧 **브랜치 `docs/handoff-structure-tidy` 가 이미 열려 있다** — 위 스크립트 승격 커밋(`7578353`) 1건만
 > 올라간 준비 상태이고 **본작업(결정 6건)은 미착수**다. 미푸시 · PR 없음.
 >
-> **이어서 가능 — CI 이식성 잔여**(테스트 4개 클래스). 선행 조건 = 3306·6379 를 다른 도커 스택이
-> 비워야 검증이 된다. 절차·결정거리 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
+> ✅ **CI 이식성 원인 A 완주 (2026-08-31)** — 프로파일 미지정 클래스를 `test` 프로파일 +
+> MySQL-only 컨테이너로 자기완결화(`162054c`). 4개인 줄 알았으나 실제 대상은 2개였다.
+> CI 조건 재현 5/5 · 로컬 전 스위트 **`181/0`**(첫 전체 초록).
+> 🚧 **남은 것은 원인 C(러너 자원)** — 다음 한 수 = 실제 CI 를 `skip_tests=false` 로 1회 돌려 위치 확정.
+> ⚠️ 위 초록은 **CI 조건 재현이지 CI 실행이 아니다**. 절차 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
 
 ---
 
@@ -84,7 +87,7 @@
 
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
-| 🟡 테스트 CI 이식성 | 전 스위트가 CI 에서 성공한 적이 없다. **원인 A·B 해결, C 미착수** — 프로파일 미지정 4개 클래스도 남음 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
+| 🟡 테스트 CI 이식성 | 전 스위트가 **CI 에서** 성공한 적이 없다. 원인 A·B 는 사각지대까지 해소(로컬 `181/0`), **C(러너 자원) 미착수** — 실제 CI 1회 실행이 다음 한 수 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
 ### 그 외
