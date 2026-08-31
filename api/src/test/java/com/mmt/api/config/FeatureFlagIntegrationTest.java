@@ -18,11 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  *  - 플래그 별 실제 토글 동작은 Task 3.2 의 ConceptServiceFeatureFlagTest 에서 다룬다.
  *
  * TestcontainersConfig 를 @Import 하는 이유:
- *  - 현 application.yml 이 spring.profiles.include: securelocal 로 항상 securelocal 을
- *    포함 → @ActiveProfiles("test") 여도 securelocal 의 MySQL/Neo4j URL 이 주입됨.
- *  - Testcontainers 의 @ServiceConnection 이 해당 URL 을 오버라이드해 로컬 인프라
- *    미기동 상태에서도 컨텍스트가 부팅되게 함. Redis 는 Lettuce lazy connection 이라
- *    기동만 하면 통과.
+ *  - @ActiveProfiles("test") 라 securelocal 은 걸리지 않는다(application.yml 이
+ *    spring.profiles.default: securelocal — 222c8d9 이전에는 include 라 무조건 걸렸다).
+ *    따라서 DB 연결원이 없고, 컨텍스트가 뜨려면 누군가 datasource 를 줘야 한다.
+ *  - Testcontainers 의 @ServiceConnection 이 그 연결을 주입해 로컬 인프라 미기동 상태에서도
+ *    컨텍스트가 부팅되게 함. Redis 는 Lettuce lazy connection 이라 기동만 하면 통과.
  */
 @SpringBootTest
 @Import(TestcontainersConfig.class)

@@ -18,8 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 배포 때 소유한다.
  *
  * <p>Testcontainers(MySQL+Neo4j) 기반이라 securelocal/로컬 인프라에 비의존하며 CI 에서 돈다.
- * ({@code application.yml} 의 {@code spring.profiles.include: securelocal} 은 {@code @ServiceConnection}
- * 이 datasource/neo4j 연결을 컨테이너로 오버라이드하므로 무해.)
+ * ({@code application.yml} 은 {@code spring.profiles.default: securelocal} 이라
+ * {@code @ActiveProfiles("test")} 인 이 테스트에는 securelocal 이 아예 걸리지 않는다 — 222c8d9.
+ * 연결은 {@code @ServiceConnection} 이 컨테이너로 주입한다.)
  */
 @SpringBootTest
 @ActiveProfiles("test")
