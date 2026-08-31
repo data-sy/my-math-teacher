@@ -1,11 +1,15 @@
 # 🤖 [MMT] zdbg 정리 → M8 콘텐츠 → M8 머지·배포
 
 > **새 세션에 이 파일을 지목하며 "이 핸드오프 시작하자" 라고 말하면 시작한다.**
-> 작성: 2026-08-07 · **기준 갱신 2026-08-15** = `feat/m7-item-selection` `1c05026`(미푸시 9 — **전부 문서**) · `feat/m8-concept-links` `dcd1894`(미푸시 5, **origin 부재**) · 프로덕션 라이브
+> 작성: 2026-08-07 · **기준 갱신 2026-08-15** · 프로덕션 라이브
+> (작성 시점의 브랜치 상태 = `feat/m7-item-selection` `1c05026`(미푸시 9) · `feat/m8-concept-links` `dcd1894`(미푸시 5·origin 부재)
+>  → **둘 다 push·PR·머지 완료**, 아래 본문의 '미푸시/미머지' 서술은 전부 그 시점의 기록이다)
 > ## ✅ 소비 완료 (2026-08-15) — ①~⑤ 전부 끝났다. 이력 문서로만 참조한다.
 > 남은 것은 ⑥(선택) 인프라 지뢰뿐이고 그건 백로그가 소유한다.
+> → **갱신 2026-08-31:** ⑥ 도 3건 중 2건이 해소됐다. 잔존 = SSH IP 고정 1건(§5).
 > **다음 착수점은 [`🤖-문서-구조-정돈.md`](🤖-문서-구조-정돈.md)** — ROADMAP 배너 참조.
-> ⚠️ `feat/m8-concept-links` 는 origin 에 없다 — CD 는 원격 ref 를 돌리므로 ⑤ 는 push 가 전제다.
+> ~~⚠️ `feat/m8-concept-links` 는 origin 에 없다 — CD 는 원격 ref 를 돌리므로 ⑤ 는 push 가 전제다.~~
+> → **해소:** push 후 PR [#53](https://github.com/data-sy/my-math-teacher/pull/53)·[#54](https://github.com/data-sy/my-math-teacher/pull/54) 머지(2026-08-15). 코드는 main 에 있다.
 
 ---
 
@@ -18,7 +22,7 @@
 |---|---|
 | 프로덕션 | 🟢 정상 — `mmt-front:2.0.2` · 백엔드 `mmt-backend:9ba37bf…`(CD 배포분, 활성 슬롯=green) |
 | M7 제품 | ✅ 종료 — 남은 건 폴리싱 백로그뿐 |
-| M8 링크 | 🚧 코드 완료·미머지 (`feat/m8-concept-links`, 5커밋) · **콘텐츠 시드가 진짜 병목** |
+| M8 링크 | ✅ 머지·배포 완료 (PR #53·#54, 2026-08-15) · **잔여는 콘텐츠 시드 — 커버리지 10/1,631** |
 | CD 파이프라인 | ✅ **실증 완료 (2026-08-15)** — 배포 수단 확보 |
 
 ✅ **README 포트폴리오 재작성 커밋 완료** (2026-08-13, `99ac30a`·`741493e` — 이 브랜치). 잔여 4건은 [`readme-portfolio-followups.md`](../backlog/readme-portfolio-followups.md) 로 분리돼 있고 이 핸드오프의 차단 요소가 아니다.
@@ -63,7 +67,7 @@ deploy         ✅ 1m31s
 **0건**(문서·워크플로·프론트만)이라 성패가 파이프라인으로만 귀속된다. 2026-08-07 실패는 GitHub Actions
 `partial_outage` 였음이 이 성공으로 확인됐다.
 
-> 재발 방지(AMI 필터가 minimal 을 집는 문제)는 **미착수** — [백로그 ⭐](../backlog/ami-filter-picks-minimal-no-ssm-agent.md) (§5).
+> 재발 방지(AMI 필터가 minimal 을 집는 문제)는 **해결됐다 (2026-08-31)** — [백로그](../backlog/ami-filter-picks-minimal-no-ssm-agent.md) (§5).
 
 ---
 
@@ -83,7 +87,7 @@ cp ~/my-math-teacher/docs/handoff/scripts/zdbg-cleanup.sh ~/ && bash ~/zdbg-clea
 
 ## 4. ③④⑤ [M8] 개념 학습자료 링크
 
-**설계 정본:** [`../specs/m7/spec-03-learning-path-links.md`](../specs/m7/spec-03-learning-path-links.md) · **브랜치:** `feat/m8-concept-links`(미푸시 5커밋)
+**설계 정본:** [`../specs/m7/spec-03-learning-path-links.md`](../specs/m7/spec-03-learning-path-links.md) · **브랜치:** `feat/m8-concept-links` (당시 미푸시 5커밋 → **머지 완료**)
 
 **이번 세션에 끝낸 것(코드):** `concept_links` 테이블 · JPA 리포지토리 · 결과 카드 부착(IN 일괄 1쿼리) ·
 프론트 계약 정렬 · 시드 도구. 백엔드 181 green · mock e2e 18 passed.
@@ -114,18 +118,28 @@ mysql ... < /tmp/seed.sql
 ### ⑤ 머지·배포
 `feat/m8-concept-links` push → PR. 백엔드 변경이 있으므로 배포 수단이 필요한데 **①이 끝나 확보됐다**(2026-08-15).
 ⚠️ CD 는 **원격 ref** 를 돌린다 — 미푸시 5커밋 상태로는 실증에 M8 코드가 올라가지 않는다. push 가 전제다.
+→ 실제로 그렇게 했다: push → PR #53·#54 머지 → 라이브 `links 0→3` 실측 (2026-08-15).
 
 ---
 
-## 5. ⑥ 인프라 지뢰 2건 (백로그 ⭐, ROADMAP `Later` 최상단)
+## 5. ⑥ 인프라 지뢰 — 3건 중 2건 해소, 1건 잔존
 
-| 항목 | 왜 위험한가 |
-|---|---|
-| [AMI 필터가 minimal 을 집음](../backlog/ami-filter-picks-minimal-no-ssm-agent.md) | 이번 CD 사망의 근인. **더 큰 지뢰 = `most_recent=true` 인데 `lifecycle` 없음 → 전체 `terraform apply` 가 프로덕션 EC2 를 교체하려 든다.** 결정 순서 = 안전장치(`ignore_changes`) → user_data 설치 → 필터 조이기 |
-| [SSH IP 고정 → SSM Session Manager](../backlog/ssh-ingress-ip-pinning-to-session-manager.md) | 공인 IP 바뀔 때마다 SSH·CD 가 재발성으로 막힌다. 선행 = SSM 정상화(✅ 됨). 본체는 SSH 쓰는 스크립트 5개 이관 + **비상 접근 경로 설계** |
-| ⏰ [certbot 갱신 타이머 미확인](../backlog/tls-cert-renewal-timer-after-relaunch.md) | **TLS 만료 `2026-11-03`.** M6 에서 실증한 타이머는 terminate 된 옛 호스트 것이고 재런치 런북에 재등록 단계가 없다. 증상 0 → 만료 당일 사이트 전체 차단. **셋 중 유일하게 기한이 있다** |
+> **이 절은 작성 시점(2026-08-07/15)의 기록이다.** 이후 상태는 아래 표의 갱신 열이 정본이고,
+> 더 정확한 건 각 백로그 파일이다.
 
-⚠️ **터미널에서 `terraform apply` 를 전체로 돌리지 말 것.** 지금은 `-target` 으로만 만졌다.
+| 항목 | 작성 시점의 위험 | 현재 (2026-08-31) |
+|---|---|---|
+| [AMI 필터가 minimal 을 집음](../backlog/ami-filter-picks-minimal-no-ssm-agent.md) | 이번 CD 사망의 근인. **더 큰 지뢰 = `most_recent=true` 인데 `lifecycle` 없음 → 전체 `terraform apply` 가 프로덕션 EC2 를 교체하려 든다.** | ✅ **해소 (2026-08-31)** — `ignore_changes` → user_data → 필터 조이기 순서대로 적용. plan 이 `0 to destroy`. 커밋 `64bb710`·`b067cca`·`1cee5e7` |
+| [SSH IP 고정 → SSM Session Manager](../backlog/ssh-ingress-ip-pinning-to-session-manager.md) | 공인 IP 바뀔 때마다 SSH·CD 가 재발성으로 막힌다. 선행 = SSM 정상화(✅ 됨). 본체는 SSH 쓰는 스크립트 5개 이관 + **비상 접근 경로 설계** | ⬜ **잔존 — 이 절에서 유일하게 남은 항목** |
+| ⏰ [certbot 갱신 타이머 미확인](../backlog/tls-cert-renewal-timer-after-relaunch.md) | **TLS 만료 `2026-11-03`.** 재런치 런북에 재등록 단계가 없어 증상 0 → 만료 당일 사이트 전체 차단 | ✅ **해소 (2026-08-19)** — 주간 `certbot-renew.timer` 등록 + dry-run 실증 |
+
+~~⚠️ **터미널에서 `terraform apply` 를 전체로 돌리지 말 것.**~~
+→ **해제 (2026-08-31).** `lifecycle { ignore_changes = [ami, user_data] }` 로 우발 교체가 막혔고
+`terraform plan` 이 `0 to destroy` 다. 다만 **apply 전 plan 전문을 읽는 습관은 유지한다** —
+`Plan:` 줄의 `to destroy` 가 0 이 아니면 멈춘다.
+
+> 📌 이 세션에서 파생 발견된 별건: [호스트 OS 패치](../backlog/host-os-patching-al2023-releasever-pin.md)
+> (AL2023 releasever 핀 때문에 `dnf check-update` 가 무패치 호스트에 0건을 보고하던 문제, 해소됨).
 
 ---
 

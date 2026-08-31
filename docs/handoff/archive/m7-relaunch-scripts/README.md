@@ -22,6 +22,7 @@
 | 5 | `phase4a.sh` | SG `my_ip` 갱신 → SSH 열기 | Phase 4a |
 | 6 | `mkenv.sh` | 로컬에서 `mmt-backend.env` 조립 (값 미출력, sha 앞 8자만) | Phase 4b |
 | 7 | `phase4c.sh` | 자산 scp + `mmt-net`·redis·mmt-ai 기동 + RDS 로그인 실증 | Phase 4c |
+| 7' | `remote-phase4c.sh` | 위 스크립트가 호스트로 scp 해 실행하는 호스트측 본체 | (Phase 4c) |
 | 8 | `phase4d.sh` | nginx fragment 배치 + certbot standalone 발급(dry-run 선행) | Phase 4d |
 | 9 | `phase5a.sh` | M7 진단 DDL 적용 (멱등, md5 대조 후 전송) | GATE 5-a |
 | 10 | `phase5b.sh` | 백엔드 blue 손기동 + A4 마스킹 수정 검증 | GATE 5-b |

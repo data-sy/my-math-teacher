@@ -1,209 +1,157 @@
 # MMT Roadmap
 
-MMT 프로젝트의 중장기 작업 계획. 세부 실행 지시는 각 마일스톤·spec 문서를 참조.
+**이 문서는 인덱스다.** 무엇을 하고 있고 다음이 무엇인지만 둔다 —
+과정·이력은 링크된 정본 문서와 git 히스토리에 있다. 여기 옮겨 적지 않는다.
 
-> ## ▶ 다음 세션은 여기서 시작 (2026-08-19 갱신)
+> ## ▶ 다음 세션은 여기서 시작 (2026-08-31 갱신)
 >
-> **[`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** — 문서 배치·이름·진입동선 정돈
+> ✅ **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md) 제거 완료** (D2·D3·D1,
+> 커밋 `64bb710`·`b067cca`·`1cee5e7`). `terraform plan` 이 `0 to destroy` 로 떨어졌다 —
+> 전체 apply 가 다시 안전하다. AWS apply 는 불요했다(전부 plan-time/create-time 변경).
+> AMI 는 `ignore_changes` 로 고정됐다 — 올릴 때는 사람이 의도적으로 교체한다.
+> 이건 **보안 패치를 잃은 게 아니다**: terraform 에서 AMI 가 바뀌면 in-place 패치가 아니라
+> 인스턴스 교체였고, 자동 apply 도 없어 애초에 자가 패치 경로가 아니었다.
 >
-> ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리 범위·폴더명·외부 독자 가중치 등)을
+> ✅ **[호스트 OS 패치](docs/backlog/host-os-patching-al2023-releasever-pin.md)도 같은 세션에서 해결**했다.
+> AMI 고정을 따지다 진짜 구멍이 드러났다 — AL2023 이 releasever 를 AMI 스냅샷에 고정해
+> `dnf check-update` 가 26일째 무패치인 호스트에 0건을 보고하고 있었다(거짓 계기판).
+> 핀을 풀고 11건 적용 + 재부팅했고, `dnf-automatic` 을 감지 전용으로 걸었다.
+> ⚠️ **적용은 여전히 사람 몫이고, 알림이 호스트 motd 안에만 머문다** — 대기 항목을
+> 알려면 호스트에 들어가야 한다. "내가 안다"까지의 배선은 남아 있다.
+>
+> **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
+> ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
 > **사용자와 대화로 정한 뒤** 착수한다. 혼자 판단해 파일을 옮기지 말 것.
 >
-> ✅ **[M8] 링크 트랙은 ①~⑤ 완주로 닫혔다**(2026-08-15) — CD 실증 · zdbg 정리 · 프로덕션 DDL ·
-> 콘텐츠 큐레이션 26링크 · PR [#53](https://github.com/data-sy/my-math-teacher/pull/53)·[#54](https://github.com/data-sy/my-math-teacher/pull/54)·[#56](https://github.com/data-sy/my-math-teacher/pull/56) 머지 → 라이브 `links 0→3` 실측.
-> ✅ **TLS 자동갱신 등록·dry-run 실증 완료**(2026-08-19) — 뿌리기 전 유일한 차단 요소였다.
-> 앞선 핸드오프([`🤖-M8-콘텐츠-CD실증-핸드오프.md`](docs/handoff/🤖-M8-콘텐츠-CD실증-핸드오프.md))는 **소비 완료** — 이력으로만 본다.
+> **보안 위생 1건 — 로컬 DB 자격증명 로테이션** (⬜ 미착수)
+> 프로덕션은 무사하고 실피해는 로컬 컨테이너뿐이라 **차단 요소가 아니다.** 세션 단위가 작고
+> (🤖 몫 2건 + 👤 몫 2건) 독립적이라 위 두 건 사이에 끼워 넣어도 된다.
+> 🔒 **정본·실행 프롬프트는 로컬 전용**(gitignore) — 값이 로테이션되기 전까지 위치·범위를
+> 공개 저장소에 두지 않는다. 로컬에서 `🤖-시크릿-위생-로테이션.md` 를 지목해 시작한다.
 >
-> **미착수 상위 백로그**(정돈 후 착수) = CI 이식성 ⭐ · AMI 필터 지뢰 ⭐ · SSH→SSM ⭐ · 링크 커버리지 2차 시드.
->
-> *이 배너는 착수점 포인터만 둔다. 진행 상태의 정본은 아래 본문과 핸드오프다.*
->
+> **이어서 가능 — CI 이식성 잔여**(테스트 4개 클래스). 선행 조건 = 3306·6379 를 다른 도커 스택이
+> 비워야 검증이 된다. 절차·결정거리 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
+
+---
+
+## 현재 상태
+
+| | |
+|---|---|
+| 서비스 | 🟢 라이브 — https://www.my-math-teacher.com |
+| 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
+| 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
+| 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
+| ⚠️ 알려진 구멍 | CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 · 패치 알림이 호스트 motd 안에만 머문다(사용자에게 닿는 경로 미배선) |
+
 ---
 
 ## Now — 진행 중
 
-- **[M7] 제품 피벗 — 자가진단 + 모바일 리디자인(React)** (2026-07-11 방향 합의 · **2026-07-13 범위·진단 재조정**) — 🚧 **Step 4 구현 진행: spec-01 ✅ 머지 완료(PR [#48](https://github.com/data-sy/my-math-teacher/pull/48)·main `60ed317`, 2026-07-14) → **프론트 재설계: 플로우 맵·클릭러블 프로토타입 + 화면별 와이어프레임 01~06 ✅ 전 화면 사인오프 완료(2026-07-17)**(`docs/design/v2/` — `00-flow-map.html`(전이 SSOT) + `01-home`~`06-graph`(화면별 검수 확정 반영), 브랜치 `feat/m7-ux-redesign` — **2026-07-19 PR #49 로 main 머지 완료**. 검수 파생 백로그 3건 = 완료 배너 재진단 직행([backlog](docs/backlog/m7-home-completed-banner-rediagnosis-cta.md))·폐기 확인탭(**✅ 구현 완료 2026-07-18** — 진행 중 세션이 있을 때만 조건부 확인 시트, `02-entry.html` ●4 정본 갱신·e2e 커버. 백로그 문서는 2026-08-06 흡수·폐기)·완주 세션 재프리뷰([backlog](docs/backlog/m7-result-completed-session-repreview.md))) — **spec-02 재작성 초안 완료(2026-07-17, [`docs/specs/m7/spec-02-react-mvp.md`](docs/specs/m7/spec-02-react-mvp.md)) → T1~T5 ✅ 재확정 완료(2026-07-18, 제로베이스 실빌드+사용자 확정 — 구현 정본 = [`frontend-spec.md`](docs/specs/m7/frontend-spec.md)) → 프론트 v2 자기완결 빌드 ✅ 완료(2026-07-18, 아래 서브불릿)**. 매체 확정: 로우파이 = Claude Code HTML 주석 와이어프레임(✅ 완료) → 하이파이 = Claude Design(Figma MCP 제외). spec-03(링크)는 **[M8] 로 승격**(2026-08-05 사용자 결정 — 구현+콘텐츠 수급이 M7 잔여와 무게가 달라 분리).** 문제 풀 실부재로 진단·맞춤이 막혀 **제품 정의를 피벗**하되, "가장 시급한 것부터 하나씩 배포"로 범위를 좁힘: ①진단 = self-report OX(문제풀이 대체)·그래프 적응형 문답 ②시급도 = **DKT(TF Serving) 유지** — self-report OX 를 정오답으로 매핑(**안다=맞음/모른다=틀림**)해 입력(*2026-07-11 "그래프 점수"를 역전*) ③맞춤 = 학습지 출제 → **그래프 학습 경로 + 개념별 외부 링크** ④프론트 Vue → **React 새로 짜기(마이그레이션 아님) + 모바일 퍼스트**, 초기 = **최소 런치 MVP**(홈·문답·결과·맞춤·로그인/에러·개념그래프), 부가화면은 오픈 후. 백엔드·그래프 데이터·M6 배포 무변경(프론트만 교체), **"AI 진단" 포지셔닝 유지**. [Design] "React 는 launch 후" 결론을 supersede. **정본:** [`docs/milestones/milestone-7-product-pivot.md`](docs/milestones/milestone-7-product-pivot.md). **착수 순서 = 기획(PRD) → UX 설계(HTML 와이어프레임) → 기술 설계(spec 재작성) → 구현**(마일스톤 §착수 프로세스). 구 spec-01 초안은 재작성 후 삭제(git 히스토리 보존). **Step 1 기획(PRD) 초안 완료 + 유저플로우/CTA 점검 반영**(2026-07-13, `docs/prd/m7-prd.md`, **사인오프 완료** — 타깃=중·고등 셀프러너 학생·추천단위=개념 카드 top-N·결과 1차 CTA=그래프 경로 + **입구→출구 knob F-1~F-4 확정**: reverse gate·단일 1차 CTA·스마트 default pick-list·시급도 학습 큐·홈 입구 단독 CTA·top-N '상'등급, PRD §0.1). **Step 2 UX 설계 완료**(2026-07-13, `docs/design/` 아티팩트 8종: IA/유저 플로우 맵 `m7-flow-map.html` + ③ 문답 시안 A/B/C 비교 `m7-03-quiz-variants.html`(**A안 채택** — 정적 카드+하단 고정 2버튼; B/C 백로그) + 6화면 단일방향 와이어프레임 `m7-01-home`~`m7-06-graph`. F-1~F-4를 화면으로 구현: 홈 단독 1차 CTA·계단순 pick-list+escape 두 갈래·D5 예시+skip 토스트·무료/게이트 2상태 결과+학습 큐·OAuth 3사+학생 친화 에러·호버 0 그래프 탐색. 브랜치 `feat/m7-product-pivot` 작업분 — 아티팩트는 이후 main 반영 완료, read 전용 아카이브 — `docs/design/README.md`). **Step 3 기술 설계 진행 중(2026-07-13):** spec-01 ✅ **확정**(`docs/specs/m7/spec-01-diagnosis-self-report-dkt.md` — 필수 이월 3건(top-N 등급 컷·재진입 큐 스키마·큐 위상정렬) 반영. 리뷰 2륜: **S2=C** 신규 `self_report_answers` 별도 테이블 — R1(공유 answers 오염) 소멸·구 채점 경로 전면 무변경 / **S3=A** 현재 세션만 — R2 가드(몰라요 0개→DKT 생략·대표 4 시나리오 착수 시 실측·fail-soft) / S1·S4~S6 = 권장안 잠정 채택+착수 시 재검토 꼬리표) · spec-03 ✅ **확정**(`spec-03-learning-path-links.md` — **U1~U6 사인오프 완료(2026-07-13, 전 항목 권장안)**: concept_links DB 테이블·병목 상위 30~50 시드+결측 허용·source 귀속=§4.6 타이브레이크 미러·개념당 링크 3개·월 1회 점검·goal=primary(최고 시급도 카드의 drill-down 루트). 구현 감시 2건(provenance NULL 누수·nullable+앱 non-null)은 spec-03 §6). **Step 4 spec-01 백엔드 구현 완료(2026-07-13, 자율주행 세션 — 브랜치 `feat/m7-spec-01-diagnosis`, 2026-07-14 **머지: PR #48 → main `60ed317`**):** `/analyze-before-change` 실측 3건(users_tests PK BIGINT·concept_id INT·user_test_id 스코프 전환 가능) → ADR-0010(self-report→DKT 매핑 + `mmt.diagnosis.*` 등록, Proposed) → 플래그 `mmt.diagnosis.enabled`(기본 off=구 동작) → DDL 4건 전부 additive(create.sql+로컬 DB) → 적응형 순회 `/diagnosis/frontier`·`/next` → DKT 매핑 preview/귀속(순서 동치 property·가드 3종·진단 전용 타임아웃 클라이언트) → 결과 계약(등급 컷 40/65·blockedDescendants 역CTE d3·top-N·rate limit) → 학습 큐(Kahn 위상순 지배·사이클 degrade·파생 현재위치). 전체 테스트 164 green(포트 충돌 우회 2단 절차) + 라이브 E2E(익명 완주·preview==귀속 동치 True·게이트 401 강제). 리뷰 발견 흡수: depth10 CTE→앱 BFS(실측 ERROR 3636·폐쇄 깊이 22), 중복·미존재 conceptId 400 대칭, /error 익명 마스킹 우회(신규 경로 한정). **사람 게이트 4건 전부 처리 완료(2026-07-14, 검증 번들 분리 세션 리뷰 사인오프 → A안 일괄 승인):** ① push·**머지 완료(PR [#48](https://github.com/data-sy/my-math-teacher/pull/48))** ② **R2 실측 완료**(프로덕션 동일 이미지 로컬 TF Serving — 1답만 유효·전부 알아요 DKT 생략·단조 분포 생존·혼합 HIGH 21/MID 21 변별. **부수 발견 = percent 스케일 단위 불일치**(모델 출력 0~1 vs 컷 40/65 의 0~100 전제) → 신규 경로 ×100 정규화 수정. 정본 = [`docs/benchmark/m7-r2-dkt-selfreport.md`](docs/benchmark/m7-r2-dkt-selfreport.md)) ③ ADR-0010 **Accepted**(가드 표현 "skill_id=-1"→미매핑(NULL·행 부재) 정정 동반) ④ 완성물 리뷰 residual 처리 — 소유권 위반 401→**403**(신규 경로 한정, 라이브 검증) / 2-사이클 26쌍 = [백로그 등록](docs/backlog/knowledge-space-mutual-prerequisite-cycles.md) / preview rate limit **10/분/IP 확정**(잔여 = 프로덕션 nginx XFF 덮어쓰기 확인 1건) / 활성 큐=최신·scope=full 합집합 확정 / spec-01 §4.3 BFS 현실 반영·§4.6 에러 계약 명문화. 검증 번들 = [`docs/handoff/spec-01-verification-bundle.txt`](docs/handoff/spec-01-verification-bundle.txt), 테스트 167/167(2단 합산). **잔여 백로그: S4 컷 재보정(실사용자 데이터)·XFF 확인·2-사이클 정비. spec-03 층은 [M8] 로 분리(2026-08-05).** 문서 stale 정정 4건(web/·api/·루트 CLAUDE.md·밀스톤 포팅 서술) ✅ 처리 완료(2026-07-13, 사용자 승인). PRD §8 참조.**
-  - **📍 한눈에 (2026-08-06):** M7 = 문제풀이 대신 **자가진단(self-report OX)** 으로 피벗한 제품(진단 → 시급도 DKT → 맞춤 학습경로+개념 링크, 프론트는 React `web-v2` 로 재작성). **🟢 라이브 중** — `https://www.my-math-teacher.com` (2026-07-31 mothball → **재런치 완료**, 스냅샷 `mmt-mothball-2026-07-31` 에서 RDS 복원. 티어다운·재런치 절차 = [`🤖-M7-인프라-티어다운-재런치.md`](docs/handoff/🤖-M7-인프라-티어다운-재런치.md) — 상위 런북(유지 대상). 2026-07-31 실행분 문서는 소비 완료로 삭제됐다(2026-08-15) — 명령 원문이 필요하면 git 히스토리). **2026-08-06 PR [#50](https://github.com/data-sy/my-math-teacher/pull/50) 머지**(main `590f6cc`) — 문항 선택 KST + 재런치 + 결과·그래프 후속 3트랙 43커밋. 프론트 `mmt-front:2.0.2` 배포. **남은 M7 = 폴리싱·백로그뿐**(아래 후속 트랙 §미착수 이월). **다음 큰 덩어리 = [M8] 개념 학습자료 링크**(spec-03 승격 — 설계 확정, 구현+시드 콘텐츠 미착수). **▶ 다음 세션 착수 정본 = [`🤖-M8-콘텐츠-CD실증-핸드오프.md`](docs/handoff/🤖-M8-콘텐츠-CD실증-핸드오프.md)** (2026-08-15 갱신 — ① CD 실증 ✅ 완료, 남은 순서 = zdbg 계정 정리 → M8 DDL·콘텐츠 → M8 머지. 앞선 핸드오프는 소비 완료·아카이브). *(이 아래는 전체 이력 — 개요만 필요하면 여기까지.)*
-  - **🟢 배포 현황 (2026-07-27) — 아래 이력 서술의 프론트 롤백 태그 `1.0.0` 은 stale, 본 항목으로 정정:**
-    - **현 프로덕션 프론트 = `mmt-front:m6`(호스트 로컬 빌드)** — 구 Vue `1.0.0` 아님(라이브 스냅샷 = [백로그 §참고](docs/backlog/ci-backend-image-missing-secure-yml.md)). → **web-v2 스왑 롤백 대상 = `m6`, `1.0.0` 아님**(아래 라인 10·11 의 "롤백=1.0.0" 서술 대체).
-    - **A1 백엔드 다크 배포 ✅ 완료:** `feat/m7-item-selection`(KST 코어 + CI 이미지 배선 복구 [ADR-0013](docs/adr/0013-restore-production-wiring-as-profile-gated-tracked-config.md)) → 이미지 `mmt2024/mmt-backend:889390a` blue-green 무중단 전환(green 활성). `MMT_DIAGNOSIS_ENABLED` 미설정 = 진단 경로 비공개(다크). 라이브 헬스 200·CTE 개념그래프 200 확인. **CI 이미지 부팅 결함**(유출대응이 secure.yml 배선까지 삭제 → datasource 미구성 부팅 실패)도 이 배포로 해소·실증.
-    - **잔여(사람 게이트, 런북):** A3 플래그 ON → A2 프론트 `mymathteacher/mmt-front:2.0.0` 스왑(롤백=`m6`) → A4 OAuth 3사 실검증. 절차 정본 = [`docs/handoff/archive/m7-launch-runbook.md`](docs/handoff/archive/m7-launch-runbook.md). *(⚠️ 아래 2026-07-28~31 서술로 supersede — A3 는 진행됐고 A4 에서 버그, 이후 mothball)*
-    - **A4 실검증 중 프로덕션 인증 버그 (2026-07-28):** `MMT_DIAGNOSIS_ENABLED=true` 로 진단 경로를 열자 모든 인증필수 엔드포인트가 401. 근본원인 2건 = ① M7 진단 테이블이 프로덕션 RDS 에 미적용(→500) + ② `/error` 디스패치가 그 500 을 401 로 마스킹. 정본 = [`docs/backlog/m7-prod-auth-fresh-token-401.md`](docs/backlog/m7-prod-auth-fresh-token-401.md). **수정 완료·푸시됨:** ② `/error` permitAll(`d0f4c41`) + [ADR-0014](docs/adr/0014-error-dispatch-permitall-to-stop-401-masking.md)(`1a28723`) · access 토큰 jti/iat 유일화(`1c7c29e`) · 회귀 테스트(`087fef2`). ① DDL 은 재런치로 미룸(아래 mothball).
-    - **🔴 프로덕션 인프라 mothball ✅ 완료 (2026-07-31) — billable $0** *(⚠️ 2026-08-05 재런치로 해소 — 아래는 당시 이력. 현재 상태는 위 「📍 한눈에」 = 🟢 라이브)*: 실서비스 아님 판단으로 RDS·EC2·EIP 를 타깃 `terraform destroy` 로 완전 종료(IAM/OIDC/SG/keypair 는 $0 라 보존 → 재런치 마찰 최소). **데이터 = 수동 스냅샷 `mmt-mothball-2026-07-31`(available) 로 보존** — RDS `skip_final_snapshot=true` 라 이게 유일 보존 수단. 결함① DDL 은 빈 테이블(데이터 0)이라 재런치로 미룸(멱등 스크립트 `api/sql/m7-apply-diagnosis-ddl-prod.sql` 커밋됨). **재런치 절차 정본 = [`docs/handoff/🤖-M7-인프라-티어다운-재런치.md`](docs/handoff/🤖-M7-인프라-티어다운-재런치.md) §3**(terraform apply → DNS → 스냅샷 restore → DDL → 호스트 복원 → 재빌드·배포). **DNS `www` A레코드 삭제 ✅ 완료 (2026-07-31)** — 반환된 IP(`54.116.29.102`)가 타 계정에 재할당되면 내 도메인으로 남의 서버가 서빙되는 dangling DNS 가 되므로 필수 조치였다. **→ 2026-08-05 재런치에서 새 EIP `15.164.145.106` 로 A레코드 재생성 완료.** **잔여 없음.**
-  - **프론트 v2 런치 마감 트랙 ✅ 머지 완료 (2026-07-19, PR [#49](https://github.com/data-sy/my-math-teacher/pull/49) → main `8866140`):** 빌드 이후 라운드 전부 포함 — 실기기 피드백 반영(계단형 히어로 재배치·iOS 검색 자동확대 차단·④-B 플로팅 체크리스트 pill+시트·게이트 CTA 무음 실패 수정) · 스테일 큐 403 자가치유(+[백로그: 첫 탭 실패 제거](docs/backlog/m7-stale-queue-403-first-tap.md)) · **⑥ 그래프 시각 위계 = A안 색 층위**(백지 컨설팅 채택, 후수=보라 확정, CVD 검증 통과 — 정본 `06-graph.html` ●4 · 이슈 추적 1차 완료 = [선택 해제 버그 수정](docs/backlog/m7-graph-scheme-a-followup-bug.md), 실기기 재확인 잔여) · 백로그 신규 3건(요약 칩·스테일 큐·A안 잔여 확인). **배포는 보류(2026-07-19 사용자 결정): 문항 선택 경로 개선(= [적응 순회 문항 선택](docs/backlog/m7-adaptive-traversal-question-selection.md), 브랜치 `feat/m7-item-selection`)을 정리한 뒤 실서버 반영 — 그 전까지 프로덕션 = 구 Vue(`mmt-front:1.0.0`). *(⚠️ 이 보류는 해소됨 — 2026-08-06 `mmt-front:2.0.2` 배포로 프로덕션 = web-v2. 아래 후속 트랙 참조)*** **문항 선택 컨설팅·설계 ✅ 완료(2026-07-24):** 격리 페르소나 컨설팅(2026-07-19 최초 + 2026-07-24 재실행, 수렴) → **권장안 = 결정론적 KST 코어 즉시 채택**(KST 전역 반분·DKT 역이용·IRT 는 실데이터 이후 보류 — 콜드스타트·결정론·stateless 3제약이 IRT·밴딧을 탈락). 프롬프트·결과·학습자료 3종을 [`docs/consulting/`](docs/consulting/) 로 이관(03-프롬프트 + `out/` 리포트·HTML). 결함①③ = KST 원리로 해소, 결함②(알아요 과신) = 별도 검증 프로브(확률층 BLIM 은 데이터 필요라 보류). **구현 착수 프롬프트 = [`docs/handoff/archive/m7-item-selection-kst-impl-prompt.md`](docs/handoff/archive/m7-item-selection-kst-impl-prompt.md)**(범위 = 규칙 A 하한/상한·B 순서·C skip-with-probe · 실행 완료 후 핸드오프 아카이브). **문항 선택 구현 ✅ 완료(2026-07-24, 브랜치 `feat/m7-item-selection`):** D1=K8/N20·D2=임계4+√n·D3=서브트리 복원 확정(사용자) → [ADR-0012](docs/adr/0012-adaptive-question-selection-deterministic-kst-core.md)(Proposed, 사인오프 대기) + spec-01 §4.3 개정 + 규칙 A·B·C **분리 커밋**(`d7f340d` B·`ac1f404` A·`25b6805` C) + **결정론 단위 테스트 12건 green**(결함①③② + 결정론 ×2 + 하한/상한/best-effort + 프로브 밀도/D3). blockedDescendants 는 §4.5 CTE 와 동치인 depth 3 역방향 BFS 를 이미 로드한 간선에서 인메모리 계산(요청당 CTE 왕복 회피). **✅ 라이브 검증 완료(2026-07-24, 로컬 bootRun + 실그래프 1,631개념·3,446간선, 단원 500):** 규칙 B 첫질문=blocked·깊이 tie-break 정합(1120), 결정론(동일 요청 5회 동일 next), 규칙 A 하한(전부 알아요=17문·1문 종료 아님)·상한(전부 몰라요=정확히 20문), 규칙 C 프로브(1120 알아요→폐쇄 멤버 6804 되물음) 전부 실동작 확인. **라이브가 Spring DI 버그도 잡음** — 테스트용 생성자 오버로드로 생성자 다중 → 부팅 실패, 주 생성자 `@Autowired` 로 수정(`a802fbb`, 단위 테스트는 생성자 직접 호출이라 미검출). **잔여 정리(2026-07-24):** ✅ ADR-0012 Accepted 승격(사용자 사인오프) · ✅ web-v2 mock 순회 divergence = [백로그 파일화](docs/backlog/m7-web-v2-mock-traversal-kst-divergence.md)(비차단, 실서버 모드가 정본). **~~남은 것 = 배포 재개 절차~~ ✅ 완료(2026-08-06) — PR [#50](https://github.com/data-sy/my-math-teacher/pull/50) 머지 후 `mmt2024/mmt-front:2.0.2` 배포, 라이브 번들 검증까지 통과.** **(이하 당시 절차 기록 — 재배포 시 참고. 실제 사용된 절차는 [`archive/m7-relaunch-scripts/`](docs/handoff/archive/m7-relaunch-scripts/) 의 `deployfront.sh`) 배포 재개 시 잔여 절차(구 🤖-런치-마감 핸드오프 흡수, 2026-07-19):** ① `docker push mymathteacher/mmt-front:2.0.0`(Docker Hub 로그인 — 사람) ② M6 배포 스크립트/EC2 compose 의 프론트 태그 전환 경로 `/analyze-before-change` 급 확인(롤백 = 1.0.0 원복) ③ 배포 실행 = 외부 노출 — 사용자 확인 필수 ④ 배포 후 실검증(사람) = 실 OAuth 3사 각 1회(소셜 로그인=가입) + 게이트 경유·홈 링크 변형 2종 + 동의 취소 실패 1회 → ⑤-A 인라인 에러 확인, [기기 체크리스트](docs/handoff/m7-frontend-v2-device-checklist.md) 잔여(safe-area·그래프 제스처·A안 재확인) 수거 ⑤ 런치 스왑 후속 거버넌스(사용자 승인 경유) = `web/CLAUDE.md` 전면 재작성 + `web-v2/CLAUDE.md` 신설 + 구 `web/` 정리 시점 결정(ADR-0011 Consequences). 카피 방향은 여전히 열린 결정([backlog](docs/backlog/m7-copy-direction-highschool-persona.md) — 결정 전 현행 유지).
-  - **프론트 v2 자기완결 빌드 ✅ 완료 (2026-07-18, 자율주행 런 — 브랜치 `feat/m7-ux-redesign`):** 제로베이스 샌드박스(6화면+mock 완주+e2e+틸 그로스)를 이 리포에 단계별 정착. ① 와이어프레임 정본 통합(02·03 ●4 — 조건부 폐기 시트·③ 동급 2버튼 확정 반영) ② 구현 스펙 정착([`frontend-spec.md`](docs/specs/m7/frontend-spec.md) + [`assumptions.md`](docs/specs/m7/assumptions.md), §8 실계약 검증표) ③ `web-v2/` 뭉치별 커밋(스캐폴드→API→mock→셸+화면→e2e→기능→디자인) + **실서버 계약 흡수 어댑터**(A-2 `known` 치명 정정·chapters 트리 fan-out·nodes/edges 중심 서브그래프·queueItemId+`current`·귀속 중첩·에러 바디 plain text·fail-soft=urgency:null 파생·OAuth 실패 콜백=`/?error=`) — **mock e2e 9종 green + 실서버 핵심 플로우 완주**(preview==귀속 결정론 동치 확인) ④ 캡처 13장 시각 검증 + [실기기 체크리스트](docs/handoff/m7-frontend-v2-device-checklist.md)(사람 몫) ⑤ nginx 배선(ADR-0011 — `mmt-front:2.0.0` 이미지, 로컬 docker 로 SPA fallback+프록시 검증, 롤백=1.0.0 태그). **POC 발견 수정:** 체크리스트 토글 무음 실패 → 인라인 피드백+e2e. **백로그 신규:** 빈 큐 엣지(알아요 폐쇄가 후보 전부 필터 — 백엔드 병합 로직 재검토)·고등 커리큘럼 도메인 매핑·'모두 보기' 전체 그래프 엔드포인트. **소화:** 진행분 폐기 확인탭(구현 완료 — 백로그 문서 흡수·폐기 2026-08-06). **남은 사람 몫:** 실기기 시각검증·실 OAuth 3사 완주(운영 도메인)·프로덕션 이미지 push/배포·카피 방향 결정([`m7-copy-direction-highschool-persona.md`](docs/backlog/m7-copy-direction-highschool-persona.md) — 열린 결정, 현행 카피 유지 중).
-  - **결과·그래프 화면 후속 트랙 (2026-08-05~06, 브랜치 `feat/m7-item-selection`):** 재런치 후 사용자가 실사용에서 짚은 미완 4건 — 핸드오프 정본 = [`🤖-M7-프론트-후속-핸드오프.md`](docs/handoff/archive/🤖-M7-프론트-후속-핸드오프.md).
-    - **노드 시트 "다음(후수)" = 채우지 않기로 결정(discard, 2026-07-26 사용자 · 백로그 문서 흡수·폐기 2026-08-06)** — ⑥ 노드 정보 시트의 후수 칸이 거의 항상 "—" 인 것은 렌더 버그가 아니다. `/concepts/nodes/{cid}`·`/edges/{cid}` 가 **cid 를 최상위로 센터링한 선수 폐쇄 서브그래프만** 반환해 나가는 엣지가 0 이기 때문(실측: 7123 기준 `source==7123` 엣지 0). 렌더는 먼저/다음 대칭이라 **채우려면 백엔드 후수 조회가 필요**한데, **채우면 오히려 노이즈**라는 판단으로 현행(placeholder "—") 유지 — 코드 변경 없음. 방향이 바뀌면 이 결정부터 뒤집는다
-    - **D 그래프의 목적 ✅ 결정·구현 완료** — ④-B ●8 그래프 = **학습 큐 그 자체의 DAG**(노드 = 저장된 계단 항목만, 간선 = 그들 사이 선수관계). 구 구현은 *현재 항목의 선수 폐쇄*를 그려 큐에 없는 개념이 대부분이었고 뒤쪽 계단·다른 가지는 아예 빠져 `pathIds` 하이라이트가 칠할 대상이 없었다 — "학습 경로 보기"가 약속한 것과 화면이 어긋난 지점. 와이어프레임 `04-result.html` ●8("무너진 토대 → 목표 개념 계단이 그래프 위에 하이라이트")이 이미 요구하던 것이라 **규약 변경 아님**. 전용 엔드포인트 없이 **카드별 `edges/{id}` 합집합을 큐 노드로 필터**해 조립(백엔드 무변경) — `from_concept_id IN (선수 폐쇄)` 쿼리 성질상 누락 없음이 보장됨(2026-08-05 실측)
-    - **C 라벨 정책 ✅ 해소(D 의 파생)** — 노드가 큐 항목뿐이라 **라벨 전체 상시 노출**로 전환(구 정책 = 전 노드 `text-opacity: 0`, 선택 노드만 노출 → "빈 동그라미만 뜬다"). 겹침은 이름 축약 + 간격(`spacingFactor` 1.9) + **초기 줌 하한 0.85**(fit 이 13노드에서 실효 4px 로 축소하던 것) + 콘텐츠 경계 패닝 클램프로 처리. 큐 상태 2종(완료 = 점선·물러남 / "여기부터" = PRIMARY 링) 추가 — 새 hue 없이 기존 어휘만 재사용해 A안 "노드 6 상태 고정" 팔레트 불변
-    - **B 근거 문구 ✅ 1단계 완료** — `blockedDescendants === 0` 이면 문구를 숨긴다. 전체 1,631개념 중 **577개(35.4%)가 0개**라 "급하다고 카드에 올려놓고 근거는 아무것도 안 막음"이 라이브에서 실제로 나왔다. 2단계(숫자 → 후수 개념명 지목)는 백엔드 작업이라 **[M8] 로 이관**
-    - **A 개념 링크 → [M8] 승격** · **부수 수정:** 홈 로그아웃 버튼이 `.loginRow a` 셀렉터에 안 걸려 가운데 정렬 전폭으로 뜨던 것(2.0.1 배포분) 수정 · 스테일 e2e 카피 단언 1건(`약점 0` — a0298b0 에서 바뀐 문구) 갱신
-    - **검증:** mock e2e **16/16 green**(신규 `queue-graph.spec.ts` 2건 포함 — 큐 DAG 요청 형태·노드 탭 계단 번호·완료 토글 후 노드 집합 불변) · 390px 실렌더 캡처 확인
-    - **⚠️ 승인 대기:** 홈 인증 행 상시 노출이 `01-home.html` ●7 "로그인 상태면 링크 자체가 없음(●1 배너와 상호 배타)"를 깬다. 조사 결과 그 배타 조항은 **독립 설계 판단이 아니라 파생 결론**(●7 은 2026-07-17 05-login-error 검수에서 *"저장된 큐 진입로 확보"* 목적으로 신설 → 로그인 상태면 배너가 그 역할을 하니 중복 제거). 전제(로그인 ⇒ 배너 있음)가 "로그인 + 큐 없음"에서 깨지고, **로그아웃 진입점은 PRD·spec·와이어프레임 어디에도 설계된 적이 없다**(spec-02 §API 매핑 한 줄뿐). 설계 문서는 데이터면이라 **사용자 승인 후 갱신** — 3안 비교 시안으로 제시 완료
-    - **미착수 이월:** ④-B 그래프는 큐가 클 때(13계단) 한 화면에 다 안 들어와 패닝이 필요 — "전체 보기" 어포던스 여부는 실기기 확인 후 판단
+- **[M7] 제품 피벗 — 자가진단 + React 재작성** — 🟢 **라이브. 남은 것은 폴리싱·백로그뿐.**
+  - 문제 풀 실부재로 진단이 막혀 **제품을 피벗**했다: 문제풀이 → **self-report OX 자가진단**,
+    학습지 출제 → **그래프 학습 경로 + 개념 링크**, Vue → **React 새로 작성**(마이그레이션 아님), 모바일 퍼스트.
+  - 정본: [milestone-7](docs/milestones/milestone-7-product-pivot.md) · [PRD](docs/prd/m7-prd.md) ·
+    [specs/m7](docs/specs/m7/) · **화면 계약 = [`docs/design/v2/`](docs/design/v2/)**(`00-flow-map.html` 이 전이 SSOT)
+  - ⚠️ **승인 대기 1건:** 홈 인증 행 상시 노출이 `01-home.html` ●7 계약을 깬다 — 3안 비교 제시 완료, 사용자 결정 필요
 
-- **[M8] 개념 학습자료 링크 (spec-03 승격 · 🚧 진행 중 — 코드 머지·시드 1차 완료)** — 2026-08-05 **별도 마일스톤으로 승격**(사용자 결정). M7 안에 "spec-03 층"으로 매달려 있던 것을 떼어낸다: **설계는 2026-07-13 U1~U6 사인오프로 이미 확정**됐고 미완인 것은 **구현 + 콘텐츠 수급**인데, DB 테이블·백엔드 조회에 더해 **사람 손 시드 작업**(병목 상위 30~50 개념 × 링크 3개)이 붙어 M7 잔여(프론트 폴리싱)와 무게·성격이 다르기 때문.
-  - **설계 정본:** [`docs/specs/m7/spec-03-learning-path-links.md`](docs/specs/m7/spec-03-learning-path-links.md) — `concept_links` 테이블 · 병목 상위 30~50 시드 + 결측 허용 · source 귀속 = §4.6 타이브레이크 미러 · 개념당 링크 3개 · 월 1회 점검 · goal=primary. 구현 감시 2건(provenance NULL 누수 · nullable+앱 non-null)은 spec-03 §6
-  - **✅ "링크만 먼저" 트랙 (2026-08-06 코드 완료 → 2026-08-15 PR [#54](https://github.com/data-sy/my-math-teacher/pull/54) 머지):** 범위는 사용자 결정으로 **링크에 한정**했다(reason/goal = `source_concept_id`·`goal_concept_id` provenance 운반과 ⑥ 경로 강조는 후속 — spec-03 §3.2 자체가 "컬럼 하나 추가보다 무거운 변경"으로 경고). 커밋 4개(Task 분리): `5447a5f` 스키마 · `b77490e` 백엔드 부착 · `4efb18b` 프론트 계약 정렬 · `a545636` 시드 도구. 커밋 `f11a31f` 큐레이션 1차분. **백엔드 181 green 재실측(2026-08-15, `cleanTest` 강제 재실행 — 42클래스·실패 0·에러 0·스킵 0)** · mock e2e 18 passed
-    - **Analyze-Before-Change 실측:** `DiagnosisResultAssembler:50` 이 `List.of()` 하드코딩(=빈 배열의 진짜 원인) · `concepts.concept_id INT` ↔ spec 의 `concept_links.concept_id INT` 타입 정렬 확인 · **계약 불일치 발견·해소** = 프론트 `ExternalLink{label,url}` ↔ spec `{title,url,provider}` → spec 기준으로 정렬(사용자 결정) · 링크 0개일 때 빈 div 가 `margin-top:7px` 죽은 여백을 만들던 것도 §2.2 계약대로 수정
-  - **✅ 남은 2건 모두 완료 (2026-08-15):** ① **프로덕션 DDL 적용** — `m8-apply-concept-links-ddl-prod.sql` 내용을 인라인한 `host` 경유 스크립트로 멱등 적용, POSTFLIGHT table·fk·idx **3/3 OK** ② **콘텐츠 큐레이션 1차분** — 파일럿 **10개념 × 26링크** 적재(alive 26 · FK 고아 0). provider = EBSMath 1순위·칸아카데미 보조. **시드가 0이어도 안전하다**는 전제는 그대로 — 링크 결측이 계약이라 3개를 못 채운 4개념(단항식·거듭제곱의 부호·구간·함수)은 2개로 두었다
-  - **⚠️ 발견(2026-08-15): 링크 점검(R4)이 HTTP 상태로는 죽은 링크를 못 잡는다** — EBS·칸아카데미 둘 다 없는 경로에 200 을 반환한다(실측). spec-03 §4 가 설계한 `HEAD → 실패 시 alive=FALSE` 방식은 **모든 링크가 죽어도 "전부 alive"** 를 보고하는 위장 green 이다. **후보 19개 중 6개(32%)가 실제로 죽어 있었고** 죽는 방식이 세 가지였다(홈 리다이렉트·무한 로딩·"총 0건" 빈 목록). 점검 스크립트는 아직 미구현이라 잘못된 구현이 나가기 전에 잡았다. 대안 4안·권장(사람 표본 점검 + hub 레벨 링크) = [`docs/backlog/concept-links-liveness-check-false-green.md`](docs/backlog/concept-links-liveness-check-false-green.md). **spec-03 §4 수정은 데이터면이라 승인 후 반영**
-  - **⚠️ 발견(2026-08-15): 병목 상위 50 중 43개가 초등 개념** — 구조상 당연하나(저학년일수록 위로 많이 막는다) PRD 타깃은 중·고등 셀프러너다. 순위 그대로 시드하면 "1부터 5까지의 수"를 큐레이션하게 된다. **파일럿은 중·고등 필터 상위 10 으로 진행 확정**(2026-08-15 사용자). spec-03 §2.2 의 시드 기준에 학교급 필터를 더하는 것 — **spec 수정은 승인 후**
-  - **⚠️ 발견(2026-08-15, 배포 후 라이브 검증): 링크가 가장 필요한 학생이 링크를 못 받는다** — 같은 단원을 두 시나리오로 완주시킨 실측: *초등=알아요/중등=몰라요*(정상적인 중1 셀프러너)면 `6784 방정식`이 1위 카드로 올라와 **링크 3개가 뜬다** ✅. 반면 *전부 몰라요*(기초가 무너진 학생)면 카드가 초등 5개로 내려가 **전부 링크 0**. 파일럿 개념은 질문은 되지만 카드에 안 올라온다 — 카드는 질문된 개념이 아니라 **DKT 시급도 top-N** 이라 백지 상태에선 초등 기초가 상위를 독식한다. **중·고등 필터 결정은 절반만 맞았다**: "초등 개념 = 초등학생용"이 아니라 **"중·고생의 무너진 토대"** 이기도 하다(그게 이 제품의 전제다). 2차 시드에 초등 병목 상위 10 추가 → [`docs/backlog/concept-links-miss-the-students-who-need-them.md`](docs/backlog/concept-links-miss-the-students-who-need-them.md)
-  - **✅ 라이브 반영 완료 (2026-08-15)** — PR [#54](https://github.com/data-sy/my-math-teacher/pull/54) 머지 → 배포 [run 31895356116](https://github.com/data-sy/my-math-teacher/actions/runs/31895356116). before/after 실측 = `방정식` 카드 `links=0` → `links=3`. **커버리지는 10/1,631 개념**(파일럿 1차분)
-  - **파생 항목(같은 트랙에서 처리):** 카드 근거 문구를 숫자(`blockedDescendants`) 대신 **후수 개념명 지목**("'○○'을 배우려면 먼저 필요해요")으로 바꾸는 안 — 2026-08-05 결정 B 의 2단계. 백엔드 DTO 필드 + 대표 후수 선정 쿼리 필요. 1단계(0개면 문구 숨김)는 프론트에서 처리 완료
+- **[M8] 개념 학습자료 링크** — 🚧 **1차 시드까지 라이브**(`links 0→3` 실측). **커버리지 10/1,631 개념.**
+  - 정본: [spec-03](docs/specs/m7/spec-03-learning-path-links.md)
+  - 남은 것 ① 2차 시드 = 초등 병목 상위 10 ([왜](docs/backlog/concept-links-miss-the-students-who-need-them.md) — 기초가 무너진
+    학생일수록 카드가 초등으로 내려가 링크를 못 받는다) ② 링크 생존 점검 재설계
+    ([HTTP 200 이 위장 green](docs/backlog/concept-links-liveness-check-false-green.md)) ③ 카드 근거 문구를 후수 개념명으로
+  - ⚠️ **승인 대기:** ①②는 spec-03 수정을 동반한다(규범 문서 = 승인 후 반영)
 
-- **[M5] 관측성 — Grafana/Prometheus 로 무중단 컷오버 재계측 (착수 대기)**
-  - M4 무중단 배포를 로그(k6+`docker stats`) 기반으로 증명 완료 → 같은 컷오버를 Prometheus 스크레이프 + Grafana 상관 시각화로 재계측(nginx upstream·JVM CPU·컨테이너 CPU·k6 5xx 한 타임축 + 복합인덱스 EXPLAIN 스크린샷). **관측성·학습 목적, 무중단 증명의 차단 요소 아님.**
-  - 상태: **브랜치 `feat/m5-spec-01-observability-grafana-prometheus` 생성(파킹) — spec 미작성, 착수 대기.** 착수 시 milestone-5 + spec-01 문서를 spec-first 로 작성.
-  - 백로그 정본: [`docs/backlog/observability-grafana-prometheus-for-zero-downtime.md`](docs/backlog/observability-grafana-prometheus-for-zero-downtime.md) (k6 web dashboard 접힘, actuator+micrometer-registry-prometheus 도입=ADR감, 인프라 사이클 1회 추가)
+- **[보안 위생] 로컬 DB 자격증명 로테이션** — ⬜ **미착수.** 🟡 위생 수준
+  - GitGuardian 8/29 알림(**오탐**) 검증차 공개 레포 10개를 전 히스토리 스캔하다 **별건**으로 나왔다.
+  - **로컬 개발용 자격증명**이 공개 이력에 평문으로 남아 있다. **프로덕션 RDS 는 무사** —
+    비번은 `tfvars`(커밋 0)에만 있고 SG 가 IP 핀이다. 실피해 범위는 로컬 컨테이너에 한정된다.
+  - 값이 **git 이력**에 있으므로 파일을 고치는 것만으로는 해소되지 않는다 — **해결 = 값 로테이션**.
+    그래서 👤 몫(박스 접근)이 본체이고 🤖 몫은 뒤따르는 정리다.
+  - 조사 중 마스킹 정규식이 두 번 뚫려 값이 세션 로그에 평문으로 남았다(커밋 0, 로컬 한정).
+    → 교훈: 값 형태를 예상해 마스킹하지 말고 `grep -c`·길이·해시로만 확인한다.
+  - 🔒 **정본·실행 프롬프트·영향 범위는 로컬 전용**(gitignore). 로테이션 전에 위치를 공개
+    저장소에 게시하지 않으려는 의도적 선택이다 — 로컬에 파일이 그대로 있으니 착수엔 지장 없다.
 
-> M4 종료(2026-07-06). M3(Neo4j 폐기)는 Next 로 예약. 현재 코드상 진행 중인 마일스톤 구현은 없음(M5 브랜치는 파킹 상태).
+- **[M5] 관측성 — Grafana/Prometheus 재계측** — ⬜ **파킹.** 브랜치만 있고 spec 미작성.
+  M4 무중단은 이미 로그로 증명됐으므로 **차단 요소가 아니다**(관측성 학습 목적).
+  [백로그](docs/backlog/observability-grafana-prometheus-for-zero-downtime.md)
 
 ---
 
-## Next — 다음 분기 (착수 예정)
+## Next — 다음 분기
 
-- **[M3] 그래프 인프라 폐기 + 운영 출시 정책**
-  - M2 검증된 CTE 경로를 피처 플래그 ON 으로 점진 출시, 관찰 후 Neo4j 인프라·코드 일괄 폐기
-  - ADR 0006 (점진 전환 정책) + ADR 0007 (Neo4j 폐기 통합본) 작성
-  - 본 프로젝트는 운영 서비스가 아니므로 실제 수행은 선택적 — 마일스톤 문서로 의사결정·체크리스트만 정의 완료
-  - 문서: [`docs/milestones/milestone-3-graph-infra-deprecation.md`](docs/milestones/milestone-3-graph-infra-deprecation.md)
-
-- **[Epic] JdbcTemplate → JPA 전환**
-  - 레거시 JdbcTemplate 기반 코드를 JPA로 점진적 마이그레이션
-  - 레포지토리 단위로 쪼개어 복수 마일스톤으로 분할 예정
+- **[M3] Neo4j 그래프 인프라 폐기** — 의사결정·체크리스트는 [문서로 정의 완료](docs/milestones/milestone-3-graph-infra-deprecation.md).
+  운영 서비스가 아니므로 실수행은 선택
+- **[Epic] JdbcTemplate → JPA 전환** — 리포지토리 단위로 쪼개 복수 마일스톤으로 분할 예정
 
 ---
 
-## Later — 백로그 (아직 미착수, 검토 단계)
+## Later — 백로그
 
-- **✅ [Infra] TLS 자동갱신 — 해소 완료 (2026-08-19)** — 재런치가 인증서 재발급만 하고 갱신 경로를 안 옮겨 만료(`2026-11-03`) 80일 전까지 **증상 없이** 방치돼 있었다(08-15 실측 발견: 타이머 0·유닛 0·cron 0·certbot 바이너리 없음). `certbot-renew.timer`(주 1회·`Persistent`·`enabled`) + `nginx -s reload` 등록하고 **dry-run "all simulated renewals succeeded" 까지 실증**. 재발 방지로 재런치 런북 §5 에 "재발급 ≠ 갱신 재등록" 을 명시 단계로 추가 — 그게 이번 건의 본체였다
-  - 상세·확인 명령·재발 방지: [`docs/backlog/tls-cert-renewal-timer-after-relaunch.md`](docs/backlog/tls-cert-renewal-timer-after-relaunch.md)
+정본은 각 파일이다. 여기엔 "무엇이 왜 남아 있나" 한 줄만 둔다.
 
-- **⭐ [Infra/Test] 테스트 스위트가 CI 에서 못 돈다 — `skip_tests` 우회가 상수가 된 진짜 이유** (2026-08-15 등록 — **원인 3종 실측 완료**) — 전 스위트가 CI 에서 성공한 적이 **한 번도 없다**. M4 §4 측정용 *한시* 우회로 도입된 `skip_tests` 가 되돌리면 통과하지 못해 사실상 상수로 굳었고, 로컬에서만 초록이다. 원인 = ① **프로파일 의존**(`include: securelocal` 이 CI 에선 no-op → `${...}` 미해결로 컨텍스트 로드 실패, 7개 클래스) ② ~~Redis 부재~~ ✅ PR [#56](https://github.com/data-sy/my-math-teacher/pull/56) 로 해소 ③ **Testcontainers 컨테이너 기동 실패**(클래스마다 MySQL·Neo4j 를 새로 띄워 러너 자원 압박, 1개 클래스). ①이 `Later` 의 "프로파일·로깅 위생 정리" 본체다. **`timeout-minutes` 를 넣은 뒤에야 로그가 남아 진단이 됐다** — 첫 실패(57분 행)는 러너 소실로 로그 blob 조차 없었다
-  - 상세·실측·조치 순서: [`docs/backlog/test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md)
+### ⭐ 착수 대기 상위
 
-- **⭐ [Infra] AMI 필터가 minimal 을 집어 SSM 에이전트 부재 + 전체 apply 의 EC2 교체 위험** (2026-08-07 등록 — **착수 대기 상위**) — `compute.tf` 의 `al2023-ami-*-x86_64` 필터가 **minimal 변형까지 매칭**해 재런치 때 **SSM 에이전트가 없는 이미지**를 집었고, 그게 2026-08-05 이후 CD 가 죽어 있던 진짜 원인이다(러닝 인스턴스는 `dnf install` 로 복구 — 재발 방지는 미착수). 더 큰 지뢰는 **`most_recent = true` 인데 `lifecycle` 블록이 없다**는 것 — 새 AL2023 AMI 가 나올 때마다 **전체 `terraform apply` 가 프로덕션 EC2 를 교체(destroy+create)하려 든다**(2026-08-07 IP 동기화는 `-target` 이라 무사했다). 결정 3건(필터 조이기·`ignore_changes=[ami]`·user_data 설치)은 순서가 중요 — **안전장치 먼저**
-  - 상세·실측·결정거리: [`docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md`](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md)
+| 항목 | 한 줄 | 정본 |
+|---|---|---|
+| 🟡 테스트 CI 이식성 | 전 스위트가 CI 에서 성공한 적이 없다. **원인 A·B 해결, C 미착수** — 프로파일 미지정 4개 클래스도 남음 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
+| SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
-- **⭐ [Infra] SSH 를 IP 고정 인그레스에서 SSM Session Manager 로** (2026-08-06 등록 — **착수 대기 상위**) — SG 의 SSH 인그레스가 `${var.my_ip}/32` 라 **공인 IP 가 바뀔 때마다 SSH·CD 가 통째로 막힌다.** 사이트(80/443)는 멀쩡해서 "서버는 사는데 왜 못 붙지"로 오진하기 쉽고, 실제로 2026-08-06 CD 실패 진단이 여기서 한 번 교착됐다. 재발이 구조에 내장돼 있어 임시 대응(`sync-my-ip.sh`)으로는 사람이 매번 돌려야 한다. **선행 조건 = SSM 등록 정상화**(순환 의존 — Session Manager 로 갈아타는 순간 접근 수단이 0이 되므로). 이관 본체는 인프라가 아니라 **SSH 를 쓰는 스크립트 5개 + 런북**이고, **비상 접근 경로 설계를 빼먹으면 같은 교착이 재발**한다
-  - 상세·대안 기각 사유(terraform `http` data source 자동탐지 = plan 비결정성으로 보류): [`docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md`](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md)
+### 그 외
 
-- **[Infra/Data] 로컬 DB 초기화(시드) 정의** (spec-04 검증에서 발견, 2026-06-24)
-  - 로컬 `mmt` DB 가 비어 있고(fresh 볼륨), `api/sql/` 시드 26개가 v1/non-v1 혼재·순서/FK 의존이 얽혀 "한 방에 채우는" 정본 초기화 절차가 없음. **`probabilities` 는 AI 예측 생성물이라 시드에 아예 없음**(weakness-diagnosis 가 의존). 그래서 결과 화면 실데이터 검증 때마다 수동 합성이 필요.
-  - 범위: ① create.sql + 필요한 insert 들을 의존 순서로 묶은 **단일 초기화 스크립트**(또는 `docker-entrypoint-initdb.d` 마운트) ② depth-0 포함 대표적 진단 1건 + probabilities 합성 시드(데모/검증용) — [Data] depth-0 백로그와 통합. **M4 의 "RDS 스키마·시드 적재(R4)" 가 이 정본 시드를 재사용**하므로 M4 진입 전 정리하면 이득.
-  - 참고: spec-04 검증은 `scratchpad/seed_min.sql`(화면 필요분 최소 가짜 데이터)로 우회함 — 정본 아님, 검증 후 비움.
-- **[Design] ResultView 선수지식 트리 "누적해서 보기" affordance** (spec-04 D5 에서 이월, 2026-06-24)
-  - spec-04 에서 결과 화면 raw 표를 삭제하며 표 그룹헤더의 "선수지식 트리 누적해서 보기" 버튼도 사라짐. 카드의 "선수지식 트리 보기"가 `showTree`(=`knowledgeSpace` 누적 push)라 **동작상 누적은 이미 유지**되나(여러 카드 클릭 시 한 트리에 쌓임), "여러 약점 개념을 한 선수지식 트리에 누적해 비교/탐색한다"는 의도를 **명시적 UI 로 살리는** 건 별도 설계 필요.
-  - 검토 범위: 누적 상태 시각 표시(어떤 약점들이 트리에 올라와 있는지)·개별 제거·"전체 누적 보기" 진입점. 현 `clearCy`(화면 비우기)와의 관계. 사용자 결정: "어떤 식으로 어디에 살릴지"는 열림.
-- **[Infra] RedisUtil value serializer isolation 리팩토링** (M2 spec-02 PR [#21](https://github.com/data-sy/my-math-teacher/pull/21) 에서 발견)
-  - `RedisUtil.set` 이 호출마다 `RedisTemplate.setValueSerializer` 를 클래스 단위로 교체 → 다른 호출의 deserialize 와 충돌 (`ClassCastException`). M2 spec-02 에서는 통합 테스트 cleanup (`deleteByPrefix`) 으로 우회.
-  - 범위: 호출 단위 serializer isolation 또는 통합 serializer 도입. ADR 작성 필요.
-  - 완료 시 `ConceptServiceFeatureFlagTest.WhenFlagTrue` 의 `@BeforeEach cleanGraphCache` 우회 코드 제거 가능.
-- **[Infra] Testcontainers Redis 자동 ServiceConnection** (Spring Boot 3.2+ 업그레이드 의존)
-  - M2 spec-02 에서 G2 로 검토했으나 Spring Boot 3.1.6 의 Redis `@ServiceConnection` 미지원으로 보류. 3.2+ 에서 자동 지원.
-  - 범위: Spring Boot 업그레이드 후 `TestcontainersConfig` 에 Redis 컨테이너 추가, `application-test.yml` 동적 주입. 로컬 `mmt-redis` 의존 없이 CI 친화 통합 테스트.
-- **[Infra] 프로파일·로깅 위생 정리** (M1 Spec 03 에서 관찰됨)
-  - `application.yml` 의 `spring.profiles.include: securelocal` 을 `!test` 프로파일 조건부로 전환 → 현재 `@ActiveProfiles("test")` 만으로는 securelocal 이 배제되지 않아 테스트가 `@Import(TestcontainersConfig.class)` 강제됨 (Spec 03 작업 규칙 2 "프로파일 독립성" 미완)
-  - `application-prod.yml` · `application-local.yml` 도입으로 4 프로파일 (default/local/test/prod) 체계 완성
-  - `application.yml` 의 공통 `com.mmt` · `springframework.data.neo4j` · `springframework.security` DEBUG 로거를 프로덕션에서 INFO 로 하향 (M1 Spec 03 Task 3.3 에서 관찰)
-  - 완료 시 `FeatureFlagIntegrationTest` 류가 Testcontainer import 없이도 기동
-- **[Infra] Terraform 으로 M4 EC2/RDS 프로비저닝 (IaC 학습 겸용)** — ✅ **완료(M4 에서 소진)**: Phase A(LocalStack plan-only 4슬라이스)·Phase B(real AWS plan) 구현 후 M4 라이브에서 `apply→destroy` 사이클 수 회 실행(2026-07-05·07-06). 최종 apply 18 리소스, destroy 후 잔여 0(state+AWS 이중검증). G3 게이트가 실제 `terraform apply` 로 동작함.
-  - **경계(백로그 문서 흡수·폐기, 2026-08-06):** 성격 = **학습(chosen)** 경로 — 순수 ROI 로는 "한 번 깔고 안 건드리는 솔로 인프라"라 콘솔 30분이 맞지만, *Terraform 경험* 목적이면 좋은 첫 소재라 채택했다. 단계 = Phase A(LocalStack `:3` community, 무계정·무과금) → B(계정 후 real `plan`) → C(`apply` = 사람 게이트). **무과금의 진짜 선 = `apply` 를 안 누르는 것** — 안 쓸 땐 반드시 `destroy`(EIP IPv4 ~$3.6/월은 상시 차감). 실행 스펙 = [spec-03](docs/specs/m4/spec-03-terraform-plan-only-iac-sandbox.md)
-- **[M6] 프로덕션 상시 배포 — 이력서 라이브 링크** (2026-07-10 요청 → 2026-07-11 마일스톤 승격) — 🟢 **라이브(`https://www.my-math-teacher.com`, step4·5 완주) + 시크릿 로테이션 6단위·OAuth 3콘솔 등록·AWS Budgets 완료(2026-07-11).** PR [#47](https://github.com/data-sy/my-math-teacher/pull/47) 머지·main `e2b64ba`. 잔여 비차단 = TF Serving 진단 end-to-end 검증(OAuth 완료로 unblock, M6 유일 실질 잔여)·CI 무중단 정합 등 = 백로그 §9/§10. M4 blue-green 메커니즘을 *상시(always-on)* 로 소비해 `my-math-teacher.com` 공개 데모 링크 확보 + 도메인 DNS(타 계정, 이관 불필요) + TLS + 수명주기/비용. 린 스택 ~월 $37, $200 크레딧·6개월 계정 자동 종료 상한 내 취업 전제로 수용.
-  - 마일스톤: [`docs/milestones/milestone-6-production-deploy.md`](docs/milestones/milestone-6-production-deploy.md) · 구성 spec: [spec-01 상시 배포 기반](docs/specs/m6/spec-01-always-on-production-deploy.md)(뼈대) · [spec-02 👤 도메인·수명주기 핸드오프](docs/specs/m6/spec-02-human-domain-lifecycle-handoff.md)(뼈대)
-  - 비용·6개월 종료·도메인 결정 정본: [`docs/backlog/production-deploy-live-resume-link.md`](docs/backlog/production-deploy-live-resume-link.md)
-  - §7 D1 ✅ **확정: TF Serving 실서빙 유지 = 4GB(t3.medium 기준선, ~월 $37)** (2026-07-11) — 진단 실기능 시연 채택. **다음 = D2(TLS)·D3(RDS vs 로컬)·D4(x86/ARM)**
-- **[Infra/Tooling] M4 텔레메트리 하네스(`run-log.sh`) → 재사용 하네스 레포 이관** (2026-07-06)
-  - M4 라이브 측정에 쓴 `infra/terraform/run-log.sh`(init/mark · tf-apply/tf-destroy · ec2 메모리/디스크/docker-stats 스냅샷 · cost 원장, 151줄 · 시크릿 0)는 이 프로젝트에 국한되지 않는 **재사용 가능한 배포·측정 하네스**라, 별도 하네스 레포로 추출하기로 결정.
-  - **실제 이관은 외부 하네스 레포 대상 → 이 repo 안에서 완결 불가**(cross-repo). 그 레포 셋업 시 진행하고, 이관 후 여기엔 M4 전용 얇은 래퍼만 남기거나 레포 참조로 대체.
-- **[Infra/AWS] `mmt-terraform-admin` role 세션 길이 8h 연장** (spec-04 ⑥ 후속, 2026-07-03) — ▶ **착수 가능**(role 생성·사용 확인됨, M4 세션들에서 assume). 매 apply 세션 1h TTL 재-MFA 성가심이 실제로 발생(2026-07-05 destroy 중 만료 사고) → 연장 이득 확인됨. 편의 최적화(가역), 급하지 않음
-  - 목적: assume 한 admin 세션이 Terraform 작업 중 만료돼 재-MFA 하는 성가심 축소. **편의 최적화 — 배포 파이프라인 동작엔 비필수·급하지 않음**(가역).
-  - 전제: IAM role `mmt-terraform-admin`(신뢰정책=`mmt-cli` assume+MFA, AdministratorAccess 부착)이 이미 생성돼 있음(spec-04 §2 G1 ⑤ B_IAM).
-  - 작업: ① IAM 콘솔 → 역할 → `mmt-terraform-admin` → 요약의 **최대 세션 기간(Maximum session duration)** 편집 → 8h (CLI: `aws iam update-role --role-name mmt-terraform-admin --max-session-duration 28800`) ② 로컬 `~/.aws/config` `[profile mmt-admin]` 의 `duration_seconds` 3600→28800 (role max ≥ config duration) ③ 검증 `aws sts get-caller-identity --profile mmt-admin`(MFA 입력 → assumed-role 신원).
-  - 상한: **8h(28800) 채택**. 최대 12h(43200) 가능하나 세션 길수록 노출 창도 커져 8h 로.
-- **[Docs] README 포트폴리오 검수 잔여 4건** (2026-08-07) — 면접관 페르소나 검수 후 README 전면 재작성 완료(2026-08-05: 하이라이트 M7·M2·M4 재편, 아키텍처·ERD Mermaid 재작성, 셋업 → [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) 분리). **2026-08-13 커밋 완료**(`99ac30a`·`741493e`) + 제품 스크린샷 3장 삽입·ADR-0008 Accepted 승격. **잔여 2건 = ① 레포 description 의 "Vue 3" 갱신 ② Postman 명세에 M7 진단 8경로 반영** (둘 다 README 본문 밖 표면). 정본 = [`docs/backlog/readme-portfolio-followups.md`](docs/backlog/readme-portfolio-followups.md) · 검수 리포트 = [`docs/consulting/out/06-readme-portfolio-review.md`](docs/consulting/out/06-readme-portfolio-review.md)
-- DKT 모델 서빙 파이프라인 재검토 (현재 TensorFlow Serving 고정)
-- 프론트엔드(`web/`) 상태 관리·빌드 시스템 현대화
-- CI/CD 파이프라인 정비 및 배포 자동화
-- 모니터링·알림 체계 구축 (Grafana+Prometheus) — 1차 착수분 = **[M5] 무중단 컷오버 재계측**(Now·[백로그](docs/backlog/observability-grafana-prometheus-for-zero-downtime.md)). 프로덕션 상시 모니터링·알림은 그 이후 확장
-- `shared/` 내부 구조 정리 (`diagrams/`, `scripts/`, `data/` 분리 — 필요시)
-- **[Product] 맞춤학습지 비율 배분 출제** (Scope B 후속, 2026-06-23) — count 를 맞춤유형/재출제 비율(예 선수지식:일반 7:3)로 자리 배분하고 버킷별 상한·보충. 현재는 우선순위 tier+spill 우회안으로 출시됨. Scope B spec §향후 개선 참조.
-- **[Design/UX] PersonalView 문항 수 상한 30→20** (2026-06-25, 사용자 아이디어) — ✅ **완료(2026-07-03, 브랜치 `feat/prelaunch-ux-backlog`, 커밋 `8bd5627`)**: `inputNumberValue` `:max="30"`→20, 라벨 "(6 ~ 30)"→"(6 ~ 20)" + 주석 정정. 백엔드 계약 무변경(클라이언트 상한만). 빌드 PASS·`npx eslint` 신규에러 0(선재 노이즈만). 사용자 `/personal` 확인.
-- **[Design/UX] DiagView 비로그인 진입 시 준비된 샘플 학습지 기본 노출 + 자동 선택** (2026-06-25, 사용자 아이디어) — ✅ **완료(2026-07-03, 브랜치 `feat/prelaunch-ux-backlog`)**: 비로그인 진입 시 `seedGuestSample()` 이 고등→수학(상)→복소수와 이차방정식(1)을 자동 주입·선택(selectButtonLevel/listboxLevel watch 의 비동기 목록 fetch 순서를 await+`nextTick` 으로 확정, 레이스 회피) + 학습지 목록을 해당 항목 위치로 스크롤(ScrollPanel 내부만, 전체 페이지는 최상단). **조사 발견:** 미리보기 문항은 `/api/v1/tests/detail`(정답 포함→인증 필수, SecurityConfig #2/#3)에서 오므로 비로그인은 401 → 게스트 미리보기·다운로드가 통째로 공백이었음(보안 하드닝 부수효과, 자동선택이 이를 드러냄). **백엔드(사용자 승인·Analyze-Before-Change):** `GET /api/v1/tests/sample/detail/{id}` 신설(`/tests/sample/**` 이미 permitAll → 보안설정 무변경) — 안내 샘플 491~495만 정답 포함 상세 공개, 범위밖은 403(익명 `/error` 재디스패치로 실제 401), 나머지 `/detail` 은 계속 인증 필수. 프론트는 비로그인 시 이 경로로 조회. **게스트 UX 정리(사용자 반복 피드백):** 저작권상 실제 문제 이미지는 샘플 5개뿐이라 (a) 상단 저작권 배너 블록 제거, (b) 저작권 안내를 미리보기 안으로 이동하되 **비샘플(실제 문제 없음) 선택 시에만** 표시("저작권 제약으로 실제 문제는 샘플(복소수와 이차방정식 1~5)만 제공됩니다")해 실제 샘플 표시와의 모순 제거, (c) 게스트도 전체 학습지 목록 유지(학년 변경 시 정상 노출). **검증:** 빌드 PASS·`npx eslint` 신규에러 0(선재 `endpoint` 부채만)·풀스택 사람 시각검증. **무게:** 프론트 정적·가역이나 백엔드 보안표면 추가라 Analyze-Before-Change 수행.
-- **[Data] 샘플 진단(sample weakness-diagnosis) depth-0 대표문항 행 누락** (2026-06-24) — 비로그인 샘플 학습지(`/weakness-diagnosis/sample/{id}`, 예 userTestId=1)의 `probabilities` 행이 전부 `to_concept_depth≥1` 이고 **depth-0(직접 출제된 대표 개념) 행이 없음**. ResultView 분석결과 표는 문항별 대표(depth-0)를 기준으로 그룹헤더·선수지식 트리 진입을 구성하므로, depth-0 부재 시 대표 개념·트리 진입 버튼이 비고 데모 가치가 떨어짐. 코드는 무가드 역참조 가드(`6098760`)로 크래시는 막아둠(그룹헤더는 행 자체 개념명 폴백, 트리 버튼은 representative 있을 때만). 근본 해결 = 샘플 answer 별 올바른 depth-0 대표 행 시드(item→concept 매핑 기반 INSERT). 실유저 진단 데이터엔 depth-0 가 있어 영향 낮음 → 샘플 품질/데모용 보강 항목. 시드 보강 시 `ProbabilityService` 생성 규칙과 정합 확인.
-- **[Design/Ops] 문의·관리자 연락 메일 교체 + 하드코딩 중앙화** (2026-06-24) — ✅ **중앙화 완료(PR #36, 2026-06-25)**: 6곳 하드코딩(`AppFooter.vue`×1·`DiagView.vue`×2·`RecordView.vue`×2·`PersonalView.vue`×1)을 단일 상수 `web/src/constants/contact.js`(`CONTACT_EMAIL`)로 모으고 참조로 교체. 빌드 PASS·신규 lint 에러 0(선재 레거시 노이즈만, 변경 전후 동일). **✅ 값 교체 완료(2026-07-03):** 임시 `contact.mmt.2024@gmail.com` → 운영 계정 `mmt.contact2026@gmail.com` (`contact.js` 한 곳 수정으로 전 화면 반영). 커스텀 도메인 메일 전환은 향후 옵션.
-- **[Research] 맞춤 출제 전용 알고리즘 조사·학습** (2026-06-23) — 현재 출제 로직은 휴리스틱(depth 우선순위 tier + round-robin fill). 학습자 약점 기반 문항 추천에는 전용 분야가 있을 가능성: **추천 시스템(recommender systems), 문항반응이론(IRT)·컴퓨터적응검사(CAT), 지식추적(Knowledge Tracing) 기반 문항 선택**. 당장 구현 아님 — 공부 후 적용 가능하면 비율 배분/Scope B 출제 로직을 원리 기반으로 대체 검토. (DKT 모델이 이미 있으므로 KT 계열과의 연계가 자연스러울 수 있음.)
-- **[GTM] 실사용자 확보 준비 — 컨설팅 페르소나 분석 1회** (2026-07-06) — 리디자인·기능 정리가 수렴하면 **실사용자 확보(go-to-market)** 를 앞두고, 이 저장소와 격리된 세션용 컨설팅 프롬프트로 전략 분석을 1회 수행. (엄밀히 서비스는 이미 배포돼 있어 "출시"가 아니라 실사용자 확보/GTM 단계다.) 프롬프트 정본: [`docs/consulting/🤖-user-acquisition-consulting-prompt-draft.md`](docs/consulting/🤖-user-acquisition-consulting-prompt-draft.md)(페르소나 '린'·MMT 브리핑 자체포함, draft — 2026-07-31 루트 정돈 때 이동). **초기 어젠다 4건:** ① 진단 문항 실부재 — LLM 문제풀 생성 vs "안다/모른다" OX 자가응답 완화 vs 심리테스트형 재프레이밍(정오답 기반 AI 기조와의 정합이 쟁점) ② 맞춤 학습지 제거·"어디를 공부하라" 안내까지만 다운그레이드(이력서/포폴 문구 조정 필요 여부 포함) ③ 아마추어 디자인 전문 검수 기반 리디자인 방향(3년 전 Vue 템플릿) ④ 니치 타겟 유저 확보 — 채널·유입 vs 가입·살포 타이밍 전략. **분석 결과물은 `docs/consulting/` 에 리포트로 수렴 예정.** draft 프롬프트라 실행 전 브리핑 최신화 전제.
-- **[Design] 실배포 전 리디자인** (전문가 페르소나 컨설팅 2건 수렴, 2026-06-23)
-  - 2년 묵은 디자인으로 실서비스 배포를 앞두고 정리. 리포트: `docs/consulting/out/design-ux-report.md`, `react-migration-scope.md`. **결론: launch 까지 Vue 유지 + 리디자인도 Vue 에서 + React 이주는 launch 후 재검토.** — ⚠️ **이 결론은 [M7] 로 supersede(2026-07-11):** self-report 피벗으로 프론트를 어차피 새로 그리게 되어 **React 전환을 리디자인과 합쳐 지금 수행**. P0/P1 산출물은 UX 결정만 재사용, 코드는 React 재작성으로 대체. 정본 = [`docs/milestones/milestone-7-product-pivot.md`](docs/milestones/milestone-7-product-pivot.md)
-  - 이월 UI 항목:
-    - ~~카피 일제 정리 (영문·오타 → 한국어 일관)~~ — ✅ `c9afabf`(영문 라벨/버튼 한국어 전환) + `63a5cff`(오타: 을 오기·HOME→홈·로그아웃 줄바꿈) 처리. 브랜드/기술명/푸터 법적 문구는 영문 유지. 표기: 버튼 예/아니오.
-    - ~~그래프 응급 접근성 (노드 크기·호버→클릭 선택·색 대비)~~ — ✅ spec-03 처리(브랜치 `feat/pre-launch-redesign`). spec `docs/specs/product/spec-03-graph-accessibility-emergency.md`. ConceptView·ResultView 에 복붙돼 있던 Cytoscape 렌더링 로직을 `composables/useConceptGraph.js` 로 추출(거동 불변, `4437e83`)한 뒤 한 곳에서 응급 수정: ① 학년색 12색→학교급 3색(초 green/중 violet/고 magenta)+명도 3단계, 노란색 퇴출, 전 색 흰배경 ≥3:1(WCAG 1.4.11), 색 진실원천 `GRADE_COLORS` 1곳·범례 바인딩(`2fdc0bc`) ② 호버전용→클릭 선택유지+빈배경 해제(모바일 대응)·노드 7→14·폰트 7→11(`75498ed`). 빌드 PASS, lint 신규에러 0(추출로 기존 dead-code error 2건 정리), dev 배선 PASS. **런타임 시각검증 PASS**(2026-06-24, 사람: ConceptView 포물선 그래프 — 노드 가독·노란색 제거·학교급 3색+명도·클릭 선택유지·빈배경 해제 확인. 시각리뷰로 중등 violet 명도 간격 확대 `97830e1`. ResultView 그래프는 동일 `useConceptGraph` 컴포저블이라 동치성으로 갈음 — 샘플 depth-0 누락으로 트리 직접 진입은 불가, 별도 [Data] 백로그). B-2 단일캔버스 진입 재설계·줌/검색/미니맵·전역 토큰화는 이번 범위 밖(Later).
-    - ~~DiagView 비로그인 다운로드 다이얼로그 **"회원가입 및 로그인" 버튼 라벨/동선 불일치**~~ — ✅ #3 처리(3 Task, `63e284c`+`ec605da`+`01763e4`, 브랜치 `feat/pre-launch-redesign`). spec `docs/specs/product/spec-02-diagview-auth-entry-unification.md`(D1=A 토프바 다이얼로그 재사용, D2=추출+composable). 로그인 다이얼로그를 `components/LoginDialog.vue`로 추출 + 싱글톤 `useLoginDialog()` 트리거 + `AppLayout` 1회 마운트, 토프바 아이콘·DiagView 버튼이 공유. 빌드 PASS, lint 신규에러 0(기존 부채만), 헤드리스 런타임검증 PASS(useLoginDialog 싱글톤 공유 ref 계약 5/5). **런타임 시각 클릭검증 PASS**(2026-06-24, 사람: 비로그인 /diagnosis 다운로드 확인창→[회원가입 및 로그인]→로그인 다이얼로그가 그 자리에서 열림, 토프바 아이콘과 동일 다이얼로그 재사용 확인). PR 대기. (analyze-before-change 발견: 리포트의 "ResultView 복붙 로그인 다이얼로그"는 stale — 정의처는 AppTopbar 단일.)
-    - ~~`listboxTest` 무가드 역참조 잔여 (DiagView 다운로드 다이얼로그 ~355·371행)~~ — ✅ `fa991d0` 처리 완료(브랜치 `feat/pre-launch-redesign`). PersonalView `d15f6aa` 와 동일 패턴: watch 해제 시 게이트 초기화 + 두 Dialog 옵셔널 체이닝. **런타임 풀스택 수동검증 PASS**(비로그인 /diagnosis 선택→해제 회귀, 크래시 없음). PR 대기.
-  - 리포트 B 시리즈 화면 재설계:
-    - **HomeView 가치제안 히어로 + 작동방식 스텝 (B-1)** — ✅ 코드+시각검증 완료, **PR #28 머지 완료(2026-06-24, B-3·PersonalView 묶음 1 PR, main `f93df00`)**. spec `docs/specs/product/spec-05-home-hero-redesign.md`. 리포트 A-1 §46~48·B-1 §140~159·로드맵 P0 §228 #4 의 "가치 제안 없이 기능 카드 5개 평면 나열" 홈을 "히어로(헤드라인+서브카피+1차 CTA 2개) → 작동방식 4스텝 → 그래프 미리보기·샘플" 로 재설계. **결정(사용자 승인 2026-06-24):** D1 톤=학부모(신뢰) / D2 범위=풀 B-1 한 패스(단일 정적 뷰·완전 가역, 어시스턴트 판단) / D3 셸 글로벌 내비 제외(P1 별도 트랙, 사이드바 유지) / D4 사회적 증거는 허위 지표 금지(실데이터 전). **3 Task:** ① 히어로 블록 추가+죽은 주석 코드 제거(CTA: 무료로 진단 시작→/diagnosis, 개념 그래프 둘러보기→/concept, `d5624a8`) ② 작동방식 4스텝(진단→채점→분석→맞춤, 툴팁 설명 본문화, 진단 흐름 4카드 대체, `f7ab821`) ③ 그래프 미리보기+샘플 결과 섹션(선수지식 카드 대체·순서 재배치, 샘플 결과 보기→/result, `f8e4efb`). 순수 프레젠테이션·라우터/스토어/백엔드 무변경. 빌드 PASS, lint 신규에러 0. **검증 완료: 빌드·lint 어시스턴트 / 사람 시각검증 PASS(반응형·카피 톤·CTA affordance — 시각리뷰로 히어로 서브카피 줄바꿈 반영 `d6c1e9e`).** **Out(후속):** 상단 글로벌 내비·셸 전환(P1) · 디자인 토큰/타이포 전역 정리(C안, P1) · 사회적 증거 실데이터 · 게이미피케이션(P2).
-    - **ResultView 결과 재설계 (B-3)** — ✅ 코드+검증 완료, **PR #28 머지 완료(2026-06-24, B-1·PersonalView 묶음 1 PR, main `f93df00`)**. spec `docs/specs/product/spec-04-resultview-result-redesign.md`. 리포트 A-3 §65~71·B-3 §176 의 "raw 표·트리만 던지는" 결과 화면을 "헤드라인 요약 → 시급도순 우선순위 약점 카드 → 근거(표·그래프) 강등" 으로 재설계. **결정(사용자 승인 2026-06-24):** D1 약점 카드=문항 단위 / D2 헤드라인=가용 데이터만(weakness-diagnosis 응답에 정답수·점수 없음 — 정답률 게이지는 데이터 확보 후 후속) / D3 차트 미도입(숫자+CSS 막대) / D4 곁다리(뱃지색·빈상태·카피). **4 Task:** ① 카드 모델 가공(문항 그룹→대표개념·가장 약한 선수지식·mastery·시급도, `setPriority` 상대 thirds→절대구간 40/65%, `efd65f5`) ② 헤드라인 요약+우선순위 카드 UI(`0c5c90f`) ③ 표·트리·개념상세를 "근거 더보기"로 강등(progressive disclosure, Cytoscape 언마운트 방지 `v-show`+showTree 가 패널 펼친 뒤 nextTick→initGraph, `bdba58e`) ④ 시급도 뱃지 3색(죽은 'new'=success 제거·'하'=info 추가)·빈 상태 안내형·잔여 영문 토스트('Confirmed'→'안내') 정리(`c91f2be`). 빌드 PASS, lint 신규에러 0, **dev 배선 PASS**(새 식별자 트랜스폼 확인). **미해결 주의:** 시급도 절대 임계 40/65% 는 제안 출발값 — 실데이터 mastery 분포로 도메인 보정 필요. 시각검증은 샘플 depth-0 누락([Data] 백로그)으로 카드/트리가 빌 수 있어 실유저 데이터(로그인) 또는 시드 보강 전제. **개념 단위 약점 집계·정답률 차트는 후속(Out).** **⑤ 런타임 리뷰 반영(D5, `0c9536a`):** 로컬 목 서버+dev 프론트로 런타임 확인(사용자) → 카드-그래프 사이 raw 표가 노이즈로 판명 → **표 강등이 아니라 삭제**(카드 완전 대체) + 죽은 가공 코드 제거, 학습지 목록 좌측 복원, 헤딩 "진단 결과 요약"→"진단 결과". "근거 더보기"엔 선수지식 그래프+개념 상세만 잔존. **"선수지식 트리 누적해서 보기" 명시 affordance 는 Later 백로그로 이월**(아래). **⑥ 실데이터 풀스택 검증 PASS(실 백엔드 bootRun+MySQL+dev):** DB→JdbcTemplate→Spring 직렬화(UTF-8)→실 CORS→Vue 풀 경로 사용자 확인. 발견: 로컬 mmt DB 에 실시드 상존(710/1631), depth-0 포함 데모 진단(90000번대, 검증 후 DELETE·실시드 보존)으로 상중하·트리CTA 풀기능 + 기존 실데이터로 degenerate 상태 동시 확인. **남은 일: 없음(PR #28 머지 완료). 임계 40/65% 보정은 이번 스킵(백로그성).**
-    - **PersonalView "개발 중" 노출 정리 (P0)** — ✅ 코드+시각검증 완료, **PR #28 머지 완료(2026-06-24, B-3·B-1 묶음 1 PR, main `f93df00`)**. 리포트 P0 §225 #1. **사실확인: 리포트가 가리킨 "개발 중" 오버레이는 이미 사라짐** — `#developing` 안은 Scope B 폼 구현으로 동작하는 출제 폼이 됐고, `isSet` 깨진 분기·복붙 로그인 다이얼로그·`<AppConfig>` 는 중간 작업(spec-02·`fa991d0` 등)에서 이미 해소됨. 남은 건 흔적 스캐폴딩·죽은 코드뿐이라 경량 가역 작업으로 처리(spec 없이 backlog+코드, [[feedback_spec_weight_calibration]] 판단). **2 Task:** ① `developing-wrapper`/`#developing` 래퍼 div·`.developing-wrapper` CSS·죽은 주석(confirm4 블록·미사용 confirm5·죽은 출제 버튼 블록·낡은 '준비중' 주석) 제거, 폼 dedent — 거동 무변경(`97303b3`) ② PDF 학습지 헤더 이름·학년 미완성 노출 해소 — `userDetail`/`userGrade` ref 가 선언만 되고 fetch 안 돼 다운로드 PDF 헤더가 늘 공백이던 것을, 로그인 시 `/api/v1/users`+`TitleService.calculateGrade` 로 채움(RecordView 동일 패턴, `c52af6c`). 빌드 PASS, lint 신규에러 0(confirm5 미사용 에러 1건 해소). **검증 완료(2026-06-24): 빌드·lint·풀스택 배선(어시스턴트 — 인프라+bootRun+dev 기동, `verifyqa01` 토큰 주입으로 `/api/v1/users`·출제 API 실응답 확인) + 사람 시각검증 PASS(로그인 후 /personal — 맞춤조건 폼 깔끔 렌더·죽은 영역 없음, 미리보기 헤더에 학생 이름 표기 확인). 학년은 시드 유저 생일 NULL → `calculateGrade(null)=''` 정상 동작.** **Out(잔여 부채, 본 작업 밖):** PersonalView 의 `renderItemAnswer`/`isLatex` 미사용 함수·`receivedData` ref `.value` 누락(line ~60)은 기존 부채로 미수정.
-    - **ConceptView 진입 단순화 (B-2)** — ✅ 코드+시각검증 완료 (브랜치 `feat/conceptview-entry-simplification`, main 분기). **사람 시각/클릭검증 PASS(2026-06-24, 풀스택 실시드: 검색→자동완성(학교급·학년·단원 보조정보)→그래프 자동렌더→노드클릭→우측 디테일·줌/전체보기/리셋·breadcrumb·반응형 세로스택 확인. 검증 중 시도한 "대표 개념 칩"은 그래프 빈영역에 묻혀 인지 안 됨 → 제거, 검색창 placeholder "예: 이차방정식"으로 갈음. 그래프 캔버스 최소 사이즈는 Cytoscape 절대크기 제약으로 반응형 하한 존재 — 의도 수용).** spec `docs/specs/product/spec-09-conceptview-entry-simplification.md`. **PR #32 머지 완료(2026-06-24, main `f55f05c`).** 4 Task: ① 백엔드 `GET /concepts/search`(ConceptSearchResponse+searchByName LIKE·접두우선·학교급필터·이스케이프+Service 가드/clamp+Controller, 리포지토리 테스트 7건 Testcontainers) ② `useConceptGraph` zoom/fit/reset additive(ResultView 무영향) ③ ConceptView 2-pane 전면 재작성(AutoComplete 검색·자동렌더·컨트롤·breadcrumb·우측 디테일+진단 CTA·캐스케이드/버튼 제거·knowledgeSpace 누적버그 제거) ④ docs. 빌드·lint·`./gradlew test` 검색 PASS. **이로써 [Design] 리디자인 트랙 P0·P1(화면 B-1/B-2/B-3 + 토큰·셸·폼) 전부 완료.** **Out·후속:** 셸 Phase 2(스텝 인디케이터)·Phase 3(모바일 하단탭) · 토큰 전역 sweep · 문의메일 중앙화 · 개념별 맞춤 진단 백엔드 · 미니맵 · 게이미피케이션(P2). spec `docs/specs/product/spec-09-conceptview-entry-simplification.md`. 리포트 P0 §53~60·B-2 §161~174·§234 #8 의 "4단계 입력 후에야 그래프" 진입을 "검색 한 줄 + 그래프 상시 2-pane 단일 캔버스" 로. **결정(사용자 확정 2026-06-24, 시안 비교 후):** D0 후보2(자유텍스트 검색+백엔드 신규) / D1 검색 1차·학교급만 선택필터·캐스케이드 제거 / D2 그래프 상시+선택 즉시 자동렌더("선수지식 확인" 버튼 제거) / D3 줌·전체보기·리셋+breadcrumb / D4 진단 CTA=/diagnosis 일반진입(개념별 맞춤 진단 Out) / D5 리포지토리=JdbcTemplate / D6 경량 검색 DTO. **analyze-before-change(§4):** useConceptGraph 소비자 ResultView 는 zoom/fit/reset additive 추가에 무영향(`{initGraph,destroy,GRADE_COLORS}`만 구조분해, 동치성 유지) · 기존 concepts 엔드포인트 전부 보존 · `/concepts/**` permitAll 로 신규 검색 자동 커버 · 스키마/마이그레이션 0 · 신규 ADR 불필요. 위험도 중간(핵심 화면 재작성). **4 Task:** ① 백엔드 `GET /concepts/search`(ConceptSearchResponse+searchByName LIKE·접두우선·학교급필터·와일드카드 이스케이프+Service 가드/clamp+Controller, 리포지토리 테스트 7건 Testcontainers PASS) ② `useConceptGraph` zoom/fit/reset additive ③ ConceptView 2-pane 전면 재작성(AutoComplete 검색·자동렌더·컨트롤·breadcrumb·우측 디테일+CTA·토큰/셸 채택·knowledgeSpace 누적버그 제거) ④ docs. **검증: 빌드 PASS·lint 신규에러 0·`./gradlew test` 검색 PASS(어시스턴트). 풀스택 dev 배선+사람 시각/클릭검증(검색→자동완성→그래프→노드클릭→디테일·줌/전체보기/리셋·반응형) 대기** — 로컬 실시드 전제(mmt DB tests 710·concepts 1631). **Out·후속:** 개념별 맞춤 진단 백엔드 · 미니맵 · 전체 그래프 벌크뷰 · 기본 개념 자동표시 · 게이미피케이션.
-  - 디자인 시스템(C) 토큰 레이어:
-    - **디자인 토큰 1벌 + 타이포 스케일 (P1, C안 착수)** — ✅ 코드+시각검증 완료 (브랜치 `feat/design-tokens-typography`, main 분기). **사람 시각검증 PASS(2026-06-24, HomeView: 토큰 적용 후 위계 정돈·레이아웃 동등·반응형 확인).** spec `docs/specs/product/spec-06-design-tokens-typography.md`. 리포트 §114(컬러 토큰 부재)·§127(타이포 스케일)·§216·§233. **결정(사용자 승인 2026-06-24):** D1 범위=타이포+컬러 의미토큰(spacing 제외) / D2 Pretendard 보류 / D3 채택=정의+HomeView 파일럿 1화면(big-bang sweep 회피). **사실확인:** 스택=SCSS Sakai+PrimeFlex3+테마 lara-light-indigo(Tailwind 없음 → C 풀안의 Tailwind+토큰은 React 이주(02번) 얽힘이라 Out). 테마가 런타임 CSS 변수 제공 → 컬러 토큰은 대부분 별칭이라 가벼움. 타이포 `text-2xl/4xl` ~300곳 남발. **2 코드 Task:** ① `src/assets/_tokens.scss` 신설+`styles.scss` 배선 — 타이포 모듈러 스케일(16px 기준 1.25)·역할 클래스(`.t-display/title/heading/subheading/body/caption`)·컬러 의미 토큰(`--mmt-brand/text/text-muted/surface/border/success/warning/danger`, 테마 위 별칭), 정의만이라 기존 화면 거동 불변(`4466595`) ② HomeView 파일럿 채택 — 자의적 `text-*`/색 유틸→역할 클래스·의미 토큰 전환(레이아웃 동등, `1437933`). 빌드 PASS, lint 신규에러 0. **검증 완료: 빌드·lint 어시스턴트 / 사람 시각검증 PASS(2026-06-24, HomeView 토큰 전후 위계 정돈·레이아웃 동등·반응형). PR #30 머지 완료(2026-06-24, 셸·폼 묶음 1 PR, main `abb9c60`).** **Out·후속 백로그:** 전역 sweep(나머지 10뷰는 셸·ConceptView·폼 작업 시 자연 채택, retrofit 0 전략) · ~~Pretendard 한글 웹폰트~~·~~`$scale` 14→16px 전역 base~~(아래 항목에서 완료) · Tailwind/PrimeVue unstyled 풀 프리셋(React 이주 얽힘, ADR 후속) · 컴포넌트(버튼/카드) 토큰 리스킨.
-    - **Pretendard 한글 웹폰트 + 전역 base 14→16px (P1, C안 후속)** — ✅ 코드 완료·사람 시각검증 PASS(2026-06-25), **PR(브랜치 `feat/pretendard-webfont`)**. spec-06 후속 백로그였던 §127 Pretendard·`$scale` 상향을 같은 검증 표면(전역 텍스트 렌더링)이라 1 PR 로 묶음. **결정(사용자 확정 2026-06-25):** 전달방식=npm 자가호스트+동적 서브셋(외부 CDN 의존 0·한글 글리프 온디맨드, CDN/풀버전 대비) / Pretendard 와 `$scale` 16 을 한 PR(시각검증 1회 갈음). **무게:** 정적·가역(폰트 추가+CSS var 1곳 오버라이드+base 1줄) → spec 없이 backlog+코드([[feedback_spec_weight_calibration]]). **analyze-before-change:** `$scale` 소비처는 `_main.scss` `html{font-size}` 단일 → 토큰 rem 스케일이 16px 기준이라 base 일치(기존엔 14px라 본문이 문서값보다 작게 렌더되던 것 교정). **3 Task:** ① Pretendard(`pretendard` 패키지 dynamic-subset CSS import + `_tokens.scss` `--font-family` 오버라이드, `4c6dbc0`) ② `$scale` 14→16px(`022f280`) ③ 내비 로고-탭 간격 보정(base 상향으로 로고-첫탭이 바짝 붙어 active 인디케이터가 닿던 것, 데스크톱 root-list `margin-left:1.25rem`, `97b90f3`). **검증: 빌드 PASS(829 @font-face·1647 폰트파일 dist 방출·`html{font-size:16px}` 확인)·변경 vue `npx eslint` PASS·어시스턴트 dev 배선 / 사람 시각검증 PASS(2026-06-25, 전역 글꼴 Pretendard 전환·한글 가독·레이아웃 넘침 없음·내비 간격 시각리뷰로 2.5→1.25rem 보정).** **머지 관행:** 로드맵 업데이트를 feature PR 에 포함, 검증 표면별 묶음. **Out·후속:** 토큰 전역 sweep(retrofit-0) · 컴포넌트 토큰 리스킨.
-    - **토큰 sweep 잔여뷰(batch2) + LoginDialog 재설계 + RecordView 정오답 표 정리** — ✅ 코드 완료·풀스택 사람 시각검증 PASS(2026-07-03), **PR #40**. 브랜치 `feat/token-sweep-batch2`. PR #39(점진 sweep: ResultView·앱-크롬 + 트리 누적 affordance) 다음 묶음으로 이월했던 **RecordView·ErrorView·LoginDialog** 앱-크롬 타이포·raw hex sweep. 검증 중 발견한 LoginDialog 스크롤·RecordView 정오답 표 레이아웃을 같은 화면 표면이라 함께 처리. **결정(사용자, 2026-07-03):** LoginDialog 는 sweep 을 넘어 재설계(환영 문구 축소로 생긴 세로 스크롤 제거 + 커머셜 폴리시) / RecordView 정오답 표는 가로 스크롤 제거 + 정답 내용기준 폭 + o/x 토글 축소. **무게:** 정적·가역(타이포 토큰·CSS)이라 spec 없이 backlog+코드([[feedback_spec_weight_calibration]]). **3 Task:** ① ErrorView 앱-크롬 sweep(`text-5xl`→`t-display`·`text-3xl`→`t-heading`, `3aa6137`) ② LoginDialog 재설계(세로리듬·폭 500→420 스크롤 제거·회원가입 텍스트 링크 강등·OAuth 아이콘 리스킨+hover·divider `#999`→`--mmt-border`·에러문구 `t-body`, `c0449e3`) ③ RecordView 정오답 화면(L279 `t-heading` + 표 min-width 축소·`p-datatable-sm` 가로스크롤 제거·정답 내용기준 폭·o/x 토글 2.7em·라벨 가운데정렬, `001ad03`). **보존:** RecordView PDF 학습지 미리보기 반응형 체인(인쇄 레이아웃)·카카오 `#fee500` 브랜드색·RecordView 선재 `endpoint` 부채. **검증: 빌드 PASS·변경 파일 `npx eslint` PASS·풀스택 사람 시각검증 PASS**(`verifyqa01` 토큰 주입, `record=true`/`false` 학습지 2종으로 RecordView 양 브랜치 + LoginDialog(스크롤 제거·커머셜) + ErrorView 확인). **머지 관행:** 로드맵 업데이트 feature PR(#40) 포함, 검증 표면별 묶음. **Out·후속:** 나머지 뷰 sweep(retrofit-0) · 백로그 문항수 30→20·DiagView 샘플 기본노출(위 Later).
-  - 셸 전환(P1, 리포트 §129·§231·§248 #2):
-    - **셸 전환 Phase 1 — 좌측 사이드바 → 상단 글로벌 내비** — ✅ 코드+시각검증 완료 (브랜치 `feat/shell-global-nav`, 토큰 브랜치 위 스택). **사람 시각검증 PASS(2026-06-24: 데스크톱 상단 내비·"내 학습" 드롭다운·로그인 상태 전환·풀폭/모바일 햄버거 접힘 확인).** spec `docs/specs/product/spec-07-shell-global-nav.md`. "사내 어드민" 인상의 최대 원인인 Sakai 좌측 사이드바를 폐기하고 상단 글로벌 내비로. **결정(사용자 승인 2026-06-24):** D1 범위=Phase 1(상단 내비)만, 스텝 인디케이터·모바일 하단탭은 후속 Phase / D2 IA=로고/개념탐색/진단/내 학습▾(채점·결과·맞춤출제)/로그인 / D3 구현=PrimeVue `Menubar` 재사용(자작 없이 반응형 햄버거 내장). **analyze-before-change(§3.1):** 은퇴 3종(AppSidebar/AppMenu/AppMenuItem)은 닫힌 묶음·외부참조 0 → 삭제 안전. sidebar-toggle 심볼(onMenuToggle/isSidebarActive)은 셸 교체 후 비소비(layout.js엔 보존). **Task:** ① AppTopbar→Menubar 글로벌 내비 재작성(command 라우팅, 로고 start·로그인/로그아웃/회원수정 end, `6d9c1d0`) ② AppLayout 사이드바 div·outside-click watch·상태클래스 제거 + `_shell.scss` 풀폭 오버라이드(사이드바 오프셋·고정토프바 7rem 상단여백 중화·콘텐츠 max-width 1400 가운데정렬)(`6d9c1d0`) ③ 은퇴 3파일 삭제(`6167473`) ④ docs. 토큰(spec-06) 채택. 빌드 PASS, lint 신규에러 0, dev 트랜스폼 PASS. **검증 완료: 빌드·lint·dev배선 어시스턴트 / 사람 시각·클릭검증 PASS(2026-06-24, 데스크톱 내비·드롭다운·로그인 전환·풀폭/모바일 햄버거). PR #30 머지 완료(2026-06-24, 토큰·폼 묶음 1 PR, main `abb9c60`).** **Out·후속:** Phase 2 학습 스텝 인디케이터(흐름 페이지 맥락 표시) · Phase 3 모바일 하단 탭 · 내비 active 라우트 하이라이트(폴리시) · 라우트 가드 재설계.
-    - **셸 전환 Phase 2 — 학습 스텝 인디케이터** — ✅ 코드 완료·사람 시각검증 PASS(2026-06-24), **PR #34 (머지 시 main 반영)**. 브랜치 `feat/shell-step-indicator`. 학습 흐름 4단계(진단→채점→분석→맞춤)를 흐름 페이지(`/diagnosis`·`/record`·`/result`·`/personal`)에서만 "지금 몇 번째 단계인지" 맥락으로 표시. **결정(사용자 확정 2026-06-24):** 셸 전역 배선(AppLayout, route→step 단일 출처) / 흐름 4페이지에서만 노출 / PrimeVue `Steps` 재사용 / **표시 전용(readonly, 클릭 이동 불가)** — 흐름이 진단 데이터 선행 의존이라 임의 점프 시 빈 화면 위험 + 이동 허용 시 visited 상태 추적(스토어·spec-10 무게) 회피. "뒤로만 이동 허용" 스텝 네비는 후속 후보. **무게:** 라우터·스토어 무변경(정적·가역) → spec 없이 backlog+코드([[feedback_spec_weight_calibration]]). **2 파일:** `AppLearningSteps.vue` 신규(라우트 매핑·isFlowPage 가드·의미토큰 밴드, `8ccde1e`) + `AppLayout.vue` 토프바 아래 1줄 배선. **검증: 빌드 PASS·신규파일 lint PASS(기존 13 에러는 선재·본 변경 무관)·어시스턴트 dev 배선 / 사람 시각검증 PASS(4 흐름 URL active 이동·흐름 밖 숨김·클릭 무반응 확인).** **머지 관행 변경(이 PR부터):** roadmap sync PR 폐지 — 로드맵 업데이트를 feature PR 에 포함(머지해시 대신 PR# 포인터), feature 는 검증 표면별로 묶음. **Out·후속:** ~~Phase 3 모바일 하단 탭~~·~~내비 active 라우트 하이라이트~~(둘 다 PR #35 완료) · "뒤로만 이동 허용" 스텝 네비.
-    - **셸 전환 Phase 3 — 모바일 하단 탭 바 + 데스크톱 내비 active 하이라이트** — ✅ 코드 완료·사람 시각검증 PASS(2026-06-25), **PR #35**. 브랜치 `feat/shell-mobile-bottom-tabs`. 모바일(<960px)에서 PrimeVue `Menubar` 햄버거를 폐기하고 고정 하단 탭 바를 1차 내비로 + 데스크톱 상단 내비 active 라우트 하이라이트(같은 셸 표면이라 1 PR·1 검증으로 묶음). **결정(사용자 확정 2026-06-25):** 하단 탭 4개=개념·진단·결과·맞춤(채점은 흐름 통과 단계라 제외 — 상단 학습 스텝 인디케이터·진단/결과 동선에서 도달) / 홈은 상단 로고로만 / 모바일 햄버거 폐기(하단 탭으로 대체, 상단엔 로고·로그인만) / 데스크톱 active 하이라이트 묶음 / 탭 스타일=흰 배경+아이콘·라벨 브랜드 보라, 선택 탭=보라 알약+흰 글자. **무게:** 라우터·스토어 무변경(정적·가역) → spec 없이 backlog+코드([[feedback_spec_weight_calibration]]). **4 파일:** `AppBottomTabs.vue` 신규(960px 이하 노출·route.path active·iOS 안전영역 인셋·알약 isolation·라벨은 `.t-caption` 대신 크기 토큰만 — 색은 item 상속) + `AppLayout.vue` 배선 + `_shell.scss` 모바일 하단여백 + `AppTopbar.vue`(모바일 햄버거 숨김 + navModel computed active 클래스 주입). **검증: 빌드 PASS·신규/변경 파일 lint PASS(`npx eslint`)·어시스턴트 dev 배선 / 사람 시각검증 PASS(모바일 하단 4탭·선택 알약·햄버거 숨김·푸터 비가림 / 데스크톱 상단 active 하이라이트·하단탭 숨김).** 시각검증 중 탭 색 보정 반복(회색→브랜드 보라, 선택=알약+흰 글자); **라벨이 안 보이던 원인=`.t-caption` 클래스가 색까지 묶어 상속 색을 덮음 → 클래스 제거·크기 토큰만 사용**(교훈: 색을 다르게 쓸 땐 색까지 묶인 역할 클래스를 라벨에 붙이지 말 것). **머지 관행:** 로드맵 업데이트를 feature PR(#35)에 포함, 검증 표면별 묶음. **Out·후속:** 토큰 전역 sweep · "뒤로만 이동 허용" 스텝 네비 · Pretendard 웹폰트 · `$scale` 14→16 전역 base.
-  - 폼 표준화(P1, 리포트 §94·§103·§235 #9):
-    - **폼 표준화 — 가입/회원수정 토큰 채택 + 중복 검증 컴포넌트화** — ✅ 코드+시각검증 완료 (브랜치 `feat/form-standardization`, 셸 브랜치 위 스택). **사람 시각/입력검증 PASS(2026-06-24: 가입·수정 폼 검증 메시지·비번 요구사항 컴포넌트·생년월일 maxDate·제출/수정/탈퇴 흐름 동작. 시각리뷰로 현재비번 입력칸·확인버튼 간격 0 수정 `1769516`).** spec `docs/specs/product/spec-08-form-standardization.md`. **사실확인: 인라인 검증은 이미 구현됨** — 남은 건 ① 타이포 과대(`text-2xl` 라벨)·하드코딩 색·오타 클래스 ② 두 폼 검증 로직 ~80줄 복붙 ③ 생년월일 위젯 ④ `[ 마이페이지 ]` 대괄호. **결정(사용자 승인 2026-06-24):** D1 범위=중간(토큰+중복 컴포넌트화+생년월일+위생, 제출버튼 disabled체인 UX 재설계는 Out) / D2 추출=컴포저블+컴포넌트(필드 래퍼 추상화는 과설계라 안 함). **analyze-before-change(§3.1):** 검증자는 각 뷰 script-setup 로컬(미export)·양 폼 정의 동일 → 추출 안전·발산 0. **Task:** ① `useUserForm.js`(공유 ref+검증+formatDate) + `PasswordRequirements.vue`(비번 요구사항) 신설(`f48995a`) ② SignUpView 소비+토큰 채택+생년월일 maxDate(`8ef0c89`) ③ UserEditView 동일+대괄호 제목 정리(`2e558c6`) ④ docs. 토큰 매핑: 제목→`.t-heading`·라벨→`.t-subheading`·안내→`.t-caption`·에러→`.field-error`(`--mmt-danger`). 생년월일: `yearNavigator` 3.9.0 deprecated(내비 상시 on) 확인 → `:maxDate` 미래차단 + 안내 카피 명확화로. 빌드 PASS, lint 신규에러 0(미사용 ref 정리·prettier fix), dev 트랜스폼 PASS. **검증 완료: 빌드·lint·dev배선 어시스턴트 / 사람 시각·입력검증 PASS(2026-06-24, 가입·수정 폼 검증·비번 요구사항·생년월일·제출/수정/탈퇴 흐름·타이포 위계. 현재비번 행 간격 0 수정 `1769516`). PR #30 머지 완료(2026-06-24, 토큰·셸 묶음 1 PR, main `abb9c60`).** **Out·후속:** ~~제출 버튼 disabled 체인 UX 재설계~~·~~가입 필수항목 축소(§252 #6)~~(둘 다 아래 폼 제출 UX 항목에서 완료) · 필드 `<FormField>` 래퍼.
-    - **폼 제출 UX 재설계 — disabled 체인 → 항상활성 버튼+에러요약 (시안 A) + 가입 필수항목 '(선택)' 표기** — ✅ 코드 완료·사람 시각검증 PASS(2026-06-25), **PR #37**. 브랜치 `feat/form-submit-ux-redesign`. SignUpView·UserEditView 의 제출 버튼이 막힌 이유를 한 번에 하나씩만 라벨로 노출하던 disabled v-if/else 체인을 폐기하고, **항상 활성 버튼 + 클릭 시 미충족 항목 전체 요약 리스트 + 첫 필드 스크롤·포커스**로 교체(요약 항목 클릭 시 해당 필드 포커스, blockers 비면 자동 사라짐). **정찰:** 두 뷰 동일 패턴이라 1 PR·1 검증 표면으로 묶음. 생년월일·기타사항은 백엔드에서 이미 optional(UserDTO validation 없음·컬럼 nullable·service null-safe, 서브에이전트 계약 조사)이고 프론트 제출 게이트에도 없던 항목 → §252 #6은 백엔드 무변경. **결정(사용자 확정 2026-06-25):** 4시안 HTML 비교 후 **시안 A**(항상활성+클릭 시 요약, B 실시간/C 라벨고정 대비 평소 깔끔+막힐 때만 안내) / 필수항목은 **필드 제거 아닌 '(선택)' 표기로 완화**(데이터 수집 유지·가역). **무게:** 검증 게이트 로직 거동 보존(통과 조건 동일: 가입=아이디형식&&중복확인&&비번조건&&일치 / 수정=현재비번&&(새비번 빈값|조건&&일치)) + 표시·백엔드 무변경 → 정적·가역, spec 없이 backlog+코드([[feedback_spec_weight_calibration]]). **3 파일:** `useUserForm.js`에 `useSubmitGuard(blockersRef,onSubmit)` 공유 헬퍼(showBlockers/attemptSubmit/focusField) 추가 + 각 뷰 `submitBlockers` computed + 요약 마크업·`.submit-summary` 스타일(필드 에러와 같은 danger 톤, 노란색 퇴출 기조). **검증: 빌드 PASS·변경 파일 `npx eslint` PASS·어시스턴트 dev 배선 / 사람 시각검증 PASS(빈 폼 버튼 활성·클릭 시 요약·첫 필드 포커스·항목 클릭 포커스·충족 시 항목 감소·'(선택)' 라벨; 중복확인 성공 경로는 백엔드 의존이라 제외).** **커밋 2분리:** 제출 UX(`418bc40`) / 필수항목 표기(`e1224d3`). **머지 관행:** 로드맵 업데이트를 feature PR(#37)에 포함, 검증 표면별 묶음. **Out·후속:** 필드 `<FormField>` 래퍼 추상화.
+- **프론트(web-v2) 폴리싱** — [그래프 요약 칩](docs/backlog/m7-graph-summary-chips.md) ·
+  [스테일 큐 첫 탭 403](docs/backlog/m7-stale-queue-403-first-tap.md) ·
+  [완주 세션 재프리뷰](docs/backlog/m7-result-completed-session-repreview.md) ·
+  [홈 완료 배너 재진단](docs/backlog/m7-home-completed-banner-rediagnosis-cta.md) ·
+  [적응 순회 문항 선택](docs/backlog/m7-adaptive-traversal-question-selection.md) ·
+  [카피 방향](docs/backlog/m7-copy-direction-highschool-persona.md)(열린 결정, 현행 유지)
+- **데이터·백엔드** — [지식그래프 상호 선수 사이클 26쌍](docs/backlog/knowledge-space-mutual-prerequisite-cycles.md) ·
+  로컬 DB 초기화 시드 정본 부재 · 샘플 진단 depth-0 행 누락 · `RedisUtil` value serializer 격리 ·
+  Testcontainers Redis `@ServiceConnection`(Spring Boot 3.2+ 의존)
+- **운영·문서** — [README 포트폴리오 잔여 2건](docs/backlog/readme-portfolio-followups.md)(레포 description·Postman) ·
+  [진단 테스트 계정 정리](docs/backlog/m7-diagnostic-test-accounts-cleanup.md) ·
+  `mmt-terraform-admin` 세션 8h 연장 · M4 측정 하네스(`run-log.sh`)를 별도 레포로 이관(cross-repo)
+- **[GTM] 실사용자 확보 컨설팅 1회** — 격리 세션용 [프롬프트](docs/consulting/🤖-user-acquisition-consulting-prompt-draft.md) 준비됨(draft, 브리핑 최신화 전제)
+
+> 구 Vue(`web/`) 시절의 UI 백로그와 학습지 출제 알고리즘 항목들은 **M7 피벗으로 무효**가 되어 정리했다.
+> 필요하면 git 히스토리(이 문서의 2026-08-26 이전 판)에서 되살린다.
 
 ---
 
 ## Done — 완료
 
-- **[M4] 배포 무중단화 (Zero-Downtime Deployment)** — 2026-07-06 완료 (PR [#45](https://github.com/data-sy/my-math-teacher/pull/45) 머지, main `4706398`)
-  - 단일 EC2 위에서 기존 nginx 를 전환 지점으로 재사용한 blue-green 으로 백엔드 재배포 무중단화(K8s/ALB 없이). CI 배포 채널 = SSM Run Command(OIDC, ADR 0008). MySQL=RDS 분리·Neo4j 미구동(CTE-only)·Redis 로컬·스왑+mem_limit.
-  - **라이브 실측 결론(apply→측정→destroy):** 구식 in-place 재배포 **60.3% 유실**(502) → blue-green **0% 유실**. 단 전송 레이어는 무결(502=0)하되, t3.micro(1 vCPU)에서 부팅 JVM CPU 독점(148%)이 서빙을 굶겨 지연 타임아웃 → **부팅 컨테이너 `CPU_LIMIT=0.5` 캡으로 완전 무중단 0% 확증**(부팅 55%).
-  - 안전장치 라이브 검증: ① 워크플로 `CPU_LIMIT=0.5` → `--cpus=0.5` e2e · ② 데이터경로 smoke 게이트(green 통과 + 결함주입 시 컷오버 abort). Redis 크로스인스턴스 캐시 직렬화 버그 수정(PR #46) 포함해 오버랩 401=0.
-  - 리포트: `docs/benchmark/milestone-4-run-report.md`(3차 재검증 포함) · 시각 리포트 `milestone-4-zero-downtime-report-{eng,ko}.html`. 후속(M5): Grafana/Prometheus 재계측(Now).
-  - [milestone](docs/milestones/milestone-4-zero-downtime-deployment.md) · spec: [01](docs/specs/m4/spec-01-zero-downtime-deployment.md) · [02](docs/specs/m4/spec-02-harness-handoff-gates.md) · [03](docs/specs/m4/spec-03-terraform-plan-only-iac-sandbox.md) · 👤[04](docs/specs/m4/spec-04-human-aws-provisioning-handoff.md)
-- **[M2] Neo4j → MySQL CTE 마이그레이션** — 검증 완료 (PR [#22](https://github.com/data-sy/my-math-teacher/pull/22)) · 실서버 CTE-only 정상동작은 **M4 라이브에서 확증(2026-07-06, unique 집합 대조 3/3 일치·복합인덱스 커버링)**
-  - 그래프 탐색 쿼리를 MySQL 재귀 CTE로 이전, 결과 동등성·성능·시각화·거리 맵 의미 보존 검증 완료. 회수: depth 3 p95 14.034ms (Neo4j) → 0.556ms (CTE), 약 25배.
-  - 결과 보고: `docs/reports/m2-cte-migration.md`. **점진 출시·관찰·Neo4j 실폐기는 M3 로 분리**(Next).
-- **[Product] 맞춤학습지 조건부 출제 (Scope B)** — 2026-06-23 완료 (브랜치 `feat/personalview-conditional-items-scope-b`, PR 진행)
-  - PersonalView 맞춤 유형(오답/선수지식 위주)·재출제(없음/오답/전체)·문항수 라디오가 `ItemService.findPersonalItems` 를 제어. (Scope A 기본 정책은 PR #24 `5623ffc` 출시 완료.)
-  - 알고리즘: 맞춤유형="위주"=**우선순위 tier**(오답위주 depth0→depth1~2 spill / 선수지식위주 depth1~2→depth0 spill), 재출제=원본 응시문항 재포함, **count=목표 총 문항수**(6~30) — 원본 → tier 순서 round-robin 으로 count 까지 채움(depth≤2 전체 소진 시 미달 허용), 파라미터 옵셔널=레거시 하위호환.
-  - **그래프 무의존**: `probabilities.to_concept_depth`(사전계산)만 사용 → Neo4j/CTE 직접 의존 0, M3 비차단.
-  - 검증: 단위테스트(tier·spill·dedup·clamp·원본 산입·하위호환·IDOR) + 풀스택 런타임(브라우저 UI 포함) 통과.
-  - spec: [`docs/specs/product/spec-01-personalview-conditional-items-scope-b.md`](docs/specs/product/spec-01-personalview-conditional-items-scope-b.md). 후속: 비율 배분 출제·맞춤 출제 알고리즘 조사(Later 백로그).
-- **[M1] 테스트 인프라 및 기준선 구축** — 2026-04-24 완료 (PR [#11](https://github.com/data-sy/my-math-teacher/pull/11), [#12](https://github.com/data-sy/my-math-teacher/pull/12))
-  - [milestone](docs/milestones/milestone-1-test-infrastructure.md)
-  - Testcontainers 기반 통합 테스트 (MySQL 8 + Neo4j 5.12), 테스트 전용 `application-test.yml` 프로파일, JPA N+1 감지 (Hibernate Statistics)
-  - 성능 기준선 실측 (warmup 3 + 측정 100 회, avg/p95/p99) — 7 개 연산을 `docs/benchmark/milestone-1-baseline.md` 에 기록
-  - Neo4j 그래프 결과 sha256 스냅샷 (`shared/benchmark/neo4j-snapshot-20260424.json`) — M2 동치성 비교용
-  - 회귀 감지 테스트 2 종 (`shouldNotRegress*`, warmup 20 + median 30 기반)
-  - 피처 플래그 구조 `mmt.<영역>.<설정>` 도입 (`mmt.migration.*`, `mmt.observability.*`, `mmt.benchmark.baseline.*`)
-  - `MysqlConceptRepository` 스텁 + `ConceptService.findNodesIdByConceptIdDepth3` 조건 분기 (M2 롤백 구조)
-  - `QueryTimingAspect` + Micrometer `SimpleMeterRegistry` — 리포지토리 쿼리 시간 · 슬로우 쿼리 WARN
-- **[M0] Claude Code 통합 환경 구축** — 2026-04-24 완료 (머지 `710167c`)
-  - [milestone](docs/milestones/milestone-0-claude-code-integration.md)
-  - 계층형 CLAUDE.md (루트 + `api/` + `web/`), 슬래시 커맨드 3종(`/analyze-before-change`, `/write-adr`, `/review-pr`), Analyze-Before-Change·피처 플래그 가드레일 명시, ADR 템플릿
+| | 무엇 | 결과 |
+|---|---|---|
+| **[Ops]** 2026-08-31 | RDS MySQL 8.0 → 8.4 업그레이드 | Extended Support 과금 종료 — 8월 gross **$146.77**(전체 usage 의 72.7%, 만근 $175/월). 크레딧 소진으로 9월부터 전액 카드 청구였다. 다운타임 ~6분 ([백로그](docs/backlog/rds-mysql-8-0-extended-support-billing.md)) |
+| **[M8]** 2026-08-15 | 개념 학습자료 링크 1차 | `concept_links` + 파일럿 10개념 26링크 라이브 ([#54](https://github.com/data-sy/my-math-teacher/pull/54)) — 2차 시드는 Now |
+| **[M7]** 2026-08-06 | 자가진단 피벗 + React 재작성 | 프로덕션 프론트를 `mmt-front:2.0.2` 로 스왑 ([ADR-0011](docs/adr/0011-react-web-v2-and-front-image-swap.md)) |
+| **[M6]** 2026-07-11 | 프로덕션 상시 배포 | 이력서용 라이브 링크 + TLS + OAuth 3사 + 예산 알람 ([#47](https://github.com/data-sy/my-math-teacher/pull/47)) |
+| **[M4]** 2026-07-06 | 배포 무중단화 | in-place **60.3% 유실** → blue-green **0%** 실측. 부팅 JVM CPU 캡이 결정타 ([리포트](docs/benchmark/milestone-4-run-report.md)) |
+| **[M2]** 2026-05 | Neo4j → MySQL 재귀 CTE | depth3 p95 14.0ms → 0.556ms (**~25배**), 결과 동등성 검증 ([리포트](docs/reports/m2-cte-migration.md)) |
+| **[M1]** 2026-04-24 | 테스트 인프라·성능 기준선 | Testcontainers · N+1 감지 · 기준선 실측 · 피처 플래그 체계 |
+| **[M0]** 2026-04-24 | Claude Code 통합 환경 | 계층형 CLAUDE.md · 슬래시 커맨드 · Analyze-Before-Change 가드레일 |
+
+곁가지로 닫힌 트랙: 구 Vue 리디자인 P0·P1(토큰·셸·폼·화면 재설계) · Terraform IaC 사이클 ·
+TLS 자동갱신 타이머 등록 — 전부 위 마일스톤에 흡수됐거나 백로그 파일에서 ✅ 로 닫혔다.
 
 ---
 
-## Epic 및 마일스톤 분할 원칙
+## 문서 체계
 
-- **Roadmap** — 하고 싶은 모든 작업의 단일 인덱스 (이 문서)
-- **Epic** — 여러 마일스톤을 묶는 큰 주제 (예: JPA 전환). 커지면 `docs/epics/` 하위로 분리
-- **Milestone** — 시간·완료 상태가 있는 체크포인트 (`docs/milestones/`)
-- **Spec** — Claude Code 실행 지시 (`docs/specs/`)
-- **ADR** — 돌이킬 수 없는 의사결정 기록 (`docs/adr/`)
+| 층 | 무엇 | 위치 |
+|---|---|---|
+| Roadmap | 전체 인덱스 (이 문서) | `ROADMAP.md` |
+| Milestone | 시간·완료 상태가 있는 체크포인트 | `docs/milestones/` |
+| Spec | 구현 지시 (규범 문서) | `docs/specs/` |
+| ADR | 되돌리기 어려운 의사결정 | `docs/adr/` |
+| Backlog | 미착수·부분 해소 항목의 정본 | `docs/backlog/` |
+| Handoff | 세션 간 인계(소비성) | `docs/handoff/` |
 
 ## 갱신 규칙
 
-- 마일스톤 착수 시 Now로 이동
-- 마일스톤 완료 시 Done으로 이동, 커밋 해시·완료일 기록
-- 새 아이디어는 Later에 먼저 추가하고, 우선순위가 올라가면 Next로 승격
+- **진행 상태의 정본은 이 문서와 백로그 파일이다.** `CLAUDE.md` 계열에는 시점성 정보를 쓰지 않는다
+- **여기엔 결과와 포인터만.** 과정·시행착오는 정본 문서에 두고, 그마저 소비되면 git 히스토리에 맡긴다
+- 마일스톤이 닫히면 Now → Done 으로 옮기고 **한 줄로 줄인다**
+- 새 발견은 `docs/backlog/` 에 **파일로** 만들고, 여기엔 한 줄 + 링크만 추가한다
+- 운영 문서 최신화는 `/refresh-ops-docs` — spec·ADR·CLAUDE.md 는 승인 없이 고치지 않는다

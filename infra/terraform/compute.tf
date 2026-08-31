@@ -9,13 +9,20 @@
 
 # AL2023 AMI 조회(data source = plan 시점 read, R-T2 → LocalStack 엣지로).
 # Phase B(real)에서는 실제 최신 AL2023 을 조회. most_recent 로 갱신 추종.
+#
+# ⚠️ 필터에 "2023." 을 박은 이유(백로그 D1): "al2023-ami-*-x86_64" 는 표준 이미지 외에
+# al2023-ami-minimal-* / al2023-ami-ecs-hvm-* / al2023-ami-ecs-neuron-hvm-* 까지 매칭한다
+# (2026-08-31 describe-images 로 4계열 확인). minimal 과 ECS 변형은 용도가 다르고,
+# minimal 에는 SSM 에이전트가 없어 ADR 0008 의 CD 채널이 죽는다 — 2026-08-05 재런치가
+# 실제로 minimal 을 집었다. 표준 이미지 이름만 "al2023-ami-2023.<날짜>-kernel-*-x86_64"
+# 형태라 "2023." 을 붙이면 변형이 전부 배제된다.
 data "aws_ami" "al2023" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-x86_64"]
   }
 }
 
@@ -34,6 +41,30 @@ locals {
       swapon /swapfile
       echo '/swapfile none swap sw 0 0' >> /etc/fstab
     fi
+
+    # --- SSM 에이전트 보장 (백로그 D3) ---
+    # ADR 0008 의 CD 채널이 SSM Run Command 라 에이전트가 없으면 배포가 죽는다.
+    # AMI 필터가 표준 이미지를 집도록 조였지만(D1), 변형이 섞여 들어와도 살아남게
+    # user_data 에서 한 번 더 보장한다. 표준 이미지에서는 설치 완료 상태라 no-op.
+    dnf install -y amazon-ssm-agent
+    systemctl enable --now amazon-ssm-agent
+
+    # --- OS 패치 위생 (백로그 host-os-patching-al2023-releasever-pin) ---
+    # AL2023 은 releasever 를 AMI 빌드 스냅샷에 고정한다("deterministic upgrades").
+    # 그래서 가만두면 dnf check-update 가 영원히 0건을 보고하며 무패치로 늙는다 —
+    # 2026-08-31 에 러닝 호스트가 26일째 무패치인 채로 그 0건을 보고하고 있었다.
+    # 핀을 풀어 계기판이 진실을 말하게 하고, 최초 부팅 때 한 번 최신으로 맞춘다.
+    echo latest > /etc/dnf/vars/releasever
+    dnf -y update
+
+    # 감지는 자동, 적용은 사람(2026-08-31 결정). apply_updates = no 인 이유:
+    # 이 호스트의 보안 권고는 docker/containerd 로 몰리는데, 무인 적용은 컨테이너
+    # 런타임을 재시작해 예고 없는 전 서비스 중단을 만든다. 적용 창은 사람이 잡는다.
+    dnf install -y dnf-automatic
+    sed -i -e 's/^download_updates *=.*/download_updates = yes/' \
+           -e 's/^apply_updates *=.*/apply_updates = no/' \
+           -e 's/^emit_via *=.*/emit_via = motd,stdio/' /etc/dnf/automatic.conf
+    systemctl enable --now dnf-automatic.timer
 
     # --- Docker + compose v2 플러그인 (AL2023) ---
     dnf install -y docker
@@ -76,6 +107,24 @@ resource "aws_instance" "app" {
   root_block_device {
     volume_type = "gp3"
     volume_size = var.root_volume_size
+  }
+
+  # ⚠️ AMI 우발 교체 차단 (백로그 D2, 2026-08-31 결정).
+  # data.aws_ami.al2023 은 most_recent = true 라 새 AL2023 이 릴리스될 때마다 id 가 바뀌고,
+  # aws_instance.ami 는 ForceNew 라 그 diff 가 곧 프로덕션 EC2 교체(+EIP 연결 교체)다.
+  # 교체는 호스트 로컬 자산(~/mmt-backend.env·~/active-backend.conf·~/deploy/·nginx·TLS)을
+  # 전부 소멸시킨다 — 재런치 절차를 처음부터 밟아야 한다.
+  # 대가: AMI 가 현재 값에 고정돼 보안 업데이트가 자동으로 따라오지 않는다.
+  # AMI 를 올릴 때는 이 블록을 일시 제거하거나 taint 로 사람이 의도적으로 교체한다.
+  #
+  # user_data 를 함께 무시하는 이유(백로그 D3): provider 5.x 는 user_data 변경을
+  # 교체가 아닌 in-place 업데이트로 처리하는데, 그 구현이 stop → ModifyInstanceAttribute
+  # → start 라 상시 서비스에 다운타임이 생긴다. 게다가 cloud-init 은 최초 부팅에만
+  # 실행되므로 러닝 인스턴스에는 아무 효과가 없다 — 다운타임만 내고 얻는 게 없다.
+  # ignore_changes 는 create 에는 적용되지 않으므로 다음 런치는 최신 user_data 로 뜬다.
+  # 러닝 인스턴스의 에이전트 복구는 docs/handoff/scripts/ssm-recover.sh --apply 몫이다.
+  lifecycle {
+    ignore_changes = [ami, user_data]
   }
 
   tags = {

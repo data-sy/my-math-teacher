@@ -117,5 +117,5 @@ variable "db_allocated_storage" {
 variable "db_engine_version" {
   description = "MySQL 엔진 버전 (운영 MySQL 8 과 정렬)"
   type        = string
-  default     = "8.0"
+  default     = "8.4"
 }

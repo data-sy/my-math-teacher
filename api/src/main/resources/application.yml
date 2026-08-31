@@ -1,6 +1,14 @@
 spring:
   profiles:
-    include: securelocal
+    # 로컬 dev 기본 프로파일. `include` 가 아니라 `default` 인 이유 —
+    # include 는 활성 프로파일이 무엇이든 **무조건** 걸린다. 그래서 CI(=securelocal 파일이
+    # gitignore 라 부재)에서 include 가 no-op 이 되고, base 문서의 ${...} 를 채워줄 소스가
+    # 사라져 컨텍스트가 안 떴다(7개 클래스 실패 — docs/backlog/test-suite-not-portable-to-ci.md 원인 A).
+    # default 는 "활성 프로파일이 하나도 없을 때만" 적용되므로:
+    #   · @ActiveProfiles("test")  → 활성=test → securelocal 미적용(=CI 와 동일한 배선을 로컬에서도 실행)
+    #   · 프로파일 없는 bootRun    → 활성=securelocal → 종전과 동일
+    #   · 프로덕션(active=secure)  → 종전과 동일(원래도 파일이 없어 include 가 no-op 이었다)
+    default: securelocal
   # M4 spec-01 §2.2-5 / R5: 무중단 배포의 "백엔드 절반". 종료 시 진행 중(in-flight) 요청을
   # 흘려보낸 뒤 멈춰야 컷오버 구간 502 가 안 난다.
   # ⚠️ timeout-per-shutdown-phase 는 Task C(switch-backend.sh)의 `docker stop -t` 하한이다 —

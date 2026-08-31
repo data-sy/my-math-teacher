@@ -16,7 +16,7 @@ public class TestcontainersConfig {
     @Bean
     @ServiceConnection
     public MySQLContainer<?> mysqlContainer() {
-        return new MySQLContainer<>("mysql:8.0")
+        return new MySQLContainer<>("mysql:8.4")
             .withDatabaseName("mmt_test")
             .withReuse(true);
     }

@@ -44,7 +44,7 @@
 > `The job was not acquired by Runner` + 재-dispatch `HTTP 500`)는 **GitHub Actions `partial_outage`** 였고
 > 우리 쪽 원인이 아니었음이 이 성공으로 확인됐다.
 >
-> 재발 방지(=애초에 minimal 을 집게 만든 AMI 필터)는 [별도 백로그](ami-filter-picks-minimal-no-ssm-agent.md)로 분리돼 **미착수로 남아 있다.**
+> 재발 방지(=애초에 minimal 을 집게 만든 AMI 필터)는 [별도 백로그](ami-filter-picks-minimal-no-ssm-agent.md)로 분리됐고 **2026-08-31 해결됐다** — 필터 축소 + `lifecycle ignore_changes` + user_data 설치.
 >
 > ### ✅ 진단 완료 (2026-08-06, `ssm-deploy-diagnose.sh` 실행 결과)
 >
