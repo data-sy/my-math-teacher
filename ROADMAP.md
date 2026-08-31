@@ -91,6 +91,7 @@
   [카피 방향](docs/backlog/m7-copy-direction-highschool-persona.md)(열린 결정, 현행 유지)
 - **데이터·백엔드** — [지식그래프 상호 선수 사이클 26쌍](docs/backlog/knowledge-space-mutual-prerequisite-cycles.md) ·
   로컬 DB 초기화 시드 정본 부재 · 샘플 진단 depth-0 행 누락 · `RedisUtil` value serializer 격리 ·
+  로컬 MySQL root 비번 강화(compose 초기값 그대로 — 로컬 전용이라 비차단) ·
   Testcontainers Redis `@ServiceConnection`(Spring Boot 3.2+ 의존)
 - **운영·문서** — [README 포트폴리오 잔여 2건](docs/backlog/readme-portfolio-followups.md)(레포 description·Postman) ·
   [진단 테스트 계정 정리](docs/backlog/m7-diagnostic-test-accounts-cleanup.md) ·
