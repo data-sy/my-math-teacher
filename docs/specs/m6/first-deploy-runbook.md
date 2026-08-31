@@ -41,7 +41,7 @@
 |---|---|---|
 | `RDS_HOST` | 신규 RDS 엔드포인트 | `mmt-db.c7qu444ug8bf.ap-northeast-2.rds.amazonaws.com` |
 | `RDS_PORT`/`RDS_NAME` | — | `3306` / `mmt` |
-| `RDS_USERNAME`/`RDS_PASSWORD` | 시드 런북·`terraform.tfvars` | `mmtadmin` / tfvars `db_password` (compose 의 `mmt2024`/`Mysqlpw1!` **아님** — 그건 로컬 MySQL) |
+| `RDS_USERNAME`/`RDS_PASSWORD` | 시드 런북·`terraform.tfvars` | `mmtadmin` / tfvars `db_password` (⚠️ 로컬 `docker-compose.yml` 의 MySQL 자격증명과 **다른 값이다** — 그대로 쓰지 말 것) |
 | `REDIS_URL`/`REDIS_PORT`/`REDIS_PASSWORD` | compose | `mmt-redis` / `6379` / compose 값 재사용 or 신규(아래 redis `--requirepass` 와 일치시킬 것) |
 | `GOOGLE/NAVER/KAKAO_CLIENT_ID·SECRET` | compose(로컬) | 그대로(같은 OAuth 앱, redirect-uri 는 `application-secure.yml` 이 이미 `https://www.my-math-teacher.com/...` 로 고정) |
 | `JWT_SECRET` | compose(로컬) | 그대로 |
