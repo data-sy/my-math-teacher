@@ -33,8 +33,11 @@
 > ✅ **CI 이식성 원인 A 완주 (2026-08-31)** — 프로파일 미지정 클래스를 `test` 프로파일 +
 > MySQL-only 컨테이너로 자기완결화(`162054c`). 4개인 줄 알았으나 실제 대상은 2개였다.
 > CI 조건 재현 5/5 · 로컬 전 스위트 **`181/0`**(첫 전체 초록).
-> 🚧 **남은 것은 원인 C(러너 자원)** — 다음 한 수 = 실제 CI 를 `skip_tests=false` 로 1회 돌려 위치 확정.
-> ⚠️ 위 초록은 **CI 조건 재현이지 CI 실행이 아니다**. 절차 = [`test-suite-not-portable-to-ci.md`](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
+> ✅ **그리고 CI 에서도 초록이다 (2026-08-31)** — run [33372615775](https://github.com/data-sy/my-math-teacher/actions/runs/33372615775)
+> `181 tests · 0 failures` (9m03s). 워크플로에 `tests_only` 스위치를 더해 **배포 없이** 게이트만 돌렸다.
+> **원인 C(러너 자원)는 발현하지 않았다** — 25분 타임아웃은 원인 A 가 살아 있던 상태의 측정이었다.
+> 🚧 **남은 것은 결정 하나** = `skip_tests` 가드를 제거할지(제거하면 배포가 게이트를 실제로 통과해야 한다).
+> [정본](docs/backlog/test-suite-not-portable-to-ci.md) §다음 세션은 여기서부터
 
 ---
 
@@ -88,7 +91,7 @@
 
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
-| 🟡 테스트 CI 이식성 | 전 스위트가 **CI 에서** 성공한 적이 없다. 원인 A·B 는 사각지대까지 해소(로컬 `181/0`), **C(러너 자원) 미착수** — 실제 CI 1회 실행이 다음 한 수 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
+| 🟢 테스트 CI 이식성 | **CI 전 스위트 초록 달성** (`181/0`, run 33372615775). 남은 것은 `skip_tests` 가드 제거 여부 결정뿐 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
 ### 그 외
