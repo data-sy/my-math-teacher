@@ -78,6 +78,17 @@ resource "aws_instance" "app" {
     volume_size = var.root_volume_size
   }
 
+  # ⚠️ AMI 우발 교체 차단 (백로그 D2, 2026-08-31 결정).
+  # data.aws_ami.al2023 은 most_recent = true 라 새 AL2023 이 릴리스될 때마다 id 가 바뀌고,
+  # aws_instance.ami 는 ForceNew 라 그 diff 가 곧 프로덕션 EC2 교체(+EIP 연결 교체)다.
+  # 교체는 호스트 로컬 자산(~/mmt-backend.env·~/active-backend.conf·~/deploy/·nginx·TLS)을
+  # 전부 소멸시킨다 — 재런치 절차를 처음부터 밟아야 한다.
+  # 대가: AMI 가 현재 값에 고정돼 보안 업데이트가 자동으로 따라오지 않는다.
+  # AMI 를 올릴 때는 이 블록을 일시 제거하거나 taint 로 사람이 의도적으로 교체한다.
+  lifecycle {
+    ignore_changes = [ami]
+  }
+
   tags = {
     Name      = "mmt-app"
     Project   = "mmt"
