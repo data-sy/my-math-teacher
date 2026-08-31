@@ -8,6 +8,8 @@
 > 🔴 **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md)가 실측으로 확인됐다.**
 > 지금 `terraform apply`(전체)를 돌리면 **프로덕션 EC2 와 EIP 연결이 교체된다**
 > (`Plan: 2 to add, 0 to change, 2 to destroy`). 다음 인프라 변경의 **선행조건**이다.
+> **착수 프롬프트 = [`🤖-다음세션-AMI필터-지뢰-제거.md`](🤖-다음세션-AMI필터-지뢰-제거.md)** (그대로 읽히면 된다).
+> ⚠️ D2(`ignore_changes`)는 트레이드오프다 — 혼자 정하지 말고 사용자와 합의 후 착수.
 >
 > **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
 > ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
