@@ -27,7 +27,7 @@ SG 규칙 1건만 `-target` apply. 기본은 확인만, `--apply` 로만 변경.
 ## 할 일 (착수 시)
 
 1. **SSM Session Manager 접속 경로 확정** — `aws ssm start-session --target <id>`. 세션 로깅(S3/CloudWatch) 여부 결정.
-2. **SSH 를 쓰는 자산 전수 이관** — `deployfront.sh`(호스트 컨테이너 교체) · `zdbg-cleanup.sh`(RDS 접속) ·
+2. **SSH 를 쓰는 자산 전수 이관** — `deploy-front.sh`(호스트 컨테이너 교체) · `zdbg-cleanup.sh`(RDS 접속) ·
    `ssm-deploy-diagnose.sh` · `ssm-recover.sh` · `sync-my-ip.sh`(자기 자신 소멸). 각각 `ssh` → `ssm start-session`
    또는 `send-command` 로. **RDS 접속처럼 포트 포워딩이 필요한 것**은 `AWS-StartPortForwardingSessionToRemoteHost` 문서 사용.
 3. **인그레스 22 규칙 제거** — `network.tf` 의 `aws_vpc_security_group_ingress_rule.ssh` 와 `var.my_ip` 삭제.
