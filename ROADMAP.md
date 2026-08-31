@@ -8,7 +8,10 @@
 > ✅ **[AMI 필터 지뢰](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md) 제거 완료** (D2·D3·D1,
 > 커밋 `64bb710`·`b067cca`·`1cee5e7`). `terraform plan` 이 `0 to destroy` 로 떨어졌다 —
 > 전체 apply 가 다시 안전하다. AWS apply 는 불요했다(전부 plan-time/create-time 변경).
-> 대가로 **AMI 가 `ignore_changes` 로 고정**됐다 — 올릴 때는 사람이 의도적으로 교체한다.
+> AMI 는 `ignore_changes` 로 고정됐다 — 올릴 때는 사람이 의도적으로 교체한다.
+> 이건 **보안 패치를 잃은 게 아니다**: terraform 에서 AMI 가 바뀌면 in-place 패치가 아니라
+> 인스턴스 교체였고, 자동 apply 도 없어 애초에 자가 패치 경로가 아니었다.
+> ⚠️ 대신 **진짜 구멍이 따로 드러났다** → [호스트 OS 패치](docs/backlog/host-os-patching-al2023-releasever-pin.md)
 >
 > **문서 1순위 — [`docs/handoff/🤖-문서-구조-정돈.md`](docs/handoff/🤖-문서-구조-정돈.md)** (문서 배치·이름·진입동선)
 > ⚠️ **답을 정해두지 않은 프롬프트다.** 열린 결정 6건(archive 처리·폴더명·외부 독자 가중치 등)을
@@ -27,7 +30,7 @@
 | 프론트 | React [`web-v2/`](web-v2/CLAUDE.md) (`mmt-front:2.0.2`) — 구 Vue [`web/`](web/CLAUDE.md) 는 롤백 자산으로만 보존 |
 | 백엔드 | Spring Boot 3.1 · 그래프 탐색 = MySQL 재귀 CTE(Neo4j 미구동) · 시급도 = DKT on TF Serving |
 | 인프라 | 단일 EC2 blue-green + RDS · CD = GitHub Actions → SSM Run Command |
-| ⚠️ 알려진 구멍 | CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 · AMI 가 `ignore_changes` 로 고정돼 보안 업데이트는 수동 |
+| ⚠️ 알려진 구멍 | **호스트가 OS 보안 패치를 받지 않는다 — AL2023 releasever 가 AMI 스냅샷에 고정(실측 2026-08-31, 11건 대기)** · CI 테스트 게이트가 꺼져 있다(`skip_tests=true`) · SSH 인그레스가 내 IP 고정 |
 
 ---
 
@@ -69,6 +72,7 @@
 
 | 항목 | 한 줄 | 정본 |
 |---|---|---|
+| 🔴 호스트 OS 패치 부재 | `dnf check-update` 가 0건이라 안전해 보이지만 releasever 가 AMI 스냅샷에 고정된 거짓 0. `--releasever=latest` 로는 11건(openssh·kernel·docker) 대기 | [파일](docs/backlog/host-os-patching-al2023-releasever-pin.md) |
 | 🟡 테스트 CI 이식성 | 전 스위트가 CI 에서 성공한 적이 없다. **원인 A·B 해결, C 미착수** — 프로파일 미지정 4개 클래스도 남음 | [파일](docs/backlog/test-suite-not-portable-to-ci.md) |
 | SSH → SSM Session Manager | 인그레스가 `my_ip/32` 라 IP 바뀔 때마다 배포가 막힌다. 선행 = SSM 등록 정상화(순환 의존) | [파일](docs/backlog/ssh-ingress-ip-pinning-to-session-manager.md) |
 
