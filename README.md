@@ -2,8 +2,11 @@
 
 수학 개념의 선후 위계를 그래프로 관리하고, 학생이 막힌 지점을 자가진단으로 짚어 다음에 무엇을 공부할지 안내하는 서비스.
 
-**서비스 링크** : https://www.my-math-teacher.com <br/>
-**기간** : (v1) 2023.12 ~ 2024.07 · (v2) 2025.02 ~ 진행 중 &nbsp;|&nbsp; **개발 인원** : 1인 개발 &nbsp;|&nbsp; **백엔드** : Java 17 · Spring Boot 3.1.6 · MySQL 8
+**서비스 링크** : ⏸️ **2026-09-08 부터 휴면** — `www.my-math-teacher.com` 은 현재 응답하지 않는다.
+학습 프로젝트를 상시로 세워두는 비용(월 $37 예상 → 실제 8월 gross $217, [RDS Extended Support 편입](docs/incidents/2026-08-rds-extended-support.md)이 원인)이
+얻는 것보다 커져 인프라를 의도적으로 파괴했다. **코드·데이터·복구 절차는 전부 보존**되어 있고,
+재가동은 [재런치 런북](docs/handoff/🤖-M7-인프라-티어다운-재런치.md) §3 으로 한다. <br/>
+**기간** : (v1) 2023.12 ~ 2024.07 · (v2) 2025.02 ~ 2026.09 (휴면 중) &nbsp;|&nbsp; **개발 인원** : 1인 개발 &nbsp;|&nbsp; **백엔드** : Java 17 · Spring Boot 3.1.6 · MySQL 8
 
 - **1,631개념 / 3,446간선 지식그래프**를 적응형 진단 엔진으로 사용 — 결정론적 KST 코어로 문항 선택 (ADR-0012)
 - **그래프 DB를 단일 RDB로 통합** — Neo4j → MySQL 재귀 CTE, 깊이 3 탐색 p95 **14.034 ms → 0.556 ms**
@@ -56,7 +59,12 @@
 - **핵심 병목은 메모리가 아니라 CPU 였다** — 전환 구간 JVM 2개 공존 시 신버전 부팅이 1 vCPU 를 148%까지 점유해 구버전 응답이 밀림(blue-green 만으로도 컷오버에서 잔여 **11.4% 유실**). `docker run --cpus=0.5` 로 부팅 CPU 를 55%로 억제해 잔여 유실까지 제거(11.4% → **0%**).
 - **배포 채널을 SSH-from-runner → AWS SSM Run Command** 로 전환 — 러너에 SSH 인바운드를 열지 않고 **GitHub OIDC 단기 자격**으로 배포(장기 AWS 키 폐기).
 - **프로비저닝을 Terraform IaC 로** — EC2/RDS/EIP/SG 18 리소스를 `apply → 측정 → destroy` 사이클로 짧게 열고 닫음(크레딧 방어). 비가역 지점(계정·MFA·`apply`)만 사람 게이트, flip-back 판정도 사람 직감이 아닌 **유실 grader**(계측 게이트).
-- **이 메커니즘을 상시 운영으로 소비(M6)** — 도메인 · TLS · OAuth 3사(Google/Naver/Kakao) 실등록 · AWS Budgets 비용 상한까지 붙여 공개 링크를 확보했다. 린 스택 기준 월 ~$37.
+- **이 메커니즘을 상시 운영으로 소비(M6)** — 도메인 · TLS · OAuth 3사(Google/Naver/Kakao) 실등록 · AWS Budgets 비용 상한까지 붙여 공개 링크를 확보했다.
+  **비용은 예상이 빗나갔다** — 린 스택 설계치는 월 ~$37 이었으나 실제 8월 gross 는 **$217** 이었다.
+  차이의 대부분(72.7%)은 MySQL 8.0 표준지원 종료 후 스냅샷을 복원해 **Extended Support 에 자동 편입**된 것이었고,
+  8.4 로 메이저 업그레이드해 끊었다. 인지가 26일 늦은 원인은 예산 알림이 스팸함으로 분류된 것 —
+  설계치와 청구서를 잇는 계기판이 실제로는 나에게 닿지 않고 있었다
+  ([사건 기록](docs/incidents/2026-08-rds-extended-support.md)).
 
 **결과:** [실측 리포트](docs/benchmark/milestone-4-run-report.md) · 시각 원페이저 [KO](docs/benchmark/milestone-4-zero-downtime-report-ko.html) / [EN](docs/benchmark/milestone-4-zero-downtime-report-eng.html)
 
