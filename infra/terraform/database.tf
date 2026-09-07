@@ -20,13 +20,18 @@ resource "aws_db_instance" "app" {
   username          = var.db_username
   password          = var.db_password
 
-  # 재런치(2026-08, 결정 A1): mothball 스냅샷에서 복원한다. 이 줄이 없으면 apply 가
+  # 재런치: mothball 스냅샷에서 복원한다. 이 줄이 없으면 apply 가
   # 빈 mmt-db 를 새로 만들고, 별도 restore 는 식별자 충돌로 막힌다.
   # ⚠️ ForceNew — 값을 바꾸거나 지우면 RDS replacement(=데이터 소멸)다. 고정할 것.
-  # 스냅샷은 M7 DDL **이전** 상태 → 복원 후 api/sql/m7-apply-diagnosis-ddl-prod.sql 필요.
   # db_name·username·allocated_storage 는 restore API 가 받지 않아 스냅샷 값이 이긴다
   # (20GB·mmtadmin·mmt 로 일치 확인, 2026-08-05). password 만 복원 후 modify 로 적용된다.
-  snapshot_identifier = "mmt-mothball-2026-07-31"
+  #
+  # 2026-09-08 mothball 에서 갱신. 이전 값 `mmt-mothball-2026-07-31` 은 **MySQL 8.0.45** 라
+  # 그걸로 복원하면 표준지원 종료(2026-07-31) 이후 복원 규칙에 걸려 Extended Support 에
+  # 자동 편입된다 — 8월 청구서 USD 149.41 사건의 재연이다
+  # (docs/incidents/2026-08-rds-extended-support.md). 새 스냅샷은 업그레이드 후의 8.4.11 이고
+  # M7 자가진단 DDL 도 이미 품고 있어, 재런치에서 DDL 적용 단계가 사라진다.
+  snapshot_identifier = "mmt-mothball-2026-09-08"
 
   multi_az            = false # Single-AZ (§9.3)
   skip_final_snapshot = true  # 학습/일회성 — 삭제 시 스냅샷 강제 안 함
