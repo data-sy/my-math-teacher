@@ -27,5 +27,6 @@
       "Bash(git reset --hard*)",
       "Bash(docker compose down -v*)"
     ]
-  }
+  },
+  "includeCoAuthoredBy": false
 }
