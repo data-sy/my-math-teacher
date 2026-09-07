@@ -19,9 +19,11 @@
 > 3. 호스트 상태(env·인증서·nginx·이미지)는 IaC 밖 — 런북 §5 로 손으로 복원
 >
 > **데이터 원천 = RDS 수동 스냅샷 `mmt-mothball-2026-09-08`** (MySQL 8.4.11 · M7 자가진단 DDL 포함).
-> ⚠️ 다른 스냅샷 2개는 MySQL 8.0.x 라 **복원하면 Extended Support 과금에 재편입**된다
-> ([사건 기록](docs/incidents/2026-08-rds-extended-support.md)). `infra/terraform/database.tf` 의
-> `snapshot_identifier` 는 이미 안전한 쪽을 가리켜 두었다 — **바꾸지 말 것**.
+> **계정에 남은 스냅샷은 이것 하나다.** 8.0.x 스냅샷 2개는 2026-09-08 에 삭제했다 —
+> 표준지원 종료 후 8.0 을 복원하면 Extended Support 에 재편입되므로, 남겨두면 지뢰였다
+> ([사건 기록](docs/incidents/2026-08-rds-extended-support.md)).
+> `infra/terraform/database.tf` 의 `snapshot_identifier` 도 이것을 가리킨다 — **바꾸지 말 것**
+> (ForceNew 라 값을 바꾸면 RDS 교체 = 데이터 소멸).
 >
 > ### 휴면 중에도 할 수 있는 일 (검증이 로컬·GitHub 러너에서 닫히는 것들)
 > - **[자바/Spring Boot 상향](docs/backlog/java-17-lts-upgrade.md)** — CI `tests_only` 로 인프라 없이 게이트만 돌릴 수 있다
@@ -29,7 +31,8 @@
 > - **프론트 폴리싱** — `web-v2` mock 모드(`npm run dev`)면 백엔드 없이 화면 작업 가능
 >
 > ### 계정에 남겨둔 것 (2026-09-08 실측)
-> **시간당 과금 리소스 0.** 남은 비용은 월 $1 미만 — RDS 수동 스냅샷 3개(~$0.7)와 예산 3개 중 무료한도 초과분 1개(~$0.5).
+> **시간당 과금 리소스 0.** 남은 비용은 월 $1 미만 — RDS 수동 스냅샷 **1개**(~$0.24)와 예산 3개 중 무료한도 초과분 1개(~$0.5).
+> (예산 `RDS-Monthly-Cost` 는 RDS 가 없어 지금은 무의미하다. 지우면 그 $0.5 도 사라지지만, 재런치 때 다시 만들어야 한다.)
 > 청구 알람(예산 3 + CloudWatch 2 + SNS `billing-alerts`)은 **일부러 살려 뒀다** — 휴면 중 이상 과금을 알아채는 유일한 경로다.
 > ⚠️ **도메인 갱신은 이 계정 밖이다**(등록·호스팅 영역이 타 AWS 계정) — 휴면 중 만료되면 도메인을 잃는다. 만료일 확인 필요.
 

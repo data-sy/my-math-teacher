@@ -43,9 +43,9 @@ echo "=== 2. 저장 과금 (휴면 중 유일하게 남는 비용) ==="
 aws rds describe-db-snapshots --snapshot-type manual \
   --query 'DBSnapshots[].[DBSnapshotIdentifier,EngineVersion,AllocatedStorage,Status]' --output table
 info "수동 스냅샷은 인스턴스 삭제 후에도 영구 보존 · 대략 \$0.095/GB-월"
-info "옛 mmt-mothball-2026-07-31(8.0.45)은 복원 시 Extended Support 재편입 위험 —"
-info "  보관 가치가 없다고 판단되면 삭제:"
-info "  aws rds delete-db-snapshot --db-snapshot-identifier mmt-mothball-2026-07-31 --profile $PROFILE --region $REGION"
+info "⚠️ 8.0.x 스냅샷이 목록에 보이면 지뢰다 — 표준지원 종료(2026-07-31) 이후 8.0 복원은"
+info "   Extended Support 에 자동 편입된다. 2026-09-08 에 8.0 두 개를 삭제해 목록을 8.4 하나로 줄였다."
+info "   다시 늘어났다면 재런치 원천만 남기고 정리할 것."
 
 ES=$(aws ec2 describe-snapshots --owner-ids self --query 'Snapshots[].[SnapshotId,VolumeSize]' --output text 2>/dev/null)
 [ -z "$ES" ] && ok "EBS 스냅샷 0" || info "EBS 스냅샷 존재 (판단 필요):
