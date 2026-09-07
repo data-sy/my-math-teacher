@@ -44,3 +44,6 @@ infra/terraform/run-logs/
 # 스크린샷은 세션 중 확인용이라 이력에 남기지 않는다.
 /스크린샷*.png
 /Screenshot*.png
+
+# 사고 기록의 렌더본(.html)은 .md 와 동일 내용 — 중복 자산이라 비커밋
+docs/incidents/*.html

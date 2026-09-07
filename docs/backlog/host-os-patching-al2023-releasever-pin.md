@@ -3,6 +3,10 @@
 **등록:** 2026-08-31 (AMI 필터 지뢰 제거 중 파생 발견) · **상태:** ✅ **해결 (2026-08-31)** — 러닝 호스트 적용 완료 + 다음 런치 배선 ·
 **분류:** 운영 위생 / 보안 · **관련:** [AMI 필터 지뢰](ami-filter-picks-minimal-no-ssm-agent.md)
 
+> ⏸️ **mothball 2026-09-08 주석:** 위 "러닝 호스트 적용 완료" 부분은 **그 호스트와 함께 소멸**했다(terraform destroy).
+> 살아남은 것은 **코드 쪽 배선뿐**이다 — `infra/terraform/compute.tf` 의 user_data 가 `releasever=latest` 와
+> `dnf-automatic`(감지 전용)을 넣으므로 **재런치하면 새 호스트에 자동 적용된다.** 재런치 후 확인만 하면 된다.
+
 > **한 줄:** `dnf check-update` 가 **0건**이라 안전해 보이지만, AL2023 은 releasever 를
 > **AMI 빌드 스냅샷에 고정**한다. `--releasever=latest` 로 물으면 **11건**이 대기 중이고
 > 그중에 `openssh-server`·`kernel6.18`·`docker` 가 있다. 즉 **거짓 안심**이다.
