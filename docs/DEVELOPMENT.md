@@ -131,4 +131,10 @@ cd web-v2 && npx playwright test                # e2e (mock 모드)
 docker compose down
 ```
 
-볼륨(`mysql-vol`, `neo4j-vol`)은 유지되므로 다음 실행 시 초기 데이터 적재를 반복할 필요가 없다.
+`docker compose down` 은 볼륨(`mysql-vol`, `neo4j-vol`)을 지우지 않는다 — **볼륨이 남아 있는 한** 다음 실행 시 초기 데이터 적재를 반복할 필요가 없다.
+
+> ⚠️ **볼륨이 있다고 전제하지 말 것.** 2026-09-09 실측에서 이 맥의 MMT 컨테이너·볼륨·이미지가 **전부 없었다**
+> (`mysql-vol`·`neo4j-vol` 부재). 휴면·정리·도커 재설치 등으로 사라지고 나면 다음 기동은 **[초기 데이터 적재](#초기-데이터-적재-볼륨이-비어있는-최초-1회)부터** 다시다.
+> 기동 전 확인: `docker volume ls | grep -E 'mysql-vol|neo4j-vol'` — 0줄이면 시드 재적재 경로다.
+> 이미지도 같이 사라져 있으면 `mmt-ai`(TF Serving)가 관문이다 — 상세·미해결 항목은
+> [`docs/backlog/local-dev-env-reproducibility-after-mothball.md`](backlog/local-dev-env-reproducibility-after-mothball.md).

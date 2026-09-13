@@ -26,6 +26,7 @@
 > (ForceNew 라 값을 바꾸면 RDS 교체 = 데이터 소멸).
 >
 > ### 휴면 중에도 할 수 있는 일 (검증이 로컬·GitHub 러너에서 닫히는 것들)
+> - **[Ops] 휴면 정리 3종** — 클라우드·로컬 잔여 / 로컬 재현성 / 런북 §5. **지금 Now 의 유일한 활성 항목**(아래 Now 첫 블록)
 > - **[자바/Spring Boot 상향](docs/backlog/java-17-lts-upgrade.md)** — CI `tests_only` 로 인프라 없이 게이트만 돌릴 수 있다
 > - **[문서 구조 정돈](docs/handoff/🤖-문서-구조-정돈.md)** — ⚠️ 열린 결정 6건, 사용자와 대화로 정한 뒤 착수
 > - **프론트 폴리싱** — `web-v2` mock 모드(`npm run dev`)면 백엔드 없이 화면 작업 가능
@@ -53,8 +54,13 @@
 
 ## Now — 진행 중
 
-> ⏸️ **휴면 중이므로 이 섹션의 항목들은 전부 멈춰 있다.** 아래는 "재개하면 여기서부터"라는 뜻이지
-> 지금 굴러가는 일이 아니다. 인프라 없이 손댈 수 있는 것은 상단 배너의 "휴면 중에도 할 수 있는 일" 셋뿐이다.
+> ⏸️ **마일스톤(M7·M8·M5)은 휴면으로 전부 멈춰 있다** — 아래 마일스톤 항목은 "재개하면 여기서부터"라는 뜻이지
+> 지금 굴러가는 일이 아니다. **예외 = 바로 아래 [Ops] 휴면 정리**로, 인프라 없이 닫히므로 지금 굴러간다.
+
+- **[Ops] 휴면 정리 — 클라우드·로컬·런북 잔여** — 🚧 **진행 중**(2026-09-09 착수). 휴면이 AWS 쪽만 닫고 로컬은 안 닫아서 상태가 어긋나 있다.
+  - **[클라우드·로컬 잔여](docs/backlog/mothball-residual-cleanup-cloud-and-local.md)** — 회수할 MMT 도커 찌꺼기는 **0**(실측). ⚠️ 급한 건 **도메인 만료일** — 등록이 타 계정이라 이 계정 알람에 안 걸리고, 휴면 중 만료되면 도메인을 잃는다
+  - **[로컬 재현성](docs/backlog/local-dev-env-reproducibility-after-mothball.md)** — 볼륨·이미지 전부 소멸 → 다음 기동은 시드 재적재부터. ✅ `ai/savedmodel`(DKT 6.7MB)은 `acc72f4` 부터 **이미 git 추적 중**(2026-09-13 확인) — 남은 건 재빌드 실증
+  - **[런북 §5 열린 항목](docs/backlog/teardown-runbook-open-items.md)** — 휴면 중 가능/재런치 대기/승인 필요로 재분류. ✅ 네이밍 정정 완료([ADR-0011 §정정](docs/adr/0011-react-web-v2-and-front-image-swap.md)+compose). 남은 승인 = `specs/m6` 런북 표기
 
 - **[M7] 제품 피벗 — 자가진단 + React 재작성** — ✅ **제품으로 완성됨** (2026-08-06~09-08 라이브 운영). 남은 것은 폴리싱·백로그뿐.
   - 문제 풀 실부재로 진단이 막혀 **제품을 피벗**했다: 문제풀이 → **self-report OX 자가진단**,
@@ -105,7 +111,8 @@
 - **백엔드 상향** — [자바 17 → LTS 상향](docs/backlog/java-17-lts-upgrade.md) ⏸️**휴면 중 가능**
   (Spring Boot 3.1.6 은 이미 OSS 지원 종료 → 두 축이 한 작업. 목표 조합은 착수 전 사용자 결정)
 - **데이터·백엔드** — [지식그래프 상호 선수 사이클 26쌍](docs/backlog/knowledge-space-mutual-prerequisite-cycles.md) ·
-  로컬 DB 초기화 시드 정본 부재 · 샘플 진단 depth-0 행 누락 · `RedisUtil` value serializer 격리 ·
+  ~~로컬 DB 초기화 시드 정본 부재~~ → [로컬 재현성](docs/backlog/local-dev-env-reproducibility-after-mothball.md) 으로 흡수(Now) ·
+  샘플 진단 depth-0 행 누락 · `RedisUtil` value serializer 격리 ·
   로컬 MySQL root 비번 강화(compose 초기값 그대로 — 로컬 전용이라 비차단) ·
   Testcontainers Redis `@ServiceConnection`(Spring Boot 3.2+ 의존)
 - **운영·문서** — [README 포트폴리오 잔여 2건](docs/backlog/readme-portfolio-followups.md)(레포 description·Postman) ·
