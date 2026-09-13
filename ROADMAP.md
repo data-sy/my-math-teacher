@@ -57,7 +57,9 @@
 > ⏸️ **마일스톤(M7·M8·M5)은 휴면으로 전부 멈춰 있다** — 아래 마일스톤 항목은 "재개하면 여기서부터"라는 뜻이지
 > 지금 굴러가는 일이 아니다. **예외 = 바로 아래 [Ops] 휴면 정리**로, 인프라 없이 닫히므로 지금 굴러간다.
 
-- **[Ops] 휴면 정리 — 클라우드·로컬·런북 잔여** — 🚧 **진행 중**(2026-09-09 착수). 휴면이 AWS 쪽만 닫고 로컬은 안 닫아서 상태가 어긋나 있다.
+- **[Ops] 휴면 정리 — 클라우드·로컬·런북 잔여** — ⏸️ **중단**(2026-09-09 착수 · 2026-09-13 멈춤). 휴면이 AWS 쪽만 닫고 로컬은 안 닫아서 상태가 어긋나 있다.
+  - **재개 진입점 = [`docs/handoff/🤖-휴면-정리-이어서.md`](docs/handoff/🤖-휴면-정리-이어서.md)** — 문서 정리까지 끝났고 **실행이 남았다**.
+    미푸시 브랜치 `ops/mothball-local-cleanup-2026-09`(커밋 2). 먼저 받을 결정 2건 = `specs/m6` 표기 정정 여부 · push/PR 여부
   - **[클라우드·로컬 잔여](docs/backlog/mothball-residual-cleanup-cloud-and-local.md)** — 회수할 MMT 도커 찌꺼기는 **0**(실측). ⚠️ 급한 건 **도메인 만료일** — 등록이 타 계정이라 이 계정 알람에 안 걸리고, 휴면 중 만료되면 도메인을 잃는다
   - **[로컬 재현성](docs/backlog/local-dev-env-reproducibility-after-mothball.md)** — 볼륨·이미지 전부 소멸 → 다음 기동은 시드 재적재부터. ✅ `ai/savedmodel`(DKT 6.7MB)은 `acc72f4` 부터 **이미 git 추적 중**(2026-09-13 확인) — 남은 건 재빌드 실증
   - **[런북 §5 열린 항목](docs/backlog/teardown-runbook-open-items.md)** — 휴면 중 가능/재런치 대기/승인 필요로 재분류. ✅ 네이밍 정정 완료([ADR-0011 §정정](docs/adr/0011-react-web-v2-and-front-image-swap.md)+compose). 남은 승인 = `specs/m6` 런북 표기
