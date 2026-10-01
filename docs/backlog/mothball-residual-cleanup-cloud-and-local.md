@@ -36,19 +36,28 @@
 
 ### B. 클라우드 (read-only 점검 후 판단 — 파괴 아님)
 
-점검 도구는 이미 있다: [`docs/handoff/scripts/mothball-3-residual.sh`](../handoff/scripts/mothball-3-residual.sh) (read-only).
-
-- [ ] **도메인 만료일 확인** — ⚠️ 가장 급하다. 등록·호스팅 영역이 **타 AWS 계정**이라 이 계정의 알람에 안 걸린다.
-      휴면 7개월 중 만료되면 **도메인을 잃는다**(회복 불가 · 재런치 런북이 전제하는 이름이 사라진다).
-- [ ] 잔여 과금 재확인 — 스냅샷 1개(~$0.24) + 예산 초과분(~$0.5). 월 $1 미만이면 정상.
+- [x] **도메인 만료일 확인** — **2027-06-17**(whois, 2026-10-01). 휴면 중 만료되지 않는다.
+      등록·호스팅 영역이 **타 AWS 계정**이라 자동갱신 여부는 그 계정 콘솔에서만 보인다(미확인).
+- [x] 잔여 과금 재확인 (2026-10-02 · 전 리전) — 과금 리소스는 RDS 스냅샷 하나뿐이었고(9/10 이후 21일 $0.057 ≈ 월 $0.08),
+      그것도 같은 날 삭제했다. 예산 초과분은 Cost Explorer 에 잡히지 않았다($0). **지금 과금 리소스 0.**
+- [x] **RDS 스냅샷 `mmt-mothball-2026-09-08` 삭제** (2026-10-02 · 사용자 결정 "개발 공간이라 지워도 된다").
+      계기 = AWS 의 스냅샷 비용 표시 변경 안내 메일. 삭제 후 `describe-db-snapshots` 0줄 확인.
 - [x] 예산 `RDS-Monthly-Cost` — **존치 결정** (2026-09-13 사용자 승인). 월 ~$0.5 를 내고 재런치 마찰을 없앤다.
       청구 알람을 통째로 살려둔 기존 방침과 같은 결. **이 항목은 더 묻지 않는다.**
 
+### C. 스냅샷 삭제 후속 (2026-10-02)
+
+- [x] **`infra/terraform/database.tf` 의 `snapshot_identifier` 제거** — 삭제된 스냅샷을 가리켜 `apply` 가 실패할 상태였다.
+      참조 지점은 그 한 줄뿐(terraform 내부 소비자·테스트·CI 0), state 는 비어 있어 교체될 인스턴스가 없다. `terraform validate` 통과.
+- [x] **재런치 런북 §1~§3 을 "빈 RDS + 시드 적재" 경로로 재작성.**
+- [x] **수명이 끝난 스크립트 삭제** — `mothball-1/2/3`(죽은 스냅샷·EIP 하드코딩) · `zdbg-cleanup` · `m8-ddl-and-bottleneck` ·
+      `seed-concept-links`(프로덕션 호스트 전용 — 추적본 `shared/scripts/concept-links-seed-to-sql.sh` 가 따로 있다). 필요하면 git 히스토리.
+- [ ] ⚠️ **빈 RDS + 시드 경로는 실증된 적이 없다** — 재런치 때 처음 돌아간다. 선행 = 시드 정본 확정
+      ([재현성 파일](local-dev-env-reproducibility-after-mothball.md)) + 로컬에서 같은 순서로 한 번 적재해 보기.
+
 ### ⛔ 이 정리에서 건드리지 않는 것
 
-- **RDS 수동 스냅샷 `mmt-mothball-2026-09-08`** — 계정에 남은 **유일한 데이터 정본**. 삭제 = 프로젝트 데이터 소멸.
 - **청구 알람 3종(예산 3 + CloudWatch 2 + SNS `billing-alerts`)** — 휴면 중 이상 과금을 알아채는 **유일한 경로**라 일부러 살려 뒀다.
-- **`infra/terraform/database.tf` 의 `snapshot_identifier`** — ForceNew 라 값을 바꾸면 RDS 교체 = 데이터 소멸.
 - **IAM / OIDC / keypair** — $0 이고 재런치 마찰만 늘린다.
 
 ## 검증
@@ -57,10 +66,12 @@
 docker ps -a --filter name=mmt          # 0줄이어야 한다
 docker volume ls | grep -E 'mysql-vol|neo4j-vol'   # 0줄
 docker system df                        # 회수 가능량이 MMT 때문이 아님을 확인
-bash docs/handoff/scripts/mothball-3-residual.sh   # 잔여 과금·dangling DNS (read-only)
+dig +short www.my-math-teacher.com      # 비어 있어야 한다 (dangling DNS 없음)
+whois my-math-teacher.com | grep -i expir   # 도메인 만료일
 ```
 
-도메인 만료일은 **타 계정**이라 위 스크립트로 안 잡힌다 — 등록 계정의 Route53/Registered domains 에서 직접 본다.
+클라우드 잔여 과금은 스크립트 없이 본다 — 콘솔 Billing 의 서비스별 요금, 또는 Cost Explorer 에서
+`RECORD_TYPE ≠ Credit` 필터로 gross 를 본다(크레딧 차감 후 값은 실사용을 가린다).
 
 ## 연결
 
