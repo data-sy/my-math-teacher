@@ -36,7 +36,7 @@
 ## 무엇이 문제인가
 
 현재 프로덕션 TLS 인증서는 **Let's Encrypt · `CN=www.my-math-teacher.com` · 만료 `2026-11-03`**
-(근거: [`../handoff/archive/🤖-M7-재런치-핸드오프.md`](../handoff/archive/🤖-M7-재런치-핸드오프.md) §상태표).
+(근거였던 재런치 핸드오프는 2026-10-02 에 삭제했다 — git 히스토리 `docs/handoff/archive/🤖-M7-재런치-핸드오프.md` §상태표).
 Let's Encrypt 는 90일이라 **갱신이 자동으로 돌지 않으면 반드시 만료**한다.
 
 M6 최초 배포에서는 자동갱신이 **실증까지 끝나 있었다** — systemd `certbot-renew.timer`

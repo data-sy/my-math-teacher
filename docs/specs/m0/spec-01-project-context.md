@@ -64,7 +64,7 @@
 
 ## 현재 활성 작업
 
-- [Roadmap](ROADMAP.md)
+- [Roadmap](../../../ROADMAP.md)
 - 현재 진행 중: @docs/milestones/milestone-0-claude-code-integration.md
 
 ## 금지 사항

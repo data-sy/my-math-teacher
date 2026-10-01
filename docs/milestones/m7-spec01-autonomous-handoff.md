@@ -1,7 +1,7 @@
 # M7 spec-01 자율주행 핸드오프 — 새 세션 착수 프롬프트 (2026-07-13)
 
 > **성격: 다음 세션이 읽고 바로 착수하는 forward 실행 계획.** 진행 상태 정본 = [ROADMAP](../../ROADMAP.md),
-> 착수 체크리스트 정본 = [m7-step4-handoff](m7-step4-handoff.md), 명세 정본 = [spec-01](../specs/m7/spec-01-diagnosis-self-report-dkt.md).
+> 착수 체크리스트 정본 = `m7-step4-handoff.md`(`693d6fe` 에서 삭제됨 — git 히스토리), 명세 정본 = [spec-01](../specs/m7/spec-01-diagnosis-self-report-dkt.md).
 > 이 문서는 그 위에 **자율주행 모드 규칙 + 실행 순서**만 얹는다 — 내용이 충돌하면 위 정본을 신뢰.
 >
 > **착수법**: 새 세션에서 `@docs/milestones/m7-spec01-autonomous-handoff.md` 첨부 + **"실행"**.
