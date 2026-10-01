@@ -24,12 +24,13 @@
 
 ## C. 재런치 대기 (지금은 손댈 수 없음 — 착수 금지)
 
-- **진단 테스트 계정 정리** — 프로덕션 `zdbg` 계정 2개가 mothball 스냅샷 안에 함께 살아 있다. 복원 후 하나를 검증에 재사용하고 둘 다 삭제 ([정본](m7-diagnostic-test-accounts-cleanup.md) · 스크립트 `docs/handoff/scripts/zdbg-cleanup.sh`)
 - **TLS 자동갱신 재등록** — 호스트와 함께 소멸했다. 재등록은 `setup-tls-renewal.sh`, **dry-run 의 "all simulated renewals succeeded" 까지 봐야 끝** ([정본](tls-cert-renewal-timer-after-relaunch.md))
 - **SSH 인그레스 → SSM** ([정본](ssh-ingress-ip-pinning-to-session-manager.md))
 
 ## D. 이미 해소됨
 
+- **진단 테스트 계정(`zdbg`) 정리 — ✅** 2026-08-15 삭제 실행, 2026-10-02 에 프로덕션 DB 자체를 폐기(마지막 스냅샷 삭제).
+  백로그 파일과 `zdbg-cleanup.sh` 는 지웠다 — 필요하면 git 히스토리.
 - **ADR-0011 네이밍 정정 — ✅ 2026-09-13 (사용자 승인)** — 실제 Docker Hub 계정은 **`mmt2024`**
   (근거 = `secrets.DOCKERHUB_USERNAME` 를 쓰는 CI + 실값이 박힌 `deploy-front.sh`·M4 리포트).
   ADR-0011 에 §정정 절을 달고(결정 내용은 불변 · 이름만), `docker-compose.yml` 의 이미지 4개도 `mmt2024/` 로 고쳤다.
