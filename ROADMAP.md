@@ -3,7 +3,7 @@
 **이 문서는 인덱스다.** 무엇을 하고 있고 다음이 무엇인지만 둔다 —
 과정·이력은 링크된 정본 문서와 git 히스토리에 있다. 여기 옮겨 적지 않는다.
 
-> ## ⏸️ 이 프로젝트는 휴면 중이다 — mothball 2026-09-08 (약 7개월 예정)
+> ## ⏸️ 이 프로젝트는 휴면 중이다 — mothball 2026-09-08 (기간 미정 — 1년 이상 비울 수 있다)
 >
 > **프로덕션 인프라는 존재하지 않는다.** 2026-09-08 `terraform destroy` 로 EC2·EIP·RDS·SG·
 > IAM role/OIDC/instance profile·keypair 를 **전량** 파괴했다. `https://www.my-math-teacher.com` 은
@@ -16,7 +16,7 @@
 > 요지 세 줄:
 > 1. `terraform apply` — 코드가 인프라를 재생성한다(IAM/OIDC 포함. **CI 배포는 그전까지 실패한다**)
 > 2. **DNS 는 타 AWS 계정 Route53** — `www` A레코드를 새 EIP 로 손수 만든다(TLS 발급이 DNS 선행을 요구)
-> 3. 호스트 상태(env·인증서·nginx·이미지)는 IaC 밖 — 런북 §5 로 손으로 복원
+> 3. 호스트 상태(env·인증서·nginx·이미지)는 IaC 밖 — 런북 §3-5 로 손으로 복원
 >
 > ⚠️ **RDS 스냅샷은 없다 — 데이터 원천 = `api/sql` 시드.** 마지막 스냅샷 `mmt-mothball-2026-09-08` 을
 > 2026-10-02 에 삭제했다(사용자 결정 — 개발 공간이라 프로덕션 유저·진단 기록은 버린다). 계정의 RDS 스냅샷은 **0개**다.
@@ -36,7 +36,8 @@
 >
 > ### ⚠️ 오래 비웠다 돌아왔다면 먼저 확인할 2가지
 > 1. **도메인이 끊겼을 수 있다.** `my-math-teacher.com` 등록 만료일 = **2027-06-17**(whois 2026-10-01). 등록·호스팅 영역이
->    **타 AWS 계정**이라 자동갱신 여부를 이 계정에서는 알 수 없다. 그 날짜 이후에 돌아왔다면 도메인이 남의 것이 됐을 수 있으니
+>    **타 AWS 계정**이다. **도메인은 계속 보유할 생각이고 자동갱신이 켜져 있을 것으로 기억한다 — 다만 그 계정 콘솔에서 확인한 적은 없다.**
+>    자동갱신이 맞다면 매년 그 계정에 갱신비가 청구된다. 꺼져 있었다면 그 날짜 이후 도메인이 남의 것이 됐을 수 있으니
 >    `whois my-math-teacher.com | grep -i expir` 부터 본다. 사라졌다면 재런치 런북의 DNS·TLS·OAuth redirect-uri 가 전부 새 이름 기준으로 바뀐다.
 > 2. **AWS CLI 키가 꺼져 있다.** 장기 부재 대비로 IAM 사용자 `mmt-cli` 의 액세스 키를 **비활성화**해 뒀다(2026-10-02 결정).
 >    `aws sts get-caller-identity --profile mmt-base` 가 `InvalidClientTokenId` 로 실패하면 그 상태다 →
@@ -65,7 +66,7 @@
 
 - **[Ops] 휴면 정리 — 클라우드·로컬·런북 잔여** — ⏸️ **중단**(2026-09-09 착수 · 2026-10-02 클라우드 쪽 닫음). 남은 것은 로컬 한 바퀴 복구와 코드 스멜 1건이다.
   - **재개 진입점 = [`docs/handoff/🤖-휴면-정리-이어서.md`](docs/handoff/🤖-휴면-정리-이어서.md)** — 브랜치 `ops/mothball-local-cleanup-2026-09`.
-    받을 결정 = `specs/m6` 표기 정정 여부 · push/PR 여부(`git log main..HEAD` 로 미머지 커밋 확인)
+    2026-10-02 까지의 변경은 [#65](https://github.com/data-sy/my-math-teacher/pull/65) 로 올렸다(`git log main..HEAD` 가 비어 있지 않으면 미머지). 받을 결정 = `specs/m6` 표기 정정 여부
   - **[클라우드·로컬 잔여](docs/backlog/mothball-residual-cleanup-cloud-and-local.md)** — ✅ 클라우드 닫힘(2026-10-02): 과금 리소스 0 · 마지막 RDS 스냅샷 삭제 · 도메인 만료 2027-06-17. 로컬 도커 찌꺼기도 0(실측)
   - **[로컬 재현성](docs/backlog/local-dev-env-reproducibility-after-mothball.md)** — 볼륨·이미지 전부 소멸 → 다음 기동은 시드 재적재부터. ✅ `ai/savedmodel`(DKT 6.7MB)은 `acc72f4` 부터 **이미 git 추적 중**(2026-09-13 확인) — 남은 건 재빌드 실증
   - **[런북 §5 열린 항목](docs/backlog/teardown-runbook-open-items.md)** — 휴면 중 가능/재런치 대기/승인 필요로 재분류. ✅ 네이밍 정정 완료([ADR-0011 §정정](docs/adr/0011-react-web-v2-and-front-image-swap.md)+compose). 남은 승인 = `specs/m6` 런북 표기

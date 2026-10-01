@@ -75,7 +75,8 @@ deploy         ✅ 1m31s
 
 ## 3. ② zdbg 프로덕션 테스트 계정 정리
 
-**정본:** [`../backlog/m7-diagnostic-test-accounts-cleanup.md`](../backlog/m7-diagnostic-test-accounts-cleanup.md) (FK 조사 완료분 포함)
+> ⚠️ **이 절은 이력이다(2026-10-02).** 정본 백로그 `m7-diagnostic-test-accounts-cleanup.md` 와 아래 `zdbg-cleanup.sh` 는
+> 프로덕션 DB 폐기와 함께 삭제했다 — 아래 명령은 더는 실행되지 않는다. 필요하면 git 히스토리.
 
 ```bash
 cp ~/my-math-teacher/docs/handoff/scripts/zdbg-cleanup.sh ~/ && bash ~/zdbg-cleanup.sh
