@@ -138,7 +138,7 @@
 | | 무엇 | 결과 |
 |---|---|---|
 | **[Ops]** 2026-09-08 | **mothball — 인프라 전량 파괴** | 스냅샷 확보 → `terraform destroy`(18개 리소스) → DNS A레코드 삭제. 시간당 과금 0 실측. 절차·스크립트 = [런북 §4](docs/handoff/🤖-M7-인프라-티어다운-재런치.md) |
-| **[Ops]** 2026-08-31 | RDS MySQL 8.0 → 8.4 업그레이드 | Extended Support 과금 종료 — 8월 gross **$146.77**(전체 usage 의 72.7%, 만근 $175/월). 크레딧 소진으로 9월부터 전액 카드 청구였다. 다운타임 ~6분 ([백로그](docs/backlog/rds-mysql-8-0-extended-support-billing.md)) |
+| **[Ops]** 2026-08-31 | RDS MySQL 8.0 → 8.4 업그레이드 | Extended Support 과금 종료 — 8월 gross **$146.77**(전체 usage 의 72.7%, 만근 $175/월). 크레딧 소진으로 9월부터 전액 카드 청구였다. 다운타임 ~6분 ([사건 기록](docs/incidents/2026-08-rds-extended-support.md)) |
 | **[Ops]** 2026-08-31 | 운영 위생 3건 | AMI 우발 교체 차단(`ignore_changes`) ([정본](docs/backlog/ami-filter-picks-minimal-no-ssm-agent.md)) · AL2023 `releasever` 핀 해제로 거짓 "0건 패치" 계기판 수리 ([정본](docs/backlog/host-os-patching-al2023-releasever-pin.md)) · 홈 일회성 스크립트 16→1 정리(프론트 배포 스크립트를 `docs/handoff/scripts/deploy-front.sh` 로 승격) |
 | **[Infra]** 2026-08-31 | 테스트 CI 이식성 | 전 스위트가 CI 에서 처음 초록(`181/0`, 4회 연속). `skip_tests` 우회 제거로 배포 게이트 복구 ([#61](https://github.com/data-sy/my-math-teacher/pull/61)) |
 | **[M8]** 2026-08-15 | 개념 학습자료 링크 1차 | `concept_links` + 파일럿 10개념 26링크 라이브 ([#54](https://github.com/data-sy/my-math-teacher/pull/54)) — 2차 시드는 Now |
