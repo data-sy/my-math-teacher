@@ -33,7 +33,15 @@
 > **과금 리소스 0.** 시간당 과금 0 · RDS 스냅샷 0 · S3/ECR/Secrets/KMS/로그그룹 0 · 서울 외 16개 리전도 0.
 > 남은 것은 $0 짜리뿐이다 — 예산 3개 · CloudWatch 청구 알람 2개 · IAM role `mmt-terraform-admin`.
 > 청구 알람은 **일부러 살려 뒀다** — 휴면 중 이상 과금을 알아채는 유일한 경로다.
-> **도메인**(등록·호스팅 영역이 타 AWS 계정)은 만료 **2027-06-17** — 휴면 중 만료되지 않는다(whois 2026-10-01).
+>
+> ### ⚠️ 오래 비웠다 돌아왔다면 먼저 확인할 2가지
+> 1. **도메인이 끊겼을 수 있다.** `my-math-teacher.com` 등록 만료일 = **2027-06-17**(whois 2026-10-01). 등록·호스팅 영역이
+>    **타 AWS 계정**이라 자동갱신 여부를 이 계정에서는 알 수 없다. 그 날짜 이후에 돌아왔다면 도메인이 남의 것이 됐을 수 있으니
+>    `whois my-math-teacher.com | grep -i expir` 부터 본다. 사라졌다면 재런치 런북의 DNS·TLS·OAuth redirect-uri 가 전부 새 이름 기준으로 바뀐다.
+> 2. **AWS CLI 키가 꺼져 있다.** 장기 부재 대비로 IAM 사용자 `mmt-cli` 의 액세스 키를 **비활성화**해 뒀다(2026-10-02 결정).
+>    `aws sts get-caller-identity --profile mmt-base` 가 `InvalidClientTokenId` 로 실패하면 그 상태다 →
+>    AWS 콘솔(루트/콘솔 로그인) → IAM → Users → `mmt-cli` → Security credentials → 액세스 키 **Activate**.
+>    켜기 전에는 `~/mmt-aws-session.sh`·`mmt-admin`·terraform 이 전부 인증 실패한다.
 
 ---
 
