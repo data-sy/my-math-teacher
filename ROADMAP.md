@@ -42,7 +42,7 @@
 > 2. **AWS CLI 키가 꺼져 있다.** 장기 부재 대비로 IAM 사용자 `mmt-cli` 의 액세스 키를 **비활성화**해 뒀다(2026-10-02 결정).
 >    `aws sts get-caller-identity --profile mmt-base` 가 `InvalidClientTokenId` 로 실패하면 그 상태다 →
 >    AWS 콘솔(루트/콘솔 로그인) → IAM → Users → `mmt-cli` → Security credentials → 액세스 키 **Activate**.
->    켜기 전에는 `~/mmt-aws-session.sh`·`mmt-admin`·terraform 이 전부 인증 실패한다.
+>    켜기 전에는 `.local/mmt-aws-session.sh`·`mmt-admin`·terraform 이 전부 인증 실패한다.
 
 ---
 
